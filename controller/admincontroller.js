@@ -324,7 +324,7 @@ exports.get_all_salesInvoice = async(req,res) => {
 exports.view_salesInvoice = async(req,res) => {
   try {
     const { id } = req.params;
-
+    
     const data = await salesInvoice.findOne({
       where: {id},
       include : [{ model: salesInvoiceItem}]
@@ -339,6 +339,8 @@ exports.view_salesInvoice = async(req,res) => {
     return res.status(500).json({ message:"Internal Server Error" });
   }
 }
+
+// exports.delete_expenseItem = async (req,res) => {
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Delivery challan +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 exports.create_deliverychallanitem = async(req,res) => {
