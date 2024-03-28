@@ -18,7 +18,7 @@ const { validation } = require('../views/validate');
 const adminAuth = require('../middleware/adminAuth');
 const adminRoutes = express.Router();
 
-adminRoutes.post('/admin_signup', validation('usersignup'), admin_signup);
+// adminRoutes.post('/admin_signup', validation('usersignup'), admin_signup);
 adminRoutes.post('/admin_login', validation('userLogin'), admin_login);
 
 adminRoutes.post('/create_quotation', adminAuth, create_quotation);

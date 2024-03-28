@@ -11,40 +11,41 @@ const deliverychallan = require("../models/deliverychallan");
 const deliverychallanitem = require("../models/deliverychallanitem");
 const purchase = require("../models/purchase");
 const purchaseitem = require("../models/purchaseitem");
+const expenseItem = require("../models/expenseItem");
 
 
-exports.admin_signup = async (req, res) => {
-  // console.log("enter user");
-  const { username, email,password,confirmpassword } = req.body;
-// console.log("req",req.body);
-  try {
+// exports.admin_signup = async (req, res) => {
+//   // console.log("enter user");
+//   const { username, email,password,confirmpassword } = req.body;
+// // console.log("req",req.body);
+//   try {
     
-    const existingUser = await User.findOne({ where:{email: email}});
-    // console.log("existingUser",existingUser);
-    if(existingUser) {
-      return res.status(400).json({ error: 'User already exists' });
-    }
+//     const existingUser = await User.findOne({ where:{email: email}});
+//     // console.log("existingUser",existingUser);
+//     if(existingUser) {
+//       return res.status(400).json({ error: 'User already exists' });
+//     }
 
-    if(!confirmpassword) {
-      return res.status(400).json({ error: 'Required feild: ConfirmPassword' });
-    }
-    if (password !== confirmpassword) {
-      return res.status(400).json({ error: 'Passwords do not match' });
-    }
+//     if(!confirmpassword) {
+//       return res.status(400).json({ error: 'Required feild: ConfirmPassword' });
+//     }
+//     if (password !== confirmpassword) {
+//       return res.status(400).json({ error: 'Passwords do not match' });
+//     }
 
-    const hashedPassword = await bcrypt.hash(password,10);
-    // console.log(hashedPassword);
-    const user = await User.create({
-        username:username,
-        email:email,
-        password: hashedPassword
-    })
-    // console.log(user);
-      res.status(200).json({ message: 'User created successfully', user });
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
+//     const hashedPassword = await bcrypt.hash(password,10);
+//     // console.log(hashedPassword);
+//     const user = await User.create({
+//         username:username,
+//         email:email,
+//         password: hashedPassword
+//     })
+//     // console.log(user);
+//       res.status(200).json({ message: 'User created successfully', user });
+//   } catch (error) {
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
 
 exports.admin_login = async (req, res) => {
   try {
@@ -55,11 +56,13 @@ exports.admin_login = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const matchPassword = await bcrypt.compare(password, user.password);
-    if (!matchPassword) {
+    // const matchPassword = await bcrypt.compare(password, user.password);
+    // if (!matchPassword) {
+    //   return res.status(401).json({ error: 'Invalid Password' });
+    // }
+    if(password !== user.password) {
       return res.status(401).json({ error: 'Invalid Password' });
     }
-
     const token = jwt.sign({ userId: user.id, email: user.email }, process.env.SECRET_KEY, {
       expiresIn: '6h'
     });
@@ -410,6 +413,32 @@ exports.update_expense = async(req,res) => {
     return res.status(500).json({ message:"Internal Server Error" });
   }
 }
+exports.update_expenseItem = async(req,res) => {
+  try {
+      const {id} = req.params;
+      const { serialno, expensse, description, taxable, price} = req.body;
+
+      const expenseId = await expenseItem.findByPk(id);
+
+      if(!expenseId) {
+        return res.status(404).json({ status:"False", message:"Expense Item Not Found"});
+      }
+
+      await expenseItem.update({
+        serialno : serialno,
+        expensse : expensse,
+        description : description,
+        taxable : taxable,
+        price :price
+      }, {
+        where :{id:id}
+      });
+      return res.status(200).json({ status:"True", message:"Expense Item Update Successfully", data:data });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status:"Fail", message:"Internal Server Error" });
+  }
+}
 exports.delete_expense = async (req,res) => {
   try {
 
@@ -419,7 +448,7 @@ exports.delete_expense = async (req,res) => {
     if (!data) {
       return res.status(404).json({ status: "false", message: "Expense Not Found" });
     } else {
-      return res.status(200).json({ message:'Quatation Item Delete Successfully' });
+      return res.status(200).json({ message:'Expense Item Delete Successfully' });
     }
   } catch (error) {
     console.log(error);
@@ -430,6 +459,7 @@ exports.delete_expenseItem = async(req,res) => {
   try {
     const { id } = req.params;
     const data = await expenseItem.destroy({ where :{id: id}});
+
     if (!data) {
       return res.status(404).json({ status: "false", message: "Expense Item Not Found" });
     } else {
@@ -457,6 +487,7 @@ exports.update_expenseItem = async(req,res) => {
       }, {
         where :{id:id}
       });
+      const data = await expenseItem.findByPk(id);
       return res.status(200).json({ status:"True", message:"Expense Item Update Successfully", data:data });
   } catch (error) {
     console.log(error);
