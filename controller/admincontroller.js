@@ -169,8 +169,133 @@ exports.view_quotation = async(req,res) => {
     return res.status(500).json({ error:"Internal Server Error" });
   }
 }
-exports.update_quotationItem = async(req,res) => {
+
+/*========================================== Sales Return Api  =========================================== */
+
+exports.create_salesReturn = async(req,res) => {
   try {
+    const { customer, creditnote, creditdate, serialno, batchno, expirydate, price, invoiceno, invoicedate,
+       quantity} = req.body;
+
+    const data = await salesReturn.create({
+        customer: customer,
+        creditnote : creditnote,
+        creditdate : creditdate,
+        serialno : serialno,
+        batchno : batchno,
+        expirydate : expirydate,
+        price : price,
+        invoiceno : invoiceno,
+        invoicedate : invoicedate,
+        quantity : quantity
+    });
+
+    return res.status(200).json({ status:"true", message:"Sales Return Create Successfully", data: data })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status:"False", message:"Internal Server Error" });
+  }
+}
+exports.get_all_salesReturn = async (req,res) => {
+  try {
+      const data = await salesReturn.findAll();
+
+      if(!data) {
+        return res.status(404).json({ status:"False", message:"Sales Return Not Found" });
+      } else {
+        return res.status(200).json({ status:"True", message:"Sales Return Data Fetch Successfully", data :data });
+      }
+  } catch (error) {
+
+    console.log(error);
+    return res.status(500).json({ status:"False", message:"Internal Server Error" });
+  }
+}
+
+/*========================================== Expense Api  =========================================== */
+
+exports.create_expense = async(req,res) => {
+  try {
+      const { vendor, voucherno, date, gstin, mobileno, email, billno, billdate, payment } = req.body;
+
+      const data = await expense.create({
+        vendor : vendor,
+        voucherno : voucherno,
+        date : date,
+        gstin : gstin,
+        mobileno : mobileno,
+        email : email,
+        billno : billno,
+        billdate : billdate,
+        payment : payment
+      })
+
+      return res.status(200).json({ status:"True", message:"Expense Create Successfully", data: data });
+  } catch (error) {
+
+    console.log(error);
+    return res.status(500).json({ status:"False", message:"Internal Server Error" });
+  }
+}
+exports.create_expenseItem = async(req,res) => {
+  try {
+      const { expenseId, items } = req.body;
+
+      await Promise.all(items.map(async item => {
+          await expenseItem.create({
+            ...item,
+            expenseId : expenseId
+          });
+      }));
+
+      const data = await expenseItem.findAll({ where:{expenseId}});
+
+      return res.status(200).json({ status:"Success", message:"Expense Item Create Successfully", data: data});
+  } catch (error) {
+
+    console.log(error);
+    return res.status(500).json({ status:"False", message:"Internal Server Error" });
+  }
+}
+exports.get_all_expense = async (req,res) => {
+  try {
+
+    const data = await expense.findAll({
+      include: [{model: expenseItem}]
+    });
+
+    if(!data) {
+      return res.status(404).json({ status:"Fail", message:"Expense Data Not Found" });
+    } else {
+      return res.status(200).json({ status:"True", message:"Expense Data Fetch Successfully", data:data });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status:"Fail", message:"Internal Server Error" });
+  }
+}
+exports.view_expense = async(req,res) => {
+  try {
+
+    const { id } = req.params;
+    const data =  await expense.findOne({
+      where :{id},
+      include : [{model: expenseItem}]
+    });
+
+    if(!data) {
+      return res.status(404).json({ status:"Fail", message:"Expense Data Not Found" });
+    } else {
+      return res.status(200).json({ status:"True", message:"Expense Data Fetch Successfully", data:data });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status:"Fail", message:"Internal Server Error" });
+  }
+}
+exports.update_expense = async(req,res) => {
+  try {
+
       const { id } = req.params;
       const { rate, qty, product, amount } = req.body;
 
@@ -218,6 +343,7 @@ exports.update_quotation = async(req,res) => {
         where :{id :id},
         include: [{ model: quotationItem}]
       })
+
       return res.status(200).json({ message:"Quotation Update Successfully" , data: data });
   } catch (error) {
     console.log(error.message);
@@ -226,11 +352,29 @@ exports.update_quotation = async(req,res) => {
 }
 exports.delete_quotationitem = async(req,res) => {
   try {
+
     const { id } = req.params;
     const data = await quotationItem.destroy({ where: {id: id}});
 
     if(!data) {
       return res.status(400).json({ message:"Quatation Item Not Found"});
+    }else{
+      return res.status(200).json({ status:"True", message:"Qutation delete Successfully"});
+    }
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status:"Fail", message:"Internal Server Error" });
+  }
+}
+exports.delete_expense = async (req,res) => {
+  try {
+
+    const { id } = req.params;
+    const data = await expense.destroy({ where :{id: id}});
+
+    if (!data) {
+      return res.status(404).json({ status: "false", message: "Expense Not Found" });
     } else {
       return res.status(200).json({ message:'Quatation Item Delete Successfully' });
     }
@@ -323,6 +467,7 @@ exports.get_all_salesInvoice = async(req,res) => {
 }
 exports.view_salesInvoice = async(req,res) => {
   try {
+
     const { id } = req.params;
     
     const data = await salesInvoice.findOne({
@@ -339,7 +484,120 @@ exports.view_salesInvoice = async(req,res) => {
     return res.status(500).json({ message:"Internal Server Error" });
   }
 }
+exports.view_salesInvoice = async (req, res) => {
+  try {
+    const { id } = req.params;
 
+    const data = await salesInvoice.findOne({
+      where: { id },
+      include: [{ model: salesInvoiceItem }]
+    });
+
+    if (!data) {
+      return res.status(404).json({ status: "false", message: "Sales Invoice Not Found" });
+    }
+    return res.status(200).json({ status: "false", message: "Sales Invoice Data Fetch SUccessfully", data: data });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.update_salesInvoiceItem = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { serialno, quotationno, product, batchno, expirydate, price, quantity } = req.body;
+
+    const salesId = await salesInvoiceItem.findByPk(id);
+
+    if (!salesId) {
+      return res.status(404).json({ status: "false", message: "Sales Invoice Item not Found" });
+    }
+
+    await salesInvoiceItem.update({
+      serialno: serialno,
+      quotationno: quotationno,
+      product: product,
+      batchno: batchno,
+      expirydate: expirydate,
+      price: price,
+      quantity: quantity
+    }, {
+      where: { id: id }
+    });
+
+    const data = await salesInvoiceItem.findByPk(id);
+
+    return res.status(200).json({ status: "true", message: "Sales Invoice Item Update Successfully", data: data });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.update_salesInvoice = async (req, res) => {
+  try {
+
+    const { id } = req.params;
+    const { challenno, challendate, email, mobileno, customer } = req.body;
+
+    const salesId = await salesInvoice.findByPk(id);
+
+    if (!salesId) {
+      return res.status(404).json({ status: "false", message: "Sales Invoice Not Found" });
+    }
+    await salesInvoice.update({
+      challenno: challenno,
+      challendate: challendate,
+      email: email,
+      mobileno: mobileno,
+      customer: customer
+    }, {
+      where: { id: id }
+    });
+
+    const data = await salesInvoice.findOne({
+      where: { id: id },
+      // include: [{ model: salesInvoiceItem }]
+    });
+
+    return res.status(200).json({ status: "true", message: "Sales Invoice Update Successfuly", data: data });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.delete_salesInvoiceItem = async (req, res) => {
+  try {
+
+    const { id } = req.params;
+    const data = await salesInvoiceItem.destroy({ where: { id: id } });
+
+    if (!data) {
+      return res.status(404).json({ status: "false", message: "Sales Invoice Not Found" });
+    } else {
+      return res.status(200).json({ status: "true", message: "Sales Deleted Successfully" });
+    }
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.delete_salesInvoice = async (req, res) => {
+  try {
+
+    const { id } = req.params;
+    const data = await salesInvoice.destroy({ where: { id: id } });
+    if (!data) {
+      return res.status(404).json({ status: "false", message: "Sales Invoice Not Found" });
+    } else {
+      return res.status(200).json({ status: "true", message: "Sales Invoice Deleted Successfully" });
+    }
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "nternal Server Error" });
+  }
+}
 // exports.delete_expenseItem = async (req,res) => {
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Delivery challan +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -456,7 +714,12 @@ exports.delete_deliverychallanitem = async(req,res) => {
 
     if(!data) {
       return res.status(400).json({status:"false",message:"Delivery challan Item Not Found"});
-    } else {
+    // const data = await expenseItem.destroy({ where :{id: id}});
+    
+    // if (!data) {
+    //   return res.status(404).json({ status: "false", message: "Expense Item Not Found" });
+    } 
+    else {
       return res.status(200).json({status:"true",message:'Delivery challan Item Delete Successfully' });
     }
   } catch (error) {
