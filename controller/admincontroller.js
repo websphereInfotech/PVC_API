@@ -169,7 +169,71 @@ exports.view_quotation = async(req,res) => {
     return res.status(500).json({ error:"Internal Server Error" });
   }
 }
+exports.update_quotation = async(req,res) => {
+  try {
+      const { id } = req.params;
+      const {  quotationno, date, validtill, email, mobileno, customer, items } = req.body;
 
+      const updateQuotation = await quotation.findByPk(id);
+
+      if(!updateQuotation) {
+        return res.status(404).json({ message:"Quotation Not Found" });
+      }
+
+       await quotation.update({
+        quotationno : quotationno,
+        date : date,
+        validtill : validtill,
+        email :email,
+        mobileno : mobileno,
+        customer : customer
+      },{
+        where:{id: id}
+      });
+      const  data = await quotation.findOne({
+        where :{id :id},
+        include: [{ model: quotationItem}]
+      })
+
+      return res.status(200).json({ message:"Quotation Update Successfully" , data: data });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ message:"Internal Server Error" });
+  }
+}
+exports.delete_quotationitem = async(req,res) => {
+  try {
+
+    const { id } = req.params;
+    const data = await quotationItem.destroy({ where: {id: id}});
+
+    if(!data) {
+      return res.status(400).json({ message:"Quatation Item Not Found"});
+    }else{
+      return res.status(200).json({ status:"True", message:"Qutation delete Successfully"});
+    }
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status:"Fail", message:"Internal Server Error" });
+  }
+}
+exports.delete_quotation = async(req,res) => {
+  try {
+      const { id } = req.params;
+
+      const data = await quotation.destroy({ where: { id:id }});
+
+      if(!data) {
+        return res.status(400).json({ message:"Quatation Not Found" });
+      } else {
+        return res.status(200).json({ message:"Quatation Delete Successfully" });
+      }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message:"Internal Server Error" });
+  }
+}
 /*========================================== Sales Return Api  =========================================== */
 
 exports.create_salesReturn = async(req,res) => {
@@ -318,55 +382,6 @@ exports.update_expense = async(req,res) => {
     return res.status(500).json({ message:"Internal Server Error" });
   }
 }
-exports.update_quotation = async(req,res) => {
-  try {
-      const { id } = req.params;
-      const {  quotationno, date, validtill, email, mobileno, customer, items } = req.body;
-
-      const updateQuotation = await quotation.findByPk(id);
-
-      if(!updateQuotation) {
-        return res.status(404).json({ message:"Quotation Not Found" });
-      }
-
-       await quotation.update({
-        quotationno : quotationno,
-        date : date,
-        validtill : validtill,
-        email :email,
-        mobileno : mobileno,
-        customer : customer
-      },{
-        where:{id: id}
-      });
-      const  data = await quotation.findOne({
-        where :{id :id},
-        include: [{ model: quotationItem}]
-      })
-
-      return res.status(200).json({ message:"Quotation Update Successfully" , data: data });
-  } catch (error) {
-    console.log(error.message);
-    return res.status(500).json({ message:"Internal Server Error" });
-  }
-}
-exports.delete_quotationitem = async(req,res) => {
-  try {
-
-    const { id } = req.params;
-    const data = await quotationItem.destroy({ where: {id: id}});
-
-    if(!data) {
-      return res.status(400).json({ message:"Quatation Item Not Found"});
-    }else{
-      return res.status(200).json({ status:"True", message:"Qutation delete Successfully"});
-    }
-
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ status:"Fail", message:"Internal Server Error" });
-  }
-}
 exports.delete_expense = async (req,res) => {
   try {
 
@@ -378,22 +393,6 @@ exports.delete_expense = async (req,res) => {
     } else {
       return res.status(200).json({ message:'Quatation Item Delete Successfully' });
     }
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message:"Internal Server Error" });
-  }
-}
-exports.delete_quotation = async(req,res) => {
-  try {
-      const { id } = req.params;
-
-      const data = await quotation.destroy({ where: { id:id }});
-
-      if(!data) {
-        return res.status(400).json({ message:"Quatation Not Found" });
-      } else {
-        return res.status(200).json({ message:"Quatation Delete Successfully" });
-      }
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message:"Internal Server Error" });
@@ -598,7 +597,6 @@ exports.delete_salesInvoice = async (req, res) => {
     return res.status(500).json({ status: "false", message: "nternal Server Error" });
   }
 }
-// exports.delete_expenseItem = async (req,res) => {
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Delivery challan +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 exports.create_deliverychallanitem = async(req,res) => {
