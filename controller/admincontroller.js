@@ -11,6 +11,7 @@ const deliverychallan = require("../models/deliverychallan");
 const deliverychallanitem = require("../models/deliverychallanitem");
 const purchase = require("../models/purchase");
 const purchaseitem = require("../models/purchaseitem");
+const expenseItem = require("../models/expenseItem");
 
 
 exports.admin_signup = async (req, res) => {
@@ -382,6 +383,32 @@ exports.update_expense = async(req,res) => {
     return res.status(500).json({ message:"Internal Server Error" });
   }
 }
+exports.update_expenseItem = async(req,res) => {
+  try {
+      const {id} = req.params;
+      const { serialno, expensse, description, taxable, price} = req.body;
+
+      const expenseId = await expenseItem.findByPk(id);
+
+      if(!expenseId) {
+        return res.status(404).json({ status:"False", message:"Expense Item Not Found"});
+      }
+
+      await expenseItem.update({
+        serialno : serialno,
+        expensse : expensse,
+        description : description,
+        taxable : taxable,
+        price :price
+      }, {
+        where :{id:id}
+      });
+      return res.status(200).json({ status:"True", message:"Expense Item Update Successfully", data:data });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status:"Fail", message:"Internal Server Error" });
+  }
+}
 exports.delete_expense = async (req,res) => {
   try {
 
@@ -391,14 +418,28 @@ exports.delete_expense = async (req,res) => {
     if (!data) {
       return res.status(404).json({ status: "false", message: "Expense Not Found" });
     } else {
-      return res.status(200).json({ message:'Quatation Item Delete Successfully' });
+      return res.status(200).json({ message:'Expense Item Delete Successfully' });
     }
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message:"Internal Server Error" });
   }
 }
+exports.delete_expenseItem = async(req,res) => {
+  try {
+    const { id } = req.params;
+    const data = await expenseItem.destroy({ where :{id: id}});
 
+    if (!data) {
+      return res.status(404).json({ status: "false", message: "Expense Item Not Found" });
+    } else {
+      return res.status(200).json({ message:'Expense Item Delete Successfully' });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status:"Fail", message:"Internal Server Error" });
+  }
+}
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ sales invoice +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 exports.create_salesInvoiceItem = async(req,res) => {
   try {
