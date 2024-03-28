@@ -5,7 +5,7 @@ const adminToken = async(req, res, next ) => {
     const token = req.headers['token'];
 
     if(!token) {
-        return res.status(401).send({ message : 'A token is Required For Authentication' });
+        return res.status(401).send({status:"false",message : 'A token is Required For Authentication' });
     }
 
     try {
@@ -19,7 +19,7 @@ const adminToken = async(req, res, next ) => {
         }
     } catch (error) {
         console.log(error);
-        return res.status(401).send({ message: "Invalid Token" });
+        return res.status(401).send({status:"false", message: "Invalid Token" });
     }
 }
 
