@@ -336,7 +336,6 @@ exports.view_salesInvoice = async (req, res) => {
 }
 exports.update_salesInvoiceItem = async (req, res) => {
   try {
-
     const { id } = req.params;
     const { serialno, quotationno, product, batchno, expirydate, price, quantity } = req.body;
 
@@ -345,6 +344,7 @@ exports.update_salesInvoiceItem = async (req, res) => {
     if (!salesId) {
       return res.status(404).json({ status: "false", message: "Sales Invoice Item not Found" });
     }
+
     await salesInvoiceItem.update({
       serialno: serialno,
       quotationno: quotationno,
@@ -367,6 +367,7 @@ exports.update_salesInvoiceItem = async (req, res) => {
 }
 exports.update_salesInvoice = async (req, res) => {
   try {
+
     const { id } = req.params;
     const { challenno, challendate, email, mobileno, customer } = req.body;
 
@@ -384,6 +385,7 @@ exports.update_salesInvoice = async (req, res) => {
     }, {
       where: { id: id }
     });
+
     const data = await salesInvoice.findOne({
       where: { id: id },
       // include: [{ model: salesInvoiceItem }]
@@ -397,6 +399,7 @@ exports.update_salesInvoice = async (req, res) => {
 }
 exports.delete_salesInvoiceItem = async (req, res) => {
   try {
+
     const { id } = req.params;
     const data = await salesInvoiceItem.destroy({ where: { id: id } });
 
@@ -405,6 +408,7 @@ exports.delete_salesInvoiceItem = async (req, res) => {
     } else {
       return res.status(200).json({ status: "true", message: "Sales Deleted Successfully" });
     }
+
   } catch (error) {
     console.log(error);
     return res.status(500).json({ status: "false", message: "Internal Server Error" });
@@ -412,6 +416,7 @@ exports.delete_salesInvoiceItem = async (req, res) => {
 }
 exports.delete_salesInvoice = async (req, res) => {
   try {
+
     const { id } = req.params;
     const data = await salesInvoice.destroy({ where: { id: id } });
     if (!data) {
@@ -419,6 +424,7 @@ exports.delete_salesInvoice = async (req, res) => {
     } else {
       return res.status(200).json({ status: "true", message: "Sales Invoice Deleted Successfully" });
     }
+
   } catch (error) {
     console.log(error);
     return res.status(500).json({ status: "false", message: "nternal Server Error" });
@@ -429,7 +435,8 @@ exports.delete_salesInvoice = async (req, res) => {
 
 exports.create_salesReturn = async(req,res) => {
   try {
-    const { customer, creditnote, creditdate, serialno, batchno, expirydate, price, invoiceno, invoicedate, quantity} = req.body;
+    const { customer, creditnote, creditdate, serialno, batchno, expirydate, price, invoiceno, invoicedate,
+       quantity} = req.body;
 
     const data = await salesReturn.create({
         customer: customer,
@@ -443,6 +450,7 @@ exports.create_salesReturn = async(req,res) => {
         invoicedate : invoicedate,
         quantity : quantity
     });
+
     return res.status(200).json({ status:"true", message:"Sales Return Create Successfully", data: data })
   } catch (error) {
     console.log(error);
@@ -459,6 +467,7 @@ exports.get_all_salesReturn = async (req,res) => {
         return res.status(200).json({ status:"True", message:"Sales Return Data Fetch Successfully", data :data });
       }
   } catch (error) {
+
     console.log(error);
     return res.status(500).json({ status:"False", message:"Internal Server Error" });
   }
@@ -481,8 +490,10 @@ exports.create_expense = async(req,res) => {
         billdate : billdate,
         payment : payment
       })
+
       return res.status(200).json({ status:"True", message:"Expense Create Successfully", data: data });
   } catch (error) {
+
     console.log(error);
     return res.status(500).json({ status:"False", message:"Internal Server Error" });
   }
@@ -497,19 +508,23 @@ exports.create_expenseItem = async(req,res) => {
             expenseId : expenseId
           });
       }));
+
       const data = await expenseItem.findAll({ where:{expenseId}});
 
       return res.status(200).json({ status:"Success", message:"Expense Item Create Successfully", data: data});
   } catch (error) {
+
     console.log(error);
     return res.status(500).json({ status:"False", message:"Internal Server Error" });
   }
 }
 exports.get_all_expense = async (req,res) => {
   try {
+
     const data = await expense.findAll({
       include: [{model: expenseItem}]
     });
+
     if(!data) {
       return res.status(404).json({ status:"Fail", message:"Expense Data Not Found" });
     } else {
@@ -522,11 +537,13 @@ exports.get_all_expense = async (req,res) => {
 }
 exports.view_expense = async(req,res) => {
   try {
+
     const { id } = req.params;
     const data =  await expense.findOne({
       where :{id},
       include : [{model: expenseItem}]
     });
+
     if(!data) {
       return res.status(404).json({ status:"Fail", message:"Expense Data Not Found" });
     } else {
@@ -539,6 +556,7 @@ exports.view_expense = async(req,res) => {
 }
 exports.update_expense = async(req,res) => {
   try {
+
       const { id } = req.params;
       const { vendor, voucherno, date, gstin, mobileno, email, billno, billdate, payment } = req.body;
 
@@ -559,6 +577,7 @@ exports.update_expense = async(req,res) => {
       },{
         where:{id:id}
       });
+
       const data = await expense.findOne({
         where : { id:id },
         // include : [{ model:expenseItem }]
@@ -571,6 +590,7 @@ exports.update_expense = async(req,res) => {
 }
 exports.update_expenseItem = async(req,res) => {
   try {
+
     const { id } = req.params;
     const { serialno, expensse, description, taxable, price } = req.body;
     const expenseId = await expenseItem.findByPk(id);
@@ -585,7 +605,9 @@ exports.update_expenseItem = async(req,res) => {
       taxable : taxable,
       price : price
     }, { where :{id:id}});
+
     const data = await expenseItem.findByPk(id);
+
     return res.status(200).json({ status:"True", message:"Expense Update Successfully", data: data });
   } catch (error) {
     console.log(error);
@@ -594,8 +616,10 @@ exports.update_expenseItem = async(req,res) => {
 }
 exports.delete_expense = async (req,res) => {
   try {
+
     const { id } = req.params;
     const data = await expense.destroy({ where :{id: id}});
+
     if (!data) {
       return res.status(404).json({ status: "false", message: "Expense Not Found" });
     } else {
@@ -610,8 +634,10 @@ exports.delete_expense = async (req,res) => {
 
 exports.delete_expenseItem = async (req,res) => {
   try {
+
     const { id } = req.params;
     const data = await expenseItem.destroy({ where :{id: id}});
+    
     if (!data) {
       return res.status(404).json({ status: "false", message: "Expense Item Not Found" });
     } else {
