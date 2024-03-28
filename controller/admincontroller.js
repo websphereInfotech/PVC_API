@@ -202,6 +202,34 @@ exports.update_quotation = async(req,res) => {
     return res.status(500).json({ message:"Internal Server Error" });
   }
 }
+exports.update_quotationItem = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rate, product, qty,amount } = req.body;
+
+    const salesId = await quotationItem.findByPk(id);
+
+    if (!salesId) {
+      return res.status(404).json({ status: "false", message: "Quotation Item not Found" });
+    }
+
+    await quotationItem.update({
+      rate:rate,
+      qty: qty,
+      product: product,
+      amount: amount,
+    }, {
+      where: { id: id }
+    });
+
+    const data = await quotationItem.findByPk(id);
+
+    return res.status(200).json({ status: "true", message: "Quotation Item Update Successfully", data: data });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
 exports.delete_quotationitem = async(req,res) => {
   try {
 
@@ -435,6 +463,29 @@ exports.delete_expenseItem = async(req,res) => {
     } else {
       return res.status(200).json({ message:'Expense Item Delete Successfully' });
     }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status:"Fail", message:"Internal Server Error" });
+  }
+}
+exports.update_expenseItem = async(req,res) => {
+  try {
+      const {id} = req.params;
+      const { serialno, expensse, description, taxable, price} = req.body;
+      const expenseId = await expenseItem.findByPk(id);
+      if(!expenseId) {
+        return res.status(404).json({ status:"False", message:"Expense Item Not Found"});
+      }
+      await expenseItem.update({
+        serialno : serialno,
+        expensse : expensse,
+        description : description,
+        taxable : taxable,
+        price :price
+      }, {
+        where :{id:id}
+      });
+      return res.status(200).json({ status:"True", message:"Expense Item Update Successfully", data:data });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ status:"Fail", message:"Internal Server Error" });
