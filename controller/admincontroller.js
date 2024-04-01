@@ -111,14 +111,10 @@ exports.create_quotationItem = async (req, res) => {
 }
 exports.create_quotation = async (req, res) => {
   try {
-    const { quotationno, date, validtill, email, mobileno, customer, items } = req.body;
-    // if(!data) {
-    //   return res.status(400).json({ status:""})
-    // }
-    // const data = await quotation.findOne({ email: email });
-    // Create the quotation
+    const { quotation_no, date, validtill, email, mobileno, customer } = req.body;
+    
     const createdQuotation = await quotation.create({
-      quotationno,
+      quotation_no,
       date,
       validtill,
       email,
@@ -127,19 +123,18 @@ exports.create_quotation = async (req, res) => {
     });
 
     // Extract items and link them to the created quotation
-    if (items && items.length > 0) {
-      await Promise.all(items.map(async item => {
-        await quotationItem.create({
-          ...item,
-          quotationId: createdQuotation.id
-        });
-      }));
-    }
+    // if (items && items.length > 0) {
+    //   await Promise.all(items.map(async item => {
+    //     await quotationItem.create({
+    //       ...item,
+    //       quotationId: createdQuotation.id
+    //     });
+    //   }));
+    // }
 
     // Fetch the created quotation along with its items
     const quotationWithItems = await quotation.findOne({
-      where: { id: createdQuotation.id },
-      include: [{ model: quotationItem }]
+      where: { id: createdQuotation.id }
     });
 
     return res.status(200).json({ status: "true", message: 'Quotation created successfully', data: quotationWithItems });
@@ -277,17 +272,17 @@ exports.delete_quotation = async (req, res) => {
 
 exports.create_salesReturn = async (req, res) => {
   try {
-    const { customer, creditnote, creditdate, serialno, batchno, expirydate, price, invoiceno, invoicedate,
+    const { customer, creditnote, creditdate, sr_no, batch_no, expiry_date, amount, invoiceno, invoicedate,
       quantity } = req.body;
 
     const data = await salesReturn.create({
       customer: customer,
       creditnote: creditnote,
       creditdate: creditdate,
-      serialno: serialno,
-      batchno: batchno,
-      expirydate: expirydate,
-      price: price,
+      sr_no: sr_no,
+      batch_no: batch_no,
+      expiry_date: expiry_date,
+      amount : amount,
       invoiceno: invoiceno,
       invoicedate: invoicedate,
       quantity: quantity
@@ -510,10 +505,10 @@ exports.create_salesInvoiceItem = async (req, res) => {
 }
 exports.create_salesInvoice = async (req, res) => {
   try {
-    const { challenno, challendate, email, mobileno, customer, items } = req.body;
+    const { challanno, challendate, email, mobileno, customer, items } = req.body;
 
     const salesInvoiceData = await salesInvoice.create({
-      challenno,
+      challanno,
       challendate,
       email,
       mobileno,
@@ -851,13 +846,13 @@ exports.view_deliverychallan = async (req, res) => {
 
 exports.create_purchase = async (req, res) => {
   try {
-    const { email, date, quotationno, mobileno, vendor, pono, quotationref } = req.body
+    const { email, date, quotation_no, mobileno, vendor, pono, quotationref } = req.body
     console.log("DATA>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", req.body);
     const data = await purchase.create({
       email,
       mobileno,
       date,
-      quotationno,
+      quotation_no,
       vendor,
       quotationref,
       pono
