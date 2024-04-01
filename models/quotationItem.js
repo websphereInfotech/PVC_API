@@ -15,7 +15,7 @@ const quotationItem = sequelize.define('quotationItem', {
         type : DataTypes.STRING,
         allowNull : false
     },
-    amount : {//mrp
+    mrp : {
         type : DataTypes.FLOAT,
         allowNull : false
     }

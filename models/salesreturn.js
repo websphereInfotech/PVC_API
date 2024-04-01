@@ -14,17 +14,17 @@ const salesReturn = sequelize.define("salesReturn", {
         type : DataTypes.DATE,
         allowNull : false
     }, 
-    serialno : {
-        type : DataTypes.INTEGER,
+    sr_no : {
+        type : DataTypes.STRING,
         allowNull : false
     },
-    batchno : {
+    batch_no : {
         type : DataTypes.STRING
     },
-    expirydate : {
+    expiry_date : {
         type : DataTypes.DATE
     },
-    price : {//mrp
+    amount : {
         type : DataTypes.FLOAT
     },
     invoiceno : {

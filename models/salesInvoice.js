@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 
 const salesInvoice = sequelize.define("salesInvoice", {
-    challenno : {
+    challanno : {
         type :DataTypes.STRING,
         allowNull : false
     },

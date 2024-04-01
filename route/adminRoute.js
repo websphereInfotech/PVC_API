@@ -22,8 +22,8 @@ const adminRoutes = express.Router();
 // adminRoutes.post('/admin_signup', validation('usersignup'), admin_signup);
 adminRoutes.post('/admin_login', validation('userLogin'), admin_login);
 
-adminRoutes.post('/create_quotation', adminAuth, create_quotation);
-adminRoutes.post('/create_quatationItem', adminAuth, create_quotationItem);
+adminRoutes.post('/create_quotation', validation('create_quotation'),adminAuth, create_quotation);
+adminRoutes.post('/create_quatationItem', validation('create_quotationitem'),adminAuth, create_quotationItem);
 adminRoutes.get('/get_all_quotation', adminAuth, get_all_quotation);
 adminRoutes.get('/view_quotation/:id', adminAuth, view_quotation);
 adminRoutes.put('/update_quotationItem/:id', adminAuth, update_quotationItem);
@@ -41,7 +41,7 @@ adminRoutes.get('/view_deliverychallan/:id', adminAuth, view_deliverychallan);
 adminRoutes.put('/update_deliverychallanitem/:id', adminAuth, update_deliverychallanitem);
 
 adminRoutes.post('/create_purchase', validation('create_purchase'),adminAuth, create_purchase);
-adminRoutes.post('/create_purchaseitem', adminAuth, create_purchaseitem);
+adminRoutes.post('/create_purchaseitem',validation('create_purchaseitem'), adminAuth, create_purchaseitem);
 adminRoutes.put('/update_purchaseitem/:id', adminAuth, update_purchaseitem);
 adminRoutes.put('/update_purchase/:id', adminAuth, update_purchase);
 adminRoutes.delete('/delete_purchase/:id', adminAuth, delete_purchase);
@@ -49,7 +49,7 @@ adminRoutes.delete('/delete_purchaseitem/:id', adminAuth, delete_purchaseitem);
 adminRoutes.get('/get_all_purchase', adminAuth, get_all_purchase);
 adminRoutes.get('/view_purchase/:id', adminAuth, view_purchase);
 
-adminRoutes.post('/create_salesinvoice', adminAuth, create_salesInvoice);
+adminRoutes.post('/create_salesinvoice', validation('create_salesinvoice'),adminAuth, create_salesInvoice);
 adminRoutes.post('/create_salesinvoice_item', adminAuth, create_salesInvoiceItem);
 adminRoutes.get('/get_all_salesInvoice', adminAuth, get_all_salesInvoice);
 adminRoutes.get('/view_salesInvoice/:id', adminAuth, view_salesInvoice);
@@ -58,7 +58,7 @@ adminRoutes.put('/update_salesInvoice/:id', adminAuth, update_salesInvoice);
 adminRoutes.delete('/delete_salesInvoiceItem/:id', adminAuth, delete_salesInvoiceItem);
 adminRoutes.delete('/delete_salesInvoice/:id', adminAuth, delete_salesInvoice);
 
-adminRoutes.post('/create_salesReturn', adminAuth, create_salesReturn);
+adminRoutes.post('/create_salesReturn', validation('create_salesReturn'),adminAuth, create_salesReturn);
 adminRoutes.get('/get_all_salesReturn', adminAuth, get_all_salesReturn);
 
 adminRoutes.post('/create_expense',validation('create_expense'),adminAuth, create_expense);
