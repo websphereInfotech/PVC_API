@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 
 const purchase = sequelize.define("purchase",{
-    quotationno : {
+    quotation_no : {
         type : DataTypes.STRING,
         allowNull : false
     },
