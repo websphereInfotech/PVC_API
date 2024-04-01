@@ -16,6 +16,9 @@ const expense = require("../models/expense");
 const quotation = require("../models/quotation");
 const salesReturn = require("../models/salesreturn");
 const stock = require("../models/stoke");
+const customer = require("../models/customer");
+const customfeild = require("../models/customfeild");
+const product = require("../models/product");
 
 
 // exports.admin_signup = async (req, res) => {
@@ -100,10 +103,10 @@ exports.create_quotationItem = async (req, res) => {
 
     const createdItems = await quotationItem.findAll({ where: { quotationId } });
 
-    return res.status(200).json({status:"true", message: "Quatations items Created Successfully", data: createdItems });
+    return res.status(200).json({ status: "true", message: "Quatations items Created Successfully", data: createdItems });
   } catch (error) {
     console.log(error.message);
-    return res.status(500).json({status:"false", message: "Internal Server Error" });
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
 }
 exports.create_quotation = async (req, res) => {
@@ -139,10 +142,10 @@ exports.create_quotation = async (req, res) => {
       include: [{ model: quotationItem }]
     });
 
-    return res.status(200).json({status:"true", message: 'Quotation created successfully', data: quotationWithItems });
+    return res.status(200).json({ status: "true", message: 'Quotation created successfully', data: quotationWithItems });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({status:"false", error: 'Internal Server Error' });
+    return res.status(500).json({ status: "false", error: 'Internal Server Error' });
   }
 }
 exports.get_all_quotation = async (req, res) => {
@@ -151,12 +154,12 @@ exports.get_all_quotation = async (req, res) => {
       include: [{ model: quotationItem }]
     });
     if (!allQuotations) {
-      return res.status(404).json({status:"false", message: "Quotation Data not Found" });
+      return res.status(404).json({ status: "false", message: "Quotation Data not Found" });
     }
-    return res.status(200).json({status:"true",message:"Quotation data fetch successfully",data: allQuotations });
+    return res.status(200).json({ status: "true", message: "Quotation data fetch successfully", data: allQuotations });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({status:"false",error: 'Internal Server Error' });
+    return res.status(500).json({ status: "false", error: 'Internal Server Error' });
   }
 }
 exports.view_quotation = async (req, res) => {
@@ -168,12 +171,12 @@ exports.view_quotation = async (req, res) => {
       include: [{ model: quotationItem }]
     })
     if (!data) {
-      return res.status(404).json({status:"false", message: 'Quotation not found' });
+      return res.status(404).json({ status: "false", message: 'Quotation not found' });
     }
-    return res.status(200).json({status:"true", message:"Quotation data fetch successfully",data: data });
+    return res.status(200).json({ status: "true", message: "Quotation data fetch successfully", data: data });
   } catch (error) {
     console.log(error.message);
-    return res.status(500).json({status:"false", error: "Internal Server Error" });
+    return res.status(500).json({ status: "false", error: "Internal Server Error" });
   }
 }
 exports.update_quotation = async (req, res) => {
@@ -184,7 +187,7 @@ exports.update_quotation = async (req, res) => {
     const updateQuotation = await quotation.findByPk(id);
 
     if (!updateQuotation) {
-      return res.status(404).json({status:"false", message: "Quotation Not Found" });
+      return res.status(404).json({ status: "false", message: "Quotation Not Found" });
     }
 
     await quotation.update({
@@ -202,10 +205,10 @@ exports.update_quotation = async (req, res) => {
       include: [{ model: quotationItem }]
     })
 
-    return res.status(200).json({status:"true", message: "Quotation Update Successfully", data: data });
+    return res.status(200).json({ status: "true", message: "Quotation Update Successfully", data: data });
   } catch (error) {
     console.log(error.message);
-    return res.status(500).json({status:"false", message: "Internal Server Error" });
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
 }
 exports.update_quotationItem = async (req, res) => {
@@ -243,7 +246,7 @@ exports.delete_quotationitem = async (req, res) => {
     const data = await quotationItem.destroy({ where: { id: id } });
 
     if (!data) {
-      return res.status(400).json({status:"false", message: "Quatation Item Not Found" });
+      return res.status(400).json({ status: "false", message: "Quatation Item Not Found" });
     } else {
       return res.status(200).json({ status: "true", message: "Qutation delete Successfully" });
     }
@@ -260,13 +263,13 @@ exports.delete_quotation = async (req, res) => {
     const data = await quotation.destroy({ where: { id: id } });
 
     if (!data) {
-      return res.status(400).json({status:"false", message: "Quatation Not Found" });
+      return res.status(400).json({ status: "false", message: "Quatation Not Found" });
     } else {
-      return res.status(200).json({status:"true", message: "Quatation Delete Successfully" });
+      return res.status(200).json({ status: "true", message: "Quatation Delete Successfully" });
     }
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ status:"false",message: "Internal Server Error" });
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
 }
 
@@ -401,7 +404,7 @@ exports.update_expense = async (req, res) => {
 
     const expensedata = await expense.findByPk(id);
     if (!expensedata) {
-      return res.status(404).json({status:"false", message: "Expense not Found" });
+      return res.status(404).json({ status: "false", message: "Expense not Found" });
     }
     await expense.update({
       vendor: vendor,
@@ -417,10 +420,10 @@ exports.update_expense = async (req, res) => {
       where: { id: id }
     });
     const data = await expense.findByPk(id);
-    return res.status(200).json({status:"true", message: "Expense Data Update Successfully", data: data });
+    return res.status(200).json({ status: "true", message: "Expense Data Update Successfully", data: data });
   } catch (error) {
     console.log(error.message);
-    return res.status(500).json({status:"false", message: "Internal Server Error" });
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
 }
 exports.update_expenseItem = async (req, res) => {
@@ -461,11 +464,11 @@ exports.delete_expense = async (req, res) => {
     if (!data) {
       return res.status(404).json({ status: "false", message: "Expense Not Found" });
     } else {
-      return res.status(200).json({status:"true", message: 'Expense Item Delete Successfully' });
+      return res.status(200).json({ status: "true", message: 'Expense Item Delete Successfully' });
     }
   } catch (error) {
     console.log(error);
-    return res.status(500).json({status:"false", message: "Internal Server Error" });
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
 }
 exports.delete_expenseItem = async (req, res) => {
@@ -476,7 +479,7 @@ exports.delete_expenseItem = async (req, res) => {
     if (!data) {
       return res.status(404).json({ status: "false", message: "Expense Item Not Found" });
     } else {
-      return res.status(200).json({status:"true",message: 'Expense Item Delete Successfully' });
+      return res.status(200).json({ status: "true", message: 'Expense Item Delete Successfully' });
     }
   } catch (error) {
     console.log(error);
@@ -499,10 +502,10 @@ exports.create_salesInvoiceItem = async (req, res) => {
 
     const data = await salesInvoiceItem.findAll({ where: { salesInvoiceId } });
 
-    return res.status(200).json({status:"true", message: "Sales Invoive Item Create Successfully", data: data });
+    return res.status(200).json({ status: "true", message: "Sales Invoive Item Create Successfully", data: data });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({status:"false", message: "Internal Server Error" });
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
 }
 exports.create_salesInvoice = async (req, res) => {
@@ -530,10 +533,10 @@ exports.create_salesInvoice = async (req, res) => {
     //   where : { id: salesInvoiceData.id},
     //   include: [{ model: salesInvoiceItem }]
     // })
-    return res.status(200).json({status:"true", message: "SalesInvoice Create Successfully", data: salesInvoiceData });
+    return res.status(200).json({ status: "true", message: "SalesInvoice Create Successfully", data: salesInvoiceData });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({status:"false", message: "Internal Server Error" });
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
 }
 exports.get_all_salesInvoice = async (req, res) => {
@@ -542,12 +545,12 @@ exports.get_all_salesInvoice = async (req, res) => {
       include: [{ model: salesInvoiceItem }]
     });
     if (!data) {
-      return res.status(404).json({status:"false", message: "Sales Invoice Not Found" });
+      return res.status(404).json({ status: "false", message: "Sales Invoice Not Found" });
     }
-    return res.status(200).json({status:"true", message: "Sales Invoice Data Fetch Successfully", data: data });
+    return res.status(200).json({ status: "true", message: "Sales Invoice Data Fetch Successfully", data: data });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({status:"false", message: "Internal Server Error" });
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
 }
 exports.view_salesInvoice = async (req, res) => {
@@ -561,12 +564,12 @@ exports.view_salesInvoice = async (req, res) => {
     });
 
     if (!data) {
-      return res.status(404).json({status:"false", message: "Sales Invoice Not Found" });
+      return res.status(404).json({ status: "false", message: "Sales Invoice Not Found" });
     }
-    return res.status(200).json({status:"true", message:"Sales invoice data get successfully", data: data });
+    return res.status(200).json({ status: "true", message: "Sales invoice data get successfully", data: data });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({status:"false", message: "Internal Server Error" });
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
 }
 exports.view_salesInvoice = async (req, res) => {
@@ -1112,7 +1115,7 @@ exports.get_all_payment = async (req, res) => {
 
 exports.create_stockitem = async (req, res) => {
   try {
-    const { itemname, unit, email, compustk, betchno, physicalstk, adjqty, adjustcomment, wastageqty, wastagecomment, consumeqty,consumecomment } = req.body
+    const { itemname, unit, email, compustk, betchno, physicalstk, adjqty, adjustcomment, wastageqty, wastagecomment, consumeqty, consumecomment } = req.body
     // console.log("DATA>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",req.body);
     const data = await stock.create({
       itemname,
@@ -1142,6 +1145,286 @@ exports.get_all_stock = async (req, res) => {
       return res.status(404).json({ status: "false", message: "Stock Not Found" });
     }
     return res.status(200).json({ status: "true", message: "Stock Data Fetch Successfully", data: data });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Customer +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+exports.create_customer = async (req, res) => {
+  try {
+    const { accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, address2, pincode, state, city, bankdetail, creditlimit, balance } = req.body
+    const data = await customer.create({
+      accountname,
+      shortname,
+      email,
+      contactpersonname,
+      mobileno,
+      panno,
+      creditperiod,
+      mode,
+      address1,
+      address2,
+      pincode,
+      state,
+      city,
+      bankdetail,
+      creditlimit,
+      balance
+    })
+    return res.status(200).json({ status: "true", message: "New customer created successfully", data: data })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.update_customer = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, address2, pincode, state, city, bankdetail, creditlimit, balance } = req.body
+
+    const updatepayment = await customer.findByPk(id)
+
+    if (!updatepayment) {
+      return res.status(404).json({ status: "false", message: "Customer Not Found" });
+    }
+
+    await customer.update({
+      accountname:accountname,
+      shortname:shortname,
+      email:email,
+      contactpersonname:contactpersonname,
+      mobileno:mobileno,
+      panno:panno,
+      creditperiod:creditperiod,
+      mode:mode,
+      address1:address1,
+      address2:address2,
+      pincode:pincode,
+      state:state,
+      city:city,
+      bankdetail:bankdetail,
+      creditlimit:creditlimit,
+      balance:balance
+
+    }, {
+      where: { id: id }
+    });
+    return res.status(200).json({ status: "true", message: "New customer Updated Successfully" });
+  } catch (error) {
+    console.log("ERROR", error)
+    return res.status(500).json({ status: "false", message: "Internal server error" })
+  }
+}
+exports.delete_customer = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const data = await customer.destroy({ where: { id: id } });
+
+    if (!data) {
+      return res.status(400).json({ status: "false", message: "Cusomer Not Found" });
+    } else {
+      return res.status(200).json({ status: "true", message: "Cusomer Delete Successfully" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.create_customfeild = async (req, res) => {
+  try {
+    const { customerId, items } = req.body;
+
+    await Promise.all(items.map(async item => {
+      await customfeild.create({
+        ...item,
+        customerId
+      });
+    }));
+
+    const createdItems = await customfeild.findAll({ where: { customerId } });
+    // console.log(createdItems,">>>>>>>>>>>>>>>>>>>>>>>");
+    return res.status(200).json({ status: "true", message: "Customfeild Created Successfully", data: createdItems });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.update_customfeild = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { label,value } = req.body;
+
+    const deliverychallan = await customfeild.findByPk(id);
+    if (!deliverychallan) {
+      return res.status(404).json({ message: "Custom feild not Found" });
+    }
+    await customfeild.update({
+      label: label,
+      value: value
+    }, {
+      where: { id: id }
+    });
+
+    return res.status(200).json({ status: "true", message: "Custom feild Update Successfully" });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.delete_customfeild = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await customfeild.destroy({ where: { id: id } });
+
+    if (!data) {
+      return res.status(400).json({ status: "false", message: "Custom feild Not Found" });
+    } else {
+      return res.status(200).json({ status: "true", message: 'Custom feild Delete Successfully' });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.view_customer = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const data = await customer.findOne({
+      where: { id }
+    });
+
+    if (!data) {
+      return res.status(404).json({ status: "false", message: "customer Not Found" });
+    }
+    return res.status(200).json({ status: "true", message: "customer data fetch successfully", data: data });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.get_all_customer = async (req, res) => {
+  try {
+    const data = await customer.findAll();
+    if (!data) {
+      return res.status(404).json({ status: "false", message: "Customer Not Found" });
+    }
+    return res.status(200).json({ status: "true", message: "Customer Data Fetch Successfully", data: data });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Product ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+exports.create_product= async (req, res) => {
+  try {
+    const { itemtype, productname, description, itemgroup, itemcategory, unit, bankdetail, openingstock, nagativeqty, lowstock, itemselected, purchaseprice,salesprice, gstrate, cess } = req.body
+    const data = await product.create({
+      itemtype,
+      productname,
+      description,
+      itemgroup,
+      itemcategory,
+      unit,
+      bankdetail,
+      openingstock,
+      nagativeqty,
+      lowstock,
+      itemselected,
+      salesprice,
+      purchaseprice,
+      gstrate,
+      cess
+    })
+    return res.status(200).json({ status: "true", message: "Product created successfully", data: data })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.update_product = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { itemtype, productname, description, itemgroup, itemcategory, unit, bankdetail, openingstock, nagativeqty, lowstock, itemselected, purchaseprice,salesprice, gstrate, cess } = req.body
+
+    const updatepayment = await product.findByPk(id)
+
+    if (!updatepayment) {
+      return res.status(404).json({ status: "false", message: "Product Not Found" });
+    }
+
+    await product.update({
+      itemtype:itemtype,
+      productname:productname,
+      description:description,
+      itemgroup:itemgroup,
+      itemcategory:itemcategory,
+      unit:unit,
+      bankdetail:bankdetail,
+      openingstock:openingstock,
+      nagativeqty:nagativeqty,
+      lowstock:lowstock,
+      itemselected:itemselected,
+      salesprice:salesprice,
+      purchaseprice:purchaseprice,
+      gstrate:gstrate,
+      cess:cess
+
+    }, {
+      where: { id: id }
+    });
+    return res.status(200).json({ status: "true", message: "Product Updated Successfully" });
+  } catch (error) {
+    console.log("ERROR", error)
+    return res.status(500).json({ status: "false", message: "Internal server error" })
+  }
+}
+exports.delete_product = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const data = await product.destroy({ where: { id: id } });
+
+    if (!data) {
+      return res.status(400).json({ status: "false", message: "Product Not Found" });
+    } else {
+      return res.status(200).json({ status: "true", message: "Product Delete Successfully" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.view_product = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const data = await product.findOne({
+      where: { id }
+    });
+
+    if (!data) {
+      return res.status(404).json({ status: "false", message: "Product Not Found" });
+    }
+    return res.status(200).json({ status: "true", message: "Product data fetch successfully", data: data });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.get_all_product = async (req, res) => {
+  try {
+    const data = await product.findAll();
+    if (!data) {
+      return res.status(404).json({ status: "false", message: "Product Not Found" });
+    }
+    return res.status(200).json({ status: "true", message: "Product Data Fetch Successfully", data: data });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ status: "false", message: "Internal Server Error" });
