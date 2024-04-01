@@ -31,8 +31,8 @@ adminRoutes.put('/update_quotation/:id', adminAuth, update_quotation);
 adminRoutes.delete('/delete_quotationitem/:id', adminAuth, delete_quotationitem);
 adminRoutes.delete('/delete_quotation/:id', adminAuth, delete_quotation);
 
-adminRoutes.post('/create_deliverychallan', adminAuth, create_deliverychallan);
-adminRoutes.post('/create_deliverychallanitem', adminAuth, create_deliverychallanitem);
+adminRoutes.post('/create_deliverychallan',validation('create_deliverychallan'), adminAuth, create_deliverychallan);
+adminRoutes.post('/create_deliverychallanitem',validation('create_deliverychallanitem'), adminAuth, create_deliverychallanitem);
 adminRoutes.put('/update_deliverychallan/:id', adminAuth, update_deliverychallan);
 adminRoutes.delete('/delete_deliverychallan/:id', adminAuth, delete_deliverychallan);
 adminRoutes.delete('/delete_deliverychallanitem/:id', adminAuth, delete_deliverychallanitem);
@@ -40,7 +40,7 @@ adminRoutes.get('/get_all_deliverychallan', adminAuth, get_all_deliverychallan);
 adminRoutes.get('/view_deliverychallan/:id', adminAuth, view_deliverychallan);
 adminRoutes.put('/update_deliverychallanitem/:id', adminAuth, update_deliverychallanitem);
 
-adminRoutes.post('/create_purchase', adminAuth, create_purchase);
+adminRoutes.post('/create_purchase', validation('create_purchase'),adminAuth, create_purchase);
 adminRoutes.post('/create_purchaseitem', adminAuth, create_purchaseitem);
 adminRoutes.put('/update_purchaseitem/:id', adminAuth, update_purchaseitem);
 adminRoutes.put('/update_purchase/:id', adminAuth, update_purchase);
@@ -61,8 +61,8 @@ adminRoutes.delete('/delete_salesInvoice/:id', adminAuth, delete_salesInvoice);
 adminRoutes.post('/create_salesReturn', adminAuth, create_salesReturn);
 adminRoutes.get('/get_all_salesReturn', adminAuth, get_all_salesReturn);
 
-adminRoutes.post('/create_expense', adminAuth, create_expense);
-adminRoutes.post('/create_expenseItem', adminAuth, create_expenseItem);
+adminRoutes.post('/create_expense',validation('create_expense'),adminAuth, create_expense);
+adminRoutes.post('/create_expenseItem', adminAuth,validation('create_expenseItem'), create_expenseItem);
 adminRoutes.get('/get_all_expense', adminAuth, get_all_expense);
 adminRoutes.get('/view_expense/:id', adminAuth, view_expense);
 adminRoutes.put('/update_expense/:id', adminAuth, update_expense);
@@ -70,7 +70,7 @@ adminRoutes.put('/update_expenseItem/:id', adminAuth, update_expenseItem);
 adminRoutes.delete('/delete_expense/:id', adminAuth, delete_expense);
 adminRoutes.delete('/delete_expenseItem/:id', adminAuth, delete_expenseItem);
 
-adminRoutes.post('/create_payment', adminAuth, create_payment);
+adminRoutes.post('/create_payment', validation('create_payment'),adminAuth, create_payment);
 adminRoutes.put('/update_payment/:id', adminAuth, update_payment);
 adminRoutes.delete('/delete_payment/:id', adminAuth, delete_payment);
 adminRoutes.get('/view_payment/:id', adminAuth, view_payment);

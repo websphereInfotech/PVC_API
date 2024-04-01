@@ -23,11 +23,11 @@ const salesInvoiceItem = sequelize.define("salesInvoiceItem", {
         type : DataTypes.DATE,
         allowNull : false
     },
-    price : {
+    price : {//mrp
         type : DataTypes.FLOAT,
         allowNull :false
     },
-    quantity : {
+    quantity : {//qty
         type : DataTypes.INTEGER,
         allowNull : false
     }

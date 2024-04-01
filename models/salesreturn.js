@@ -24,7 +24,7 @@ const salesReturn = sequelize.define("salesReturn", {
     expirydate : {
         type : DataTypes.DATE
     },
-    price : {
+    price : {//mrp
         type : DataTypes.FLOAT
     },
     invoiceno : {
@@ -33,7 +33,7 @@ const salesReturn = sequelize.define("salesReturn", {
     invoicedate : {
         type : DataTypes.DATE
     },
-    quantity : {
+    quantity : { //qty
         type : DataTypes.INTEGER
     }
 });
