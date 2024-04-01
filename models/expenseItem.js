@@ -15,7 +15,7 @@ const expenseItem = sequelize.define("expenseItem", {
     taxable : {
         type : DataTypes.FLOAT
     },
-    price : {
+    mrp : {
         type : DataTypes.FLOAT
     }
 });

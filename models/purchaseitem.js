@@ -23,7 +23,7 @@ const purchaseitem = sequelize.define('purchaseitem', {
         type : DataTypes.STRING,
         allowNull : false
     },
-    amount : {
+    amount : { //mrp
         type : DataTypes.STRING,
         allowNull :false
     }

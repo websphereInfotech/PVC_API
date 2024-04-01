@@ -689,14 +689,13 @@ exports.delete_salesInvoice = async (req, res) => {
 exports.create_deliverychallanitem = async (req, res) => {
   try {
     const { deliverychallanId, items } = req.body;
-
+    // console.log("req",req.body);
     await Promise.all(items.map(async item => {
       await deliverychallanitem.create({
         ...item,
         deliverychallanId
       });
     }));
-
     const createdItems = await deliverychallanitem.findAll({ where: { deliverychallanId } });
     // console.log(createdItems,">>>>>>>>>>>>>>>>>>>>>>>");
     return res.status(200).json({ status: "true", message: "Delivery challan items Created Successfully", data: createdItems });

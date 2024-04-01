@@ -11,7 +11,7 @@ const payment = sequelize.define("payment",{
     mode : {type:DataTypes.STRING},
     refno : {type:DataTypes.STRING},
     paidfrom : {type:DataTypes.STRING},
-    amountpaid : {type:DataTypes.STRING},
+    mrp : {type:DataTypes.STRING},
     billno : {
         type : DataTypes.STRING,
     },
