@@ -24,7 +24,7 @@ const purchaseitem = sequelize.define('purchaseitem', {
         allowNull : false
     },
     mrp : { 
-        type : DataTypes.STRING,
+        type : DataTypes.INTEGER,
         allowNull :false
     }
 });

@@ -22,6 +22,8 @@ const product = require("../models/product");
 const itemgroup = require("../models/itemgroup");
 const itemcategory = require("../models/itemcategory");
 const unit = require("../models/unit");
+const purchasebill = require("../models/purchasebill");
+const purchasebillItem = require("../models/purchasebill_item");
 
 
 // exports.admin_signup = async (req, res) => {
@@ -57,6 +59,9 @@ const unit = require("../models/unit");
 //   }
 // };
 
+/* *************************************************************************************************
+                                          ADMIN LOGIN
+**************************************************************************************************/
 exports.admin_login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -115,7 +120,7 @@ exports.create_quotationItem = async (req, res) => {
 exports.create_quotation = async (req, res) => {
   try {
     const { quotation_no, date, validtill, email, mobileno, customer } = req.body;
-    
+
     const createdQuotation = await quotation.create({
       quotation_no,
       date,
@@ -271,7 +276,9 @@ exports.delete_quotation = async (req, res) => {
   }
 }
 
-/*========================================== Sales Return Api  =========================================== */
+/* *************************************************************************************************
+                                          Sales Return 
+**************************************************************************************************/
 
 exports.create_salesReturn = async (req, res) => {
   try {
@@ -285,7 +292,7 @@ exports.create_salesReturn = async (req, res) => {
       sr_no: sr_no,
       batch_no: batch_no,
       expiry_date: expiry_date,
-      amount : amount,
+      amount: amount,
       invoiceno: invoiceno,
       invoicedate: invoicedate,
       quantity: quantity
@@ -313,7 +320,9 @@ exports.get_all_salesReturn = async (req, res) => {
   }
 }
 
-/*========================================== Expense Api  =========================================== */
+/* *************************************************************************************************
+                                          Expense
+**************************************************************************************************/
 
 exports.create_expense = async (req, res) => {
   try {
@@ -845,7 +854,7 @@ exports.view_deliverychallan = async (req, res) => {
   }
 }
 
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Purchase +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Purchase Order+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 exports.create_purchase = async (req, res) => {
   try {
@@ -1190,22 +1199,22 @@ exports.update_customer = async (req, res) => {
     }
 
     await customer.update({
-      accountname:accountname,
-      shortname:shortname,
-      email:email,
-      contactpersonname:contactpersonname,
-      mobileno:mobileno,
-      panno:panno,
-      creditperiod:creditperiod,
-      mode:mode,
-      address1:address1,
-      address2:address2,
-      pincode:pincode,
-      state:state,
-      city:city,
-      bankdetail:bankdetail,
-      creditlimit:creditlimit,
-      balance:balance
+      accountname: accountname,
+      shortname: shortname,
+      email: email,
+      contactpersonname: contactpersonname,
+      mobileno: mobileno,
+      panno: panno,
+      creditperiod: creditperiod,
+      mode: mode,
+      address1: address1,
+      address2: address2,
+      pincode: pincode,
+      state: state,
+      city: city,
+      bankdetail: bankdetail,
+      creditlimit: creditlimit,
+      balance: balance
 
     }, {
       where: { id: id }
@@ -1254,7 +1263,7 @@ exports.create_customfeild = async (req, res) => {
 exports.update_customfeild = async (req, res) => {
   try {
     const { id } = req.params;
-    const { label,value } = req.body;
+    const { label, value } = req.body;
 
     const deliverychallan = await customfeild.findByPk(id);
     if (!deliverychallan) {
@@ -1320,9 +1329,9 @@ exports.get_all_customer = async (req, res) => {
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Product ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-exports.create_product= async (req, res) => {
+exports.create_product = async (req, res) => {
   try {
-    const { itemtype, productname, description, itemgroup, itemcategory, unit, bankdetail, openingstock, nagativeqty, lowstock, itemselected, purchaseprice,salesprice, gstrate, cess } = req.body
+    const { itemtype, productname, description, itemgroup, itemcategory, unit, bankdetail, openingstock, nagativeqty, lowstock, itemselected, purchaseprice, salesprice, gstrate, cess } = req.body
     const data = await product.create({
       itemtype,
       productname,
@@ -1349,7 +1358,7 @@ exports.create_product= async (req, res) => {
 exports.update_product = async (req, res) => {
   try {
     const { id } = req.params
-    const { itemtype, productname, description, itemgroup, itemcategory, unit, bankdetail, openingstock, nagativeqty, lowstock, itemselected, purchaseprice,salesprice, gstrate, cess } = req.body
+    const { itemtype, productname, description, itemgroup, itemcategory, unit, bankdetail, openingstock, nagativeqty, lowstock, itemselected, purchaseprice, salesprice, gstrate, cess } = req.body
 
     const updatepayment = await product.findByPk(id)
 
@@ -1358,21 +1367,21 @@ exports.update_product = async (req, res) => {
     }
 
     await product.update({
-      itemtype:itemtype,
-      productname:productname,
-      description:description,
-      itemgroup:itemgroup,
-      itemcategory:itemcategory,
-      unit:unit,
-      bankdetail:bankdetail,
-      openingstock:openingstock,
-      nagativeqty:nagativeqty,
-      lowstock:lowstock,
-      itemselected:itemselected,
-      salesprice:salesprice,
-      purchaseprice:purchaseprice,
-      gstrate:gstrate,
-      cess:cess
+      itemtype: itemtype,
+      productname: productname,
+      description: description,
+      itemgroup: itemgroup,
+      itemcategory: itemcategory,
+      unit: unit,
+      bankdetail: bankdetail,
+      openingstock: openingstock,
+      nagativeqty: nagativeqty,
+      lowstock: lowstock,
+      itemselected: itemselected,
+      salesprice: salesprice,
+      purchaseprice: purchaseprice,
+      gstrate: gstrate,
+      cess: cess
 
     }, {
       where: { id: id }
@@ -1431,9 +1440,9 @@ exports.get_all_product = async (req, res) => {
 
 // -++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Item group +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-exports.create_itemgroup= async (req, res) => {
+exports.create_itemgroup = async (req, res) => {
   try {
-    const {group, remarks, productId } = req.body
+    const { group, remarks, productId } = req.body
     const existingProduct = await product.findByPk(productId);
     if (!existingProduct) {
       return res.status(400).json({ status: "false", message: "Product not found" });
@@ -1452,7 +1461,7 @@ exports.create_itemgroup= async (req, res) => {
 exports.update_itemgroup = async (req, res) => {
   try {
     const { id } = req.params;
-    const { group,remarks } = req.body;
+    const { group, remarks } = req.body;
 
     const item = await itemgroup.findByPk(id);
     if (!item) {
@@ -1491,9 +1500,9 @@ exports.view_itemgroup = async (req, res) => {
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Item category ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-exports.create_itemcategory= async (req, res) => {
+exports.create_itemcategory = async (req, res) => {
   try {
-    const {category, remarks, productId } = req.body
+    const { category, remarks, productId } = req.body
     const existingProduct = await product.findByPk(productId);
     if (!existingProduct) {
       return res.status(404).json({ status: "false", message: "Product not found" });
@@ -1512,7 +1521,7 @@ exports.create_itemcategory= async (req, res) => {
 exports.update_itemcategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { category,remarks } = req.body;
+    const { category, remarks } = req.body;
 
     const item = await itemcategory.findByPk(id);
     if (!item) {
@@ -1551,9 +1560,9 @@ exports.view_itemcategory = async (req, res) => {
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Units +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-exports.create_unit= async (req, res) => {
+exports.create_unit = async (req, res) => {
   try {
-    const {shortname, unitname, productId } = req.body
+    const { shortname, unitname, productId } = req.body
     const existingProduct = await product.findByPk(productId);
     if (!existingProduct) {
       return res.status(404).json({ status: "false", message: "Product not found" });
@@ -1572,7 +1581,7 @@ exports.create_unit= async (req, res) => {
 exports.update_unit = async (req, res) => {
   try {
     const { id } = req.params;
-    const { shortname,unitname } = req.body;
+    const { shortname, unitname } = req.body;
 
     const item = await unit.findByPk(id);
     if (!item) {
@@ -1609,3 +1618,168 @@ exports.view_unit = async (req, res) => {
   }
 }
 
+/* *************************************************************************************************
+                                          PURCHASE BILL
+**************************************************************************************************/
+exports.create_purchasebill = async (req, res) => {
+  try {
+    const { vendor, mobileno, email, billno, billdate, terms, duedate, book, pono } = req.body;
+    // console.log("req",req.body);
+    const data = await purchasebill.create({
+      vendor,
+      mobileno,
+      email,
+      billno,
+      billdate,
+      terms,
+      duedate,
+      book,
+      pono
+    });
+    // console.log("data",data);
+    return res.status(200).json({ status: "True", message: "Purchase Bill Create Successfully", data: data });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.create_purchasebill_item = async (req, res) => {
+  try {
+    const { purchasebillId, items } = req.body;
+
+    await Promise.all(items.map(async item => {
+      await purchasebillItem.create({
+        ...item,
+        purchasebillId: purchasebillId
+      });
+    }));
+
+    const data = await purchasebillItem.findAll({ where: { purchasebillId } });
+
+    return res.status(200).json({ status: true, message: "Purchase Bill Item Create Successfully", data: data });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.update_purchasebill = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { vendor, mobileno, email, billno, billdate, terms, duedate, book, pono } = req.body;
+
+    const billId = await purchasebill.findByPk(id);
+    if (!billId) {
+      return res.status(404).json({ status: "false", message: "Purchase Bill Not Found" });
+    }
+
+    await purchasebill.update({
+      vendor: vendor,
+      mobileno: mobileno,
+      email: email,
+      billno: billno,
+      billdate: billdate,
+      terms: terms,
+      duedate: duedate,
+      book: book,
+      pono: pono
+    }, { where: { id: id } });
+
+    const data = await purchasebill.findByPk(id);
+    return res.status(200).json({ status: 'true', message: "Purchase Bill Update Successfully", data: data });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.update_purchasebill_item = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { product, qty, rate, mrp } = req.body;
+
+    const billId = await purchasebillItem.findByPk(id);
+    if (!billId) {
+      return res.status(404).json({ status: "false", message: "Purchase Bill Item Not Found" });
+    }
+
+    await purchasebillItem.update({
+      product: product,
+      qty: qty,
+      rate: rate,
+      mrp: mrp
+    }, {
+      where: { id: id }
+    });
+
+    const data = await purchasebillItem.findByPk(id);
+    return res.status(200).json({ status: 'true', message: "Purchase Bill Item Update Successfully", data: data });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.delete_purchasebill = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const billId = await purchasebill.destroy({ where: { id: id } });
+    console.log("bill", billId);
+    if (billId) {
+      return res.status(200).json({ status: "true", message: "Purchase Bill Delete Successfully" });
+    } else {
+      return res.status(404).json({ status: "False", message: "Purchase Bill Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.delete_purchasebill_item = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const billId = await purchasebillItem.destroy({ where: { id: id } });
+  
+    if (billId) {
+      return res.status(200).json({ status: "true", message: "Purchase Bill Item Delete Successfully" });
+    } else {
+      return res.status(404).json({ status: "False", message: "Purchase Bill Item Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.get_all_purchasebill = async (req,res) => {
+  try {
+    const data = await purchasebill.findAll({
+      include : [{ model: purchasebillItem}]
+    });
+
+    if(data) {
+      return res.status(200).json({ status:"true", message:"All Purchase data show Successfully", data: data});
+    } else {
+      return res.status(404).json({ status:"false", message:"Purchase Bill Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.view_purchasebill = async (req,res) => {
+  try {
+    const {id} = req.params;
+    const data = await purchasebill.findOne({
+      where : {id},
+      include : [{ model:purchasebillItem}]
+    });
+    if(data) {
+      return res.status(200).json({ status:"true", message:"Purchase data show Successfully", data: data});
+    } else {
+      return res.status(404).json({ status:"false", message:"Purchase Bill Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}

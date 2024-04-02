@@ -17,7 +17,7 @@ const { admin_login, create_quotation, create_quotationItem, admin_signup,
      create_stockitem, get_all_stock, create_customer, update_customer, create_customfeild, delete_customfeild,
      update_customfeild, view_customer, get_all_customer, delete_customer, create_product, update_product,
      delete_product, get_all_product, view_product, create_itemgroup, update_itemgroup, view_itemgroup,
-     create_itemcategory, update_itemcategory, view_itemcategory, create_unit,view_unit,update_unit } = require("../controller/admincontroller");
+     create_itemcategory, update_itemcategory, view_itemcategory, create_unit, view_unit, update_unit, create_purchasebill, create_purchasebill_item, update_purchasebill, update_purchasebill_item, delete_purchasebill, delete_purchasebill_item, get_all_purchasebill, view_purchasebill } = require("../controller/admincontroller");
 const { validation } = require('../views/validate');
 const adminAuth = require('../middleware/adminAuth');
 const adminRoutes = express.Router();
@@ -79,34 +79,43 @@ adminRoutes.delete('/delete_payment/:id', adminAuth, delete_payment);
 adminRoutes.get('/view_payment/:id', adminAuth, view_payment);
 adminRoutes.get('/get_all_payment', adminAuth, get_all_payment);
 
-adminRoutes.post('/create_stockitem', adminAuth,validation('create_stoke'), create_stockitem);
+adminRoutes.post('/create_stockitem', adminAuth, validation('create_stoke'), create_stockitem);
 adminRoutes.get('/get_all_stock', adminAuth, get_all_stock);
 
-adminRoutes.post('/create_customer', adminAuth, validation('create_customer'),create_customer);
+adminRoutes.post('/create_customer', adminAuth, validation('create_customer'), create_customer);
 adminRoutes.put('/update_customer/:id', adminAuth, update_customer);
 adminRoutes.delete('/delete_customer/:id', adminAuth, delete_customer);
-adminRoutes.post('/create_customfeild', adminAuth, validation('create_customfeild'),create_customfeild);
+adminRoutes.post('/create_customfeild', adminAuth, validation('create_customfeild'), create_customfeild);
 adminRoutes.put('/update_customfeild/:id', adminAuth, update_customfeild);
 adminRoutes.delete('/delete_customfeild/:id', adminAuth, delete_customfeild);
 adminRoutes.get('/view_customer/:id', adminAuth, view_customer);
 adminRoutes.get('/get_all_customer', adminAuth, get_all_customer);
 
-adminRoutes.post('/create_product', adminAuth,validation('create_product'),create_product);
+adminRoutes.post('/create_product', adminAuth, validation('create_product'), create_product);
 adminRoutes.put('/update_product/:id', adminAuth, update_product);
 adminRoutes.delete('/delete_product/:id', adminAuth, delete_product);
 adminRoutes.get('/view_product/:id', adminAuth, view_product);
 adminRoutes.get('/get_all_product', adminAuth, get_all_product);
 
-adminRoutes.post('/create_itemgroup', adminAuth, validation('create_itemgroup') ,create_itemgroup);
+adminRoutes.post('/create_itemgroup', adminAuth, validation('create_itemgroup'), create_itemgroup);
 adminRoutes.put('/update_itemgroup/:id', adminAuth, update_itemgroup);
 adminRoutes.get('/view_itemgroup/:id', adminAuth, view_itemgroup);
 
-adminRoutes.post('/create_itemcategory', adminAuth, validation('create_itemcategory') ,create_itemcategory);
+adminRoutes.post('/create_itemcategory', adminAuth, validation('create_itemcategory'), create_itemcategory);
 adminRoutes.put('/update_itemcategory/:id', adminAuth, update_itemcategory);
 adminRoutes.get('/view_itemcategory/:id', adminAuth, view_itemcategory);
 
-adminRoutes.post('/create_unit', adminAuth, validation('create_unit') ,create_unit);
+adminRoutes.post('/create_unit', adminAuth, validation('create_unit'), create_unit);
 adminRoutes.put('/update_unit/:id', adminAuth, update_unit);
 adminRoutes.get('/view_unit/:id', adminAuth, view_unit);
+
+adminRoutes.post('/create_purchasebill', adminAuth, validation('create_purchasebill'), create_purchasebill);
+adminRoutes.post('/create_purchasebill_item', adminAuth, validation('create_purchasebill_item') ,create_purchasebill_item);
+adminRoutes.put('/update_purchasebill/:id', adminAuth, update_purchasebill);
+adminRoutes.put('/update_purchasebill_item/:id', adminAuth, update_purchasebill_item);
+adminRoutes.delete('/delete_purchasebill/:id', adminAuth, delete_purchasebill);
+adminRoutes.delete('/delete_purchasebill_item/:id', adminAuth, delete_purchasebill_item);
+adminRoutes.get('/get_all_purchasebill', adminAuth, get_all_purchasebill);
+adminRoutes.get('/view_purchasebill/:id', adminAuth, view_purchasebill)
 
 module.exports = adminRoutes;
