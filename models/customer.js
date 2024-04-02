@@ -29,7 +29,7 @@ const customer = sequelize.define("customer", {
     address1 : {
         type : DataTypes.STRING
     },
-    address2 : { //qty
+    address2 : {
         type : DataTypes.STRING
     },
     pincode : {

@@ -78,13 +78,13 @@ adminRoutes.delete('/delete_payment/:id', adminAuth, delete_payment);
 adminRoutes.get('/view_payment/:id', adminAuth, view_payment);
 adminRoutes.get('/get_all_payment', adminAuth, get_all_payment);
 
-adminRoutes.post('/create_stockitem', adminAuth, create_stockitem);
+adminRoutes.post('/create_stockitem', adminAuth,validation('create_stoke'), create_stockitem);
 adminRoutes.get('/get_all_stock', adminAuth, get_all_stock);
 
-adminRoutes.post('/create_customer', adminAuth, create_customer);
+adminRoutes.post('/create_customer', adminAuth, validation('create_customer'),create_customer);
 adminRoutes.put('/update_customer/:id', adminAuth, update_customer);
 adminRoutes.delete('/delete_customer/:id', adminAuth, delete_customer);
-adminRoutes.post('/create_customfeild', adminAuth, create_customfeild);
+adminRoutes.post('/create_customfeild', adminAuth, validation('create_customfeild'),create_customfeild);
 adminRoutes.put('/update_customfeild/:id', adminAuth, update_customfeild);
 adminRoutes.delete('/delete_customfeild/:id', adminAuth, delete_customfeild);
 adminRoutes.get('/view_customer/:id', adminAuth, view_customer);

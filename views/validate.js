@@ -1,4 +1,4 @@
-const { email, password,  mobileno, challanno, date, customer, serialno, mrp, qty, product, description, batchno, quotationno, expirydate, vendor, voucherno, gstin, billno, billdate, payment, expensse, taxable, account, paymentdate, refno, quotationref, pono, mode, paidfrom, amount, quotation_no, rate, discount, validtill, challendate, creditnote, creditdate, sr_no, batch_no, expiry_date, invoiceno, invoicedate, quantity
+const { email, password,  mobileno, challanno, date, customer, serialno, mrp, qty, product, description, batchno, quotationno, expirydate, vendor, voucherno, gstin, billno, billdate, payment, expensse, taxable, account, paymentdate, refno, quotationref, pono, mode, paidfrom, amount, quotation_no, rate, discount, validtill, challendate, creditnote, creditdate, sr_no, batch_no, expiry_date, invoiceno, invoicedate, quantity, itemname, unit, accountname, shortname, contactpersonname, panno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, label, value, itemtype, productname, itemgroup, itemcategory, openingstock, nagativeqty, lowstock, itemselected
  } = require("./validation")
 
 module.exports.validation = function(method) {
@@ -31,6 +31,14 @@ module.exports.validation = function(method) {
             return [ serialno, quotationno, product, batchno, expirydate, mrp, qty]
         case "create_salesReturn" :
             return [ customer, creditnote, creditdate, sr_no, batch_no, expiry_date, amount, invoiceno, invoicedate, quantity]
+        case "create_stoke" :
+            return [ itemname, unit, email,]
+        case "create_customer" :
+            return [ accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, pincode, state, city, bankdetail, creditlimit, balance]
+        case "create_customfeild" :
+            return [ label, value ]
+        case "create_product" : 
+            return [ itemtype, productname, itemgroup, itemcategory, unit, bankdetail, openingstock, nagativeqty, lowstock, itemselected]
         default :
         throw new Error('Invalid validation method')
     }
