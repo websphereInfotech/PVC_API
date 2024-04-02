@@ -1293,7 +1293,8 @@ exports.view_customer = async (req, res) => {
     const { id } = req.params;
 
     const data = await customer.findOne({
-      where: { id }
+      where: { id },
+      include:[{model:customfeild}]
     });
 
     if (!data) {
@@ -1307,7 +1308,9 @@ exports.view_customer = async (req, res) => {
 }
 exports.get_all_customer = async (req, res) => {
   try {
-    const data = await customer.findAll();
+    const data = await customer.findAll({
+      include:[{model:customfeild}]
+    });
     if (!data) {
       return res.status(404).json({ status: "false", message: "Customer Not Found" });
     }
@@ -1404,7 +1407,8 @@ exports.view_product = async (req, res) => {
     const { id } = req.params;
 
     const data = await product.findOne({
-      where: { id }
+      where: { id },
+      include:[{ model: itemgroup }, { model: itemcategory }, { model: unit }]
     });
 
     if (!data) {
@@ -1418,7 +1422,9 @@ exports.view_product = async (req, res) => {
 }
 exports.get_all_product = async (req, res) => {
   try {
-    const data = await product.findAll();
+    const data = await product.findAll({
+      include:[{ model: itemgroup }, { model: itemcategory }, { model: unit }]
+    });
     if (!data) {
       return res.status(404).json({ status: "false", message: "Product Not Found" });
     }
