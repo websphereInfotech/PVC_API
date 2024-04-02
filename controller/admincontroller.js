@@ -19,6 +19,9 @@ const stock = require("../models/stoke");
 const customer = require("../models/customer");
 const customfeild = require("../models/customfeild");
 const product = require("../models/product");
+const itemgroup = require("../models/itemgroup");
+const itemcategory = require("../models/itemcategory");
+const unit = require("../models/unit");
 
 
 // exports.admin_signup = async (req, res) => {
@@ -1425,3 +1428,184 @@ exports.get_all_product = async (req, res) => {
     return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
 }
+
+// -++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Item group +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+exports.create_itemgroup= async (req, res) => {
+  try {
+    const {group, remarks, productId } = req.body
+    const existingProduct = await product.findByPk(productId);
+    if (!existingProduct) {
+      return res.status(400).json({ status: "false", message: "Product not found" });
+    }
+    const data = await itemgroup.create({
+      productId,
+      group,
+      remarks
+    })
+    return res.status(200).json({ status: "true", message: "Item group created successfully", data: data })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.update_itemgroup = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { group,remarks } = req.body;
+
+    const item = await itemgroup.findByPk(id);
+    if (!item) {
+      return res.status(400).json({ message: "Item group not Found" });
+    }
+    await itemgroup.update({
+      group: group,
+      remarks: remarks
+    }, {
+      where: { id: id }
+    });
+
+    return res.status(200).json({ status: "true", message: "Item group Update Successfully" });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.view_itemgroup = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const data = await itemgroup.findOne({
+      where: { id }
+    });
+
+    if (!data) {
+      return res.status(404).json({ status: "false", message: "Item group Not Found" });
+    }
+    return res.status(200).json({ status: "true", message: "Item group data fetch successfully", data: data });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Item category ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+exports.create_itemcategory= async (req, res) => {
+  try {
+    const {category, remarks, productId } = req.body
+    const existingProduct = await product.findByPk(productId);
+    if (!existingProduct) {
+      return res.status(404).json({ status: "false", message: "Product not found" });
+    }
+    const data = await itemcategory.create({
+      productId,
+      category,
+      remarks
+    })
+    return res.status(200).json({ status: "true", message: "Item category created successfully", data: data })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.update_itemcategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { category,remarks } = req.body;
+
+    const item = await itemcategory.findByPk(id);
+    if (!item) {
+      return res.status(400).json({ message: "Item category not Found" });
+    }
+    await itemcategory.update({
+      category: category,
+      remarks: remarks
+    }, {
+      where: { id: id }
+    });
+
+    return res.status(200).json({ status: "true", message: "Item category Update Successfully" });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.view_itemcategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const data = await itemcategory.findOne({
+      where: { id }
+    });
+
+    if (!data) {
+      return res.status(404).json({ status: "false", message: "Item category Not Found" });
+    }
+    return res.status(200).json({ status: "true", message: "Item category data fetch successfully", data: data });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Units +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+exports.create_unit= async (req, res) => {
+  try {
+    const {shortname, unitname, productId } = req.body
+    const existingProduct = await product.findByPk(productId);
+    if (!existingProduct) {
+      return res.status(404).json({ status: "false", message: "Product not found" });
+    }
+    const data = await unit.create({
+      productId,
+      shortname,
+      unitname
+    })
+    return res.status(200).json({ status: "true", message: "Unit created successfully", data: data })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.update_unit = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { shortname,unitname } = req.body;
+
+    const item = await unit.findByPk(id);
+    if (!item) {
+      return res.status(400).json({ message: "Unit not Found" });
+    }
+    await unit.update({
+      shortname: shortname,
+      unitname: unitname
+    }, {
+      where: { id: id }
+    });
+
+    return res.status(200).json({ status: "true", message: "Unit Update Successfully" });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.view_unit = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const data = await unit.findOne({
+      where: { id }
+    });
+
+    if (!data) {
+      return res.status(404).json({ status: "false", message: "Unit Not Found" });
+    }
+    return res.status(200).json({ status: "true", message: "Unit data fetch successfully", data: data });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+
