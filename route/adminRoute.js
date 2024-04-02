@@ -91,21 +91,21 @@ adminRoutes.delete('/delete_customfeild/:id', adminAuth, delete_customfeild);
 adminRoutes.get('/view_customer/:id', adminAuth, view_customer);
 adminRoutes.get('/get_all_customer', adminAuth, get_all_customer);
 
-adminRoutes.post('/create_product', adminAuth, create_product);
+adminRoutes.post('/create_product', adminAuth,validation('create_product'),create_product);
 adminRoutes.put('/update_product/:id', adminAuth, update_product);
 adminRoutes.delete('/delete_product/:id', adminAuth, delete_product);
 adminRoutes.get('/view_product/:id', adminAuth, view_product);
 adminRoutes.get('/get_all_product', adminAuth, get_all_product);
 
-adminRoutes.post('/create_itemgroup', adminAuth, create_itemgroup);
+adminRoutes.post('/create_itemgroup', adminAuth, validation('create_itemgroup') ,create_itemgroup);
 adminRoutes.put('/update_itemgroup/:id', adminAuth, update_itemgroup);
 adminRoutes.get('/view_itemgroup/:id', adminAuth, view_itemgroup);
 
-adminRoutes.post('/create_itemcategory', adminAuth, create_itemcategory);
+adminRoutes.post('/create_itemcategory', adminAuth, validation('create_itemcategory') ,create_itemcategory);
 adminRoutes.put('/update_itemcategory/:id', adminAuth, update_itemcategory);
 adminRoutes.get('/view_itemcategory/:id', adminAuth, view_itemcategory);
 
-adminRoutes.post('/create_unit', adminAuth, create_unit);
+adminRoutes.post('/create_unit', adminAuth, validation('create_unit') ,create_unit);
 adminRoutes.put('/update_unit/:id', adminAuth, update_unit);
 adminRoutes.get('/view_unit/:id', adminAuth, view_unit);
 

@@ -1049,12 +1049,12 @@ exports.nagativeqty = function (req, res,next) {
 }
 exports.lowstock = function (req, res,next) {
     const {lowstock} = req.body;
-    const lowstockSchema = Joi.string()
+    const lowstockSchema = Joi.boolean()
     
     .required()
     .messages({
         "any.required" :"Required Field : lowStock",
-        "string.empty" : "lowStock Cannot Be A Empty"
+        "boolean.empty" : "lowStock Cannot Be A Empty"
     });
     const {error} = lowstockSchema.validate(lowstock);
     if(error) {
@@ -1072,6 +1072,126 @@ exports.itemselected = function (req, res,next) {
         "string.empty" : "Item Selected Cannot Be A Empty"
     });
     const {error} = itemselectedSchema.validate(itemselected);
+    if(error) {
+        return res.status(400).json({ status:"False", message: error.message });
+    }
+    next();
+}
+exports.purchaseprice = function (req, res,next) {
+    const {purchaseprice} = req.body;
+    const purchasepriceSchema = Joi.number()
+    
+    .required()
+    .messages({
+        "any.required" :"Required Field :purchaseprice",
+        "number.empty" : "purchaseprice Cannot Be A Empty"
+    });
+    const {error} = purchasepriceSchema.validate(purchaseprice);
+    if(error) {
+        return res.status(400).json({ status:"False", message: error.message });
+    }
+    next();
+}
+exports.salesprice = function (req, res,next) {
+    const {salesprice} = req.body;
+    const salespriceSchema = Joi.number()
+    
+    .required()
+    .messages({
+        "any.required" :"Required Field : salesprice",
+        "number.empty" : "salesprice Cannot Be A Empty"
+    });
+    const {error} = salespriceSchema.validate(salesprice);
+    if(error) {
+        return res.status(400).json({ status:"False", message: error.message });
+    }
+    next();
+}
+exports.gstrate = function (req, res,next) {
+    const {gstrate} = req.body;
+    const gstrateSchema = Joi.number()
+    
+    .required()
+    .messages({
+        "any.required" :"Required Field : Gstrate",
+        "number.empty" : "gstrate Cannot Be A Empty"
+    });
+    const {error} = gstrateSchema.validate(gstrate);
+    if(error) {
+        return res.status(400).json({ status:"False", message: error.message });
+    }
+    next();
+}
+exports.cess = function (req, res,next) {
+    const {cess} = req.body;
+    const cessSchema = Joi.boolean()
+    
+    .required()
+    .messages({
+        "any.required" :"Required Field : Cess",
+        "boolean.empty" : "Cess Cannot Be A Empty"
+    });
+    const {error} = cessSchema.validate(cess);
+    if(error) {
+        return res.status(400).json({ status:"False", message: error.message });
+    }
+    next();
+}
+exports.group = function (req, res,next) {
+    const {group} = req.body;
+    const groupSchema = Joi.string()
+    
+    .required()
+    .messages({
+        "any.required" :"Required Field : Group",
+        "string.empty" : "Group Cannot Be A Empty"
+    });
+    const {error} = groupSchema.validate(group);
+    if(error) {
+        return res.status(400).json({ status:"False", message: error.message });
+    }
+    next();
+}
+exports.remarks = function (req, res,next) {
+    const {remarks} = req.body;
+    const remarksSchema = Joi.string()
+    
+    .required()
+    .messages({
+        "any.required" :"Required Field : Remarks",
+        "string.empty" : "Remarks Cannot Be A Empty"
+    });
+    const {error} = remarksSchema.validate(remarks);
+    if(error) {
+        return res.status(400).json({ status:"False", message: error.message });
+    }
+    next();
+}
+exports.category = function (req, res,next) {
+    const {category} = req.body;
+    const categorySchema = Joi.string()
+    
+    .required()
+    .messages({
+        "any.required" :"Required Field : Category",
+        "string.empty" : "Category Cannot Be A Empty"
+    });
+    const {error} = categorySchema.validate(category);
+    if(error) {
+        return res.status(400).json({ status:"False", message: error.message });
+    }
+    next();
+}
+exports.unitname = function (req, res,next) {
+    const {unitname} = req.body;
+    const unitnameSchema = Joi.string()
+    
+    .required()
+    .messages({
+        "any.required" :"Required Field : Unitname",
+        "string.empty" : "Unitname Cannot Be A Empty"
+    });
+    const {error} = unitnameSchema.validate(unitname);
     if(error) {
         return res.status(400).json({ status:"False", message: error.message });
     }
