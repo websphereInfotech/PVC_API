@@ -24,6 +24,8 @@ const itemcategory = require("../models/itemcategory");
 const unit = require("../models/unit");
 const purchasebill = require("../models/purchasebill");
 const purchasebillItem = require("../models/purchasebill_item");
+const purchaseReturn = require("../models/purchasereturn");
+const purchaseReturnItem = require("../models/purchasereturnitem");
 
 
 // exports.admin_signup = async (req, res) => {
@@ -752,8 +754,8 @@ exports.update_deliverychallanitem = async (req, res) => {
     }, {
       where: { id: id }
     });
-
-    return res.status(200).json({ status: "true", message: "Delivery challan Item Update Successfully" });
+    const data = await deliverychallanitem.findByPk(id)
+    return res.status(200).json({ status: "true", message: "Delivery challan Item Update Successfully",data:data });
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({ status: "false", message: "Internal Server Error" });
@@ -770,7 +772,7 @@ exports.update_deliverychallan = async (req, res) => {
       return res.status(404).json({ status: "false", message: "Delivery challan Not Found" });
     }
 
-    const data = await deliverychallan.update({
+     await deliverychallan.update({
       challanno: challanno,
       date: date,
       email: email,
@@ -779,7 +781,8 @@ exports.update_deliverychallan = async (req, res) => {
     }, {
       where: { id: id }
     });
-    return res.status(200).json({ status: "true", message: "Delivery challan Update Successfully" });
+    const data = await deliverychallan.findByPk(id)
+    return res.status(200).json({ status: "true", message: "Delivery challan Update Successfully" ,data:data});
   } catch (error) {
     console.log("ERROR", error)
     return res.status(500).json({ status: "false", message: "Internal server error" })
@@ -914,8 +917,8 @@ exports.update_purchaseitem = async (req, res) => {
     }, {
       where: { id: id }
     });
-
-    return res.status(200).json({ status: "true", message: "Purchase Item Update Successfully" });
+    const data = await purchaseitem.findByPk(id);
+    return res.status(200).json({ status: "true", message: "Purchase Item Update Successfully" ,data:data});
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({ status: "false", message: "Internal Server Error" });
@@ -944,7 +947,8 @@ exports.update_purchase = async (req, res) => {
     }, {
       where: { id: id }
     });
-    return res.status(200).json({ status: "true", message: "Purchase Updated Successfully" });
+    const data = await purchase.findByPk(id)
+    return res.status(200).json({ status: "true", message: "Purchase Updated Successfully" ,data:data });
   } catch (error) {
     console.log("ERROR", error)
     return res.status(500).json({ status: "false", message: "Internal server error" })
@@ -1066,7 +1070,9 @@ exports.update_payment = async (req, res) => {
     }, {
       where: { id: id }
     });
-    return res.status(200).json({ status: "true", message: "Payment Updated Successfully" });
+
+    const data = await payment.findByPk(id)
+    return res.status(200).json({ status: "true", message: "Payment Updated Successfully",data:data });
   } catch (error) {
     console.log("ERROR", error)
     return res.status(500).json({ status: "false", message: "Internal server error" })
@@ -1219,7 +1225,9 @@ exports.update_customer = async (req, res) => {
     }, {
       where: { id: id }
     });
-    return res.status(200).json({ status: "true", message: "New customer Updated Successfully" });
+
+    const data = await customer.findByPk(id);
+    return res.status(200).json({ status: "true", message: "New customer Updated Successfully", data:data });
   } catch (error) {
     console.log("ERROR", error)
     return res.status(500).json({ status: "false", message: "Internal server error" })
@@ -1303,7 +1311,7 @@ exports.view_customer = async (req, res) => {
 
     const data = await customer.findOne({
       where: { id },
-      include:[{model:customfeild}]
+      include: [{ model: customfeild }]
     });
 
     if (!data) {
@@ -1318,7 +1326,7 @@ exports.view_customer = async (req, res) => {
 exports.get_all_customer = async (req, res) => {
   try {
     const data = await customer.findAll({
-      include:[{model:customfeild}]
+      include: [{ model: customfeild }]
     });
     if (!data) {
       return res.status(404).json({ status: "false", message: "Customer Not Found" });
@@ -1334,7 +1342,8 @@ exports.get_all_customer = async (req, res) => {
 
 exports.create_product = async (req, res) => {
   try {
-    const { itemtype, productname, description, itemgroup, itemcategory, unit, bankdetail, openingstock, nagativeqty, lowstock, itemselected, purchaseprice, salesprice, gstrate, cess } = req.body
+    const { itemtype, productname, description, itemgroup, itemcategory, unit, bankdetail, openingstock, nagativeqty, lowstock, itemselected, purchaseprice, salesprice, gstrate, cess } = req.body;
+    // console.log("req",req.body);
     const data = await product.create({
       itemtype,
       productname,
@@ -1352,6 +1361,7 @@ exports.create_product = async (req, res) => {
       gstrate,
       cess
     })
+    // console.log("data",data);
     return res.status(200).json({ status: "true", message: "Product created successfully", data: data })
   } catch (error) {
     console.log(error);
@@ -1389,7 +1399,8 @@ exports.update_product = async (req, res) => {
     }, {
       where: { id: id }
     });
-    return res.status(200).json({ status: "true", message: "Product Updated Successfully" });
+    const data = await product.findByPk(id);
+    return res.status(200).json({ status: "true", message: "Product Updated Successfully",data:data });
   } catch (error) {
     console.log("ERROR", error)
     return res.status(500).json({ status: "false", message: "Internal server error" })
@@ -1417,7 +1428,7 @@ exports.view_product = async (req, res) => {
 
     const data = await product.findOne({
       where: { id },
-      include:[{ model: itemgroup }, { model: itemcategory }, { model: unit }]
+      include: [{ model: itemgroup }, { model: itemcategory }, { model: unit }]
     });
 
     if (!data) {
@@ -1432,7 +1443,7 @@ exports.view_product = async (req, res) => {
 exports.get_all_product = async (req, res) => {
   try {
     const data = await product.findAll({
-      include:[{ model: itemgroup }, { model: itemcategory }, { model: unit }]
+      include: [{ model: itemgroup }, { model: itemcategory }, { model: unit }]
     });
     if (!data) {
       return res.status(404).json({ status: "false", message: "Product Not Found" });
@@ -1479,8 +1490,8 @@ exports.update_itemgroup = async (req, res) => {
     }, {
       where: { id: id }
     });
-
-    return res.status(200).json({ status: "true", message: "Item group Update Successfully" });
+    const data = await itemgroup.findByPk(id);
+    return res.status(200).json({ status: "true", message: "Item group Update Successfully", data:data });
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({ status: "false", message: "Internal Server Error" });
@@ -1503,7 +1514,20 @@ exports.view_itemgroup = async (req, res) => {
     return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
 }
+exports.get_all_itemgroup = async (req, res) => {
+ try {
+  const data = await itemgroup.findAll();
 
+  if(data){
+    return res.status(200).json({ status:'true', message:"Item Group Show Successfully", data: data});
+  } else {
+    return res.status(400).json({ status:'false', message:'Item Group Not Found'});
+  }
+ } catch (error) {
+  console.log(error.message);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+ }
+}
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Item category ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 exports.create_itemcategory = async (req, res) => {
@@ -1540,7 +1564,8 @@ exports.update_itemcategory = async (req, res) => {
       where: { id: id }
     });
 
-    return res.status(200).json({ status: "true", message: "Item category Update Successfully" });
+    const data = await itemcategory.findByPk(id);
+    return res.status(200).json({ status: "true", message: "Item category Update Successfully", data:data });
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({ status: "false", message: "Internal Server Error" });
@@ -1562,6 +1587,19 @@ exports.view_itemcategory = async (req, res) => {
     console.log(error);
     return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
+}
+exports.get_all_itemcategory = async (req,res) => {
+    try {
+      const data = await itemcategory.findAll();
+      if(data) {
+        return res.status(200).json({ status:"true", message:"All Item Category Show Successfully", data: data})
+      } else {
+        return res.status(404).json({ status:'false', message:'Item Category Not Found'});
+      }
+    } catch (error) {
+      console.log(error.message);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+    }
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Units +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1599,8 +1637,8 @@ exports.update_unit = async (req, res) => {
     }, {
       where: { id: id }
     });
-
-    return res.status(200).json({ status: "true", message: "Unit Update Successfully" });
+    const data = await unit.findByPk(id);
+    return res.status(200).json({ status: "true", message: "Unit Update Successfully", data:data });
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({ status: "false", message: "Internal Server Error" });
@@ -1623,7 +1661,19 @@ exports.view_unit = async (req, res) => {
     return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
 }
-
+exports.get_all_unit = async (req,res) => {
+  try {
+    const data = await unit.findAll();
+    if(data) {
+      return res.status(200).json({ status:'true', message:'All Unit Data Show Successfully', data:data});
+    } else {
+      return res.status(404).json({ status:'false', message:'Unit Data Not Found'});
+    }
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
 /* *************************************************************************************************
                                           PURCHASE BILL
 **************************************************************************************************/
@@ -1745,7 +1795,7 @@ exports.delete_purchasebill_item = async (req, res) => {
   try {
     const { id } = req.params;
     const billId = await purchasebillItem.destroy({ where: { id: id } });
-  
+
     if (billId) {
       return res.status(200).json({ status: "true", message: "Purchase Bill Item Delete Successfully" });
     } else {
@@ -1756,33 +1806,201 @@ exports.delete_purchasebill_item = async (req, res) => {
     return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
 }
-exports.get_all_purchasebill = async (req,res) => {
+exports.get_all_purchasebill = async (req, res) => {
   try {
     const data = await purchasebill.findAll({
-      include : [{ model: purchasebillItem}]
+      include: [{ model: purchasebillItem }]
     });
 
-    if(data) {
-      return res.status(200).json({ status:"true", message:"All Purchase data show Successfully", data: data});
+    if (data) {
+      return res.status(200).json({ status: "true", message: "All Purchase data show Successfully", data: data });
     } else {
-      return res.status(404).json({ status:"false", message:"Purchase Bill Not Found" });
+      return res.status(404).json({ status: "false", message: "Purchase Bill Not Found" });
     }
   } catch (error) {
     console.log(error);
     return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
 }
-exports.view_purchasebill = async (req,res) => {
+exports.view_purchasebill = async (req, res) => {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
     const data = await purchasebill.findOne({
-      where : {id},
-      include : [{ model:purchasebillItem}]
+      where: { id },
+      include: [{ model: purchasebillItem }]
     });
-    if(data) {
-      return res.status(200).json({ status:"true", message:"Purchase data show Successfully", data: data});
+    if (data) {
+      return res.status(200).json({ status: "true", message: "Purchase data show Successfully", data: data });
     } else {
-      return res.status(404).json({ status:"false", message:"Purchase Bill Not Found" });
+      return res.status(404).json({ status: "false", message: "Purchase Bill Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+/* *************************************************************************************************
+                                          PURCHASE RETURN
+**************************************************************************************************/
+exports.create_purchaseReturn = async (req, res) => {
+  try {
+    const { vendor, debitnote, debitdate, billaddress, state, shipaddress, refno, refdate, reason } = req.body;
+
+    const data = await purchaseReturn.create({
+      vendor,
+      debitnote,
+      debitdate,
+      billaddress,
+      state,
+      shipaddress,
+      refno,
+      refdate,
+      reason
+    });
+    return res.status(200).json({ status: "true", message: "purchase return create successfully", data: data });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.create_purchaseReturn_item = async (req, res) => {
+  try {
+    const { purchaseReturnId, items } = req.body;
+    // console.log("req", req.body);
+    await Promise.all(items.map(async item => {
+      await purchaseReturnItem.create({
+        ...item,
+        purchaseReturnId: purchaseReturnId
+      })
+    }));
+
+    const data = await purchaseReturnItem.findAll({ where: { purchaseReturnId } });
+    return res.status(200).json({ status: 'true', message: 'Purchase Retuen item create Successfully', data: data });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.update_purchaseReturn = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { vendor, debitnote, debitdate, billaddress, state, shipaddress, refno, refdate, reason } = req.body;
+
+    const returnId = await purchaseReturn.findByPk(id);
+
+    if (!returnId) {
+      return res.status(404).json({ status: "false", message: 'Purchase Return Not found' });
+    }
+
+    await purchaseReturn.update({
+      vendor: vendor,
+      debitnote: debitnote,
+      debitdate: debitdate,
+      billaddress: billaddress,
+      state: state,
+      shipaddress: shipaddress,
+      refno: refno,
+      refdate: refdate,
+      reason: reason
+    }, {
+      where: { id: id }
+    });
+    const data = await purchaseReturn.findByPk(id);
+    return res.status(200).json({ status: 'true', message: "Purchase Return update successfully", data: data });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.update_purchaseReturn_item = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { serialno, product, batchno, expirydate, mrp, bill_no, bill_date, qty, rate, taxable, Cess, price } = req.body;
+
+    const returnId = await purchaseReturnItem.findByPk(id);
+    if (!returnId) {
+      return res.status(404).json({ status: "false", message: 'Purchase Return Item not found' });
+    }
+    await purchaseReturnItem.update({
+      serialno: serialno,
+      product: product,
+      batchno: batchno,
+      expirydate: expirydate,
+      mrp: mrp,
+      bill_no: bill_no,
+      bill_date: bill_date,
+      qty: qty,
+      rate: rate,
+      taxable: taxable,
+      Cess: Cess,
+      price: price
+    }, { where: { id: id } });
+
+    const data = await purchaseReturnItem.findByPk(id);
+    return res.status(200).json({ status: 'true', message: 'Purchase return Item Update Successfully', data: data });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.delete_purchasereturn = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await purchaseReturn.destroy({ where: { id: id } });
+
+    if (data) {
+      return res.status(200).json({ status: 'success', message: 'Purchase Return  Delete Successfully' });
+    } else {
+      return res.status(404).json({ status: 'false', message: "Purchase Return  Not Found" })
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.delete_purchaseReturn_item = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await purchaseReturnItem.destroy({ where: { id: id } });
+    if (data) {
+      return res.status(200).json({ status: 'success', message: 'Purchase Return Item Delete Successfully' });
+    } else {
+      return res.status(404).json({ status: 'false', message: "Purchase Return Item Not Found" })
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.get_all_purchaseReturn = async (req, res) => {
+  try {
+    const data = await purchaseReturn.findAll({
+      include: [{ model: purchaseReturnItem }]
+    });
+    if (data) {
+      return res.status(200).json({ status: 'success', message: 'Purchase Return Show Successfully', data: data });
+    } else {
+      return res.status(404).json({ status: 'false', message: "Purchase Return Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.view_purchaseReturn = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await purchaseReturn.findOne({
+      where: { id: id },
+      include: [{ model: purchaseReturnItem }]
+    });
+    if (data) {
+      return res.status(200).json({ status: 'success', message: 'Purchase Return  Delete Successfully', data: data });
+    } else {
+      return res.status(404).json({ status: 'false', message: "Purchase Return  Not Found" })
     }
   } catch (error) {
     console.log(error);

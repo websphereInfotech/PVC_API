@@ -17,7 +17,7 @@ const { admin_login, create_quotation, create_quotationItem, admin_signup,
      create_stockitem, get_all_stock, create_customer, update_customer, create_customfeild, delete_customfeild,
      update_customfeild, view_customer, get_all_customer, delete_customer, create_product, update_product,
      delete_product, get_all_product, view_product, create_itemgroup, update_itemgroup, view_itemgroup,
-     create_itemcategory, update_itemcategory, view_itemcategory, create_unit, view_unit, update_unit, create_purchasebill, create_purchasebill_item, update_purchasebill, update_purchasebill_item, delete_purchasebill, delete_purchasebill_item, get_all_purchasebill, view_purchasebill } = require("../controller/admincontroller");
+     create_itemcategory, update_itemcategory, view_itemcategory, create_unit, view_unit, update_unit, create_purchasebill, create_purchasebill_item, update_purchasebill, update_purchasebill_item, delete_purchasebill, delete_purchasebill_item, get_all_purchasebill, view_purchasebill, create_purchaseReturn, create_purchaseReturn_item, update_purchaseReturn, update_purchaseReturn_item, delete_purchasereturn, delete_purchaseReturn_item, get_all_purchaseReturn, view_purchaseReturn, get_all_itemgroup, get_all_itemcategory, get_all_unit } = require("../controller/admincontroller");
 const { validation } = require('../views/validate');
 const adminAuth = require('../middleware/adminAuth');
 const adminRoutes = express.Router();
@@ -100,22 +100,34 @@ adminRoutes.get('/get_all_product', adminAuth, get_all_product);
 adminRoutes.post('/create_itemgroup', adminAuth, validation('create_itemgroup'), create_itemgroup);
 adminRoutes.put('/update_itemgroup/:id', adminAuth, update_itemgroup);
 adminRoutes.get('/view_itemgroup/:id', adminAuth, view_itemgroup);
+adminRoutes.get('/get_all_itemgroup',adminAuth,get_all_itemgroup);
 
 adminRoutes.post('/create_itemcategory', adminAuth, validation('create_itemcategory'), create_itemcategory);
 adminRoutes.put('/update_itemcategory/:id', adminAuth, update_itemcategory);
 adminRoutes.get('/view_itemcategory/:id', adminAuth, view_itemcategory);
+adminRoutes.get('/get_all_itemcategory',adminAuth,get_all_itemcategory);
 
 adminRoutes.post('/create_unit', adminAuth, validation('create_unit'), create_unit);
 adminRoutes.put('/update_unit/:id', adminAuth, update_unit);
 adminRoutes.get('/view_unit/:id', adminAuth, view_unit);
+adminRoutes.get('/get_all_unit',adminAuth,get_all_unit);
 
 adminRoutes.post('/create_purchasebill', adminAuth, validation('create_purchasebill'), create_purchasebill);
-adminRoutes.post('/create_purchasebill_item', adminAuth, validation('create_purchasebill_item') ,create_purchasebill_item);
+adminRoutes.post('/create_purchasebill_item', adminAuth, validation('create_purchasebill_item'), create_purchasebill_item);
 adminRoutes.put('/update_purchasebill/:id', adminAuth, update_purchasebill);
 adminRoutes.put('/update_purchasebill_item/:id', adminAuth, update_purchasebill_item);
 adminRoutes.delete('/delete_purchasebill/:id', adminAuth, delete_purchasebill);
 adminRoutes.delete('/delete_purchasebill_item/:id', adminAuth, delete_purchasebill_item);
 adminRoutes.get('/get_all_purchasebill', adminAuth, get_all_purchasebill);
-adminRoutes.get('/view_purchasebill/:id', adminAuth, view_purchasebill)
+adminRoutes.get('/view_purchasebill/:id', adminAuth, view_purchasebill);
+
+adminRoutes.post('/create_purchaseReturn', adminAuth, validation('create_purchaseReturn'), create_purchaseReturn);
+adminRoutes.post('/create_purchaseReturn_item', adminAuth, validation('create_purchaseReturn_item'), create_purchaseReturn_item);
+adminRoutes.put('/update_purchaseReturn/:id', adminAuth, update_purchaseReturn);
+adminRoutes.put('/update_purchaseReturn_item/:id', adminAuth, update_purchaseReturn_item);
+adminRoutes.delete('/delete_purchasereturn/:id', adminAuth, delete_purchasereturn);
+adminRoutes.delete('/delete_purchaseReturn_item/:id', adminAuth, delete_purchaseReturn_item);
+adminRoutes.get('/get_all_purchaseReturn', adminAuth, get_all_purchaseReturn);
+adminRoutes.get('/view_purchaseReturn/:id', adminAuth, view_purchaseReturn);
 
 module.exports = adminRoutes;

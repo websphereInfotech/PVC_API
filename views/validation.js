@@ -154,12 +154,12 @@ exports.qty = function (req, res, next) {
     for (const item of items) {
         const { qty } = item;
         // console.log("item",item);
-        const qtySchema = Joi.string()
+        const qtySchema = Joi.number()
 
             .required()
             .messages({
                 "any.required": "Required Filed : QTY",
-                "string.empty": "QTY Cannot Be A Empty"
+                "number.empty": "QTY Cannot Be A Empty"
             });
         const { error } = qtySchema.validate(qty);
         if (error) {
@@ -310,11 +310,12 @@ exports.gstin = function (req, res, next) {
 }
 exports.billno = function (req, res, next) {
     const { billno } = req.body;
+    console.log("bill", billno);
     const billnoSchema = Joi.string()
         .required()
         .messages({
-            "any.required": "Required Filed : Bill No.",
-            "string.empty": "Bill No. Cannot Be A Empty"
+            "any.required": "Required Field: Bill No.",
+            "string.empty": "Bill No. Cannot Be Empty",
         });
     const { error } = billnoSchema.validate(billno);
     if (error) {
@@ -1230,7 +1231,7 @@ exports.duedate = function (req, res, next) {
 exports.book = function (req, res, next) {
     const { book } = req.body;
     const bookSchema = Joi.string()
-    
+
         .required()
         .messages({
             "any.required": "Required Field : Book",
@@ -1239,6 +1240,147 @@ exports.book = function (req, res, next) {
     const { error } = bookSchema.validate(book);
     if (error) {
         return res.status(400).json({ status: "False", message: error.message });
+    }
+    next();
+}
+exports.debitnote = function (req, res, next) {
+    const { debitnote } = req.body;
+    const debitnoteSchema = Joi.string()
+        .required()
+        .messages({
+            "any.required": "Required Field : Debit Note",
+            "string.empty": "Debit Note Cannot Be A Empty"
+        });
+    const { error } = debitnoteSchema.validate(debitnote);
+    if (error) {
+        return res.status(400).json({ status: "False", message: error.message });
+    }
+    next();
+}
+exports.debitdate = function (req, res, next) {
+    const { debitdate } = req.body;
+    const debitdateSchema = Joi.string()
+        .required()
+        .messages({
+            "any.required": "Required Field : Debit Date",
+            "string.empty": "Debit Date Cannot Be A Empty"
+        });
+    const { error } = debitdateSchema.validate(debitdate);
+    if (error) {
+        return res.status(400).json({ status: "False", message: error.message });
+    }
+    next();
+}
+exports.billaddress = function (req, res, next) {
+    const { billaddress } = req.body;
+    const billaddressSchema = Joi.string()
+        .required()
+        .messages({
+            "any.required": "Required Field : Bill Address",
+            "string.empty": "Bill Address Cannot Be A Empty"
+        });
+    const { error } = billaddressSchema.validate(billaddress);
+    if (error) {
+        return res.status(400).json({ status: "False", message: error.message });
+    }
+    next();
+}
+exports.shipaddress = function (req, res, next) {
+    const { shipaddress } = req.body;
+    const shipaddressSchema = Joi.string()
+        .required()
+        .messages({
+            "any.required": "Required Field : ShipAddress",
+            "string.empty": "ShipAddress Cannot Be A Empty"
+        });
+    const { error } = shipaddressSchema.validate(shipaddress);
+    if (error) {
+        return res.status(400).json({ status: "False", message: error.message });
+    }
+    next();
+}
+exports.refdate = function (req, res, next) {
+    const { refdate } = req.body;
+    const refdateSchema = Joi.string()
+        .required()
+        .messages({
+            "any.required": "Required Field : RefDate",
+            "string.empty": "RefDate Cannot Be A Empty"
+        });
+    const { error } = refdateSchema.validate(refdate);
+    if (error) {
+        return res.status(400).json({ status: "False", message: error.message });
+    }
+    next();
+}
+exports.reason = function (req, res, next) {
+    const { reason } = req.body;
+    const reasonSchema = Joi.string()
+        .required()
+        .messages({
+            "any.required": "Required Field : Reason",
+            "string.empty": "Reason Cannot Be A Empty"
+        });
+    const { error } = reasonSchema.validate(reason);
+    if (error) {
+        return res.status(400).json({ status: "False", message: error.message });
+    }
+    next();
+}
+exports.price = function (req, res, next) {
+    const { items } = req.body;
+    for (const item of items) {
+        const {price} = item;
+        const priceSchema = Joi.number()
+        .required()
+        .messages({
+            "any.required": "Required Field : Price",
+            "number.empty": "Price Cannot Be A Empty"
+        });
+        const { error } = priceSchema.validate(price);
+        if (error) {
+            return res.status(400).json({ status: "False", message: error.message });
+        }
+    }
+    next();
+}
+exports.bill_no = function (req, res, next) {
+    const { items } = req.body;
+
+    for (const item of items) {
+        const { bill_no } = item;
+
+        const bill_noSchema = Joi.string()
+
+            .required()
+            .messages({
+                "any.required": "Required Field: bill_no",
+                "string.empty": "bill_no Cannot Be Empty"
+            });
+        const { error } = bill_noSchema.validate(bill_no);
+        if (error) {
+            return res.status(400).json({ status: "False", message: error.message });
+        }
+    }
+    next();
+}
+exports.bill_date = function (req, res, next) {
+    const { items } = req.body;
+
+    for (const item of items) {
+        const { bill_date } = item;
+
+        const bill_dateSchema = Joi.string()
+
+            .required()
+            .messages({
+                "any.required": "Required Field: Bill_date",
+                "string.empty": "bill_date Cannot Be Empty"
+            });
+        const { error } = bill_dateSchema.validate(bill_date);
+        if (error) {
+            return res.status(400).json({ status: "False", message: error.message });
+        }
     }
     next();
 }
