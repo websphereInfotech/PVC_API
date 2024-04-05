@@ -10,11 +10,39 @@ app.use(cors());
 
 app.use(express.json());
 
-const adminRouter = require("./route/adminRoute");
-app.use("/admin", adminRouter);
+const {
+    loginRoute,
+    quotationRoute,
+    salesreturnRoute,
+    expenseRoute,
+    salesinvoiceRoute,
+    deliverychallanRoute,
+    purchaseRoute,
+    paymentRoute,
+    stockRoute,
+    customerRoute,
+    productRoute,
+    itemgroupRoute,
+    itemcategoryRoute,
+    unitRoute,
+    purchaseBill
+} = require('./app/route/adminRoute');
 
-// const postRoutes = require("./route/postRoute")
-// app.use("/post", postRoutes);
+app.use("/admin", loginRoute);
+app.use("/admin",quotationRoute);
+app.use("/admin",salesreturnRoute);
+app.use("/admin",expenseRoute);
+app.use("/admin",salesinvoiceRoute);
+app.use("/admin",deliverychallanRoute);
+app.use("/admin",purchaseRoute);
+app.use("/admin",paymentRoute);
+app.use("/admin",stockRoute);
+app.use("/admin",customerRoute);
+app.use("/admin",productRoute);
+app.use("/admin",itemgroupRoute);
+app.use("/admin",itemcategoryRoute);
+app.use("/admin",unitRoute);
+app.use("/admin",purchaseBill);
 
 app.get("/", (req, res) => res.send("Hello World!"));
 
