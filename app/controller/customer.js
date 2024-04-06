@@ -3,7 +3,8 @@ const customfeild = require("../models/customfeild");
 
 exports.create_customer = async (req, res) => {
     try {
-      const { accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, address2, pincode, state, city, bankdetail, creditlimit, balance } = req.body
+      const { accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, address2, pincode, state, city, bankdetail, creditlimit, balance,country } = req.body
+      console.log("req",req.body);
       const data = await customer.create({
         accountname,
         shortname,
@@ -20,8 +21,10 @@ exports.create_customer = async (req, res) => {
         city,
         bankdetail,
         creditlimit,
-        balance
-      })
+        balance,
+        country
+      });
+      console.log("data",data);
       return res.status(200).json({ status: "true", message: "New customer created successfully", data: data })
     } catch (error) {
       console.log(error);
@@ -31,7 +34,7 @@ exports.create_customer = async (req, res) => {
   exports.update_customer = async (req, res) => {
     try {
       const { id } = req.params
-      const { accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, address2, pincode, state, city, bankdetail, creditlimit, balance } = req.body
+      const { accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, address2, pincode, state, city, bankdetail, creditlimit, balance,country } = req.body
   
       const updatepayment = await customer.findByPk(id)
   
@@ -55,8 +58,8 @@ exports.create_customer = async (req, res) => {
         city: city,
         bankdetail: bankdetail,
         creditlimit: creditlimit,
-        balance: balance
-  
+        balance: balance,
+        country :country  
       }, {
         where: { id: id }
       });
