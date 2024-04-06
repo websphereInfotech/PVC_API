@@ -1,7 +1,7 @@
 const express = require('express');
 const { validation } = require('../views/validate');
 const adminAuth = require('../middleware/adminAuth');
-const { create_unit, update_unit, view_unit, get_all_unit } = require('../controller/admincontroller');
+const { create_unit, update_unit, view_unit, get_all_unit } = require('../controller/units');
 
 const router = express.Router();
 

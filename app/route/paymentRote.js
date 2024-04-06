@@ -1,7 +1,8 @@
 const express = require('express');
 const { validation } = require('../views/validate');
 const adminAuth = require('../middleware/adminAuth');
-const { create_payment, update_payment, delete_payment, view_payment, get_all_payment } = require('../controller/payment');
+const { create_payment, update_payment, delete_payment, view_payment, get_all_payment } = require('../controller/admincontroller');
+
 
 const router = express.Router();
 

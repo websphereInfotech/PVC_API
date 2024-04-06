@@ -1,7 +1,7 @@
 const express = require('express');
 const { validation } = require('../views/validate');
 const adminAuth = require('../middleware/adminAuth');
-const { create_purchaseitem, create_purchase, update_purchaseitem, update_purchase, delete_purchase, delete_purchaseitem, view_purchase, get_all_purchase } = require('../controller/admincontroller');
+const { create_purchase, create_purchaseitem, update_purchase, update_purchaseitem, delete_purchase, delete_purchaseitem, view_purchase, get_all_purchase } = require('../controller/purchaseOrder');
 
 const router = express.Router();
 

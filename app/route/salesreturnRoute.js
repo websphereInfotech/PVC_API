@@ -1,7 +1,8 @@
 const express = require('express');
 const { validation } = require('../views/validate');
 const adminAuth = require('../middleware/adminAuth');
-const { create_salesReturn, get_all_salesReturn } = require('../controller/admincontroller');
+const { create_salesReturn, get_all_salesReturn } = require('../controller/salesReturn');
+
 const router = express.Router();
 
 router.post('/create_salesReturn', adminAuth, validation('create_salesReturn'), create_salesReturn);

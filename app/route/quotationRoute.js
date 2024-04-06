@@ -1,7 +1,8 @@
 const express = require('express');
 const { validation } = require('../views/validate');
 const adminAuth = require('../middleware/adminAuth');
-const { create_quotation, create_quotationItem, update_quotation, update_quotationItem, delete_quotation, delete_quotationitem, view_quotation, get_all_quotation } = require('../controller/admincontroller');
+const { create_quotation, create_quotationItem, update_quotation, update_quotationItem, delete_quotation, delete_quotationitem, view_quotation, get_all_quotation } = require('../controller/qutation');
+
 const router = express.Router();
 
 
