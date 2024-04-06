@@ -1,7 +1,8 @@
 const express = require('express');
 const { validation } = require('../views/validate');
 const adminAuth = require('../middleware/adminAuth');
-const { create_expense, create_expenseItem, update_expense, update_expenseItem, delete_expense, delete_expenseItem, get_all_expense, view_expense } = require('../controller/admincontroller');
+const { create_expense, create_expenseItem, update_expense, update_expenseItem, delete_expense, delete_expenseItem, get_all_expense, view_expense } = require('../controller/expense');
+
 const router = express.Router();
 
 router.post('/create_expense',adminAuth,validation('create_expense'),create_expense);

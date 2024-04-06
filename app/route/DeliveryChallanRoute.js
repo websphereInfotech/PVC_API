@@ -1,7 +1,8 @@
 const express = require('express');
 const { validation } = require('../views/validate');
 const adminAuth = require('../middleware/adminAuth');
-const { create_deliverychallan, create_deliverychallanitem, update_deliverychallan, update_deliverychallanitem, delete_deliverychallan, delete_deliverychallanitem, view_deliverychallan, get_all_deliverychallan } = require('../controller/admincontroller');
+const { create_deliverychallan, create_deliverychallanitem, update_deliverychallan, update_deliverychallanitem, delete_deliverychallan, delete_deliverychallanitem, view_deliverychallan, get_all_deliverychallan } = require('../controller/deliveryChallan');
+
 
 const router = express.Router();
 

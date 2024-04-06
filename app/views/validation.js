@@ -1427,3 +1427,79 @@ exports.amountrecive = function (req, res, next) {
     }
     next();
 }
+exports.holdername = function (req, res, next) {
+    const { holdername } = req.body;
+
+    const holdernameSchema = Joi.string()
+        .required()
+        .messages({
+            "any.required": "Required filed : Holder Name",
+            "string.empty": "Holder Name Cannot Be A Empty"
+        });
+    const { error } = holdernameSchema.validate(holdername);
+    if (error) {
+        return res.status(400).json({ status: 'false', message: error.message });
+    }
+    next();
+}
+exports.accountnumber = function (req, res, next) {
+    const { accountnumber } = req.body;
+    const accountnumberSchema = Joi.string()
+
+        .required()
+        .messages({
+            "any.required": "Required filed : Account Number",
+            "string.empty": "Account Number Cannot Be A Empty"
+        });
+    const { error } = accountnumberSchema.validate(accountnumber);
+    if (error) {
+        return res.status(400).json({ status: 'false', message: error.message });
+    }
+    next();
+}
+exports.ifsccode = function (req, res, next) {
+    const { ifsccode } = req.body;
+    // console.log("ifsc",ifsccode);
+    const ifsccodeSchema = Joi.string()
+
+        .required()
+        .messages({
+            "any.required": "Required filed : IFSC Code",
+            "string.empty": "IFSC Code Cannot Be A Empty"
+        });
+    const { error } = ifsccodeSchema.validate(ifsccode);
+    if (error) {
+        return res.status(400).json({ status: 'false', message: error.message });
+    }
+    next();
+}
+exports.bankname = function (req, res, next) {
+    const { bankname } = req.body;
+    const banknameSchema = Joi.string()
+
+        .required()
+        .messages({
+            "any.required": "Required filed : BankName",
+            "string.empty": "BankName Cannot Be A Empty"
+        });
+    const { error } = banknameSchema.validate(bankname);
+    if (error) {
+        return res.status(400).json({ status: 'false', message: error.message });
+    }
+    next();
+}
+exports.openingbalance = function (req, res, next) {
+    const { openingbalance } = req.body;
+    const openingbalanceSchema = Joi.number()
+
+        .required()
+        .messages({
+            "any.required": "Required filed : Opening Balance",
+            "number.empty": "Opening Balance Cannot Be A Empty"
+        });
+    const { error } = openingbalanceSchema.validate(openingbalance);
+    if (error) {
+        return res.status(400).json({ status: 'false', message: error.message });
+    }
+    next();
+}

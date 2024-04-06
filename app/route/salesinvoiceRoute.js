@@ -1,7 +1,8 @@
 const express = require('express');
 const { validation } = require('../views/validate');
 const adminAuth = require('../middleware/adminAuth');
-const { create_salesInvoice, create_salesInvoiceItem, update_salesInvoiceItem, update_salesInvoice, delete_salesInvoiceItem, delete_salesInvoice, view_salesInvoice, get_all_salesInvoice } = require('../controller/admincontroller');
+const { create_salesInvoice, create_salesInvoiceItem, update_salesInvoice, update_salesInvoiceItem, delete_salesInvoice, delete_salesInvoiceItem, view_salesInvoice, get_all_salesInvoice } = require('../controller/salesinvoice');
+
 
 const router = express.Router();
 

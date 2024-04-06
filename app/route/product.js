@@ -1,7 +1,8 @@
 const express = require('express');
 const { validation } = require('../views/validate');
 const adminAuth = require('../middleware/adminAuth');
-const { create_product, update_product, delete_product, view_product, get_all_product } = require('../controller/admincontroller');
+const { create_product, update_product, delete_product, view_product, get_all_product } = require('../controller/product');
+
 
 
 const router = express.Router();

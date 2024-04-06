@@ -1,4 +1,4 @@
-const { email, password, mobileno, challanno, date, customer, serialno, mrp, qty, product, description, batchno, quotationno, expirydate, vendor, voucherno, gstin, billno, billdate, payment, expensse, taxable, account, paymentdate, refno, quotationref, pono, mode, paidfrom, amount, quotation_no, rate, discount, validtill, challendate, creditnote, creditdate, sr_no, batch_no, expiry_date, invoiceno, invoicedate, quantity, itemname, unit, accountname, shortname, contactpersonname, panno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, label, value, itemtype, productname, itemgroup, itemcategory, openingstock, nagativeqty, lowstock, itemselected, purchaseprice, salesprice, gstrate, cess, group, remarks, category, unitname, terms, duedate, book, debitnote, debitdate, billaddress, shipaddress, refdate, reason, price, bill_no, bill_date, Cess, depositto, amountrecive, receiptdate
+const { email, password, mobileno, challanno, date, customer, serialno, mrp, qty, product, description, batchno, quotationno, expirydate, vendor, voucherno, gstin, billno, billdate, payment, expensse, taxable, account, paymentdate, refno, quotationref, pono, mode, paidfrom, amount, quotation_no, rate, discount, validtill, challendate, creditnote, creditdate, sr_no, batch_no, expiry_date, invoiceno, invoicedate, quantity, itemname, unit, accountname, shortname, contactpersonname, panno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, label, value, itemtype, productname, itemgroup, itemcategory, openingstock, nagativeqty, lowstock, itemselected, purchaseprice, salesprice, gstrate, cess, group, remarks, category, unitname, terms, duedate, book, debitnote, debitdate, billaddress, shipaddress, refdate, reason, price, bill_no, bill_date, Cess, depositto, amountrecive, receiptdate, holdername, accountnumber, ifsccode, bankname, openingbalance
 } = require("./validation")
 
 module.exports.validation = function (method) {
@@ -55,6 +55,8 @@ module.exports.validation = function (method) {
             return [serialno, product, batchno, expirydate, mrp, bill_no, bill_date, qty, rate, taxable, price]
         case "create_receipt":
             return [voucherno, account, email, mode, refno, depositto, amountrecive, receiptdate]
+        case "create_bankaccount":
+            return [accountname, shortname, email, mobileno, holdername, accountnumber, ifsccode, bankname, openingbalance]
         default:
             throw new Error('Invalid validation method')
     }

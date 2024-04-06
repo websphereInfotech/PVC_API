@@ -1,8 +1,7 @@
 const express = require('express');
 const { validation } = require('../views/validate');
 const adminAuth = require('../middleware/adminAuth');
-const { create_customer, update_customer, delete_customer, create_customfeild, update_customfeild, delete_customfeild, view_customer, get_all_customer } = require('../controller/admincontroller');
-
+const { create_customer, create_customfeild, update_customer, update_customfeild, delete_customer, delete_customfeild, view_customer, get_all_customer } = require('../controller/customer');
 
 const router = express.Router();
 

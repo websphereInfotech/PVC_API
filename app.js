@@ -25,24 +25,30 @@ const {
     itemgroupRoute,
     itemcategoryRoute,
     unitRoute,
-    purchaseBill
+    purchaseBill,
+    purchaseReturn,
+    receiptRoute,
+    bankAccount
 } = require('./app/route/adminRoute');
 
 app.use("/admin", loginRoute);
-app.use("/admin",quotationRoute);
-app.use("/admin",salesreturnRoute);
-app.use("/admin",expenseRoute);
-app.use("/admin",salesinvoiceRoute);
-app.use("/admin",deliverychallanRoute);
-app.use("/admin",purchaseRoute);
-app.use("/admin",paymentRoute);
-app.use("/admin",stockRoute);
-app.use("/admin",customerRoute);
-app.use("/admin",productRoute);
-app.use("/admin",itemgroupRoute);
-app.use("/admin",itemcategoryRoute);
-app.use("/admin",unitRoute);
-app.use("/admin",purchaseBill);
+app.use("/admin", quotationRoute);
+app.use("/admin", salesreturnRoute);
+app.use("/admin", expenseRoute);
+app.use("/admin", salesinvoiceRoute);
+app.use("/admin", deliverychallanRoute);
+app.use("/admin", purchaseRoute);
+app.use("/admin", paymentRoute);
+app.use("/admin", stockRoute);
+app.use("/admin", customerRoute);
+app.use("/admin", productRoute);
+app.use("/admin", itemgroupRoute);
+app.use("/admin", itemcategoryRoute);
+app.use("/admin", unitRoute);
+app.use("/admin", purchaseBill);
+app.use("/admin", purchaseReturn);
+app.use("/admin", receiptRoute);
+app.use("/admin", bankAccount);
 
 app.get("/", (req, res) => res.send("Hello World!"));
 
