@@ -2,55 +2,58 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/index');
 
 const customer = sequelize.define("customer", {
-    accountname : {
-        type :DataTypes.STRING,
+    accountname: {
+        type: DataTypes.STRING,
     },
-    shortname : {
-        type : DataTypes.STRING,
+    shortname: {
+        type: DataTypes.STRING,
     },
-    email : {
-        type : DataTypes.STRING,
-    }, 
-    contactpersonname : {
-        type : DataTypes.STRING,
+    email: {
+        type: DataTypes.STRING,
     },
-    mobileno : {
-        type : DataTypes.INTEGER
+    contactpersonname: {
+        type: DataTypes.STRING,
     },
-    panno : {
-        type : DataTypes.INTEGER
+    mobileno: {
+        type: DataTypes.STRING
     },
-    creditperiod : {
-        type : DataTypes.INTEGER
+    panno: {
+        type: DataTypes.INTEGER
     },
-    mode : {
-        type :DataTypes.STRING
+    creditperiod: {
+        type: DataTypes.INTEGER
     },
-    address1 : {
-        type : DataTypes.STRING
+    mode: {
+        type: DataTypes.STRING
     },
-    address2 : {
-        type : DataTypes.STRING
+    address1: {
+        type: DataTypes.STRING
     },
-    pincode : {
-        type : DataTypes.INTEGER
+    address2: {
+        type: DataTypes.STRING
     },
-    state : {
-        type : DataTypes.STRING
+    pincode: {
+        type: DataTypes.INTEGER
     },
-    city : {
-        type : DataTypes.STRING
+    state: {
+        type: DataTypes.STRING
     },
-    bankdetail : {
-        type : DataTypes.BOOLEAN,
-        defaultValue : false
+    city: {
+        type: DataTypes.STRING
     },
-    creditlimit : {
-        type : DataTypes.BOOLEAN,
-        defaultValue : false
+    bankdetail: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
     },
-    balance : {
-        type : DataTypes.INTEGER
+    creditlimit: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    balance: {
+        type: DataTypes.INTEGER
+    },
+    country: {
+        type: DataTypes.STRING
     }
 });
 

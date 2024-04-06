@@ -1503,3 +1503,17 @@ exports.openingbalance = function (req, res, next) {
     }
     next();
 }
+exports.country = function (req, res, next) {
+    const { country } = req.body;
+    const countrySchema = Joi.string()
+        .required()
+        .messages({
+            "any.required": "Required filed : Country",
+            "string.empty": "Country Cannot Be A Empty"
+        });
+    const { error } = countrySchema.validate(country);
+    if (error) {
+        return res.status(400).json({ status: 'false', message: error.message });
+    }
+    next();
+}
