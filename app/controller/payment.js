@@ -2,7 +2,7 @@ const payment = require("../models/payment");
 
 exports.create_payment = async (req, res) => {
     try {
-      const { voucherno, account, email, paymentdate, mode, refno, amountpaid, paidfrom, billno, billfromdate, billtodate } = req.body
+      const { voucherno, account, email, paymentdate, mode, refno, amountpaid, paidfrom, billno, billfromdate, billtodate,amount } = req.body
       // console.log("DATA>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",req.body);
       const data = await payment.create({
         voucherno,
@@ -15,7 +15,8 @@ exports.create_payment = async (req, res) => {
         amountpaid,
         billno,
         billfromdate,
-        billtodate
+        billtodate,
+        amount
       })
       return res.status(200).json({ status: "true", message: "Payment created successfully", data: data })
     } catch (error) {
@@ -26,7 +27,7 @@ exports.create_payment = async (req, res) => {
   exports.update_payment = async (req, res) => {
     try {
       const { id } = req.params
-      const { voucherno, account, email, paymentdate, mode, refno, amountpaid, paidfrom, billno, billfromdate, billtodate } = req.body
+      const { voucherno, account, email, paymentdate, mode, refno, amountpaid, paidfrom, billno, billfromdate, billtodate,amount } = req.body
   
       const updatepayment = await payment.findByPk(id)
   
@@ -45,8 +46,8 @@ exports.create_payment = async (req, res) => {
         amountpaid: amountpaid,
         billno: billno,
         billfromdate: billfromdate,
-        billtodate: billtodate
-  
+        billtodate: billtodate,
+        amount :amount
       }, {
         where: { id: id }
       });
