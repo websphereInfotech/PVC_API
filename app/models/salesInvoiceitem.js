@@ -3,33 +3,24 @@ const sequelize = require('../../config/index');
 const salesInvoice = require('./salesInvoice');
 
 const salesInvoiceItem = sequelize.define("salesInvoiceItem", {
-    serialno : {
-        type : DataTypes.INTEGER,
-        allowNull : false
+    serialno: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     },
-    quotationno : {
-        type :DataTypes.STRING,
-        allowNull : false
+    product: {
+        type: DataTypes.STRING,
+        allowNull: false
     },
-    product : {
-        type : DataTypes.STRING,
-        allowNull : false
+    mrp: {
+        type: DataTypes.FLOAT,
+        allowNull: false
     },
-    batchno : {
-        type : DataTypes.STRING,
-        allowNull :false
+    qty: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     },
-    expirydate : {
-        type : DataTypes.DATE,
-        allowNull : false
-    },
-    mrp : {
-        type : DataTypes.FLOAT,
-        allowNull :false
-    },
-    qty : {
-        type : DataTypes.INTEGER,
-        allowNull : false
+    rate: {
+        type: DataTypes.FLOAT,
     }
 });
 

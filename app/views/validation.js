@@ -1517,3 +1517,17 @@ exports.country = function (req, res, next) {
     }
     next();
 }
+exports.seriesname = function (req,res,next) {
+    const {seriesname} = req.body;
+    const seriesnameSchema = Joi.string()
+    .required()
+    .messages({
+        "any.required" :"Required Filed : Series Name",
+        "string.empty" :"Series Name Cannot Be A Empty"
+    });
+    const {error} = seriesnameSchema.validate(seriesname);
+    if(error) {
+        return res.status(400).json({ status:"false", message: error.message});
+    }
+    next();
+}
