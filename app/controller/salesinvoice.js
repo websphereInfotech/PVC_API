@@ -22,14 +22,19 @@ exports.create_salesInvoiceItem = async (req, res) => {
   }
   exports.create_salesInvoice = async (req, res) => {
     try {
-      const { challanno, challendate, email, mobileno, customer, items } = req.body;
+      const { email, mobileno, customer,book,seriesname,invoiceno,invoicedate,terms,duedate,quotation_no } = req.body;
   
       const salesInvoiceData = await salesInvoice.create({
-        challanno,
-        challendate,
         email,
         mobileno,
-        customer
+        customer,
+        book,
+        seriesname,
+        invoiceno,
+        invoicedate,
+        terms,
+        duedate,
+        quotation_no
       });
   
       return res.status(200).json({ status: "true", message: "SalesInvoice Create Successfully", data: salesInvoiceData });
