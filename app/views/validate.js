@@ -50,7 +50,7 @@ module.exports.validation = function (method) {
         case "create_purchasebill_item":
             return [product, qty, rate, mrp]
         case "create_purchaseReturn":
-            return [vendor, debitnote, debitdate, billaddress, state, shipaddress, refno, refdate, reason]
+            return [vendor, debitnote, debitdate, refno, refdate]
         case "create_purchaseReturn_item":
             return [serialno, product, batchno, expirydate, mrp, bill_no, bill_date, qty, rate, taxable, price]
         case "create_receipt":
