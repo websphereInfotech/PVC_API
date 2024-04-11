@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/index');
 
 const expense = sequelize.define("expense", {
-    vendor : {
+    customer : {
         type : DataTypes.STRING,
     },
     voucherno : {

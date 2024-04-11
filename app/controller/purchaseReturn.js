@@ -3,18 +3,14 @@ const purchaseReturnItem = require("../models/purchasereturnitem");
 
 exports.create_purchaseReturn = async (req, res) => {
     try {
-      const { vendor, debitnote, debitdate, billaddress, state, shipaddress, refno, refdate, reason } = req.body;
+      const { vendor, debitnote, debitdate, refno, refdate } = req.body;
   
       const data = await purchaseReturn.create({
         vendor,
         debitnote,
         debitdate,
-        billaddress,
-        state,
-        shipaddress,
         refno,
-        refdate,
-        reason
+        refdate
       });
       return res.status(200).json({ status: "true", message: "purchase return create successfully", data: data });
     } catch (error) {
