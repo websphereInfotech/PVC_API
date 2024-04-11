@@ -67,7 +67,7 @@ exports.admin_login = async (req, res) => {
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ status:'false',error: 'User not found' });
     }
 
     // const matchPassword = await bcrypt.compare(password, user.password);
@@ -88,7 +88,7 @@ exports.admin_login = async (req, res) => {
       await userToken.create({ userId: user.id, token });
     }
 
-    return res.status(200).json({ message: 'User Login Successfully', token });
+    return res.status(200).json({ status:'true' ,message: 'User Login Successfully', token });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });

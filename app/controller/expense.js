@@ -4,10 +4,10 @@ const expenseItem = require("../models/expenseItem");
 
 exports.create_expense = async (req, res) => {
     try {
-      const { vendor, voucherno, date, gstin, mobileno, email, billno, billdate, payment } = req.body;
+      const { customer, voucherno, date, gstin, mobileno, email, billno, billdate, payment } = req.body;
   
       const data = await expense.create({
-        vendor: vendor,
+        customer: customer,
         voucherno: voucherno,
         date: date,
         gstin: gstin,
@@ -85,14 +85,14 @@ exports.create_expense = async (req, res) => {
     try {
   
       const { id } = req.params;
-      const { vendor, voucherno, date, gstin, mobileno, email, billno, billdate, payment } = req.body;
+      const { customer, voucherno, date, gstin, mobileno, email, billno, billdate, payment } = req.body;
   
       const expensedata = await expense.findByPk(id);
       if (!expensedata) {
         return res.status(404).json({ status: "false", message: "Expense not Found" });
       }
       await expense.update({
-        vendor: vendor,
+        customer: customer,
         voucherno: voucherno,
         date: date,
         gstin: gstin,

@@ -12,7 +12,7 @@ module.exports.validation = function (method) {
         case "create_deliverychallanitem":
             return [serialno, mrp, qty, product, description, batchno, quotationno, expirydate]
         case "create_expense":
-            return [mobileno, vendor, voucherno, date, gstin, mobileno, email, billno, billdate, payment]
+            return [mobileno, customer, voucherno, date, gstin, mobileno, email, billno, billdate, payment]
         case "create_expenseItem":
             return [serialno, expensse, description, taxable, mrp]
         case "create_payment":
