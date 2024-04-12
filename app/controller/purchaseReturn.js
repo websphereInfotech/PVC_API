@@ -153,7 +153,7 @@ exports.create_purchaseReturn = async (req, res) => {
         include: [{ model: purchaseReturnItem }]
       });
       if (data) {
-        return res.status(200).json({ status: 'success', message: 'Purchase Return  Delete Successfully', data: data });
+        return res.status(200).json({ status: 'success', message: 'Purchase Return Show Successfully', data: data });
       } else {
         return res.status(404).json({ status: 'false', message: "Purchase Return  Not Found" })
       }
