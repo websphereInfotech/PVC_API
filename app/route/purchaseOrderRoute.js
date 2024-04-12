@@ -9,7 +9,7 @@ const router = express.Router();
 router.post('/create_purchase', adminAuth, validation('create_purchase'), create_purchase);
 router.post('/create_purchaseitem', adminAuth, validation('create_purchaseitem'), create_purchaseitem);
 router.put('/update_purchase/:id', adminAuth, update_purchase);
-router.put('/update_purchaseitem/:id', adminAuth, update_purchaseitem);
+router.put('/update_purchaseitem/:itemid', adminAuth, update_purchaseitem);
 router.delete('/delete_purchase/:id', adminAuth, delete_purchase);
 router.delete('/delete_purchaseitem/:id', adminAuth, delete_purchaseitem);
 router.get('/view_purchase/:id', adminAuth, view_purchase);

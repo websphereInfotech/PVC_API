@@ -14,7 +14,7 @@ const purchase = sequelize.define("purchase",{
     mobileno : {type:DataTypes.STRING},
     quotationref : {type:DataTypes.STRING},
     pono : {type:DataTypes.STRING},
-    vendor : {type:DataTypes.STRING}
+    customer : {type:DataTypes.STRING}
 });
 
 
