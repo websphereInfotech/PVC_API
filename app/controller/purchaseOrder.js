@@ -3,14 +3,14 @@ const purchaseitem = require("../models/purchaseitem");
 
 exports.create_purchase = async (req, res) => {
     try {
-      const { email, date, quotation_no, mobileno, vendor, pono, quotationref } = req.body
+      const { email, date, quotation_no, mobileno, customer, pono, quotationref } = req.body
     //   console.log("DATA>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", req.body);
       const data = await purchase.create({
         email,
         mobileno,
         date,
         quotation_no,
-        vendor,
+        customer,
         quotationref,
         pono
       })
@@ -41,10 +41,10 @@ exports.create_purchase = async (req, res) => {
   }
   exports.update_purchaseitem = async (req, res) => {
     try {
-      const { id } = req.params;
+      const { itemid } = req.params;
       const { date, discount, product, qty, rate, serialno, amount } = req.body;
   
-      const deliverychallan = await purchaseitem.findByPk(id);
+      const deliverychallan = await purchaseitem.findByPk(itemid);
       if (!deliverychallan) {
         return res.status(404).json({ message: "Purchase Item not Found" });
       }
@@ -57,19 +57,20 @@ exports.create_purchase = async (req, res) => {
         rate: rate,
         amount: amount
       }, {
-        where: { id: id }
+        where: { id: itemid }
       });
-      const data = await purchaseitem.findByPk(id);
+      const data = await purchaseitem.findByPk(itemid);
       return res.status(200).json({ status: "true", message: "Purchase Item Update Successfully", data: data });
     } catch (error) {
       console.log(error.message);
       return res.status(500).json({ status: "false", message: "Internal Server Error" });
     }
   }
+
   exports.update_purchase = async (req, res) => {
     try {
       const { id } = req.params
-      const { email, mobileno, date, pono, vendor, quotationno, quotationref } = req.body
+      const { email, mobileno, date, pono, customer, quotation_no, quotationref } = req.body
   
       const updatechallan = await purchase.findByPk(id)
   
@@ -78,11 +79,11 @@ exports.create_purchase = async (req, res) => {
       }
   
       await purchase.update({
-        quotationno: quotationno,
+        quotation_no: quotation_no,
         date: date,
         email: email,
         mobileno: mobileno,
-        vendor: vendor,
+        customer: customer,
         pono: pono,
         quotationref: quotationref
   
