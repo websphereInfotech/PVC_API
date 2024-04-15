@@ -10,7 +10,7 @@ router.post('/create_expenseItem',adminAuth,validation('create_expenseItem'),cre
 router.put('/update_expense/:id',adminAuth,update_expense);
 router.put('/update_expenseItem/:id',adminAuth,update_expenseItem);
 router.delete('/delete_expense/:id',adminAuth,delete_expense);
-router.delete('/delete_expenseItem.:id',adminAuth,delete_expenseItem);
+router.delete('/delete_expenseItem/:id',adminAuth,delete_expenseItem);
 router.get('/get_all_expense',adminAuth,get_all_expense);
 router.get('/view_expense/:id',adminAuth,view_expense);
 

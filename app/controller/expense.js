@@ -114,7 +114,7 @@ exports.create_expense = async (req, res) => {
   exports.update_expenseItem = async (req, res) => {
     try {
       const { id } = req.params;
-      const { serialno, expensse, description, taxable, price } = req.body;
+      const { serialno, expensse, description, taxable, mrp } = req.body;
   
       const expenseId = await expenseItem.findByPk(id);
   
@@ -127,7 +127,7 @@ exports.create_expense = async (req, res) => {
         expensse: expensse,
         description: description,
         taxable: taxable,
-        price: price
+        mrp: mrp
       }, {
         where: { id: id }
       });
