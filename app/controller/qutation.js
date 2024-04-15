@@ -108,7 +108,7 @@ exports.create_quotationItem = async (req, res) => {
   exports.update_quotationItem = async (req, res) => {
     try {
       const { id } = req.params;
-      const { rate, product, qty, amount } = req.body;
+      const { srNo,rate, product, qty, mrp } = req.body;
   
       const salesId = await quotationItem.findByPk(id);
   
@@ -117,10 +117,11 @@ exports.create_quotationItem = async (req, res) => {
       }
   
       await quotationItem.update({
+        srNo: srNo,
         rate: rate,
         qty: qty,
         product: product,
-        amount: amount,
+        mrp: mrp,
       }, {
         where: { id: id }
       });
