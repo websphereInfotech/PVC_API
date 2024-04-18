@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../../config/index");
+const sequelize = require("../config/index");
 
 const admin = sequelize.define("admin", {
   // username: {
@@ -14,6 +14,10 @@ const admin = sequelize.define("admin", {
       type: DataTypes.STRING,
       allowNull: false
     },
+    role :{
+      type : DataTypes.STRING,
+      defaultValue:"superAdmin"
+    }
   }
   );
 
