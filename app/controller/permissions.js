@@ -5,7 +5,6 @@ exports.get_all_permissions = async(req,res) => {
         const data = await permission.findAll();
 
         if (data.length > 0) {
-            // Grouping permissions by role and then by resource
             const groupedPermissions = {};
             data.forEach(item => {
                 const role = item.role;
@@ -24,7 +23,6 @@ exports.get_all_permissions = async(req,res) => {
                 });
             });
 
-            // Constructing the response
             const formattedData = [];
             Object.keys(groupedPermissions).forEach(role => {
                 const permissions = [];
