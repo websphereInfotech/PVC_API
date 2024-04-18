@@ -44,7 +44,7 @@ exports.admin_login = async (req, res) => {
 /* *************************************************************************************************
                                           User SIGNUP
 **************************************************************************************************/
-exports.user_signup = async (req, res) => {
+exports.create_user = async (req, res) => {
   console.log("enter user");
   try {
     const { username, email,password,confirmpassword,role } = req.body;

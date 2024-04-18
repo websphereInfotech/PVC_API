@@ -77,8 +77,8 @@ const adminToken = (permissionString) => {
                         permission: permission
                     }
                 });
-                
-                console.log("rolepermissions", rolePermissions);
+
+                // console.log("rolepermissions", rolePermissions);
 
                 if (rolePermissions && rolePermissions.permissionValue === true) {
                     return next();
