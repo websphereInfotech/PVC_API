@@ -8,7 +8,7 @@ const router = express.Router();
 
 
 router.post('/create_quotation', adminAuth("quotation:create_quotation"), validation('create_quotation'), create_quotation);
-router.post('/create_quatationItem',adminAuth,validation('create_quotationitem'), create_quotationItem);
+router.post('/create_quatationItem',adminAuth("quotation:create_quatationItem"),validation('create_quotationitem'), create_quotationItem);
 router.put('/update_quotation/:id', adminAuth("quotation:update_quotation"), update_quotation);
 router.put('/update_quotationItem/:id', adminAuth("quotation:update_quotationItem"), update_quotationItem);
 router.delete('/delete_quotation/:id', adminAuth("quotation:delete_quotation"), delete_quotation);
