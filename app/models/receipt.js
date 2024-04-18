@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../../config/index');
+const sequelize = require('../config/index');
 
 const receipt = sequelize.define("receipt", {
     voucherno: { type: DataTypes.STRING },

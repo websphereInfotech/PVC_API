@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../../config/index');
+const sequelize = require('../config/index');
 const quotation = require('./quotation');
 
 const quotationItem = sequelize.define('quotationItem', {
