@@ -16,7 +16,7 @@ const admin = sequelize.define("admin", {
     },
     role :{
       type : DataTypes.STRING,
-      defaultValue:"superAdmin"
+      defaultValue:"Super Admin"
     }
   }
   );
