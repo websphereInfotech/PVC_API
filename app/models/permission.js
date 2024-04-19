@@ -27,7 +27,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 
-const permission = sequelize.define("permission",{
+const Permission = sequelize.define("permission",{
     role : {type:DataTypes.STRING},
     resource : {type:DataTypes.STRING},
     permissionValue : {type:DataTypes.BOOLEAN},
@@ -37,4 +37,4 @@ const permission = sequelize.define("permission",{
 });
 
 
-module.exports = permission;
+module.exports = Permission;
