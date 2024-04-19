@@ -3,7 +3,7 @@ const Permission = require("../models/permission");
 
 exports.get_all_permissions = async(req,res) => {
     try {
-        const data = await permission.findAll();
+        const data = await Permission.findAll();
 
         if (data.length > 0) {
             const groupedPermissions = {};
@@ -48,37 +48,62 @@ exports.get_all_permissions = async(req,res) => {
         return res.status(500).json({ status:'false', message:"Internal Server Error"});
     }
 }
+// exports.update_permissions = async (req, res) => {
+//     try {
+//         const { userRole, permissions } = req.body;
+
+//         if(userRole !== 'Super Admin') {
+//             return res.status(403).json({ status:'false', message:'Unauthorized'});
+//         }
+
+//         for(const permission of permissions) {
+//             const { role, resource, permissionValue } = permission;
+
+//             const roleData = await Permission.findOne({ where:{role:role}});
+
+//             if(!roleData) {
+//                 return res.status(404).json({status:'false', message:`${role} Role not found`});
+//             }
+
+//             const updatePermissions = await Permission.update(
+//                 {permissionValue: permissionValue},
+//                 { where :{ role:role, resource: resource, permission:permission.permission}}
+//             );
+
+//             if(!updatePermissions){
+//                 return res.status(404).json({ status:'false', message: `Permission not found for the resource ${resource}`});
+//             }
+//         }
+//         return res.status(200).json({ status:'true',message:'Permissions Updated Successfully'})
+//     } catch (error) {
+//         console.log(error);
+//         return res.status(500).json({ status: 'fail', message: 'Internal Server Error' });
+//     }
+// };
+
+
 exports.update_permissions = async (req, res) => {
     try {
         const { userRole, permissions } = req.body;
 
-        if(userRole !== 'Super Admin') {
-            return res.status(403).json({ status:'false', message:'Unauthorized'});
+        if (userRole !== 'Super Admin') {
+            return res.status(403).json({ status: 'false', message: 'Unauthorized' });
         }
 
-        for(const permission of permissions) {
-            const { role, resource, permissionValue } = permission;
+        for (const permission of permissions) {
+            const { id, permissionValue } = permission;
 
-            const roleData = await Permission.findOne({ where:{role:role}});
+            const existingPermission = await Permission.findByPk(id);
 
-            if(!roleData) {
-                return res.status(404).json({status:'false', message:`${role} Role not found`});
+            if (!existingPermission) {
+                return res.status(404).json({ status: 'false', message: `Permission with ID ${id} not found` });
             }
-            
-            const updatePermissions = await Permission.update(
-                {permissionValue: permissionValue},
-                { where :{ role:role, resource: resource, permission:permission.permission}}
-            );
-
-            if(!updatePermissions){
-                return res.status(404).json({ status:'false', message: `Permission not found for the resource ${resource}`});
-            }
-            return res.status(200).json({ status:'true',message:'Permissions Updated Successfully'})
+            await existingPermission.update({ permissionValue: permissionValue });
         }
+
+        return res.status(200).json({ status: 'true', message: 'Permissions Updated Successfully' });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return res.status(500).json({ status: 'fail', message: 'Internal Server Error' });
     }
 };
-
-
