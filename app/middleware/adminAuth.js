@@ -45,7 +45,7 @@
 // module.exports = adminToken;
 const jwt = require('jsonwebtoken');
 const tokenModel = require('../models/admintoken');
-const permissionData = require('../models/permission');
+// const permissionData = require('../models/permission');
 
 const adminToken = (permissionString) => {
     console.log("@@@@@@@@@@@");

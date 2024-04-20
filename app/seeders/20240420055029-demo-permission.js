@@ -113,6 +113,6 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     // Delete all permission entries
-    return queryInterface.bulkDelete('permissions', null, {});
+    return queryInterface.bulkDelete('P_permissions', null, {});
   }
 };
