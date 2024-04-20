@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 
-const product = sequelize.define("product", {
+const product = sequelize.define("P_product", {
     itemtype : {
         type: DataTypes.ENUM('Product', 'Service'),
         allowNull: false

@@ -17,6 +17,7 @@ exports.get_all_permissions = async(req,res) => {
                     groupedPermissions[role][resource] = [];
                 }
                 groupedPermissions[role][resource].push({
+                    id:item.id,
                     permissionValue: item.permissionValue,
                     permission: item.permission,
                     createdAt: item.createdAt,

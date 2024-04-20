@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 const expense = require('./expense');
 
-const expenseItem = sequelize.define("expenseItem", {
+const expenseItem = sequelize.define("P_expenseItem", {
     serialno : {
         type : DataTypes.STRING
     },

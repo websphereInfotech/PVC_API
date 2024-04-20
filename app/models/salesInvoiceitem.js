@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 const salesInvoice = require('./salesInvoice');
 
-const salesInvoiceItem = sequelize.define("salesInvoiceItem", {
+const salesInvoiceItem = sequelize.define("P_salesInvoiceItem", {
     serialno: {
         type: DataTypes.INTEGER,
         allowNull: false

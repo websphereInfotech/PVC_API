@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 
-const salesInvoice = sequelize.define("salesInvoice", {
+const salesInvoice = sequelize.define("P_salesInvoice", {
     book: {
         type: DataTypes.STRING
     },

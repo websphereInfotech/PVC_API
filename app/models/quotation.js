@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 
-const quotation = sequelize.define("quotation",{
+const quotation = sequelize.define("P_quotation",{
     quotation_no : {
         type : DataTypes.STRING,
         allowNull : false

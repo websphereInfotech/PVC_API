@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 const quotation = require('./quotation');
 
-const quotationItem = sequelize.define('quotationItem', {
+const quotationItem = sequelize.define('P_quotationItem', {
     srNo:{
         type : DataTypes.INTEGER
     },
