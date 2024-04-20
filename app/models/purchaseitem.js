@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 const purchase = require('./purchase');
 
-const purchaseitem = sequelize.define('purchaseitem', {
+const purchaseitem = sequelize.define('P_purchaseitem', {
     serialno : {
         type : DataTypes.INTEGER,
         allowNull : false

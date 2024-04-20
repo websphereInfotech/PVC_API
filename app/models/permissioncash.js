@@ -3,7 +3,7 @@
 //   Model
 // } = require('sequelize');
 // module.exports = (sequelize, DataTypes) => {
-//   class permission extends Model {
+//   class permissioncash extends Model {
 //     /**
 //      * Helper method for defining associations.
 //      * This method is not a part of Sequelize lifecycle.
@@ -13,21 +13,21 @@
 //       // define association here
 //     }
 //   }
-//   permission.init({
+//   permissioncash.init({
 //     role: DataTypes.STRING,
 //     resource: DataTypes.STRING,
 //     permissionValue: DataTypes.BOOLEAN,
 //     permission: DataTypes.STRING
 //   }, {
 //     sequelize,
-//     modelName: 'permission',
+//     modelName: 'permissioncash',
 //   });
-//   return permission;
+//   return permissioncash;
 // };
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 
-const permission = sequelize.define("P_permissions",{
+const permissioncash = sequelize.define("P_permissioncashes",{
   role : {type:DataTypes.STRING},
   resource : {type:DataTypes.STRING},
   permissionValue : {type:DataTypes.BOOLEAN},
@@ -37,4 +37,4 @@ const permission = sequelize.define("P_permissions",{
 });
 
 
-module.exports = permission;
+module.exports = permissioncash;

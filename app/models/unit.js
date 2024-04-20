@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 const product = require('./product');
 
-const unit = sequelize.define("unit", {
+const unit = sequelize.define("P_unit", {
     shortname : {
         type : DataTypes.STRING,
     },

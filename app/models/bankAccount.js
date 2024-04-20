@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 
-const bankAccount = sequelize.define("bankAccount", {
+const bankAccount = sequelize.define("P_bankAccount", {
     accountname: { type: DataTypes.STRING },
     shortname: { type: DataTypes.STRING },
     email: { type: DataTypes.STRING },

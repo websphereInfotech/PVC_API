@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 const purchaseReturn = require('./purchasereturn');
 
-const purchaseReturnItem = sequelize.define("purchaseReturnItem", {
+const purchaseReturnItem = sequelize.define("P_purchaseReturnItem", {
     serialno: { type: DataTypes.STRING },
     product: { type: DataTypes.STRING },
     batchno: { type: DataTypes.STRING },

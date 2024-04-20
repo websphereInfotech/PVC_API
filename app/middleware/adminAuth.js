@@ -48,27 +48,29 @@ const tokenModel = require('../models/admintoken');
 const permissionData = require('../models/permission');
 
 const adminToken = (permissionString) => {
+    console.log("@@@@@@@@@@@");
     return async (req, res, next) => {
+        console.log("enter");
         const token = req.headers['token'];
-
+        console.log("token",token);
         if (!token) {
             return res.status(401).send({ status: "false", message: 'A token is Required For Authentication' });
         }
 
         try {
             var checkToken = await tokenModel.findOne({ token: token });
-
+            console.log("check",checkToken);
             if (checkToken) {
                 const verify = jwt.verify(checkToken.token, process.env.SECRET_KEY);
 
                 req.user = verify;
-                // console.log("verify", verify);
+                console.log("verify", verify);
 
                 // Split the permission string into resource and action
                 const [resource, permission] = permissionString.split(':');
-                // console.log("Fetching permission for:", resource, permission);
-                // console.log("Fetching permission for:", permissionString);
-                // console.log(verify.role,resource,permission,"Demo data");
+                console.log("Fetching permission for:", resource, permission);
+                console.log("Fetching permission for:", permissionString);
+                console.log(verify.role,resource,permission,"Demo data");
 
                 const rolePermissions = await permissionData.findOne({
                     where: {
@@ -78,7 +80,7 @@ const adminToken = (permissionString) => {
                     }
                 });
 
-                // console.log("rolepermissions", rolePermissions);
+                console.log("rolepermissions", rolePermissions);
 
                 if (rolePermissions && rolePermissions.permissionValue === true) {
                     return next();
