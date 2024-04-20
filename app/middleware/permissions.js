@@ -4,12 +4,12 @@ exports.permissions = {
             "create_user":true,
         }
     },
-    // "Permission" : {
-    //     "Super Admin" :{
-    //         "view_all_permissions":true,
-    //         "update_permissions":true
-    //     }
-    // },
+    "Permission" : {
+        "Super Admin" :{
+            "view_all_permissions":true,
+            "update_permissions":true
+        }
+    },
     "Quotation" : {
         "Super Admin" :{
             "create_quotation":true,

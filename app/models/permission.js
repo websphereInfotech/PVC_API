@@ -27,14 +27,14 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 
-const permission = sequelize.define("P_permissions",{
-  role : {type:DataTypes.STRING},
-  resource : {type:DataTypes.STRING},
-  permissionValue : {type:DataTypes.BOOLEAN},
-  permission : {
-        type :DataTypes.DATE,
+const permissions = sequelize.define("P_permissions",{
+    role : {type:DataTypes.STRING},
+    resource : {type:DataTypes.STRING},
+    permissionValue : {type:DataTypes.BOOLEAN},
+    permission : {
+        type :DataTypes.STRING,
     },
 });
 
 
-module.exports = permission;
+module.exports = permissions;

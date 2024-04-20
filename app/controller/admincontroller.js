@@ -4,7 +4,7 @@ const adminToken = require("../models/admintoken");
 const User = require("../models/user");
 const bcrypt = require('bcrypt');
 const userToken = require("../models/userToken");
-const permissions = require("../models/permission");
+// const permissions = require("../models/permission");
 /* *************************************************************************************************
                                           ADMIN LOGIN
 **************************************************************************************************/
