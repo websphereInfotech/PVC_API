@@ -52,17 +52,15 @@ const adminToken = (permissionString) => {
   return async (req, res, next) => {
     const token = req.headers["token"];
     if (!token) {
-      return res
-        .status(401)
-        .send({
-          status: "false",
-          message: "A token is required for authentication",
-        });
+      return res.status(401).send({
+        status: "false",
+        message: "A token is required for authentication",
+      });
     }
-    console.log("token", token);
+    // console.log("token", token);
     try {
       const checkToken = await tokenModel.findOne({ where: { token } });
-      console.log("checkToken", checkToken);
+      // console.log("checkToken", checkToken);
       if (!checkToken) {
         return res
           .status(401)
@@ -89,12 +87,10 @@ const adminToken = (permissionString) => {
       }
     } catch (error) {
       console.error("Error during permission check:", error);
-      return res
-        .status(401)
-        .send({
-          status: "false",
-          message: "Invalid token or permission check error",
-        });
+      return res.status(401).send({
+        status: "false",
+        message: "Invalid token or permission check error",
+      });
     }
   };
 };
