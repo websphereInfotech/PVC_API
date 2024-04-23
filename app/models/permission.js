@@ -24,17 +24,16 @@
 //   });
 //   return permission;
 // };
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/index');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/index");
 
-const permissions = sequelize.define("P_permissions",{
-    role : {type:DataTypes.STRING},
-    resource : {type:DataTypes.STRING},
-    permissionValue : {type:DataTypes.BOOLEAN},
-    permission : {
-        type :DataTypes.STRING,
-    },
+const permissions = sequelize.define("P_permissions", {
+  role: { type: DataTypes.STRING },
+  resource: { type: DataTypes.STRING },
+  permissionValue: { type: DataTypes.BOOLEAN },
+  permission: {
+    type: DataTypes.STRING,
+  },
 });
-
 
 module.exports = permissions;

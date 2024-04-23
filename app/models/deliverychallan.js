@@ -1,19 +1,18 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/index');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/index");
 
-const deliverychallan = sequelize.define("P_deliverychallan",{
-    challanno : {
-        type : DataTypes.STRING,
-        allowNull : false
-    },
-    date : {
-        type :DataTypes.DATE,
-        allowNull : false
-    },
-    email : DataTypes.STRING,
-    mobileno : DataTypes.STRING,
-    customer : DataTypes.STRING
+const deliverychallan = sequelize.define("P_deliverychallan", {
+  challanno: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  date: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  email: DataTypes.STRING,
+  mobileno: DataTypes.STRING,
+  customer: DataTypes.STRING,
 });
-
 
 module.exports = deliverychallan;
