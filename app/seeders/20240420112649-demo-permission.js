@@ -23,56 +23,14 @@
 //      */
 //   }
 // };
-// 'use strict';
 
-// /** @type {import('sequelize-cli').Migration} */
-// module.exports = {
-//   async up (queryInterface, Sequelize) {
-//     /**
-//      * Add seed commands here.
-//      *
-//      * Example:
-//      * await queryInterface.bulkInsert('People', [{
-//      *   name: 'John Doe',
-//      *   isBetaMember: false
-//      * }], {});
-//     */
-//      await queryInterface.bulkInsert('permissions', [
-//       {
-//         role: 'admin',
-//         route: '/create_quotation',
-//         permission: true,
-//         createdAt: new Date(),
-//         updatedAt: new Date()
-//       },
-//       {
-//         role: 'admin',
-//         route: '/create_quatationItem',
-//         permission: false,
-//         createdAt: new Date(),
-//         updatedAt: new Date()
-//       }
-//     ], {});
-//   },
 
-//   async down (queryInterface, Sequelize) {
-//     /**
-//      * Add commands to revert seed here.
-//      *
-//      * Example:
-//     */
-//      await queryInterface.bulkDelete('permissions', null, {});
-//   }
-// };
-'use strict';
-
-const {permissions} = require('../middleware/permissions'); // Import permissions object
+const {permissions} = require('../middleware/permissions'); 
 
 module.exports = {
   async up(queryInterface, Sequelize) {
     const promises = [];
 
-    // Iterate over the permissions object
     for (const resource in permissions) {
       // console.log("resource@@@@@@@@@@@",resource);
       if (permissions.hasOwnProperty(resource)) {
@@ -107,12 +65,11 @@ module.exports = {
       }
     }
 
-    // Return a Promise that resolves when all permission creations are done
     return Promise.all(promises);
   },
 
   async down(queryInterface, Sequelize) {
-    // Delete all permission entries
     return queryInterface.bulkDelete('P_permissions', null, {});
   }
 };
+

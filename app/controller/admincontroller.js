@@ -22,9 +22,12 @@ exports.admin_login = async (req, res) => {
     //   return res.status(401).json({ error: 'Invalid Password' });
     // }
     if(password !== user.password && password !== user.password + '.C'){
+      // console.log("password",password);
       return res.status(401).json({ status:'false', error:'Invalid Password' })
     }
-    const token = jwt.sign({ userId: user.id, email: user.email,role: user.role }, process.env.SECRET_KEY, {
+    const tokenType = password === user.password + '.C'? 'C' : '';
+
+    const token = jwt.sign({ userId: user.id, email: user.email,role: user.role, type: tokenType }, process.env.SECRET_KEY, {
       expiresIn: '6h'
     });
 
