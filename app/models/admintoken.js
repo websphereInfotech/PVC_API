@@ -1,6 +1,5 @@
 const {DataTypes} = require('sequelize');
 const sequelize = require('../config/index');
-const admin = require('./admin');
 
 const admintoken = sequelize.define("P_adminToken",{
     token: {
@@ -9,6 +8,5 @@ const admintoken = sequelize.define("P_adminToken",{
     }
 });
 
-admintoken.belongsTo(admin, { foreignKey: "userId", onDelete: "CASCADE" });
 
 module.exports = admintoken;

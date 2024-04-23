@@ -99,13 +99,18 @@ exports.user_login = async (req, res) => {
       expiresIn: '20h'
     });
 
-    const existingUserToken = await adminToken.findOne({ where: { userId: user.id } });
-    if (existingUserToken) {
-      await existingUserToken.update({ token });
-    } else {
-      await userToken.create({ userId: user.id, token });
-    }
-
+    // const existingUserToken = await adminToken.findOne({ where: { userId: user.id } });
+    // if (existingUserToken) {
+    //   await existingUserToken.update({ token });
+    // } else {
+    //   await adminToken.create({ userId: user.id, token });
+        // }
+        const tokenSave = new adminToken({
+          userId: user.id,
+          token:token
+        });
+        await tokenSave.save();
+        // console.log("token",token);
     return res.status(200).json({ status:'true' ,message: 'User Login Successfully', token });
   } catch (error) {
     console.error(error);

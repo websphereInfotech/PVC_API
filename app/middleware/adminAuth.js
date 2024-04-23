@@ -52,82 +52,49 @@ const adminToken = (permissionString) => {
   return async (req, res, next) => {
     const token = req.headers["token"];
     if (!token) {
-      return res.status(401).send({ status: "false", message: "A token is required for authentication" });
+      return res
+        .status(401)
+        .send({
+          status: "false",
+          message: "A token is required for authentication",
+        });
     }
-
+    console.log("token", token);
     try {
       const checkToken = await tokenModel.findOne({ where: { token } });
+      console.log("checkToken", checkToken);
       if (!checkToken) {
-        return res.status(401).send({ status: "false", message: "Invalid token" });
+        return res
+          .status(401)
+          .send({ status: "false", message: "Invalid token" });
       }
-
       const verify = jwt.verify(checkToken.token, process.env.SECRET_KEY);
       req.user = verify;
 
-      if (verify.type === "C") {
-        const resourcesForTypeC = ["Login", "Quotation", "Sales Return"];
-        const permissionDataResult = await permissionData.findAll({
-          where: {
-            resource: resourcesForTypeC,
-          },
-        });
+      const [resource, permission] = permissionString.split(":");
+      const rolePermissions = await permissionData.findOne({
+        where: {
+          role: verify.role,
+          resource,
+          permission,
+        },
+      });
 
-        // Manual grouping and structuring
-        const groupedPermissions = permissionDataResult.reduce((acc, permission) => {
-          const role = permission.role;
-          const resource = permission.resource;
-
-          if (!acc[role]) {
-            acc[role] = {};
-          }
-
-          if (!acc[role][resource]) {
-            acc[role][resource] = [];
-          }
-
-          acc[role][resource].push({
-            id: permission.id,
-            permissionValue: permission.permissionValue,
-            permission: permission.permission,
-            createdAt: permission.createdAt,
-            updatedAt: permission.updatedAt,
-          });
-
-          return acc;
-        }, {});
-
-        const formattedPermissions = Object.keys(groupedPermissions).map((role) => ({
-          role,
-          permissions: Object.keys(groupedPermissions[role]).map((resource) => ({
-            resource,
-            permissions: groupedPermissions[role][resource],
-          })),
-        }));
-
-        return res.status(200).send({
-          status: "true",
-          message: "Permission data fetched successfully",
-          data: formattedPermissions,
-        });
+      if (rolePermissions && rolePermissions.permissionValue) {
+        return next();
       } else {
-        const [resource, permission] = permissionString.split(":");
-        const rolePermissions = await permissionData.findOne({
-          where: {
-            role: verify.role,
-            resource,
-            permission,
-          },
-        });
-
-        if (rolePermissions && rolePermissions.permissionValue) {
-          return next();
-        } else {
-          return res.status(403).send({ status: "false", message: "Permission denied" });
-        }
+        return res
+          .status(403)
+          .send({ status: "false", message: "Permission denied" });
       }
     } catch (error) {
       console.error("Error during permission check:", error);
-      return res.status(401).send({ status: "false", message: "Invalid token or permission check error" });
+      return res
+        .status(401)
+        .send({
+          status: "false",
+          message: "Invalid token or permission check error",
+        });
     }
   };
 };

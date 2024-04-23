@@ -3,7 +3,20 @@ const Permission = require("../models/permission");
 
 exports.get_all_permissions = async(req,res) => {
     try {
-        const data = await Permission.findAll();
+        const userType = req.user.type;
+        let data;
+        if(userType === 'C') {
+            const allowedResources = ["Login", "Quotation", "Sales Return"];
+
+            data = await Permission.findAll({
+                where :{
+                    resource: allowedResources
+                }
+            })
+        } else {
+            data = await Permission.findAll()
+        }
+        // const data = await Permission.findAll();
 
         if (data.length > 0) {
             const groupedPermissions = {};
