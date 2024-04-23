@@ -28,7 +28,8 @@ const {
     purchaseBill,
     purchaseReturn,
     receiptRoute,
-    bankAccount
+    bankAccount,
+    permissionRoute
 } = require('./app/route/adminRoute');
 
 app.use("/admin", loginRoute);
@@ -49,6 +50,7 @@ app.use("/admin", purchaseBill);
 app.use("/admin", purchaseReturn);
 app.use("/admin", receiptRoute);
 app.use("/admin", bankAccount);
+app.use("/admin", permissionRoute);
 
 app.get("/", (req, res) => res.send("Hello World!"));
 

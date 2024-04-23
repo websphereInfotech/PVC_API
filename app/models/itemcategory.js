@@ -1,14 +1,14 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../../config/index');
-const product = require('./product');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/index");
+const product = require("./product");
 
-const itemcategory = sequelize.define("itemcategory", {
-    category : {
-        type : DataTypes.STRING,
-    },
-    remarks : {
-        type : DataTypes.STRING
-    }
+const itemcategory = sequelize.define("P_itemcategory", {
+  category: {
+    type: DataTypes.STRING,
+  },
+  remarks: {
+    type: DataTypes.STRING,
+  },
 });
 
 product.hasMany(itemcategory);

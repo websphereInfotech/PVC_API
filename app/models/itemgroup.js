@@ -1,14 +1,14 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../../config/index');
-const product = require('./product');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/index");
+const product = require("./product");
 
-const itemgroup = sequelize.define("itemgroup", {
-    group : {
-        type : DataTypes.STRING,
-    },
-    remarks : {
-        type : DataTypes.STRING
-    }
+const itemgroup = sequelize.define("P_itemgroup", {
+  group: {
+    type: DataTypes.STRING,
+  },
+  remarks: {
+    type: DataTypes.STRING,
+  },
 });
 
 product.hasMany(itemgroup);
