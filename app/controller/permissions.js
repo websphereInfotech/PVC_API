@@ -108,8 +108,8 @@ exports.update_permissions = async (req, res) => {
   try {
     const { userRole, permissions } = req.body;
 
-    if (userRole !== "Super Admin") {
-      return res.status(403).json({ status: "false", message: "Unauthorized" });
+    if (userRole !== "") {
+      return res.status(403).json({ status: "false", message: "UserRole Required.." });
     }
 
     for (const permission of permissions) {

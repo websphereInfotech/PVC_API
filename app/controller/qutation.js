@@ -158,7 +158,6 @@ exports.update_quotation = async (req, res) => {
       if (!salesId) {
         return res.status(404).json({ status: "false", message: "Quotation Item not Found" });
       }
-  
       await quotationItem.update({
         srNo: srNo,
         rate: rate,
