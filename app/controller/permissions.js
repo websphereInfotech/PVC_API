@@ -5,16 +5,15 @@ exports.get_all_permissions = async (req, res) => {
     const userType = req.user.type;
     let data;
     if (userType === "C") {
-      const allowedResources = ["Login", "Quotation", "Sales Return"];
-
-      data = await Permission.findAll({
-        where: {
-          resource: allowedResources,
-        },
-      });
-    } else {
       data = await Permission.findAll();
-    }
+      // const allowedResources = ["Login", "Quotation", "Sales Return"];
+
+      // data = await Permission.findAll({
+      //   where: {
+      //     resource: allowedResources,
+      //   },
+      // });
+    } 
     // const data = await Permission.findAll();
 
     if (data.length > 0) {
@@ -107,8 +106,8 @@ exports.get_all_permissions = async (req, res) => {
 exports.update_permissions = async (req, res) => {
   try {
     const { userRole, permissions } = req.body;
-
-    if (userRole !== "") {
+    console.log("userrole",userRole);
+    if (!userRole) {
       return res.status(403).json({ status: "false", message: "UserRole Required.." });
     }
 

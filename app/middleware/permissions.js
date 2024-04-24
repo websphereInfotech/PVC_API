@@ -8,6 +8,26 @@ exports.permissions = {
         "Super Admin" :{
             "view_all_permissions":true,
             "update_permissions":true
+        },
+        "Admin" :{
+            "view_all_permissions":true,
+            "update_permissions":true
+        },
+        "Financial" :{
+            "view_all_permissions":true,
+            "update_permissions":true
+        },
+        "Employee" :{
+            "view_all_permissions":true,
+            "update_permissions":true
+        },
+        "Workers" :{
+            "view_all_permissions":true,
+            "update_permissions":true
+        },
+        "Other" :{
+            "view_all_permissions":true,
+            "update_permissions":true
         }
     },
     "Quotation" : {
