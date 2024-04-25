@@ -3,7 +3,7 @@ const { validation } = require("../views/validate");
 const adminAuth = require("../middleware/adminAuth");
 const {
   create_quotation,
-  create_quotationItem,
+  // create_quotationItem,
   update_quotation,
   update_quotationItem,
   delete_quotation,
@@ -20,21 +20,10 @@ router.post(
   validation("create_quotation"),
   create_quotation
 );
-router.post(
-  "/create_quatationItem",
-  adminAuth("Quotation:create_quatationItem"),
-  validation("create_quotationitem"),
-  create_quotationItem
-);
 router.put(
   "/update_quotation/:id",
   adminAuth("Quotation:update_quotation"),
   update_quotation
-);
-router.put(
-  "/update_quotationItem/:id",
-  adminAuth("Quotation:update_quotationItem"),
-  update_quotationItem
 );
 router.delete(
   "/delete_quotation/:id",

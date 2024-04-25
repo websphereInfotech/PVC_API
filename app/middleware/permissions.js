@@ -8,34 +8,12 @@ exports.permissions = {
         "Super Admin" :{
             "view_all_permissions":true,
             "update_permissions":true
-        },
-        "Admin" :{
-            "view_all_permissions":true,
-            "update_permissions":true
-        },
-        "Financial" :{
-            "view_all_permissions":true,
-            "update_permissions":true
-        },
-        "Employee" :{
-            "view_all_permissions":true,
-            "update_permissions":true
-        },
-        "Workers" :{
-            "view_all_permissions":true,
-            "update_permissions":true
-        },
-        "Other" :{
-            "view_all_permissions":true,
-            "update_permissions":true
         }
     },
     "Quotation" : {
         "Super Admin" :{
             "create_quotation":true,
-            "create_quatationItem":true,
             "update_quotation":true,
-            "update_quotationItem":true,
             "delete_quotation":true,
             "delete_quotationitem":true,
             "view_single_quotation":true,
@@ -43,9 +21,7 @@ exports.permissions = {
         },
         "Admin" :{
             "create_quotation":true,
-            "create_quatationItem":true,
             "update_quotation":true,
-            "update_quotationItem":true,
             "delete_quotation":true,
             "delete_quotationitem":true,
             "view_single_quotation":true,
@@ -53,9 +29,7 @@ exports.permissions = {
         },
         "Financial" :{
             "create_quotation":true,
-            "create_quatationItem":true,
             "update_quotation":true,
-            "update_quotationItem":true,
             "delete_quotation":true,
             "delete_quotationitem":true,
             "view_single_quotation":true,
@@ -63,9 +37,7 @@ exports.permissions = {
         },
         "Employee" :{
             "create_quotation":true,
-            "create_quatationItem":true,
             "update_quotation":true,
-            "update_quotationItem":true,
             "delete_quotation":true,
             "delete_quotationitem":true,
             "view_single_quotation":true,
@@ -73,9 +45,7 @@ exports.permissions = {
         },
         "Workers" :{
             "create_quotation":true,
-            "create_quatationItem":true,
             "update_quotation":true,
-            "update_quotationItem":true,
             "delete_quotation":true,
             "delete_quotationitem":true,
             "view_single_quotation":true,
@@ -83,9 +53,7 @@ exports.permissions = {
         },
         "Other" :{
             "create_quotation":true,
-            "create_quatationItem":true,
             "update_quotation":true,
-            "update_quotationItem":true,
             "delete_quotation":true,
             "delete_quotationitem":true,
             "view_single_quotation":true,

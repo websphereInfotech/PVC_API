@@ -4,11 +4,11 @@
   "scripts": {
     "start": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "migrate-undo": "npx sequelize-cli db:migrate:undo --config app/config/config.json --migrations-path app/migrations",
+    "migrate-undo": "npx sequelize-cli db:migrate:undo --config app/config/config.js --migrations-path app/migrations",
     "migrate-generate": "npx sequelize-cli model:generate --name permission --attributes role:string,resourse:string,permissionValue:boolean,permission:string --models-path app/models --migrations-path app/migrations",
-    "migrate-run": "npx sequelize-cli db:migrate --config app/config/config.json --migrations-path app/migrations",
-    "seeder-undo": "npx sequelize-cli db:seed:undo --config app/config/config.json --seeders-path app/seeders",
-    "seeder-all": "npx sequelize-cli db:seed:all --config app/config/config.json --seeders-path app/seeders",
+    "migrate-run": "npx sequelize-cli db:migrate --config app/config/config.js --migrations-path app/migrations",
+    "seeder-undo": "npx sequelize-cli db:seed:undo --config app/config/config.js --seeders-path app/seeders",
+    "seeder-all": "npx sequelize-cli db:seed:all --config app/config/config.js --seeders-path app/seeders",
     "seeder-generate": "npx sequelize-cli seed:generate --name demo-permissions --seeders-path app/seeders"
   },
   "dependencies": {

@@ -20,21 +20,10 @@ router.post(
   validation("create_expense"),
   create_expense
 );
-router.post(
-  "/create_expenseItem",
-  adminAuth("Expense:create_expenseItem"),
-  validation("create_expenseItem"),
-  create_expenseItem
-);
 router.put(
   "/update_expense/:id",
   adminAuth("Expense:update_expense"),
   update_expense
-);
-router.put(
-  "/update_expenseItem/:id",
-  adminAuth("Expense:update_expenseItem"),
-  update_expenseItem
 );
 router.delete(
   "/delete_expense/:id",

@@ -115,7 +115,7 @@ exports.serialno = function (req, res, next) {
     for (const item of items) {
         const { serialno } = item;
 
-        const serialnoSchema = Joi.string()
+        const serialnoSchema = Joi.number()
             .required()
             .messages({
                 "string.empty": "SerialNo Cannot Be Empty",
@@ -170,9 +170,10 @@ exports.qty = function (req, res, next) {
 }
 exports.product = function (req, res, next) {
     const { items } = req.body;
-
+    
     for (const item of items) {
         const { product } = item;
+        console.log("product",product);
         const productSchema = Joi.string()
 
             .required()
@@ -377,7 +378,7 @@ exports.taxable = function (req, res, next) {
     for (const item of items) {
         const { taxable } = item;
 
-        const taxableSchema = Joi.string()
+        const taxableSchema = Joi.number()
             .required()
             .messages({
                 "any.required": "Required Field : TaxAble",

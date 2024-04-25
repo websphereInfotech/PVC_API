@@ -15,7 +15,7 @@ const quotation = sequelize.define("P_quotation", {
     allowNull: false,
   },
   email: DataTypes.STRING,
-  mobileno: DataTypes.STRING,
+  mobileno: DataTypes.BIGINT,
   customer: DataTypes.STRING,
 });
 

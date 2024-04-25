@@ -105,11 +105,11 @@ exports.get_all_permissions = async (req, res) => {
 
 exports.update_permissions = async (req, res) => {
   try {
-    const { userRole, permissions } = req.body;
-    console.log("userrole",userRole);
-    if (!userRole) {
-      return res.status(403).json({ status: "false", message: "UserRole Required.." });
-    }
+    const { permissions } = req.body;
+    // console.log("userrole",userRole);
+    // if (!userRole) {
+    //   return res.status(403).json({ status: "false", message: "UserRole Required.." });
+    // }
 
     for (const permission of permissions) {
       const { id, permissionValue } = permission;

@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 const adminToken = require("../models/admintoken");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
-const userToken = require("../models/userToken");
 // const permissions = require("../models/permission");
 /* *************************************************************************************************
                                           ADMIN LOGIN
@@ -40,6 +39,7 @@ exports.admin_login = async (req, res) => {
     const existingUserToken = await adminToken.findOne({
       where: { userId: user.id },
     });
+    // console.log("existingUserToken",existingUserToken);
     if (existingUserToken) {
       await existingUserToken.update({ token });
     } else {

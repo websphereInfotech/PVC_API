@@ -24,7 +24,8 @@ const quotationItem = sequelize.define("P_quotationItem", {
   },
 });
 
-quotation.hasMany(quotationItem, { foreignKey: "quotationId" });
-quotationItem.belongsTo(quotation, { foreignKey: "quotationId" });
+quotation.hasMany(quotationItem, { foreignKey: "quotationId", onDelete: "CASCADE", as:'items' });
+quotationItem.belongsTo(quotation, { foreignKey: "quotationId", onDelete: "CASCADE",as:'items' });
+
 
 module.exports = quotationItem;

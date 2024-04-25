@@ -15,7 +15,7 @@ const expense = sequelize.define("P_expense", {
     type: DataTypes.STRING,
   },
   mobileno: {
-    type: DataTypes.STRING,
+    type: DataTypes.BIGINT,
   },
   email: {
     type: DataTypes.STRING,
