@@ -6,32 +6,38 @@ exports.permissions = {
             "view_all_user":true,
             "view_user":true,
             "update_user":true,
-            "reset_password":true
+            "reset_password":true,
+            "user_logout":true
         },
         "Admin" : {
             "update_user":true,
             "reset_password":true,
             "view_user":true,
+            "user_logout":true
         },
         "Financial" : {
             "update_user":true,
             "reset_password":true,
             "view_user":true,
+            "user_logout":true
         },
         "Employee":{
             "update_user":true,
             "reset_password":true,
             "view_user":true,
+            "user_logout":true
         },
         "Workers":{
             "update_user":true,
             "reset_password":true,
             "view_user":true,
+            "user_logout":true
         },
         "Other":{
             "update_user":true,
             "reset_password":true,
             "view_user":true,
+            "user_logout":true
         }
     },
     "Permission" : {

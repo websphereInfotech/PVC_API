@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
-const admin = require("./admin");
+// const admin = require("./admin");
 const User = require("./user");
 
 const admintoken = sequelize.define("P_adminToken", {
@@ -11,14 +11,10 @@ const admintoken = sequelize.define("P_adminToken", {
   userId :{
     type: DataTypes.INTEGER,
     allowNull: true
-  },
-  adminId: {
-    type :DataTypes.INTEGER,
-    allowNull: true
   }
 });
 
-admintoken.belongsTo(admin, { foreignKey: "adminId", onDelete:'CASCADE'});
+// admintoken.belongsTo(admin, { foreignKey: "adminId", onDelete:'CASCADE'});
 admintoken.belongsTo(User, {foreignKey:"userId",onDelete:'CASCADE'});
 
 module.exports = admintoken;

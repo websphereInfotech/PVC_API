@@ -125,7 +125,7 @@ exports.delete_user = async (req, res) => {
 exports.update_user = async (req, res) => {
   try {
     const { id } = req.params;
-    const dataRole = req.user.role;
+    // const dataRole = req.user.role;
 
     const { username, email, role, mobileno, salary, password } = req.body;
 
@@ -135,34 +135,34 @@ exports.update_user = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "User Not Found" });
     }
-    // await User.update(
-    //   {
-    //     username: username,
-    //     email: email,
-    //     role: role,
-    //     mobileno: mobileno,
-    //     salary: salary,
-    //   },
-    //   { where: { id: id } }
-    // );
+    await User.update(
+      {
+        username: username,
+        email: email,
+        role: role,
+        mobileno: mobileno,
+        salary: salary,
+      },
+      { where: { id: id } }
+    );
 
-    const userData = {
-      username: username,
-      email: email,
-      role: role,
-      mobileno: mobileno,
-      salary: salary,
-    };
-    if (dataRole !== "Super Admin") {
-      userData.password = password;
-    } else {
-      if (password) {
-        return res.status(400).json({
-          status: "false",
-          message: "Password update is not allowed for Super Admin.",
-        });
-      }
-    }
+    // const userData = {
+    //   username: username,
+    //   email: email,
+    //   role: role,
+    //   mobileno: mobileno,
+    //   salary: salary,
+    // };
+    // if (dataRole !== "Super Admin") {
+    //   userData.password = password;
+    // } else {
+    //   if (password) {
+    //     return res.status(400).json({
+    //       status: "false",
+    //       message: "Password update is not allowed for Super Admin.",
+    //     });
+    //   }
+    // }
     const data = await User.findByPk(id);
     return res.status(200).json({
       status: "true",
@@ -216,44 +216,62 @@ exports.user_login = async (req, res) => {
   try {
     const { mobileno, password } = req.body;
 
-    const user = await User.findOne({ where: { mobileno: mobileno } });
-
+    const user = await User.findOne({ where: { mobileno } });
     if (!user) {
       return res
         .status(404)
         .json({ status: "false", message: "User Not Found" });
     }
-    const matchPassword = await bcrypt.compare(password, user.password);
-    if (!matchPassword) {
+
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    if (!isPasswordCorrect) {
       return res
         .status(401)
         .json({ status: "false", message: "Invalid Password" });
     }
+
     const token = jwt.sign(
       { userId: user.id, role: user.role },
-      process.env.SECRET_KEY
+      process.env.SECRET_KEY,
+      { expiresIn: '8h' }
     );
 
-    // const tokenSave = new admintoken({
-    //   userId : user.id,
-    //   token : token
-    // });
-    // await tokenSave.save();
-    const existingUser = await admintoken.findOne({ userId: user.id });
-    if (existingUser) {
-      await existingUser.update({ token });
+    const existingToken = await admintoken.findOne({ where: { userId: user.id } });
+
+    if (existingToken) {
+      await existingToken.update({ token });
     } else {
-      await existingUser.create({ userId: user.id });
+      await admintoken.create({ userId: user.id, token });
     }
+
     return res.status(200).json({
       status: "true",
-      message: "User Login Successfully",
-      token: token,
+      message: "User Logged In Successfully",
+      token,
     });
   } catch (error) {
-    console.log(error);
+    console.error("Error during user login:", error);
     return res
       .status(500)
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
+exports.user_logout = async(req,res) => {
+  try {
+   const userId = req.user.userId;
+
+    const existingToken = await admintoken.findOne({ where: { userId } });
+
+    if(!existingToken) {
+      return res.status(404).json({ status:'false', message:'Token not Found'});
+    }
+
+    await existingToken.destroy();
+
+    return res.status(200).json({ status:'true', message:'User Log Out Successfully'});
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status:'false', message:'Internal Server Error'});
+  }
+}
