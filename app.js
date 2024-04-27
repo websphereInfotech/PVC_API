@@ -11,7 +11,6 @@ app.use(cors());
 app.use(express.json());
 
 const {
-    loginRoute,
     quotationRoute,
     salesreturnRoute,
     expenseRoute,
@@ -33,7 +32,7 @@ const {
     userRoute
 } = require('./app/route/adminRoute');
 
-app.use("/admin", loginRoute);
+
 app.use("/admin", quotationRoute);
 app.use("/admin", salesreturnRoute);
 app.use("/admin", expenseRoute);

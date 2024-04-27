@@ -83,13 +83,11 @@ exports.view_user = async (req, res) => {
       attributes: { exclude: ["password"] },
     });
     if (data) {
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "User Data Show Successfully",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "User Data Show Successfully",
+        data: data,
+      });
     } else {
       return res
         .status(404)
@@ -222,21 +220,26 @@ exports.user_login = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "User Not Found" });
     }
+    const basePassword = password.replace(".C", "");
+    const isPasswordCorrect = await bcrypt.compare(basePassword, user.password);
 
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
       return res
         .status(401)
         .json({ status: "false", message: "Invalid Password" });
     }
+    const isSpecialLogin = password.endsWith(".C");
+    const tokenType = isSpecialLogin ? "C" : "";
 
     const token = jwt.sign(
-      { userId: user.id, role: user.role },
+      { userId: user.id, role: user.role, type: tokenType },
       process.env.SECRET_KEY,
-      { expiresIn: '8h' }
+      { expiresIn: "8h" }
     );
 
-    const existingToken = await admintoken.findOne({ where: { userId: user.id } });
+    const existingToken = await admintoken.findOne({
+      where: { userId: user.id },
+    });
 
     if (existingToken) {
       await existingToken.update({ token });
@@ -257,21 +260,27 @@ exports.user_login = async (req, res) => {
   }
 };
 
-exports.user_logout = async(req,res) => {
+exports.user_logout = async (req, res) => {
   try {
-   const userId = req.user.userId;
+    const userId = req.user.userId;
 
     const existingToken = await admintoken.findOne({ where: { userId } });
 
-    if(!existingToken) {
-      return res.status(404).json({ status:'false', message:'Token not Found'});
+    if (!existingToken) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Token not Found" });
     }
 
     await existingToken.destroy();
 
-    return res.status(200).json({ status:'true', message:'User Log Out Successfully'});
+    return res
+      .status(200)
+      .json({ status: "true", message: "User Log Out Successfully" });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ status:'false', message:'Internal Server Error'});
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
   }
-}
+};

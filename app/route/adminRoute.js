@@ -1,4 +1,4 @@
-const loginRoute = require("./loginRoute");
+// const loginRoute = require("./loginRoute");
 const quotationRoute = require("./quotationRoute");
 const salesreturnRoute = require("./salesreturnRoute");
 const expenseRoute = require("./expenseRoute");
@@ -19,7 +19,6 @@ const bankAccount = require("./bankRoute");
 const permissionRoute = require("./permissions");
 const userRoute = require("./user");
 module.exports = {
-  loginRoute,
   quotationRoute,
   salesreturnRoute,
   expenseRoute,

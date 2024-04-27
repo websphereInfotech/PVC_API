@@ -14,7 +14,6 @@ const admintoken = sequelize.define("P_adminToken", {
   }
 });
 
-// admintoken.belongsTo(admin, { foreignKey: "adminId", onDelete:'CASCADE'});
 admintoken.belongsTo(User, {foreignKey:"userId",onDelete:'CASCADE'});
 
 module.exports = admintoken;

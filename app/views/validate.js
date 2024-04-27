@@ -6,7 +6,7 @@ module.exports.validation = function (method) {
         case "usersignup":
             return [email, password]
         case "userLogin":
-            return [email, password]
+            return [mobileno, password]
         case "create_deliverychallan":
             return [challanno, date, customer, mobileno, email]
         case "create_deliverychallanitem":
