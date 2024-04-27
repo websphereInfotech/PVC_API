@@ -2,6 +2,36 @@ exports.permissions = {
     "Login" : {
         "Super Admin" :{
             "create_user":true,
+            "delete_user":true,
+            "view_all_user":true,
+            "view_user":true,
+            "update_user":true,
+            "reset_password":true
+        },
+        "Admin" : {
+            "update_user":true,
+            "reset_password":true,
+            "view_user":true,
+        },
+        "Financial" : {
+            "update_user":true,
+            "reset_password":true,
+            "view_user":true,
+        },
+        "Employee":{
+            "update_user":true,
+            "reset_password":true,
+            "view_user":true,
+        },
+        "Workers":{
+            "update_user":true,
+            "reset_password":true,
+            "view_user":true,
+        },
+        "Other":{
+            "update_user":true,
+            "reset_password":true,
+            "view_user":true,
         }
     },
     "Permission" : {
@@ -89,9 +119,7 @@ exports.permissions = {
     "Expense" : {
         "Super Admin" :{
             "create_expense":true,
-            "create_expenseItem":true,
             "update_expense":true,
-            "update_expenseItem":true,
             "delete_expense":true,
             "delete_expenseItem":true,
             "view_single_expense":true,
@@ -99,9 +127,7 @@ exports.permissions = {
         },
         "Admin" :{
             "create_expense":true,
-            "create_expenseItem":true,
             "update_expense":true,
-            "update_expenseItem":true,
             "delete_expense":true,
             "delete_expenseItem":true,
             "view_single_expense":true,
@@ -109,9 +135,7 @@ exports.permissions = {
         },
         "Financial" :{
             "create_expense":true,
-            "create_expenseItem":true,
             "update_expense":true,
-            "update_expenseItem":true,
             "delete_expense":true,
             "delete_expenseItem":true,
             "view_single_expense":true,
@@ -119,9 +143,7 @@ exports.permissions = {
         },
         "Employee" :{
             "create_expense":true,
-            "create_expenseItem":true,
             "update_expense":true,
-            "update_expenseItem":true,
             "delete_expense":true,
             "delete_expenseItem":true,
             "view_single_expense":true,
@@ -129,9 +151,7 @@ exports.permissions = {
         },
         "Workers" :{
             "create_expense":true,
-            "create_expenseItem":true,
             "update_expense":true,
-            "update_expenseItem":true,
             "delete_expense":true,
             "delete_expenseItem":true,
             "view_single_expense":true,
@@ -139,9 +159,7 @@ exports.permissions = {
         },
         "Other" :{
             "create_expense":true,
-            "create_expenseItem":true,
             "update_expense":true,
-            "update_expenseItem":true,
             "delete_expense":true,
             "delete_expenseItem":true,
             "view_single_expense":true,
@@ -151,9 +169,7 @@ exports.permissions = {
     "Sales Invoice" : {
         "Super Admin" :{
             "create_salesinvoice":true,
-            "create_salesinvoice_item":true,
             "update_salesInvoice":true,
-            "update_salesInvoiceItem":true,
             "delete_salesInvoice":true,
             "delete_salesInvoiceItem":true,
             "view_single_salesInvoice":true,
@@ -161,9 +177,7 @@ exports.permissions = {
         },
         "Admin" :{
             "create_salesinvoice":true,
-            "create_salesinvoice_item":true,
             "update_salesInvoice":true,
-            "update_salesInvoiceItem":true,
             "delete_salesInvoice":true,
             "delete_salesInvoiceItem":true,
             "view_single_salesInvoice":true,
@@ -171,9 +185,7 @@ exports.permissions = {
         },
         "Financial" :{
             "create_salesinvoice":true,
-            "create_salesinvoice_item":true,
             "update_salesInvoice":true,
-            "update_salesInvoiceItem":true,
             "delete_salesInvoice":true,
             "delete_salesInvoiceItem":true,
             "view_single_salesInvoice":true,
@@ -181,9 +193,7 @@ exports.permissions = {
         },
         "Employee" :{
             "create_salesinvoice":true,
-            "create_salesinvoice_item":true,
             "update_salesInvoice":true,
-            "update_salesInvoiceItem":true,
             "delete_salesInvoice":true,
             "delete_salesInvoiceItem":true,
             "view_single_salesInvoice":true,
@@ -191,9 +201,7 @@ exports.permissions = {
         },
         "Workers" :{
             "create_salesinvoice":true,
-            "create_salesinvoice_item":true,
             "update_salesInvoice":true,
-            "update_salesInvoiceItem":true,
             "delete_salesInvoice":true,
             "delete_salesInvoiceItem":true,
             "view_single_salesInvoice":true,
@@ -201,9 +209,7 @@ exports.permissions = {
         },
         "Other" :{
             "create_salesinvoice":true,
-            "create_salesinvoice_item":true,
             "update_salesInvoice":true,
-            "update_salesInvoiceItem":true,
             "delete_salesInvoice":true,
             "delete_salesInvoiceItem":true,
             "view_single_salesInvoice":true,

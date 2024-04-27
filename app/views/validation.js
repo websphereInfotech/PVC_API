@@ -173,7 +173,6 @@ exports.product = function (req, res, next) {
     
     for (const item of items) {
         const { product } = item;
-        console.log("product",product);
         const productSchema = Joi.string()
 
             .required()
@@ -311,7 +310,7 @@ exports.gstin = function (req, res, next) {
 }
 exports.billno = function (req, res, next) {
     const { billno } = req.body;
-    console.log("bill", billno);
+    // console.log("bill", billno);
     const billnoSchema = Joi.string()
         .required()
         .messages({
@@ -1529,6 +1528,51 @@ exports.seriesname = function (req,res,next) {
     const {error} = seriesnameSchema.validate(seriesname);
     if(error) {
         return res.status(400).json({ status:"false", message: error.message});
+    }
+    next();
+}
+exports.username = function (req,res,next) {
+    const {username} = req.body;
+    const usernameSchema = Joi.string()
+    
+    .required()
+    .messages({
+        "any.required":"Required filed : User Name",
+        "string.empty":"User Name Cannot Be A Empty"
+    });
+    const {error} = usernameSchema.validate(username);
+    if(error) {
+        return res.status(400).json({status:'false', message: error.message});
+    }
+    next();
+}
+exports.salary = function (req,res,next) {
+    const {salary} = req.body;
+    const salarySchema = Joi.number()
+    
+    .required()
+    .messages({
+        "any.required":"Required filed : Salary",
+        "string.empty":"Salary Cannot Be A Empty"
+    });
+    const {error} = salarySchema.validate(salary);
+    if(error) {
+        return res.status(400).json({ status:'false', message: error.message});
+    }
+    next();
+}
+exports.role = function (req,res,next) {
+    const {role} = req.body;
+    const roleSchema = Joi.string()
+
+    .required()
+    .messages({
+        "any.required":"Required field : Role",
+        "string.empty":"Role Cannot Be A Empty"
+    });
+    const {error} = roleSchema.validate(role);
+    if(error){
+        return res.status(400).json({ status:'false', message: error.message});
     }
     next();
 }

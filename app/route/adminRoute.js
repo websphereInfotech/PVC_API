@@ -17,7 +17,7 @@ const purchaseReturn = require("./purchaseReturn");
 const receiptRoute = require("./receipt");
 const bankAccount = require("./bankRoute");
 const permissionRoute = require("./permissions");
-
+const userRoute = require("./user");
 module.exports = {
   loginRoute,
   quotationRoute,
@@ -38,4 +38,5 @@ module.exports = {
   receiptRoute,
   bankAccount,
   permissionRoute,
+  userRoute
 };

@@ -11,7 +11,7 @@ const deliverychallan = sequelize.define("P_deliverychallan", {
     allowNull: false,
   },
   email: DataTypes.STRING,
-  mobileno: DataTypes.STRING,
+  mobileno: DataTypes.BIGINT,
   customer: DataTypes.STRING,
 });
 

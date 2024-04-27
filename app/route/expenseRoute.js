@@ -3,9 +3,7 @@ const { validation } = require("../views/validate");
 const adminAuth = require("../middleware/adminAuth");
 const {
   create_expense,
-  create_expenseItem,
   update_expense,
-  update_expenseItem,
   delete_expense,
   delete_expenseItem,
   get_all_expense,

@@ -3,9 +3,7 @@ const { validation } = require("../views/validate");
 const adminAuth = require("../middleware/adminAuth");
 const {
   create_salesInvoice,
-  create_salesInvoiceItem,
   update_salesInvoice,
-  update_salesInvoiceItem,
   delete_salesInvoice,
   delete_salesInvoiceItem,
   view_salesInvoice,
@@ -20,21 +18,11 @@ router.post(
   validation("create_salesinvoice"),
   create_salesInvoice
 );
-router.post(
-  "/create_salesinvoice_item",
-  adminAuth("Sales Invoice:create_salesinvoice_item"),
-  validation("create_salesinvoiceitem"),
-  create_salesInvoiceItem
-);
+
 router.put(
   "/update_salesInvoice/:id",
   adminAuth("Sales Invoice:update_salesInvoice"),
   update_salesInvoice
-);
-router.put(
-  "/update_salesInvoiceItem/:id",
-  adminAuth("Sales Invoice:update_salesInvoiceItem"),
-  update_salesInvoiceItem
 );
 router.delete(
   "/delete_salesInvoice/:id",

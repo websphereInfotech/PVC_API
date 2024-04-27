@@ -8,8 +8,17 @@ const admintoken = sequelize.define("P_adminToken", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  userId :{
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  adminId: {
+    type :DataTypes.INTEGER,
+    allowNull: true
+  }
 });
 
-admintoken.belongsTo(admin, { foreignKey: "userId", onDelete:"CASCADE"});
-admintoken.belongsTo(User, {foreignKey:"userId"})
+admintoken.belongsTo(admin, { foreignKey: "adminId", onDelete:'CASCADE'});
+admintoken.belongsTo(User, {foreignKey:"userId",onDelete:'CASCADE'});
+
 module.exports = admintoken;

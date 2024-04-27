@@ -1,12 +1,102 @@
+const product = require("../models/product");
 const quotation = require("../models/quotation");
 const quotationItem = require("../models/quotationItem");
 
+// exports.create_quotation = async (req, res) => {
+//   try {
+//     const { quotation_no, date, validtill, email, mobileno, customer, items } =
+//       req.body;
+//     const numberOf = await quotation.findOne({ where:{quotation_no:quotation_no}});
+    
+//     if(numberOf) {
+//       return res.status(400).json({ status:'false', message:'Quatation Number Already Exists'})
+//     }
+//     for(const item of items) {
+      
+//       const existingItem = await quotationItem.findOne({where:{srNo:item.srNo}});
+//       if(existingItem) {
+//         return res.status(400).json({ status:'false', message:'Serial Number Already Exists'})
+//       }
+//       }
+
+//       const createdQuotation = await quotation.create({
+//         quotation_no,
+//         date,
+//         validtill,
+//         email,
+//         mobileno,
+//         customer,
+//       });
+
+//       if (!items   || items.length === 0) {
+//         return res
+//           .status(400)
+//           .json({ status: "false", message: "Required Field oF items" });
+//       }
+//       let totalIgst = 0;
+//       let totalSgst = 0;
+//    const itemGST = await Promise.all(
+//      items.map(async (item) => {
+//       console.log("items**********8",items)
+//       console.log("item*@@@@@@@@@@@@@*********8",item)
+//       const productData = await product.findOne({
+//         where:{productname: item.product}
+//       });
+//       if(!productData) {
+//         return res.status(404).json({status:'false', message:`Product Not Found: ${item.product}`});
+//       }
+//       console.log("productData<<<<<<<<<<<<<<<<<<",productData);
+//       const igstValue = productData.igst;
+//       const sgstvalue = productData.sgst ? productData.sgst/2 : null; 
+      
+      
+//       totalIgst += igstValue;
+//       totalSgst += sgstvalue;
+
+//       return {
+//         ...item,
+//         mrp: item.qty* item.rate,
+//         sgst:sgstvalue,
+//         cgst:sgstvalue,
+//         igst:igstValue
+//       }
+//     })
+//   )
+//   // console.log("igst>>............",igst);
+//   console.log("TOTALIGST........",totalIgst);
+//   console.log("TOTALSGST.>>>>>>>>>>>>>>>>>>.......",totalSgst);
+
+//   console.log("item>>>>>>>>>>>>>>>>>>>>>",itemGST);
+//       const addToProduct = items.map((item) => ({
+//       quotationId: createdQuotation.id,
+//       ...item,
+//     }));
+
+//      await quotationItem.bulkCreate(addToProduct);
+
+//     const quotationWithItems = await quotation.findOne({
+//       where: { id: createdQuotation.id },
+//       include: [{ model: quotationItem, as:'items' }],
+//     });
+
+//     return res.status(200).json({
+//       status: "true",
+//       message: "Quotation created successfully",
+//       data: quotationWithItems,
+//     });
+
+//   } catch (error) {
+//     console.error(error);
+//     return res
+//       .status(500)
+//       .json({ status: "false", error: "Internal Server Error" });
+//   }
+// };
 exports.create_quotation = async (req, res) => {
   try {
     const { quotation_no, date, validtill, email, mobileno, customer, items } =
       req.body;
     const numberOf = await quotation.findOne({ where:{quotation_no:quotation_no}});
-    
     if(numberOf) {
       return res.status(400).json({ status:'false', message:'Quatation Number Already Exists'})
     }
@@ -23,19 +113,15 @@ exports.create_quotation = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Required Field oF items" });
       }
-    
       const addToProduct = items.map((item) => ({
       quotationId: createdQuotation.id,
       ...item,
     }));
-
      await quotationItem.bulkCreate(addToProduct);
-
     const quotationWithItems = await quotation.findOne({
       where: { id: createdQuotation.id },
       include: [{ model: quotationItem, as:'items' }],
     });
-
     return res.status(200).json({
       status: "true",
       message: "Quotation created successfully",
@@ -126,20 +212,30 @@ exports.update_quotation = async (req, res) => {
         where: {quotationId:id},
       });
     
-      for(const item of items) {
-        const existingItem = existingItems.find((i) => i.srNo === item.srNo);
-    
-        if(existingItem) {
-          await existingItem.update({
-            product: item.product,
-            qty : item.qty,
-            mrp: item.mrp,
-            rate:item.rate
-          });
-        } else {
+      for(let i = 0; i < existingItems.length && i <items.length ; i++){
+            const itemData = items[i];
+            const itemId = existingItems[i].id;
+            await quotationItem.update({
+              srNo:itemData.srNo,
+              product: itemData.product,
+              qty: itemData.qty,
+              mrp:itemData.mrp,
+              rate:itemData.mrp
+            },{
+              where:{id:itemId}
+            });
+      }
+
+      if(items.length > existingItems.length) {
+        for(let i = existingItems.length; i < items.length;i++){
+          const itemData = items[i];
           await quotationItem.create({
             quotationId:id,
-            ...item
+            srNo:itemData.srNo,
+            product: itemData.product,
+            qty: itemData.qty,
+            mrp:itemData.mrp,
+            rate:itemData.mrp
           })
         }
       }
@@ -163,7 +259,6 @@ exports.update_quotation = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-
 exports.delete_quotationitem = async (req, res) => {
   try {
     const { id } = req.params;

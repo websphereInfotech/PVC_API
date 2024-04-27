@@ -28,7 +28,7 @@ const deliverychallanitem = sequelize.define("P_deliverychallanItem", {
     allowNull: false,
   },
   quotationno: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
     allowNull: false,
   },
   expirydate: {
@@ -38,10 +38,10 @@ const deliverychallanitem = sequelize.define("P_deliverychallanItem", {
 });
 
 deliverychallan.hasMany(deliverychallanitem, {
-  foreignKey: "deliverychallanId",
+  foreignKey: "deliverychallanId", onDelete:'CASCADE',as:'items'
 });
 deliverychallanitem.belongsTo(deliverychallan, {
-  foreignKey: "deliverychallanId",
+  foreignKey: "deliverychallanId", onDelete:'CASCADE', as:'items'
 });
 
 module.exports = deliverychallanitem;

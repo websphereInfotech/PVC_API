@@ -10,13 +10,20 @@ const User = sequelize.define("P_user", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  mobileno: {
+    type: DataTypes.BIGINT,
+    allowNull: false,
+  },
+  salary: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
   password: {
     type: DataTypes.STRING,
     allowNull: false,
   },
   role: {
     type: DataTypes.ENUM(
-      "Super Admin",
       "Admin",
       "Financial",
       "Employee",

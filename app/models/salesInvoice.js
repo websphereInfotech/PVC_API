@@ -9,12 +9,12 @@ const salesInvoice = sequelize.define("P_salesInvoice", {
     type: DataTypes.STRING,
   },
   invoiceno: { type: DataTypes.STRING },
-  invoicedate: { type: DataTypes.STRING },
+  invoicedate: { type: DataTypes.DATE },
   terms: { type: DataTypes.INTEGER },
   duedate: { type: DataTypes.DATE },
   quotation_no: { type: DataTypes.STRING },
   email: { type: DataTypes.STRING },
-  mobileno: { type: DataTypes.STRING },
+  mobileno: { type: DataTypes.BIGINT },
   customer: { type: DataTypes.STRING },
 });
 

@@ -1,193 +1,265 @@
 const salesInvoice = require("../models/salesInvoice");
 const salesInvoiceItem = require("../models/salesInvoiceitem");
 
-exports.create_salesInvoiceItem = async (req, res) => {
-    try {
-      const { salesInvoiceId, items } = req.body;
-  
-      await Promise.all(items.map(async item => {
-        await salesInvoiceItem.create({
-          ...item,
-          salesInvoiceId
-        });
-      }));
-  
-      const data = await salesInvoiceItem.findAll({ where: { salesInvoiceId } });
-  
-      return res.status(200).json({ status: "true", message: "Sales Invoive Item Create Successfully", data: data });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ status: "false", message: "Internal Server Error" });
+exports.create_salesInvoice = async (req, res) => {
+  try {
+    const {
+      email,
+      mobileno,
+      customer,
+      book,
+      seriesname,
+      invoiceno,
+      invoicedate,
+      terms,
+      duedate,
+      quotation_no,
+      items,
+    } = req.body;
+    const numberOf = await salesInvoice.findOne({
+      where: { quotation_no: quotation_no },
+    });
+
+    if (numberOf) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Quotation Number Already Exists" });
     }
-  }
-  exports.create_salesInvoice = async (req, res) => {
-    try {
-      const { email, mobileno, customer,book,seriesname,invoiceno,invoicedate,terms,duedate,quotation_no } = req.body;
-  
-      const salesInvoiceData = await salesInvoice.create({
-        email,
-        mobileno,
-        customer,
-        book,
-        seriesname,
-        invoiceno,
-        invoicedate,
-        terms,
-        duedate,
-        quotation_no
+    for (const item of items) {
+      const existingItem = await salesInvoiceItem.findOne({
+        where: { serialno: item.serialno },
       });
-  
-      return res.status(200).json({ status: "true", message: "SalesInvoice Create Successfully", data: salesInvoiceData });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ status: "false", message: "Internal Server Error" });
-    }
-  }
-  exports.get_all_salesInvoice = async (req, res) => {
-    try {
-      const data = await salesInvoice.findAll({
-        include: [{ model: salesInvoiceItem }]
-      });
-      if (!data) {
-        return res.status(404).json({ status: "false", message: "Sales Invoice Not Found" });
+      if (existingItem) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Serial Number Already Exists" });
       }
-      return res.status(200).json({ status: "true", message: "Sales Invoice Data Fetch Successfully", data: data });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ status: "false", message: "Internal Server Error" });
     }
-  }
-  exports.view_salesInvoice = async (req, res) => {
-    try {
-  
-      const { id } = req.params;
-  
-      const data = await salesInvoice.findOne({
-        where: { id },
-        include: [{ model: salesInvoiceItem }]
-      });
-  
-      if (!data) {
-        return res.status(404).json({ status: "false", message: "Sales Invoice Not Found" });
-      }
-      return res.status(200).json({ status: "true", message: "Sales invoice data get successfully", data: data });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ status: "false", message: "Internal Server Error" });
+    const data = await salesInvoice.create({
+      email,
+      mobileno,
+      customer,
+      book,
+      seriesname,
+      invoiceno,
+      invoicedate,
+      terms,
+      duedate,
+      quotation_no,
+      items,
+    });
+
+    if (!items || items.length === 0) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required Field oF items" });
     }
+
+    const addToItem = items.map((item) => ({
+      salesInvoiceId: data.id,
+      ...item,
+    }));
+
+    await salesInvoiceItem.bulkCreate(addToItem);
+
+    const salesInvoiceData = await salesInvoice.findOne({
+      where: { id: data.id },
+      include: [{ model: salesInvoiceItem, as: "items" }],
+    });
+    return res.status(200).json({
+      status: "true",
+      message: "SalesInvoice Create Successfully",
+      data: salesInvoiceData,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
   }
-  exports.view_salesInvoice = async (req, res) => {
-    try {
-      const { id } = req.params;
-  
-      const data = await salesInvoice.findOne({
-        where: { id },
-        include: [{ model: salesInvoiceItem }]
-      });
-  
-      if (!data) {
-        return res.status(404).json({ status: "false", message: "Sales Invoice Not Found" });
-      }
-      return res.status(200).json({ status: "ture", message: "Sales Invoice Data Fetch SUccessfully", data: data });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ status: "false", message: "Internal Server Error" });
+};
+exports.get_all_salesInvoice = async (req, res) => {
+  try {
+    const data = await salesInvoice.findAll({
+      include: [{ model: salesInvoiceItem, as: "items" }],
+    });
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Sales Invoice Not Found" });
     }
+    return res.status(200).json({
+      status: "true",
+      message: "Sales Invoice Data Fetch Successfully",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
   }
-  exports.update_salesInvoiceItem = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { serialno, quotationno, product, batchno, expirydate, price, quantity } = req.body;
-  
-      const salesId = await salesInvoiceItem.findByPk(id);
-  
-      if (!salesId) {
-        return res.status(404).json({ status: "false", message: "Sales Invoice Item not Found" });
-      }
-  
-      await salesInvoiceItem.update({
-        serialno: serialno,
-        quotationno: quotationno,
-        product: product,
-        batchno: batchno,
-        expirydate: expirydate,
-        price: price,
-        quantity: quantity
-      }, {
-        where: { id: id }
-      });
-  
-      const data = await salesInvoiceItem.findByPk(id);
-  
-      return res.status(200).json({ status: "true", message: "Sales Invoice Item Update Successfully", data: data });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ status: "false", message: "Internal Server Error" });
+};
+exports.view_salesInvoice = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const data = await salesInvoice.findOne({
+      where: { id },
+      include: [{ model: salesInvoiceItem, as: "items" }],
+    });
+
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Sales Invoice Not Found" });
     }
+    return res.status(200).json({
+      status: "ture",
+      message: "Sales Invoice Data Fetch SUccessfully",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
   }
-  exports.update_salesInvoice = async (req, res) => {
-    try {
-  
-      const { id } = req.params;
-      const { challenno, challendate, email, mobileno, customer } = req.body;
-  
-      const salesId = await salesInvoice.findByPk(id);
-  
-      if (!salesId) {
-        return res.status(404).json({ status: "false", message: "Sales Invoice Not Found" });
-      }
-      await salesInvoice.update({
-        challenno: challenno,
-        challendate: challendate,
+};
+exports.update_salesInvoice = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      email,
+      mobileno,
+      customer,
+      book,
+      seriesname,
+      invoiceno,
+      invoicedate,
+      terms,
+      duedate,
+      quotation_no,
+      items,
+    } = req.body;
+
+    const salesId = await salesInvoice.findByPk(id);
+
+    if (!salesId) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Sales Invoice Not Found" });
+    }
+    await salesInvoice.update(
+      {
         email: email,
         mobileno: mobileno,
-        customer: customer
-      }, {
-        where: { id: id }
-      });
-  
-      const data = await salesInvoice.findOne({
+        customer: customer,
+        book: book,
+        seriesname: seriesname,
+        invoiceno: invoiceno,
+        invoicedate: invoicedate,
+        terms: terms,
+        duedate: duedate,
+        quotation_no: quotation_no,
+      },
+      {
         where: { id: id },
-        // include: [{ model: salesInvoiceItem }]
+      }
+    );
+
+    if (Array.isArray(items)) {
+      const existingItems = await salesInvoiceItem.findAll({
+        where: { salesInvoiceId: id },
       });
-  
-      return res.status(200).json({ status: "true", message: "Sales Invoice Update Successfuly", data: data });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ status: "false", message: "Internal Server Error" });
-    }
-  }
-  exports.delete_salesInvoiceItem = async (req, res) => {
-    try {
-  
-      const { id } = req.params;
-      const data = await salesInvoiceItem.destroy({ where: { id: id } });
-  
-      if (!data) {
-        return res.status(404).json({ status: "false", message: "Sales Invoice Not Found" });
-      } else {
-        return res.status(200).json({ status: "true", message: "Sales Deleted Successfully" });
+
+      for (i = 0; i < existingItems.length && i < items.length; i++) {
+        const itemData = items[i];
+        const itemId = existingItems[i].id;
+
+        await salesInvoiceItem.update(
+          {
+            serialno: itemData.serialno,
+            product: itemData.product,
+            mrp: itemData.mrp,
+            qty: itemData.qty,
+            rate: itemData.rate,
+          },
+          { where: { id: itemId } }
+        );
       }
-  
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ status: "false", message: "Internal Server Error" });
-    }
-  }
-  exports.delete_salesInvoice = async (req, res) => {
-    try {
-  
-      const { id } = req.params;
-      const data = await salesInvoice.destroy({ where: { id: id } });
-      if (!data) {
-        return res.status(404).json({ status: "false", message: "Sales Invoice Not Found" });
-      } else {
-        return res.status(200).json({ status: "true", message: "Sales Invoice Deleted Successfully" });
+      if (items.length > existingItems.length) {
+        for (let i = existingItems.length; i < items.length; i++) {
+          const itemData = items[i];
+
+          await salesInvoiceItem.create({
+            salesInvoiceId: id,
+            serialno: itemData.serialno,
+            product: itemData.product,
+            mrp: itemData.mrp,
+            qty: itemData.qty,
+            rate: itemData.rate,
+          });
+        }
       }
-  
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ status: "false", message: "nternal Server Error" });
     }
+
+    const data = await salesInvoice.findOne({
+      where: { id },
+      include: [{ model: salesInvoiceItem, as: "items" }],
+    });
+
+    return res.status(200).json({
+      status: "true",
+      message: "Sales Invoice Update Successfuly",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
   }
-  
+};
+exports.delete_salesInvoiceItem = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await salesInvoiceItem.destroy({ where: { id: id } });
+
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Sales Invoice Not Found" });
+    } else {
+      return res
+        .status(200)
+        .json({ status: "true", message: "Sales Deleted Successfully" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+exports.delete_salesInvoice = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await salesInvoice.destroy({ where: { id: id } });
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Sales Invoice Not Found" });
+    } else {
+      return res.status(200).json({
+        status: "true",
+        message: "Sales Invoice Deleted Successfully",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "nternal Server Error" });
+  }
+};
