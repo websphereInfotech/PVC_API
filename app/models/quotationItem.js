@@ -20,7 +20,7 @@ const quotationItem = sequelize.define("P_quotationItem", {
   },
   mrp: {
     type: DataTypes.FLOAT,
-    allowNull: false,
+    defaultValue:0
   },
 });
 

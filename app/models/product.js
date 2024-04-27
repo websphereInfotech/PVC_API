@@ -46,8 +46,13 @@ const product = sequelize.define("P_product", {
   salesprice: {
     type: DataTypes.INTEGER,
   },
-  gstrate: {
+  sgst: {
     type: DataTypes.FLOAT,
+    allowNull:true
+  },
+  igst: {
+    type: DataTypes.FLOAT,
+    allowNull:true
   },
   cess: {
     type: DataTypes.BOOLEAN,

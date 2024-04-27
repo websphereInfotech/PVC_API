@@ -17,6 +17,22 @@ const quotation = sequelize.define("P_quotation", {
   email: DataTypes.STRING,
   mobileno: DataTypes.BIGINT,
   customer: DataTypes.STRING,
+  totalIgst: {
+    type: DataTypes.FLOAT,
+    defaultValue: 0,
+  },
+  totalSgst: {
+    type: DataTypes.FLOAT,
+    defaultValue: 0,
+  },
+  totalMrp: {
+    type: DataTypes.FLOAT,
+    defaultValue: 0,
+  },
+  mainTotal: {
+    type: DataTypes.FLOAT,
+    defaultValue: 0,
+  },
 });
 
 module.exports = quotation;
