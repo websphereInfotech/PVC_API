@@ -232,7 +232,12 @@ exports.user_login = async (req, res) => {
     const tokenType = isSpecialLogin ? "C" : "";
 
     const token = jwt.sign(
-      { userId: user.id, role: user.role, type: tokenType },
+      {
+        userId: user.id,
+        role: user.role,
+        type: tokenType,
+        username: user.username,
+      },
       process.env.SECRET_KEY,
       { expiresIn: "8h" }
     );

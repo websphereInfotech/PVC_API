@@ -16,6 +16,10 @@ const salesInvoice = sequelize.define("P_salesInvoice", {
   email: { type: DataTypes.STRING },
   mobileno: { type: DataTypes.BIGINT },
   customer: { type: DataTypes.STRING },
+  totalIgst: { type: DataTypes.FLOAT, defaultValue: 0 },
+  totalSgst: { type: DataTypes.FLOAT, defaultValue: 0 },
+  totalMrp: { type: DataTypes.FLOAT, defaultValue: 0 },
+  mainTotal: { type: DataTypes.FLOAT, defaultValue: 0 },
 });
 
 module.exports = salesInvoice;

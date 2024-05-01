@@ -55,6 +55,9 @@ const customer = sequelize.define("P_customer", {
   country: {
     type: DataTypes.STRING,
   },
+  gstnumber : {
+    type: DataTypes.STRING,
+  }
 });
 
 module.exports = customer;

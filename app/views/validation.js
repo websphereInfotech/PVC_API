@@ -1576,3 +1576,18 @@ exports.role = function (req,res,next) {
     }
     next();
 }
+exports.gstnumber = function (req,res,next) {
+    const {gstnumber} = req.body;
+    const gstnumberSchema = Joi.string()
+
+    .required()
+    .messages({
+        "any.required" :" Required field : GST Number",
+        "string.empty" :"GST Number Cannot Be A Empty"
+    });
+    const {error} = gstnumberSchema.validate(gstnumber);
+    if(error) {
+        return res.status(400).json({ status:'false', message: error.message});
+    }
+    next();
+}

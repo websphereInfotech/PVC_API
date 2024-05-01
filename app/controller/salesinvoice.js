@@ -1,3 +1,4 @@
+const product = require("../models/product");
 const salesInvoice = require("../models/salesInvoice");
 const salesInvoiceItem = require("../models/salesInvoiceitem");
 
@@ -25,16 +26,34 @@ exports.create_salesInvoice = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Quotation Number Already Exists" });
     }
-    for (const item of items) {
-      const existingItem = await salesInvoiceItem.findOne({
-        where: { serialno: item.serialno },
-      });
-      if (existingItem) {
-        return res
-          .status(400)
-          .json({ status: "false", message: "Serial Number Already Exists" });
-      }
+    // for (const item of items) {
+    //   const existingItem = await salesInvoiceItem.findOne({
+    //     where: { serialno: item.serialno },
+    //   });
+    //   if (existingItem) {
+    //     return res
+    //       .status(400)
+    //       .json({ status: "false", message: "Serial Number Already Exists" });
+    //   }
+    // }
+    
+    if (!items || items.length === 0) {
+      return res
+      .status(400)
+      .json({ status: "false", message: "Required Field oF items" });
     }
+
+    // let totalIgst = 0;
+    // let totalSgst = 0;
+    // let totalMrp = 0;
+
+    // const itemGST = await Promise.all(
+    //   items.map(async (item) => {
+    //     const productData = await product.findOne({
+    //       where : { productanme: item.product},
+    //     });
+    //   })
+    // )
     const data = await salesInvoice.create({
       email,
       mobileno,
@@ -48,13 +67,7 @@ exports.create_salesInvoice = async (req, res) => {
       quotation_no,
       items,
     });
-
-    if (!items || items.length === 0) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required Field oF items" });
-    }
-
+    
     const addToItem = items.map((item) => ({
       salesInvoiceId: data.id,
       ...item,

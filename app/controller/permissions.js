@@ -2,10 +2,10 @@ const Permission = require("../models/permission");
 
 exports.get_all_permissions = async (req, res) => {
   try {
-    const userType = req.user.type;
-    let data;
-    if (userType === "C") {
-      data = await Permission.findAll();
+    // const userType = req.user.type;
+    // let data;
+    // if (userType === "C")  {
+       const data = await Permission.findAll();
       // const allowedResources = ["Login", "Quotation", "Sales Return"];
 
       // data = await Permission.findAll({
@@ -13,7 +13,7 @@ exports.get_all_permissions = async (req, res) => {
       //     resource: allowedResources,
       //   },
       // });
-    } 
+    // } 
     // const data = await Permission.findAll();
 
     if (data.length > 0) {
@@ -31,6 +31,7 @@ exports.get_all_permissions = async (req, res) => {
           id: item.id,
           permissionValue: item.permissionValue,
           permission: item.permission,
+          type:item.type,
           createdAt: item.createdAt,
           updatedAt: item.updatedAt,
         });
