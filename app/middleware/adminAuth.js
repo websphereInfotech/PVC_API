@@ -1,6 +1,6 @@
 // const jwt = require('jsonwebtoken');
 // const tokenModel = require('../models/admintoken');
-// const permission = require('../models/permission');
+// 
 
 // const adminToken = async(req, res, next ) => {
 //     const token = req.headers['token'];
@@ -57,7 +57,7 @@ const adminToken = (permissionString) => {
         message: "A token is required for authentication",
       });
     }
-    // console.log("token", token);
+    console.log("token", token);
     try {
       const checkToken = await tokenModel.findOne({ where: { token } });
       // console.log("checkToken", checkToken);
@@ -68,7 +68,7 @@ const adminToken = (permissionString) => {
       }
       const verify = jwt.verify(checkToken.token, process.env.SECRET_KEY);
       req.user = verify;
-
+// console.log("req",req.user);
       const [resource, permission] = permissionString.split(":");
       const rolePermissions = await permissionData.findOne({
         where: {
@@ -77,7 +77,7 @@ const adminToken = (permissionString) => {
           permission,
         },
       });
-
+console.log("rolePermissions",rolePermissions);
       if (rolePermissions && rolePermissions.permissionValue) {
         return next();
       } else {
