@@ -43,17 +43,38 @@ exports.create_salesInvoice = async (req, res) => {
       .json({ status: "false", message: "Required Field oF items" });
     }
 
-    // let totalIgst = 0;
-    // let totalSgst = 0;
-    // let totalMrp = 0;
+    let totalIgst = 0;
+    let totalSgst = 0;
+    let totalMrp = 0;
 
-    // const itemGST = await Promise.all(
-    //   items.map(async (item) => {
-    //     const productData = await product.findOne({
-    //       where : { productanme: item.product},
-    //     });
-    //   })
-    // )
+    const itemGST = await Promise.all(
+      items.map(async (item) => {
+        const productData = await product.findOne({
+          where : { productanme: item.product},
+        });
+        if(!productData){
+          return res.status(404).json({
+            status:'false', message:`Product Not Found:${item.product}`,
+          });
+        }
+
+        const mrp = Number(item.qty) * Number(item.rate);
+        totalMrp += mrp;
+        const igstValue = (productData.igst * mrp)/100;
+        const sgstvalue = (productData.sgst ? productData.sgst/2 : 0);
+        const gstvalue = (sgstvalue *mrp)/100;
+        totalIgst += igstValue,
+        totalSgst += gstvalue ? gstvalue*2 :0;
+
+        return {
+          ...item,
+          mrp,
+          sgst: sgstvalue,
+          cgst : sgstvalue,
+          igst: igstValue
+        };
+      })
+    )
     const data = await salesInvoice.create({
       email,
       mobileno,
@@ -65,10 +86,13 @@ exports.create_salesInvoice = async (req, res) => {
       terms,
       duedate,
       quotation_no,
-      items,
+      totalIgst,
+      totalSgst,
+      totalMrp,
+      mainTotal : totalIgst ? totalIgst+ totalMrp: totalSgst+totalMrp,
     });
     
-    const addToItem = items.map((item) => ({
+    const addToItem = itemGST.map((item) => ({
       salesInvoiceId: data.id,
       ...item,
     }));
