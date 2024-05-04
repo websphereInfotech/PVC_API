@@ -1,4 +1,4 @@
-const { email, password, mobileno, challanno, date, customer, serialno, mrp, qty, product, description, batchno, quotationno, expirydate, vendor, voucherno, gstin, billno, billdate, payment, expensse, taxable, account, paymentdate, refno, quotationref, pono, mode, paidfrom, amount, quotation_no, rate, discount, validtill, challendate, creditnote, creditdate, sr_no, batch_no, expiry_date, invoiceno, invoicedate, quantity, itemname, unit, accountname, shortname, contactpersonname, panno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, label, value, itemtype, productname, itemgroup, itemcategory, openingstock, nagativeqty, lowstock, itemselected, purchaseprice, salesprice, gstrate, cess, group, remarks, category, unitname, terms, duedate, book, debitnote, debitdate, billaddress, shipaddress, refdate, reason, price, bill_no, bill_date, Cess, depositto, amountrecive, receiptdate, holdername, accountnumber, ifsccode, bankname, openingbalance, country, seriesname, username, salary, role, gstnumber
+const { email, password, mobileno, challanno, date, customer, serialno, mrp, qty, product, description, batchno, quotationno, expirydate, vendor, voucherno, gstin, billno, billdate, payment, expensse, taxable, account, paymentdate, refno, quotationref, pono, mode, paidfrom, amount, quotation_no, rate, discount, validtill, challendate, creditnote, creditdate, sr_no, batch_no, expiry_date, invoiceno, invoicedate, quantity, itemname, unit, accountname, shortname, contactpersonname, panno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, label, value, itemtype, productname, itemgroup, itemcategory, openingstock, nagativeqty, lowstock, itemselected, purchaseprice, salesprice, gstrate, cess, group, remarks, category, unitname, terms, duedate, book, debitnote, debitdate, billaddress, shipaddress, refdate, reason, price, bill_no, bill_date, Cess, depositto, amountrecive, receiptdate, holdername, accountnumber, ifsccode, bankname, openingbalance, country, seriesname, username, salary, role, gstnumber, HSNcode
 } = require("./validation")
 
 module.exports.validation = function (method) {
@@ -20,21 +20,19 @@ module.exports.validation = function (method) {
         case "create_purchaseitem":
             return [serialno, rate, qty, product, discount, mrp]
         case "create_quotation":
-            return [quotation_no, date, validtill, customer,rate, qty, product]
+            return [quotation_no, date, validtill,  customer,rate, qty, product]
         case "create_salesinvoice":
-            return [email, mobileno, customer, book, invoiceno, invoicedate, terms, duedate, quotation_no,seriesname]
-        case "create_salesinvoiceitem":
-            return [ product, rate, mrp, qty]
+            return [email, mobileno, customer, book, invoiceno, invoicedate, terms, duedate, quotation_no,seriesname,  product, rate, mrp, qty]
         case "create_salesReturn":
             return [customer, creditnote, creditdate, sr_no, batch_no, expiry_date, amount, invoiceno, invoicedate, quantity]
         case "create_stoke":
             return [itemname, unit, email,]
         case "create_customer":
-            return [accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, pincode, state, city, bankdetail, creditlimit, balance, country, gstnumber]
-        case "create_customfeild":
-            return [label, value]
+            return [accountname,  email, contactpersonname, mobileno,  creditperiod, mode, address1, pincode, state, city, bankdetail, creditlimit, balance, country, gstnumber]
+        // case "create_customfeild":
+        //     return [label, value]
         case "create_product":
-            return [itemtype, productname, itemgroup, itemcategory, unit, openingstock, nagativeqty, lowstock, itemselected, purchaseprice, salesprice, cess]
+            return [itemtype, productname, itemgroup, itemcategory, unit, openingstock, nagativeqty, lowstock, itemselected, purchaseprice, salesprice, cess, HSNcode]
         case "create_itemgroup":
             return [group, remarks]
         case "create_itemcategory":
@@ -55,6 +53,8 @@ module.exports.validation = function (method) {
             return [accountname, shortname, email, mobileno, holdername, accountnumber, ifsccode, bankname, openingbalance]
         case "create_user" :
             return [username,email,mobileno,password,salary,role]
+        case "create_vendor" :
+            return [accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, pincode, state, city, bankdetail, creditlimit, balance, country, gstnumber]
         default:
             throw new Error('Invalid validation method')
     }

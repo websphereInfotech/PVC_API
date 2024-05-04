@@ -18,6 +18,7 @@ const receiptRoute = require("./receipt");
 const bankAccount = require("./bankRoute");
 const permissionRoute = require("./permissions");
 const userRoute = require("./user");
+const vendorRoute = require('./vendor')
 module.exports = {
   quotationRoute,
   salesreturnRoute,
@@ -37,5 +38,6 @@ module.exports = {
   receiptRoute,
   bankAccount,
   permissionRoute,
-  userRoute
+  userRoute,
+  vendorRoute
 };
