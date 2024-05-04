@@ -46,13 +46,13 @@ const product = sequelize.define("P_product", {
   salesprice: {
     type: DataTypes.INTEGER,
   },
-  sgst: {
+  SGST: {
     type: DataTypes.FLOAT,
     allowNull:true
   },
-  igst: {
+  IGST: {
     type: DataTypes.FLOAT,
-    allowNull:true
+    defaultValue:0
   },
   cess: {
     type: DataTypes.BOOLEAN,

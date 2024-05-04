@@ -57,7 +57,7 @@ const adminToken = (permissionString) => {
         message: "A token is required for authentication",
       });
     }
-    console.log("token", token);
+    // console.log("token", token);
     try {
       const checkToken = await tokenModel.findOne({ where: { token } });
       // console.log("checkToken", checkToken);
@@ -77,7 +77,7 @@ const adminToken = (permissionString) => {
           permission,
         },
       });
-console.log("rolePermissions",rolePermissions);
+// console.log("rolePermissions",rolePermissions);
       if (rolePermissions && rolePermissions.permissionValue) {
         return next();
       } else {

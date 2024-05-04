@@ -4,8 +4,9 @@ const quotationItem = require("../models/quotationItem");
 
 exports.create_quotation = async (req, res) => {
   try {
-    const { quotation_no, date, validtill, email, mobileno, customer, items } =
+    const { quotation_no, date, validtill, customer, items } =
       req.body;
+      console.log(req.body);
     const numberOf = await quotation.findOne({
       where: { quotation_no: quotation_no },
     });
@@ -50,12 +51,13 @@ exports.create_quotation = async (req, res) => {
 
         const mrp = Number(item.qty) * Number(item.rate);
         totalMrp += mrp;
-        const igstValue = (productData.igst * mrp) / 100;
-        const sgstvalue = productData.sgst ? productData.sgst / 2 : 0;
+        // console.log(productData.);
+        const igstValue = (productData.IGST * mrp) / 100;
+        const sgstvalue = productData.SGST ? productData.SGST / 2 : 0;
         const gstvalue = (sgstvalue * mrp) / 100;
         totalIgst += igstValue;
         totalSgst += gstvalue ? gstvalue * 2 : 0;
-
+console.log(totalIgst,'total?>>>>>>>>>>>>>>>>>>>>');
         return {
           ...item,
           mrp,
@@ -70,8 +72,8 @@ exports.create_quotation = async (req, res) => {
       quotation_no,
       date,
       validtill,
-      email,
-      mobileno,
+      // email,
+      // mobileno,
       customer,
       totalIgst,
       totalSgst,
@@ -283,9 +285,9 @@ exports.update_quotation = async (req, res) => {
     const { id } = req.params;
     const { quotationno, date, validtill, email, mobileno, customer, items } =
       req.body;
-
+console.log("req",req.body);
     const existingQuotation = await quotation.findByPk(id);
-
+console.log("existingQuotation",existingQuotation);
     if (!existingQuotation) {
       return res.status(404).json({
         status: "false",
@@ -308,13 +310,13 @@ exports.update_quotation = async (req, res) => {
     const existingItems = await quotationItem.findAll({
       where: { quotationId: id },
     });
-
+    console.log("existingItems",existingItems);
     const updatedProducts = items.map((item) => item.product.toLowerCase());
-
+console.log("updatedProducts",updatedProducts);
     const itemsToDelete = existingItems.filter(
       (item) => !updatedProducts.includes(item.product.toLowerCase())
     );
-
+console.log("itemsToDelete",itemsToDelete);
     for (const item of itemsToDelete) {
       await item.destroy();
     }
@@ -352,10 +354,10 @@ exports.update_quotation = async (req, res) => {
       const productData = await product.findOne({
         where: { productname: item.product },
       });
-
+console.log("productData",productData);
       if (productData) {
-        totalIgst += (productData.igst * mrp) / 100;
-        totalSgst += (productData.sgst * mrp) / 100;
+        totalIgst += (productData.IGST * mrp) / 100;
+        totalSgst += (productData.SGST * mrp) / 100;
       }
     }
     await quotation.update(
@@ -372,7 +374,7 @@ exports.update_quotation = async (req, res) => {
       where: { id },
       include: [{ model: quotationItem, as: "items" }],
     });
-   
+   console.log("updatedQuotation",updatedQuotation);
     return res.status(200).json({
       status: "true",
       message: "Quotation Updated Successfully",

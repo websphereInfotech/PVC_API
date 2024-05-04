@@ -6,8 +6,8 @@ const unit = require("../models/unit");
 
 exports.create_product = async (req, res) => {
     try {
-      const { itemtype, productname, description, itemgroup, itemcategory, unit, bankdetail, openingstock, nagativeqty, lowstock, itemselected, purchaseprice, salesprice, gstrate, cess } = req.body;
-      // console.log("req",req.body);
+      const { itemtype, productname, description, itemgroup, itemcategory, unit, bankdetail, openingstock, nagativeqty, lowstock, itemselected, purchaseprice, salesprice, IGST,SGST ,cess } = req.body;
+      console.log("req",req.body);
       const data = await product.create({
         itemtype,
         productname,
@@ -22,10 +22,11 @@ exports.create_product = async (req, res) => {
         itemselected,
         salesprice,
         purchaseprice,
-        gstrate,
+        IGST,
+        SGST,
         cess
       })
-      // console.log("data",data);
+      console.log("data",data);
       return res.status(200).json({ status: "true", message: "Product created successfully", data: data })
     } catch (error) {
       console.log(error);
@@ -35,7 +36,7 @@ exports.create_product = async (req, res) => {
   exports.update_product = async (req, res) => {
     try {
       const { id } = req.params
-      const { itemtype, productname, description, itemgroup, itemcategory, unit, bankdetail, openingstock, nagativeqty, lowstock, itemselected, purchaseprice, salesprice, gstrate, cess } = req.body
+      const { itemtype, productname, description, itemgroup, itemcategory, unit, bankdetail, openingstock, nagativeqty, lowstock, itemselected, purchaseprice, salesprice, IGST,SGST, cess } = req.body
   
       const updatepayment = await product.findByPk(id)
   
@@ -57,9 +58,10 @@ exports.create_product = async (req, res) => {
         itemselected: itemselected,
         salesprice: salesprice,
         purchaseprice: purchaseprice,
-        gstrate: gstrate,
+        SGST:SGST,
+        IGST:IGST,
         cess: cess
-  
+
       }, {
         where: { id: id }
       });
