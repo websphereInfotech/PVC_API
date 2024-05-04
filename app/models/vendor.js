@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 
-const customer = sequelize.define("P_customer", {
+const vendor = sequelize.define("P_vendor", {
   accountname: {
     type: DataTypes.STRING,
   },
@@ -60,4 +60,4 @@ const customer = sequelize.define("P_customer", {
   }
 });
 
-module.exports = customer;
+module.exports = vendor;
