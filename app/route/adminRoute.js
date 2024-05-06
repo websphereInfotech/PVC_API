@@ -1,5 +1,5 @@
 // const loginRoute = require("./loginRoute");
-const quotationRoute = require("./quotationRoute");
+const ProFormaInvoice = require("./ProFormaInvoice");
 const salesreturnRoute = require("./salesreturnRoute");
 const expenseRoute = require("./expenseRoute");
 const salesinvoiceRoute = require("./salesinvoiceRoute");
@@ -18,9 +18,10 @@ const receiptRoute = require("./receipt");
 const bankAccount = require("./bankRoute");
 const permissionRoute = require("./permissions");
 const userRoute = require("./user");
-const vendorRoute = require('./vendor')
+const vendorRoute = require("./vendor");
+
 module.exports = {
-  quotationRoute,
+  ProFormaInvoice,
   salesreturnRoute,
   expenseRoute,
   salesinvoiceRoute,

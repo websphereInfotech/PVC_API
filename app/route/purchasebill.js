@@ -20,12 +20,12 @@ router.post(
   validation("create_purchasebill"),
   create_purchasebill
 );
-router.post(
-  "/create_purchasebill_item",
-  adminAuth("Purchase Bill:create_purchasebill_item"),
-  validation("create_purchasebill_item"),
-  create_purchasebill_item
-);
+// router.post(
+//   "/create_purchasebill_item",
+//   adminAuth("Purchase Bill:create_purchasebill_item"),
+//   validation("create_purchasebill_item"),
+//   create_purchasebill_item
+// );
 router.put(
   "/update_purchasebill/:id",
   adminAuth("Purchase Bill:update_purchasebill"),

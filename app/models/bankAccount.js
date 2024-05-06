@@ -15,4 +15,5 @@ const bankAccount = sequelize.define("P_bankAccount", {
 });
 customer.hasMany(bankAccount, {foreignKey:'customerId', onDelete:"CASCADE", as:'items'});
 bankAccount.belongsTo(customer,{foreignKey:"customerId", onDelete:"CASCADE", as:'items'});
+
 module.exports = bankAccount;

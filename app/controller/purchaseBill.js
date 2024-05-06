@@ -1,11 +1,33 @@
+const product = require("../models/product");
 const purchasebill = require("../models/purchasebill");
 const purchasebillItem = require("../models/purchasebill_item");
 
 
 exports.create_purchasebill = async (req, res) => {
     try {
-      const { vendor, mobileno, email, billno, billdate, terms, duedate, book, pono } = req.body;
+      const { vendor, mobileno, email, billno, billdate, terms, duedate, book, pono,items } = req.body;
       // console.log("req",req.body);
+      if(!items || items.length === 0) {
+        return res.status(400).json({ status:'false', message:'Required Field Of Items'});
+      }
+
+      let totalIgst =0;
+      let totalSgst =0;
+      let totalMrp = 0;
+
+      const itemGst = await Promise.all(
+        items.map(async(item) => {
+          const productData = await product.findOne({
+            where:{productname : item.product}
+          });
+
+          if(!productData){
+            return res.status(404).json({status:'false', message:`Product Not Found: ${item.product}`});
+          }
+        })
+      )
+
+      
       const data = await purchasebill.create({
         vendor,
         mobileno,
@@ -24,26 +46,26 @@ exports.create_purchasebill = async (req, res) => {
       return res.status(500).json({ status: "false", message: "Internal Server Error" });
     }
   }
-  exports.create_purchasebill_item = async (req, res) => {
-    try {
-      const { purchasebillId, items } = req.body;
+  // exports.create_purchasebill_item = async (req, res) => {
+  //   try {
+  //     const { purchasebillId, items } = req.body;
   
-      await Promise.all(items.map(async item => {
-        await purchasebillItem.create({
-          ...item,
-          purchasebillId: purchasebillId
-        });
-      }));
+  //     await Promise.all(items.map(async item => {
+  //       await purchasebillItem.create({
+  //         ...item,
+  //         purchasebillId: purchasebillId
+  //       });
+  //     }));
   
-      const data = await purchasebillItem.findAll({ where: { purchasebillId } });
+  //     const data = await purchasebillItem.findAll({ where: { purchasebillId } });
   
-      return res.status(200).json({ status: true, message: "Purchase Bill Item Create Successfully", data: data });
+  //     return res.status(200).json({ status: true, message: "Purchase Bill Item Create Successfully", data: data });
   
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ status: "false", message: "Internal Server Error" });
-    }
-  }
+  //   } catch (error) {
+  //     console.log(error);
+  //     return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  //   }
+  // }
   exports.update_purchasebill = async (req, res) => {
     try {
       const { id } = req.params;

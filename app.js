@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 const {
-    quotationRoute,
+    ProFormaInvoice,
     salesreturnRoute,
     expenseRoute,
     salesinvoiceRoute,
@@ -34,7 +34,7 @@ const {
 } = require('./app/route/adminRoute');
 
 
-app.use("/admin", quotationRoute);
+app.use("/admin", ProFormaInvoice);
 app.use("/admin", salesreturnRoute);
 app.use("/admin", expenseRoute);
 app.use("/admin", salesinvoiceRoute);

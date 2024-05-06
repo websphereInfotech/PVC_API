@@ -36,11 +36,11 @@ exports.create_salesInvoice = async (req, res) => {
     //       .json({ status: "false", message: "Serial Number Already Exists" });
     //   }
     // }
-    
+
     if (!items || items.length === 0) {
       return res
-      .status(400)
-      .json({ status: "false", message: "Required Field oF items" });
+        .status(400)
+        .json({ status: "false", message: "Required Field Of Items" });
     }
 
     let totalIgst = 0;
@@ -50,31 +50,31 @@ exports.create_salesInvoice = async (req, res) => {
     const itemGST = await Promise.all(
       items.map(async (item) => {
         const productData = await product.findOne({
-          where : { productanme: item.product},
+          where: { productname: item.product },
         });
-        if(!productData){
+        if (!productData) {
           return res.status(404).json({
-            status:'false', message:`Product Not Found:${item.product}`,
+            status: "false",
+            message: `Product Not Found:${item.product}`,
           });
         }
 
         const mrp = Number(item.qty) * Number(item.rate);
         totalMrp += mrp;
-        const igstValue = (productData.igst * mrp)/100;
-        const sgstvalue = (productData.sgst ? productData.sgst/2 : 0);
-        const gstvalue = (sgstvalue *mrp)/100;
-        totalIgst += igstValue,
-        totalSgst += gstvalue ? gstvalue*2 :0;
+        const igstValue = (productData.IGST * mrp) / 100;
+        const sgstvalue = productData.SGST ? productData.SGST / 2 : 0;
+        const gstvalue = (sgstvalue * mrp) / 100;
+        (totalIgst += igstValue), (totalSgst += gstvalue ? gstvalue * 2 : 0);
 
         return {
           ...item,
           mrp,
           sgst: sgstvalue,
-          cgst : sgstvalue,
-          igst: igstValue
+          cgst: sgstvalue,
+          igst: igstValue,
         };
       })
-    )
+    );
     const data = await salesInvoice.create({
       email,
       mobileno,
@@ -89,9 +89,9 @@ exports.create_salesInvoice = async (req, res) => {
       totalIgst,
       totalSgst,
       totalMrp,
-      mainTotal : totalIgst ? totalIgst+ totalMrp: totalSgst+totalMrp,
+      mainTotal: totalIgst ? totalIgst + totalMrp : totalSgst + totalMrp,
     });
-    
+
     const addToItem = itemGST.map((item) => ({
       salesInvoiceId: data.id,
       ...item,
@@ -205,47 +205,74 @@ exports.update_salesInvoice = async (req, res) => {
       }
     );
 
-    if (Array.isArray(items)) {
-      const existingItems = await salesInvoiceItem.findAll({
-        where: { salesInvoiceId: id },
+    const existingItem = await salesInvoiceItem.findAll({
+      where: { salesInvoiceId: id },
+    });
+
+    const updatedProducts = items.map((item) => item.product);
+    const itemsToDelete = existingItem.filter(
+      (item) => !updatedProducts.includes(item.product)
+    );
+
+    for (const item of itemsToDelete) {
+      await item.destroy();
+    }
+
+    let totalMrp = 0;
+    let totalIgst = 0;
+    let totalSgst = 0;
+
+    for (const item of items) {
+      const existingItems = existingItem.find(
+        (ei) => ei.product === item.product
+      );
+      const rate = item.rate;
+      const qty = item.qty;
+      const mrp = Number(item.rate) * Number(item.qty);
+
+      if (existingItems) {
+        await existingItems.update({
+          qty,
+          rate,
+          mrp,
+        });
+      } else {
+        await salesInvoiceItem.create({
+          salesInvoiceId: id,
+          product: item.product,
+          qty,
+          rate,
+          mrp,
+        });
+      }
+      totalMrp += mrp;
+
+      const productData = await product.findOne({
+        where: { productname: item.product, id: item.id },
       });
 
-      for (i = 0; i < existingItems.length && i < items.length; i++) {
-        const itemData = items[i];
-        const itemId = existingItems[i].id;
-
-        await salesInvoiceItem.update(
-          {
-            serialno: itemData.serialno,
-            product: itemData.product,
-            mrp: itemData.mrp,
-            qty: itemData.qty,
-            rate: itemData.rate,
-          },
-          { where: { id: itemId } }
-        );
-      }
-      if (items.length > existingItems.length) {
-        for (let i = existingItems.length; i < items.length; i++) {
-          const itemData = items[i];
-
-          await salesInvoiceItem.create({
-            salesInvoiceId: id,
-            serialno: itemData.serialno,
-            product: itemData.product,
-            mrp: itemData.mrp,
-            qty: itemData.qty,
-            rate: itemData.rate,
-          });
-        }
+      console.log("productData", productData);
+      console.log("item.product", item.product);
+      console.log("item.product", item.id);
+      if (productData) {
+        totalIgst += (productData.IGST * mrp) / 100;
+        totalSgst += (productData.SGST * mrp) / 100;
       }
     }
+    await salesInvoice.update(
+      {
+        totalMrp,
+        totalIgst,
+        totalSgst,
+        mainTotal: totalIgst ? totalIgst + totalMrp : totalSgst + totalMrp,
+      },
+      { where: { id } }
+    );
 
     const data = await salesInvoice.findOne({
       where: { id },
       include: [{ model: salesInvoiceItem, as: "items" }],
     });
-
     return res.status(200).json({
       status: "true",
       message: "Sales Invoice Update Successfuly",
