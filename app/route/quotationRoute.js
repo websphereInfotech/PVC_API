@@ -5,7 +5,7 @@ const {
   create_quotation,
   // create_quotationItem,
   update_quotation,
-  update_quotationItem,
+  // update_quotationItem,
   delete_quotation,
   delete_quotationitem,
   view_quotation,

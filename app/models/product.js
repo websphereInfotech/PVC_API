@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
+// const quotationItem = require("./ProFormaInvoiceItem");
 
 const product = sequelize.define("P_product", {
   itemtype: {
@@ -48,16 +49,22 @@ const product = sequelize.define("P_product", {
   },
   SGST: {
     type: DataTypes.FLOAT,
-    allowNull:true
+    defaultValue :0
   },
   IGST: {
     type: DataTypes.FLOAT,
     defaultValue:0
+  },
+  HSNcode: {
+    type:DataTypes.INTEGER
   },
   cess: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
 });
+
+// product.hasMany(quotationItem,{ foreignKey:'productId'})
+// quotationItem.belongsTo(product, {foreignKey:"productId"});
 
 module.exports = product;
