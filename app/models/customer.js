@@ -23,9 +23,6 @@ const customer = sequelize.define("P_customer", {
   creditperiod: {
     type: DataTypes.INTEGER,
   },
-  mode: {
-    type: DataTypes.STRING,
-  },
   address1: {
     type: DataTypes.STRING,
   },

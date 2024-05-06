@@ -1,10 +1,16 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
-const moment = require('moment');
+// const moment = require('moment');
 const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
-  quotation_no: {
+  ProFormaInvoice_no: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  date: {
+    type: DataTypes.DATE
+  },
+  validtill: {
+    type: DataTypes.DATE
   },
   // date: {
   //   type: DataTypes.DATEONLY,
@@ -28,9 +34,7 @@ const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
   //     return moment(rawDate).format("DD-MM-YYYY"); 
   //   },
   // },
-  date: DataTypes.DATE,
-  validtill:DataTypes.DATE,
-  customer: DataTypes.STRING,
+  customer:{type:DataTypes.STRING},
   totalIgst: {
     type: DataTypes.FLOAT,
     defaultValue: 0,

@@ -4,15 +4,15 @@ const product = require("../models/product");
 
 exports.create_ProFormaInvoice = async (req, res) => {
   try {
-    const { quotation_no, date, validtill, customer, items } = req.body;
+    const { ProFormaInvoice_no, date, validtill, customer, items } = req.body;
     const numberOf = await ProFormaInvoice.findOne({
-      where: { quotation_no: quotation_no },
+      where: { ProFormaInvoice_no: ProFormaInvoice_no },
     });
 
     if (numberOf) {
       return res
         .status(400)
-        .json({ status: "false", message: "Quatation Number Already Exists" });
+        .json({ status: "false", message: "ProForma Invoice Number Already Exists" });
     }
 
     if (!items || items.length === 0) {
@@ -58,7 +58,7 @@ console.log(totalIgst,'total?>>>>>>>>>>>>>>>>>>>>');
     );
 
     const createdInvoice = await ProFormaInvoice.create({
-      quotation_no,
+      ProFormaInvoice_no,
       date,
       validtill,
       customer,
