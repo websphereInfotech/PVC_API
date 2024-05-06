@@ -15,10 +15,12 @@ const unitRoute = require("./unit");
 const purchaseBill = require("./purchasebill");
 const purchaseReturn = require("./purchaseReturn");
 const receiptRoute = require("./receipt");
-const bankAccount = require("./bankRoute");
+// const bankAccount = require("./bankRoute");
 const permissionRoute = require("./permissions");
 const userRoute = require("./user");
 const vendorRoute = require("./vendor");
+const companyRoute = require("./company");
+
 
 module.exports = {
   ProFormaInvoice,
@@ -37,8 +39,9 @@ module.exports = {
   purchaseBill,
   purchaseReturn,
   receiptRoute,
-  bankAccount,
+  // bankAccount,
   permissionRoute,
   userRoute,
-  vendorRoute
+  vendorRoute,
+  companyRoute
 };

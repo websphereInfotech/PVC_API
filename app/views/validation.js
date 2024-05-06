@@ -481,13 +481,13 @@ exports.pono = function (req, res, next) {
   }
   next();
 };
-exports.quotation_no = function (req, res, next) {
-  const { quotation_no } = req.body;
-  const quotation_noSchema = Joi.string().required().messages({
-    "any.required": "Required Field : Quotation_No",
-    "string.empty": "Quotation_No Cannot Be Empty",
+exports.ProFormaInvoice_no = function (req, res, next) {
+  const { ProFormaInvoice_no } = req.body;
+  const ProFormaInvoice_noSchema = Joi.string().required().messages({
+    "any.required": "Required Field : ProForma Invoice Number",
+    "string.empty": "ProForma Invoice_No Cannot Be Empty",
   });
-  const { error } = quotation_noSchema.validate(quotation_no);
+  const { error } = ProFormaInvoice_noSchema.validate(ProFormaInvoice_no);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }

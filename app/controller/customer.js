@@ -1,6 +1,5 @@
 const bankAccount = require("../models/bankAccount");
 const customer = require("../models/customer");
-const customfeild = require("../models/customfeild");
 
 exports.create_customer = async (req, res) => {
   try {
@@ -12,7 +11,6 @@ exports.create_customer = async (req, res) => {
       mobileno,
       panno,
       creditperiod,
-      mode,
       address1,
       address2,
       pincode,
@@ -64,7 +62,6 @@ exports.create_customer = async (req, res) => {
       mobileno,
       panno,
       creditperiod,
-      mode,
       address1,
       address2,
       pincode,
@@ -122,7 +119,6 @@ exports.update_customer = async (req, res) => {
       mobileno,
       panno,
       creditperiod,
-      mode,
       address1,
       address2,
       pincode,
@@ -156,7 +152,6 @@ exports.update_customer = async (req, res) => {
       mobileno,
       panno,
       creditperiod,
-      mode,
       address1,
       address2,
       pincode,

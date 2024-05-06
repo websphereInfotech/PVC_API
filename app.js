@@ -27,10 +27,11 @@ const {
     purchaseBill,
     purchaseReturn,
     receiptRoute,
-    bankAccount,
+    // bankAccount,
     permissionRoute,
     userRoute,
-    vendorRoute
+    vendorRoute,
+    companyRoute
 } = require('./app/route/adminRoute');
 
 
@@ -50,10 +51,11 @@ app.use("/admin", unitRoute);
 app.use("/admin", purchaseBill);
 app.use("/admin", purchaseReturn);
 app.use("/admin", receiptRoute);
-app.use("/admin", bankAccount);
+// app.use("/admin", bankAccount);
 app.use("/admin", permissionRoute);
 app.use("/admin", userRoute);
 app.use("/admin", vendorRoute);
+app.use("/admin", companyRoute);
 
 app.get("/", (req, res) => res.send("Hello World!"));
 
