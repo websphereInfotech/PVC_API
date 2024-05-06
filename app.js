@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 const {
-    quotationRoute,
+    ProFormaInvoice,
     salesreturnRoute,
     expenseRoute,
     salesinvoiceRoute,
@@ -29,11 +29,12 @@ const {
     receiptRoute,
     bankAccount,
     permissionRoute,
-    userRoute
+    userRoute,
+    vendorRoute
 } = require('./app/route/adminRoute');
 
 
-app.use("/admin", quotationRoute);
+app.use("/admin", ProFormaInvoice);
 app.use("/admin", salesreturnRoute);
 app.use("/admin", expenseRoute);
 app.use("/admin", salesinvoiceRoute);
@@ -52,6 +53,7 @@ app.use("/admin", receiptRoute);
 app.use("/admin", bankAccount);
 app.use("/admin", permissionRoute);
 app.use("/admin", userRoute);
+app.use("/admin", vendorRoute);
 
 app.get("/", (req, res) => res.send("Hello World!"));
 

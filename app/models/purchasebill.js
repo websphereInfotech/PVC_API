@@ -5,7 +5,7 @@ const purchasebill = sequelize.define("P_purchasebill", {
   vendor: {
     type: DataTypes.STRING,
   },
-  mobileno: { type: DataTypes.STRING },
+  mobileno: { type: DataTypes.BIGINT },
   email: { type: DataTypes.STRING },
   billno: { type: DataTypes.STRING },
   billdate: { type: DataTypes.DATE },

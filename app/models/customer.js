@@ -57,6 +57,10 @@ const customer = sequelize.define("P_customer", {
   },
   gstnumber : {
     type: DataTypes.STRING,
+  },
+  totalcreadit : {
+    type : DataTypes.BIGINT,
+    defaultValue:0
   }
 });
 

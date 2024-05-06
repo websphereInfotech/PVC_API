@@ -213,7 +213,6 @@ exports.reset_password = async (req, res) => {
 exports.user_login = async (req, res) => {
   try {
     const { mobileno, password } = req.body;
-
     const user = await User.findOne({ where: { mobileno } });
     if (!user) {
       return res

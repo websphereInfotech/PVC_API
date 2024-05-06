@@ -1,12 +1,11 @@
+const ProFormaInvoice = require("../models/ProFormaInvoice");
+const ProFormaInvoiceItem = require("../models/ProFormaInvoiceItem");
 const product = require("../models/product");
-const quotation = require("../models/quotation");
-const quotationItem = require("../models/quotationItem");
 
-exports.create_quotation = async (req, res) => {
+exports.create_ProFormaInvoice = async (req, res) => {
   try {
-    const { quotation_no, date, validtill, email, mobileno, customer, items } =
-      req.body;
-    const numberOf = await quotation.findOne({
+    const { quotation_no, date, validtill, customer, items } = req.body;
+    const numberOf = await ProFormaInvoice.findOne({
       where: { quotation_no: quotation_no },
     });
 
@@ -15,16 +14,6 @@ exports.create_quotation = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Quatation Number Already Exists" });
     }
-    // for (const item of items) {
-    //   const existingItem = await quotationItem.findOne({
-    //     where: { srNo: item.srNo },
-    //   });
-    //   if (existingItem) {
-    //     return res
-    //       .status(400)
-    //       .json({ status: "false", message: "Serial Number Already Exists" });
-    //   }
-    // }
 
     if (!items || items.length === 0) {
       return res
@@ -37,22 +26,24 @@ exports.create_quotation = async (req, res) => {
 
     const itemGST = await Promise.all(
       items.map(async (item) => {
-        const productData = await product.findOne({
+ 
+        const productData = await product.findAll({
           where: { productname: item.product },
+          // where: { id: item.product },
         });
-      
+       
         if (!productData) {
           return res.status(404).json({
             status: "false",
-            message: `Product Not Found: ${item.product}`,
+            message: `Product Not Found: ${item.product}`, 
           });
         }
 
         const mrp = Number(item.qty) * Number(item.rate);
         totalMrp += mrp;
-        const igstValue = (productData.igst * mrp) / 100;
-        const sgstvalue = productData.sgst ? productData.sgst / 2 : 0;
-        const gstvalue = (sgstvalue * mrp) / 100;
+        const igstValue = (productData.IGST * mrp) / 100 || 0;
+        const sgstvalue = productData.SGST ? productData.SGST / 2 : 0;
+        const gstvalue = (sgstvalue * mrp) / 100 || 0;
         totalIgst += igstValue;
         totalSgst += gstvalue ? gstvalue * 2 : 0;
 
@@ -66,12 +57,10 @@ exports.create_quotation = async (req, res) => {
       })
     );
 
-    const createdQuotation = await quotation.create({
+    const createdInvoice = await ProFormaInvoice.create({
       quotation_no,
       date,
       validtill,
-      email,
-      mobileno,
       customer,
       totalIgst,
       totalSgst,
@@ -80,20 +69,20 @@ exports.create_quotation = async (req, res) => {
     });
 
     const addToProduct = itemGST.map((item) => ({
-      quotationId: createdQuotation.id,
+      InvoiceId: createdInvoice.id,
       ...item,
     }));
+    await ProFormaInvoiceItem.bulkCreate(addToProduct);
 
-    await quotationItem.bulkCreate(addToProduct);
 
-    const quotationWithItems = await quotation.findOne({
-      where: { id: createdQuotation.id },
-      include: [{ model: quotationItem, as: "items" }],
+    const quotationWithItems = await ProFormaInvoice.findOne({
+      where: { id: createdInvoice.id },
+      include: [{ model: ProFormaInvoiceItem, as: "items" }],
     });
 
     return res.status(200).json({
       status: "true",
-      message: "Quotation created successfully",
+      message: "ProForma Invoice created successfully",
       data: quotationWithItems,
     });
   } catch (error) {
@@ -145,21 +134,21 @@ exports.create_quotation = async (req, res) => {
 //       .json({ status: "false", error: "Internal Server Error" });
 //   }
 // };
-exports.get_all_quotation = async (req, res) => {
+exports.get_all_ProFormaInvoice = async (req, res) => {
   try {
-    const allQuotations = await quotation.findAll({
-      include: [{ model: quotationItem, as: "items" }],
+    const allInvoice = await ProFormaInvoice.findAll({
+      include: [{ model: ProFormaInvoiceItem, as: "items" }],
     });
 
-    if (!allQuotations) {
+    if (!allInvoice) {
       return res
         .status(404)
-        .json({ status: "false", message: "Quotation Data not Found" });
+        .json({ status: "false", message: "ProForma Invoice Data not Found" });
     }
     return res.status(200).json({
       status: "true",
-      message: "Quotation data fetch successfully",
-      data: allQuotations,
+      message: "ProForma Invoice data fetch successfully",
+      data: allInvoice,
     });
   } catch (error) {
     console.error(error);
@@ -168,22 +157,22 @@ exports.get_all_quotation = async (req, res) => {
       .json({ status: "false", error: "Internal Server Error" });
   }
 };
-exports.view_quotation = async (req, res) => {
+exports.view_ProFormaInvoice = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await quotation.findOne({
+    const data = await ProFormaInvoice.findOne({
       where: { id },
-      include: [{ model: quotationItem, as: "items" }],
+      include: [{ model: ProFormaInvoiceItem, as: "items" }],
     });
     if (!data) {
       return res
         .status(404)
-        .json({ status: "false", message: "Quotation not found" });
+        .json({ status: "false", message: "ProForma Invoice not found" });
     }
     return res.status(200).json({
       status: "true",
-      message: "Quotation data fetch successfully",
+      message: "ProForma Invoice data fetch successfully",
       data: data,
     });
   } catch (error) {
@@ -278,35 +267,32 @@ exports.view_quotation = async (req, res) => {
 //       .json({ status: "false", message: "Internal Server Error" });
 //   }
 // };
-exports.update_quotation = async (req, res) => {
+exports.update_ProFormaInvoice = async (req, res) => {
   try {
     const { id } = req.params;
-    const { quotationno, date, validtill, email, mobileno, customer, items } =
-      req.body;
+    const { quotationno, date, validtill, customer, items } = req.body;
 
-    const existingQuotation = await quotation.findByPk(id);
+    const existingInvoice = await ProFormaInvoice.findByPk(id);
 
-    if (!existingQuotation) {
+    if (!existingInvoice) {
       return res.status(404).json({
         status: "false",
-        message: "Quotation Not Found",
+        message: "ProForma Invoice Not Found",
       });
     }
 
-    await quotation.update(
+    await ProFormaInvoice.update(
       {
         quotationno,
         date,
         validtill,
-        email,
-        mobileno,
         customer,
       },
       { where: { id } }
     );
 
-    const existingItems = await quotationItem.findAll({
-      where: { quotationId: id },
+    const existingItems = await ProFormaInvoiceItem.findAll({
+      where: { InvoiceId: id },
     });
 
     const updatedProducts = items.map((item) => item.product.toLowerCase());
@@ -339,8 +325,8 @@ exports.update_quotation = async (req, res) => {
           mrp,
         });
       } else {
-        await quotationItem.create({
-          quotationId: id,
+        await ProFormaInvoiceItem.create({
+          InvoiceId: id,
           product: item.product,
           qty,
           rate,
@@ -354,11 +340,11 @@ exports.update_quotation = async (req, res) => {
       });
 
       if (productData) {
-        totalIgst += (productData.igst * mrp) / 100;
-        totalSgst += (productData.sgst * mrp) / 100;
+        totalIgst += (productData.IGST * mrp) / 100;
+        totalSgst += (productData.SGST * mrp) / 100;
       }
     }
-    await quotation.update(
+    await ProFormaInvoice.update(
       {
         totalMrp,
         totalIgst,
@@ -368,15 +354,15 @@ exports.update_quotation = async (req, res) => {
       { where: { id } }
     );
 
-    const updatedQuotation = await quotation.findOne({
+    const updatedInvoice = await ProFormaInvoice.findOne({
       where: { id },
-      include: [{ model: quotationItem, as: "items" }],
+      include: [{ model: ProFormaInvoiceItem, as: "items" }],
     });
-   
+
     return res.status(200).json({
       status: "true",
-      message: "Quotation Updated Successfully",
-      data: updatedQuotation,
+      message: "ProForma Invoice Updated Successfully",
+      data: updatedInvoice,
     });
   } catch (error) {
     console.error(error);
@@ -387,19 +373,19 @@ exports.update_quotation = async (req, res) => {
   }
 };
 
-exports.delete_quotationitem = async (req, res) => {
+exports.delete_ProFormaInvoiceItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const data = await quotationItem.destroy({ where: { id: id } });
+    const data = await ProFormaInvoiceItem.destroy({ where: { id: id } });
 
     if (!data) {
       return res
         .status(400)
-        .json({ status: "false", message: "Quatation Item Not Found" });
+        .json({ status: "false", message: "ProForma Invoice Item Not Found" });
     } else {
       return res
         .status(200)
-        .json({ status: "true", message: "Qutation delete Successfully" });
+        .json({ status: "true", message: "ProForma Invoice delete Successfully" });
     }
   } catch (error) {
     console.log(error.message);
@@ -408,20 +394,20 @@ exports.delete_quotationitem = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-exports.delete_quotation = async (req, res) => {
+exports.delete_ProFormaInvoice = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await quotation.destroy({ where: { id: id } });
+    const data = await ProFormaInvoice.destroy({ where: { id: id } });
 
     if (!data) {
       return res
         .status(400)
-        .json({ status: "false", message: "Quatation Not Found" });
+        .json({ status: "false", message: "ProForma Invoice Item Not Found" });
     }
     return res
       .status(200)
-      .json({ status: "true", message: "Quatation Delete Successfully" });
+      .json({ status: "true", message: "ProForma Invoice Item Delete Successfully" });
   } catch (error) {
     console.log(error.message);
     return res

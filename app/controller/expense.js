@@ -22,6 +22,11 @@ exports.create_expense = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Voucher Number Already Exists" });
     }
+    if (!items || items.length === 0) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required Field oF items" });
+    }
     for (const item of items) {
       const existingItem = await expenseItem.findOne({
         where: { serialno: item.serialno },
@@ -43,11 +48,7 @@ exports.create_expense = async (req, res) => {
       billdate: billdate,
       payment: payment,
     });
-    if (!items || items.length === 0) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required Field oF items" });
-    }
+   
 
     const addToItem = items.map((item) => ({
       expenseId: data.id,
