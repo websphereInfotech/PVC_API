@@ -40,13 +40,8 @@ const product = sequelize.define("P_product", {
   salesprice: {
     type: DataTypes.INTEGER,
   },
-  SGST: {
-    type: DataTypes.FLOAT,
-    defaultValue :0
-  },
-  IGST: {
-    type: DataTypes.FLOAT,
-    defaultValue:0
+  gstrate : {
+    type: DataTypes.INTEGER
   },
   HSNcode: {
     type:DataTypes.INTEGER
