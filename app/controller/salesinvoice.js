@@ -9,16 +9,16 @@ exports.create_salesInvoice = async (req, res) => {
       mobileno,
       customer,
       book,
-      seriesname,
+      // seriesname,
       invoiceno,
       invoicedate,
-      terms,
+      // terms,
       duedate,
-      quotation_no,
+      ProFormaInvoice_no,
       items,
     } = req.body;
     const numberOf = await salesInvoice.findOne({
-      where: { quotation_no: quotation_no },
+      where: { ProFormaInvoice_no: ProFormaInvoice_no },
     });
 
     if (numberOf) {
@@ -80,12 +80,12 @@ exports.create_salesInvoice = async (req, res) => {
       mobileno,
       customer,
       book,
-      seriesname,
+      // seriesname,
       invoiceno,
       invoicedate,
-      terms,
+      // terms,
       duedate,
-      quotation_no,
+      ProFormaInvoice_no,
       totalIgst,
       totalSgst,
       totalMrp,
@@ -171,12 +171,12 @@ exports.update_salesInvoice = async (req, res) => {
       mobileno,
       customer,
       book,
-      seriesname,
+      // seriesname,
       invoiceno,
       invoicedate,
-      terms,
+      // terms,
       duedate,
-      quotation_no,
+      ProFormaInvoice_no,
       items,
     } = req.body;
 
@@ -193,12 +193,12 @@ exports.update_salesInvoice = async (req, res) => {
         mobileno: mobileno,
         customer: customer,
         book: book,
-        seriesname: seriesname,
+        // seriesname: seriesname,
         invoiceno: invoiceno,
         invoicedate: invoicedate,
-        terms: terms,
+        // terms: terms,
         duedate: duedate,
-        quotation_no: quotation_no,
+        ProFormaInvoice_no: ProFormaInvoice_no,
       },
       {
         where: { id: id },
@@ -248,12 +248,9 @@ exports.update_salesInvoice = async (req, res) => {
       totalMrp += mrp;
 
       const productData = await product.findOne({
-        where: { productname: item.product, id: item.id },
+        where: { productname: item.product},
       });
 
-      console.log("productData", productData);
-      console.log("item.product", item.product);
-      console.log("item.product", item.id);
       if (productData) {
         totalIgst += (productData.IGST * mrp) / 100;
         totalSgst += (productData.SGST * mrp) / 100;

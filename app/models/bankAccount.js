@@ -13,7 +13,7 @@ const bankAccount = sequelize.define("P_bankAccount", {
   bankname: { type: DataTypes.STRING },
   accounttype : { type: DataTypes.STRING}
 });
-customer.hasMany(bankAccount, {foreignKey:'customerId', onDelete:"CASCADE", as:'items'});
-bankAccount.belongsTo(customer,{foreignKey:"customerId", onDelete:"CASCADE", as:'items'});
+customer.hasOne(bankAccount, {foreignKey:'customerId', onDelete:"CASCADE", as:'bankdetails'});
+bankAccount.belongsTo(customer,{foreignKey:"customerId", onDelete:"CASCADE", as:'bankdetails'});
 
 module.exports = bankAccount;

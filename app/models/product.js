@@ -22,10 +22,6 @@ const product = sequelize.define("P_product", {
   unit: {
     type: DataTypes.STRING,
   },
-  bankdetail: {
-    type: DataTypes.ENUM("Normal", "Batch wise", "Lot wise"),
-    allowNull: false,
-  },
   openingstock: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
@@ -37,9 +33,6 @@ const product = sequelize.define("P_product", {
   lowstock: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
-  },
-  itemselected: {
-    type: DataTypes.STRING,
   },
   purchaseprice: {
     type: DataTypes.INTEGER,
