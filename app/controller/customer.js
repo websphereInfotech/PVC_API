@@ -21,23 +21,23 @@ exports.create_customer = async (req, res) => {
       balance,
       country,
       gstnumber,
-      items,
+      bankdetails,
       totalcreadit,
     } = req.body;
 
     if (bankdetail === true) {
-      if (!items || items.length === 0) {
+      if (!bankdetails || bankdetails.length === 0) {
         return res
           .status(400)
           .json({ status: "false", message: "Required Filed Of Items" });
       }
-    for (const item of items) {
+    // for (const item of items) {
       const existingAccount = await bankAccount.findOne({
-        where: { accountnumber: item.accountnumber },
+        where: { accountnumber: bankdetails.accountnumber },
       });
 
       const existingIFSC = await bankAccount.findOne({
-        where: { ifsccode: item.ifsccode },
+        where: { ifsccode: bankdetails.ifsccode },
       });
 
       if (existingAccount) {
@@ -52,7 +52,7 @@ exports.create_customer = async (req, res) => {
           message: "IFSC Code Already Exists",
         });
       }
-    }
+    // }
   }
     const customerdata = {
       accountname,
@@ -78,20 +78,20 @@ exports.create_customer = async (req, res) => {
       customerdata.totalcreadit = totalcreadit;
     }
     const data = await customer.create(customerdata);
-    if (bankdetail === true && items) {
-      const bankdata = items.map((item) => ({
+    if (bankdetail === true && bankdetails) {
+      const bankdata = {
         customerId: data.id,
-        accountnumber: item.accountnumber,
-        ifsccode: item.ifsccode,
-        bankname: item.bankname,
-        accounttype: item.accounttype,
-      }));
-      await bankAccount.bulkCreate(bankdata);
+        accountnumber: bankdetails.accountnumber,
+        ifsccode: bankdetails.ifsccode,
+        bankname: bankdetails.bankname,
+        accounttype: bankdetails.accounttype,
+      };
+      await bankAccount.create(bankdata);
     }
 
     const customerData = await customer.findOne({
       where: { id: data.id },
-      include: [{ model: bankAccount, as: "items" }],
+      include: [{ model: bankAccount, as: "bankdetails" }],
     });
 
     return res
@@ -129,13 +129,13 @@ exports.update_customer = async (req, res) => {
       balance,
       country,
       gstnumber,
-      items,
+      bankdetails,
       totalcreadit,
     } = req.body;
 
     const updateData = await customer.findOne({
       where: { id: id },
-      include: [{ model: bankAccount, as: "items" }],
+      include: [{ model: bankAccount, as: "bankdetails" }],
     });
 
     if (!updateData) {
@@ -169,18 +169,18 @@ exports.update_customer = async (req, res) => {
 
     await customer.update(customerUpdate, { where: { id } });
 
-    if (bankdetail === true && items && Array.isArray(items)) {
-      for (const item of items) {
+    if (bankdetail === true && bankdetails) {
+      // for (const item of items) {
         const existingItem = await bankAccount.findOne({
-          where: { customerId: id, accountnumber: item.accountnumber },
+          where: { customerId: id, accountnumber: bankdetails.accountnumber },
         });
-
+// console.log("existingItem".existingItem);
         if (existingItem) {
           await bankAccount.update(
             {
-              ifsccode: item.ifsccode,
-              accounttype: item.accounttype,
-              bankname: item.bankname,
+              ifsccode: bankdetails.ifsccode,
+              accounttype: bankdetails.accounttype,
+              bankname: bankdetails.bankname,
             },
             {
               where: { id: existingItem.id },
@@ -189,17 +189,17 @@ exports.update_customer = async (req, res) => {
         } else {
           await bankAccount.create({
             customerId: id,
-            accountnumber: item.accountnumber,
-            ifsccode: item.ifsccode,
-            accounttype: item.accounttype,
-            bankname: item.bankname,
+            accountnumber: bankdetails.accountnumber,
+            ifsccode: bankdetails.ifsccode,
+            accounttype: bankdetails.accounttype,
+            bankname: bankdetails.bankname,
           });
         }
-      }
+      // }
     }
     const data = await customer.findOne({
       where: { id: id },
-      include: [{ model: bankAccount, as: "items" }],
+      include: [{ model: bankAccount, as: "bankdetails" }],
     });
 
     return res
