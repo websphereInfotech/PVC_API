@@ -300,7 +300,7 @@ exports.view_customer = async (req, res) => {
 
     const data = await customer.findOne({
       where: { id },
-      include: [{ model: bankAccount, as: "items" }],
+      include: [{ model: bankAccount, as: "bankdetails" }],
     });
 
     if (!data) {
@@ -325,7 +325,7 @@ exports.view_customer = async (req, res) => {
 exports.get_all_customer = async (req, res) => {
   try {
     const data = await customer.findAll({
-      include: [{ model: bankAccount, as: "items" }],
+      include: [{ model: bankAccount, as: "bankdetails" }],
     });
     if (!data) {
       return res
