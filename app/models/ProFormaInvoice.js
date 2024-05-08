@@ -60,7 +60,7 @@ const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
   },
 });
 
-customer.hasOne(ProFormaInvoice,{foreignKey:'customerId'});
-ProFormaInvoice.belongsTo(customer,{foreignKey:'customerId'});
+customer.hasOne(ProFormaInvoice,{foreignKey:'customerId', onDelete:"CASCADE", as:'customer'});
+ProFormaInvoice.belongsTo(customer,{foreignKey:'customerId', onDelete:'CASCADE', as:'customer'});
 
 module.exports = ProFormaInvoice;

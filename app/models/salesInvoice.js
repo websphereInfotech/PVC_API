@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
+const customer = require("./customer");
 
 const salesInvoice = sequelize.define("P_salesInvoice", {
   book: {
@@ -15,11 +16,19 @@ const salesInvoice = sequelize.define("P_salesInvoice", {
   ProFormaInvoice_no: { type: DataTypes.STRING },
   email: { type: DataTypes.STRING },
   mobileno: { type: DataTypes.BIGINT },
-  customer: { type: DataTypes.STRING },
+  customerId: { type: DataTypes.INTEGER,
+    allowNull:false,
+    references : {
+      model:"P_customer",
+      key:'id'
+    },
+   },
   totalIgst: { type: DataTypes.FLOAT, defaultValue: 0 },
   totalSgst: { type: DataTypes.FLOAT, defaultValue: 0 },
   totalMrp: { type: DataTypes.FLOAT, defaultValue: 0 },
   mainTotal: { type: DataTypes.FLOAT, defaultValue: 0 },
 });
 
+customer.hasOne(salesInvoice, {foreignKey:'customerId', onDelete:'CASCADE'});
+salesInvoice.belongsTo(customer, {foreignKey:'customerId', onDelete:'CASCADE'});
 module.exports = salesInvoice;

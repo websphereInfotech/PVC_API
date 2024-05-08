@@ -7,7 +7,7 @@ exports.create_salesInvoice = async (req, res) => {
     const {
       email,
       mobileno,
-      customer,
+      customerId,
       book,
       seriesname,
       invoiceno,
