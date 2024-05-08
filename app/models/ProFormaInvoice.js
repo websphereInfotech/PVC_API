@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
+const customer = require("./customer");
 // const moment = require('moment');
 const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
   ProFormaInvoice_no: {
@@ -34,7 +35,13 @@ const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
   //     return moment(rawDate).format("DD-MM-YYYY"); 
   //   },
   // },
-  customer:{type:DataTypes.STRING},
+  customerId:{  
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'P_customer', 
+      key: 'id',
+    },},
   totalIgst: {
     type: DataTypes.FLOAT,
     defaultValue: 0,
@@ -52,5 +59,8 @@ const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
     defaultValue: 0,
   },
 });
+
+customer.hasOne(ProFormaInvoice,{foreignKey:'customerId'});
+ProFormaInvoice.belongsTo(customer,{foreignKey:'customerId'});
 
 module.exports = ProFormaInvoice;

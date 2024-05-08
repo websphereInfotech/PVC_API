@@ -61,7 +61,7 @@ exports.create_ProFormaInvoice = async (req, res) => {
       ProFormaInvoice_no,
       date,
       validtill,
-      customer,
+      customerId: customer,
       totalIgst,
       totalSgst,
       totalMrp,
@@ -143,7 +143,7 @@ exports.view_ProFormaInvoice = async (req, res) => {
 exports.update_ProFormaInvoice = async (req, res) => {
   try {
     const { id } = req.params;
-    const { quotationno, date, validtill, customer, items } = req.body;
+    const { ProFormaInvoice_no, date, validtill, customer, items } = req.body;
 
     const existingInvoice = await ProFormaInvoice.findByPk(id);
 
@@ -156,10 +156,10 @@ exports.update_ProFormaInvoice = async (req, res) => {
 
     await ProFormaInvoice.update(
       {
-        quotationno,
+        ProFormaInvoice_no,
         date,
         validtill,
-        customer,
+        customerId: customer,
       },
       { where: { id } }
     );

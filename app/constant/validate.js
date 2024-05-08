@@ -20,7 +20,7 @@ module.exports.validation = function (method) {
         case "create_purchaseitem":
             return [serialno, rate, qty, product, discount, mrp]
         case "create_ProFormaInvoice":
-            return [ProFormaInvoice_no, date, validtill,  customer,rate, qty]
+            return [ProFormaInvoice_no, date, validtill, rate, qty]
         case "create_salesinvoice":
             return [email, mobileno, customer, book, invoiceno, invoicedate, duedate, ProFormaInvoice_no,  product, rate,  qty,rate,seriesname]
         case "create_salesReturn":
