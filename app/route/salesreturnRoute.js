@@ -1,5 +1,5 @@
 const express = require("express");
-const { validation } = require("../views/validate");
+const { validation } = require("../constant/validate");
 const adminAuth = require("../middleware/adminAuth");
 const {
   create_salesReturn,

@@ -4,7 +4,7 @@ const product = require("../models/product");
 
 exports.create_ProFormaInvoice = async (req, res) => {
   try {
-    const { ProFormaInvoice_no, date, validtill, customer, items } = req.body;
+    const { ProFormaInvoice_no, date, validtill, customer,totalIgst,totalSgst,totalMrp,mainTotal,items } = req.body;
     const numberOf = await ProFormaInvoice.findOne({
       where: { ProFormaInvoice_no: ProFormaInvoice_no },
     });
@@ -20,42 +20,42 @@ exports.create_ProFormaInvoice = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Required Field oF items" });
     }
-    let totalIgst = 0;
-    let totalSgst = 0;
-    let totalMrp = 0;
+    // let totalIgst = 0;
+    // let totalSgst = 0;
+    // let totalMrp = 0;
 
-    const itemGST = await Promise.all(
-      items.map(async (item) => {
+    // const itemGST = await Promise.all(
+    //   items.map(async (item) => {
  
-        const productData = await product.findAll({
-          where: { productname: item.product },
-          // where: { id: item.product },
-        });
+    //     const productData = await product.findAll({
+    //       where: { productname: item.product },
+    //       // where: { id: item.product },
+    //     });
        
-        if (!productData) {
-          return res.status(404).json({
-            status: "false",
-            message: `Product Not Found: ${item.product}`, 
-          });
-        }
+    //     if (!productData) {
+    //       return res.status(404).json({
+    //         status: "false",
+    //         message: `Product Not Found: ${item.product}`, 
+    //       });
+    //     }
 
-        const mrp = Number(item.qty) * Number(item.rate);
-        totalMrp += mrp;
-        const igstValue = (productData.IGST * mrp) / 100 || 0;
-        const sgstvalue = productData.SGST ? productData.SGST / 2 : 0;
-        const gstvalue = (sgstvalue * mrp) / 100 || 0;
-        totalIgst += igstValue;
-        totalSgst += gstvalue ? gstvalue * 2 : 0;
+    //     const mrp = Number(item.qty) * Number(item.rate);
+    //     totalMrp += mrp;
+    //     const igstValue = (productData.IGST * mrp) / 100 || 0;
+    //     const sgstvalue = productData.SGST ? productData.SGST / 2 : 0;
+    //     const gstvalue = (sgstvalue * mrp) / 100 || 0;
+    //     totalIgst += igstValue;
+    //     totalSgst += gstvalue ? gstvalue * 2 : 0;
 
-        return {
-          ...item,
-          mrp,
-          sgst: sgstvalue,
-          cgst: sgstvalue,
-          igst: igstValue,
-        };
-      })
-    );
+    //     return {
+    //       ...item,
+    //       mrp,
+    //       sgst: sgstvalue,
+    //       cgst: sgstvalue,
+    //       igst: igstValue,
+    //     };
+    //   })
+    // );
 
     const createdInvoice = await ProFormaInvoice.create({
       ProFormaInvoice_no,
@@ -65,10 +65,10 @@ exports.create_ProFormaInvoice = async (req, res) => {
       totalIgst,
       totalSgst,
       totalMrp,
-      mainTotal: totalIgst ? totalIgst + totalMrp : totalSgst + totalMrp,
+      mainTotal,
     });
 
-    const addToProduct = itemGST.map((item) => ({
+    const addToProduct = items.map((item) => ({
       InvoiceId: createdInvoice.id,
       ...item,
     }));
@@ -92,48 +92,6 @@ exports.create_ProFormaInvoice = async (req, res) => {
       .json({ status: "false", error: "Internal Server Error" });
   }
 };
-// exports.create_quotation = async (req, res) => {
-//   try {
-//     const { quotation_no, date, validtill, email, mobileno, customer, items } =
-//       req.body;
-//     const numberOf = await quotation.findOne({ where:{quotation_no:quotation_no}});
-//     if(numberOf) {
-//       return res.status(400).json({ status:'false', message:'Quatation Number Already Exists'})
-//     }
-//       const createdQuotation = await quotation.create({
-//         quotation_no,
-//         date,
-//         validtill,
-//         email,
-//         mobileno,
-//         customer,
-//       });
-//       if (!items   || items.length === 0) {
-//         return res
-//           .status(400)
-//           .json({ status: "false", message: "Required Field oF items" });
-//       }
-//       const addToProduct = items.map((item) => ({
-//       quotationId: createdQuotation.id,
-//       ...item,
-//     }));
-//      await quotationItem.bulkCreate(addToProduct);
-//     const quotationWithItems = await quotation.findOne({
-//       where: { id: createdQuotation.id },
-//       include: [{ model: quotationItem, as:'items' }],
-//     });
-//     return res.status(200).json({
-//       status: "true",
-//       message: "Quotation created successfully",
-//       data: quotationWithItems,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     return res
-//       .status(500)
-//       .json({ status: "false", error: "Internal Server Error" });
-//   }
-// };
 exports.get_all_ProFormaInvoice = async (req, res) => {
   try {
     const allInvoice = await ProFormaInvoice.findAll({
@@ -182,91 +140,6 @@ exports.view_ProFormaInvoice = async (req, res) => {
       .json({ status: "false", error: "Internal Server Error" });
   }
 };
-// exports.update_quotation = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-
-//     const { quotationno, date, validtill, email, mobileno, customer, items } =
-//       req.body;
-
-//     const updateQuotation = await quotation.findByPk(id);
-//     if (!updateQuotation) {
-//       return res
-//         .status(404)
-//         .json({ status: "false", message: "Quotation Not Found" });
-//     }
-//     await quotation.update(
-//       {
-//         quotationno: quotationno,
-//         date: date,
-//         validtill: validtill,
-//         email: email,
-//         mobileno: mobileno,
-//         customer: customer,
-//       },
-//       { where: { id: id } }
-//     );
-
-//     if (Array.isArray(items)) {
-//       const existingItems = await quotationItem.findAll({
-//         where: { quotationId: id },
-//       });
-//       for (let i = 0; i < existingItems.length && i < items.length; i++) {
-//         const itemData = items[i];
-//         const itemId = existingItems[i].id;
-//         await quotationItem.update(
-//           {
-//             product: itemData.product,
-//             qty: itemData.qty,
-//             rate: itemData.rate,
-//             mrp: itemData.qty * itemData.rate,
-//           },
-//           {
-//             where: { id: itemId },
-//           }
-//         );
-//       }
-
-//       if (items.length > existingItems.length) {
-//         console.log("items************",items);
-//         for (let i = existingItems.length; i < items.length; i++) {
-//           const itemData = items[i];
-//           const itemGST = await Promise.all(
-//             items.map(async (item) => {
-//               const data = await product.findOne({
-//                 where:{productname:item.product}
-//               });
-//               console.log("itemGST>>>>>>>>>>>>>>>>>>>",itemGST);
-//               console.log("data@@@@@@@@@@@@@@@@@@@@@@2",data);
-//             })
-//           )
-//           await quotationItem.create({
-//             quotationId: id,
-//             product: itemData.product,
-//             qty: itemData.qty,
-//             rate: itemData.rate,
-//             mrp: itemData.qty * itemData.rate,
-//           });
-//         }
-//       }
-//     }
-//     const data = await quotation.findOne({
-//       where: { id },
-//       include: [{ model: quotationItem, as: "items" }],
-//     });
-
-//     return res.status(200).json({
-//       status: "true",
-//       message: "Quotation Update Successfully",
-//       data: data,
-//     });
-//   } catch (error) {
-//     console.log(error.message);
-//     return res
-//       .status(500)
-//       .json({ status: "false", message: "Internal Server Error" });
-//   }
-// };
 exports.update_ProFormaInvoice = async (req, res) => {
   try {
     const { id } = req.params;

@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
-const quotationItem = require("./ProFormaInvoiceItem");
+const ProFormaInvoiceItem = require("./ProFormaInvoiceItem");
 
 const product = sequelize.define("P_product", {
   itemtype: {
@@ -52,7 +52,7 @@ const product = sequelize.define("P_product", {
   },
 });
 
-// product.hasMany(quotationItem,{ foreignKey:'productId'})
-// quotationItem.belongsTo(product, {foreignKey:"productId"});
+product.hasMany(ProFormaInvoiceItem,{ foreignKey:'productId'})
+ProFormaInvoiceItem.belongsTo(product, {foreignKey:"productId"});
 
 module.exports = product;

@@ -1,7 +1,7 @@
 const express = require('express');
 const { create_user, get_all_user, delete_user, update_user, user_login, reset_password, view_user, user_logout } = require('../controller/user');
 const adminAuth = require('../middleware/adminAuth');
-const { validation } = require('../views/validate');
+const { validation } = require('../constant/validate');
 const router = express.Router();
 
 router.post('/create_user',adminAuth("Login:create_user"),validation('create_user'),create_user);

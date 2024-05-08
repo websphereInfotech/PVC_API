@@ -7,7 +7,7 @@ const {
   view_vendor,
 } = require("../controller/vendor");
 const adminAuth = require("../middleware/adminAuth");
-const { validation } = require("../views/validate");
+const { validation } = require("../constant/validate");
 
 const router = express.Router();
 

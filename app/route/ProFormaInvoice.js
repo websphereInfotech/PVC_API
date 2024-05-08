@@ -1,5 +1,5 @@
 const express = require("express");
-const { validation } = require("../views/validate");
+const { validation } = require("../constant/validate");
 const adminAuth = require("../middleware/adminAuth");
 
 const { create_ProFormaInvoice, get_all_ProFormaInvoice, view_ProFormaInvoice, update_ProFormaInvoice, delete_ProFormaInvoice, delete_ProFormaInvoiceItem } = require("../controller/ProFormaInvoice");
