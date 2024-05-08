@@ -1,11 +1,16 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const salesInvoice = require("./salesInvoice");
+const product = require("./product");
 
 const salesInvoiceItem = sequelize.define("P_salesInvoiceItem", {
-  product: {
-    type: DataTypes.STRING,
+  productId: {
+    type: DataTypes.INTEGER,
     allowNull: false,
+    references :{
+      model:'P_product',
+      key:'id'
+    }
   },
   mrp: {
     type: DataTypes.FLOAT,
@@ -35,6 +40,10 @@ const salesInvoiceItem = sequelize.define("P_salesInvoiceItem", {
     defaultValue: 0,
   },
 });
+
+
+product.hasMany(salesInvoice, {foreignKey:'productId', onDelete:"CASCADE"});
+salesInvoice.belongsTo(product,{foreignKey:'productId', onDelete:"CASCADE"});
 
 salesInvoice.hasMany(salesInvoiceItem, {
   foreignKey: "salesInvoiceId",

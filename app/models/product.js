@@ -52,7 +52,7 @@ const product = sequelize.define("P_product", {
   },
 });
 
-product.hasMany(ProFormaInvoiceItem,{ foreignKey:'productId'})
-ProFormaInvoiceItem.belongsTo(product, {foreignKey:"productId"});
+product.hasMany(ProFormaInvoiceItem,{ foreignKey:'productId', onDelete:'CASCADE', as:'product'})
+ProFormaInvoiceItem.belongsTo(product, {foreignKey:"productId", onDelete:"CASCADE", as:'product'});
 
 module.exports = product;

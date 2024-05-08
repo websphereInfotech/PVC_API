@@ -1,10 +1,11 @@
 const ProFormaInvoice = require("../models/ProFormaInvoice");
 const ProFormaInvoiceItem = require("../models/ProFormaInvoiceItem");
+const customer = require("../models/customer");
 const product = require("../models/product");
 
 exports.create_ProFormaInvoice = async (req, res) => {
   try {
-    const { ProFormaInvoice_no, date, validtill, customer,totalIgst,totalSgst,totalMrp,mainTotal,items } = req.body;
+    const { ProFormaInvoice_no, date, validtill, customerId,totalIgst,totalSgst,totalMrp,mainTotal,items } = req.body;
     const numberOf = await ProFormaInvoice.findOne({
       where: { ProFormaInvoice_no: ProFormaInvoice_no },
     });
@@ -20,48 +21,11 @@ exports.create_ProFormaInvoice = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Required Field oF items" });
     }
-    // let totalIgst = 0;
-    // let totalSgst = 0;
-    // let totalMrp = 0;
-
-    // const itemGST = await Promise.all(
-    //   items.map(async (item) => {
- 
-    //     const productData = await product.findAll({
-    //       where: { productname: item.product },
-    //       // where: { id: item.product },
-    //     });
-       
-    //     if (!productData) {
-    //       return res.status(404).json({
-    //         status: "false",
-    //         message: `Product Not Found: ${item.product}`, 
-    //       });
-    //     }
-
-    //     const mrp = Number(item.qty) * Number(item.rate);
-    //     totalMrp += mrp;
-    //     const igstValue = (productData.IGST * mrp) / 100 || 0;
-    //     const sgstvalue = productData.SGST ? productData.SGST / 2 : 0;
-    //     const gstvalue = (sgstvalue * mrp) / 100 || 0;
-    //     totalIgst += igstValue;
-    //     totalSgst += gstvalue ? gstvalue * 2 : 0;
-
-    //     return {
-    //       ...item,
-    //       mrp,
-    //       sgst: sgstvalue,
-    //       cgst: sgstvalue,
-    //       igst: igstValue,
-    //     };
-    //   })
-    // );
-
     const createdInvoice = await ProFormaInvoice.create({
       ProFormaInvoice_no,
       date,
       validtill,
-      customerId: customer,
+      customerId,
       totalIgst,
       totalSgst,
       totalMrp,
@@ -95,7 +59,7 @@ exports.create_ProFormaInvoice = async (req, res) => {
 exports.get_all_ProFormaInvoice = async (req, res) => {
   try {
     const allInvoice = await ProFormaInvoice.findAll({
-      include: [{ model: ProFormaInvoiceItem, as: "items" }],
+      include: [{ model: ProFormaInvoiceItem, as: "items", include:[{model:product,as:'product'}] },{model:customer, as:'customer'}],
     });
 
     if (!allInvoice) {
@@ -121,7 +85,7 @@ exports.view_ProFormaInvoice = async (req, res) => {
 
     const data = await ProFormaInvoice.findOne({
       where: { id },
-      include: [{ model: ProFormaInvoiceItem, as: "items" }],
+      include: [{ model: ProFormaInvoiceItem, as: "items", include:[{model:product,as:'product'}] },{model:customer, as:'customer'}],
     });
     if (!data) {
       return res
@@ -143,7 +107,7 @@ exports.view_ProFormaInvoice = async (req, res) => {
 exports.update_ProFormaInvoice = async (req, res) => {
   try {
     const { id } = req.params;
-    const { ProFormaInvoice_no, date, validtill, customer, items } = req.body;
+    const { ProFormaInvoice_no, date, validtill, customerId, items } = req.body;
 
     const existingInvoice = await ProFormaInvoice.findByPk(id);
 
@@ -159,7 +123,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
         ProFormaInvoice_no,
         date,
         validtill,
-        customerId: customer,
+        customerId,
       },
       { where: { id } }
     );
@@ -168,10 +132,10 @@ exports.update_ProFormaInvoice = async (req, res) => {
       where: { InvoiceId: id },
     });
 
-    const updatedProducts = items.map((item) => item.product.toLowerCase());
+    const updatedProducts = items.map((item) => item.product);
 
     const itemsToDelete = existingItems.filter(
-      (item) => !updatedProducts.includes(item.product.toLowerCase())
+      (item) => !updatedProducts.includes(item.product)
     );
 
     for (const item of itemsToDelete) {
@@ -184,7 +148,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
 
     for (const item of items) {
       const existingItem = existingItems.find(
-        (ei) => ei.product.toLowerCase() === item.product.toLowerCase()
+        (ei) => ei.product === item.product
       );
 
       const rate = item.rate;
@@ -200,7 +164,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
       } else {
         await ProFormaInvoiceItem.create({
           InvoiceId: id,
-          product: item.product,
+          product: item.productId,
           qty,
           rate,
           mrp,
@@ -209,7 +173,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
       totalMrp += mrp;
 
       const productData = await product.findOne({
-        where: { productname: item.product },
+        where: { productname: item.productId },
       });
 
       if (productData) {
