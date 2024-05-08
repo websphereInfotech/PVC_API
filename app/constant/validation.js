@@ -1535,14 +1535,12 @@ exports.HSNcode = function (req,res,next) {
   const HSNcodeSchema = Joi.number()
 
   .integer()
-  .min(100000)
   .max(999999)
   .required()
   .messages({
     "any.required":"Required Filed : HSN Code",
     "number.empty":"HSN Code Cannot Be Empty",
-    "number.min": "HSN Code must be exactly 6 digits",
-    "number.max": "HSN Code must be exactly 6 digits",
+    "number.max": "HSN Code Cannot Have More Then 6 Digits",
   });
   const {error} = HSNcodeSchema.validate(HSNcode);
   if(error) {

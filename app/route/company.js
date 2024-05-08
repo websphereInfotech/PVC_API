@@ -1,6 +1,6 @@
 const express = require('express');
 const { get_all_company } = require('../controller/company');
-const { validation } = require("../views/validate");
+const { validation } = require("../constant/validate");
 
 const router = express.Router();
 

@@ -9,33 +9,23 @@ exports.create_salesInvoice = async (req, res) => {
       mobileno,
       customer,
       book,
-      // seriesname,
+      seriesname,
       invoiceno,
       invoicedate,
-      // terms,
+      terms,
       duedate,
       ProFormaInvoice_no,
       items,
     } = req.body;
     const numberOf = await salesInvoice.findOne({
-      where: { ProFormaInvoice_no: ProFormaInvoice_no },
+      where: { invoiceno: invoiceno },
     });
 
     if (numberOf) {
       return res
         .status(400)
-        .json({ status: "false", message: "Quotation Number Already Exists" });
+        .json({ status: "false", message: "Invoice Number Already Exists" });
     }
-    // for (const item of items) {
-    //   const existingItem = await salesInvoiceItem.findOne({
-    //     where: { serialno: item.serialno },
-    //   });
-    //   if (existingItem) {
-    //     return res
-    //       .status(400)
-    //       .json({ status: "false", message: "Serial Number Already Exists" });
-    //   }
-    // }
 
     if (!items || items.length === 0) {
       return res
@@ -47,43 +37,43 @@ exports.create_salesInvoice = async (req, res) => {
     let totalSgst = 0;
     let totalMrp = 0;
 
-    const itemGST = await Promise.all(
-      items.map(async (item) => {
-        const productData = await product.findOne({
-          where: { productname: item.product },
-        });
-        if (!productData) {
-          return res.status(404).json({
-            status: "false",
-            message: `Product Not Found:${item.product}`,
-          });
-        }
+    // const itemGST = await Promise.all(
+    //   items.map(async (item) => {
+    //     const productData = await product.findOne({
+    //       where: { productname: item.product },
+    //     });
+    //     if (!productData) {
+    //       return res.status(404).json({
+    //         status: "false",
+    //         message: `Product Not Found:${item.product}`,
+    //       });
+    //     }
 
-        const mrp = Number(item.qty) * Number(item.rate);
-        totalMrp += mrp;
-        const igstValue = (productData.IGST * mrp) / 100;
-        const sgstvalue = productData.SGST ? productData.SGST / 2 : 0;
-        const gstvalue = (sgstvalue * mrp) / 100;
-        (totalIgst += igstValue), (totalSgst += gstvalue ? gstvalue * 2 : 0);
+    //     const mrp = Number(item.qty) * Number(item.rate);
+    //     totalMrp += mrp;
+    //     const igstValue = (productData.IGST * mrp) / 100;
+    //     const sgstvalue = productData.SGST ? productData.SGST / 2 : 0;
+    //     const gstvalue = (sgstvalue * mrp) / 100;
+    //     (totalIgst += igstValue), (totalSgst += gstvalue ? gstvalue * 2 : 0);
 
-        return {
-          ...item,
-          mrp,
-          sgst: sgstvalue,
-          cgst: sgstvalue,
-          igst: igstValue,
-        };
-      })
-    );
+    //     return {
+    //       ...item,
+    //       mrp,
+    //       sgst: sgstvalue,
+    //       cgst: sgstvalue,
+    //       igst: igstValue,
+    //     };
+    //   })
+    // );
     const data = await salesInvoice.create({
       email,
       mobileno,
       customer,
       book,
-      // seriesname,
+      seriesname,
       invoiceno,
       invoicedate,
-      // terms,
+      terms,
       duedate,
       ProFormaInvoice_no,
       totalIgst,
@@ -92,7 +82,7 @@ exports.create_salesInvoice = async (req, res) => {
       mainTotal: totalIgst ? totalIgst + totalMrp : totalSgst + totalMrp,
     });
 
-    const addToItem = itemGST.map((item) => ({
+    const addToItem = items.map((item) => ({
       salesInvoiceId: data.id,
       ...item,
     }));
@@ -171,10 +161,10 @@ exports.update_salesInvoice = async (req, res) => {
       mobileno,
       customer,
       book,
-      // seriesname,
+      seriesname,
       invoiceno,
       invoicedate,
-      // terms,
+      terms,
       duedate,
       ProFormaInvoice_no,
       items,
@@ -193,10 +183,10 @@ exports.update_salesInvoice = async (req, res) => {
         mobileno: mobileno,
         customer: customer,
         book: book,
-        // seriesname: seriesname,
+        seriesname: seriesname,
         invoiceno: invoiceno,
         invoicedate: invoicedate,
-        // terms: terms,
+        terms: terms,
         duedate: duedate,
         ProFormaInvoice_no: ProFormaInvoice_no,
       },
@@ -324,3 +314,11 @@ exports.delete_salesInvoice = async (req, res) => {
       .json({ status: "false", message: "nternal Server Error" });
   }
 };
+exports.pdf_file = async (req,res) => {
+  try {
+    
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status:'false', message:'Internal Server Error'});
+  }
+}
