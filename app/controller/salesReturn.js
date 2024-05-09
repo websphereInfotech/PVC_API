@@ -1,23 +1,24 @@
+const customer = require('../models/customer');
 const salesReturn = require('../models/salesreturn');
 
 exports.create_salesReturn = async (req, res) => {
     try {
-      const { customer, creditnote, creditdate, sr_no, batch_no, expiry_date, amount, invoiceno, invoicedate,
-        quantity } = req.body;
-  
+      const { customerId, creditnote, creditdate } = req.body;
+      const existingCredit = await salesReturn.findOne({ where:creditnote});
+
+      if(existingCredit) {
+        return res.status(400).json({status:'false', message:'Credit Note Already Exists'})
+      }
+      const customerData = await customer.findByPk(customerId);
+      if(!customerData) {
+        return res.status(404).json({ status:'false', message:'Customer Not Found'});
+      }
       const data = await salesReturn.create({
-        customer: customer,
+        customerId: customerId,
         creditnote: creditnote,
-        creditdate: creditdate,
-        sr_no: sr_no,
-        batch_no: batch_no,
-        expiry_date: expiry_date,
-        amount: amount,
-        invoiceno: invoiceno,
-        invoicedate: invoicedate,
-        quantity: quantity
+        creditdate: creditdate
       });
-  
+     
       return res.status(200).json({ status: "true", message: "Sales Return Create Successfully", data: data })
     } catch (error) {
       console.log(error);

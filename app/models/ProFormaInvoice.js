@@ -38,10 +38,11 @@ const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
   customerId:{  
     type: DataTypes.INTEGER,
     allowNull: false,
-    references: {
-      model: 'P_customer', 
-      key: 'id',
-    },},
+    // references: {
+    //   model: 'P_customers', 
+    //   key: 'id',
+    // },
+  },
   totalIgst: {
     type: DataTypes.FLOAT,
     defaultValue: 0,
@@ -60,7 +61,7 @@ const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
   },
 });
 
-customer.hasOne(ProFormaInvoice,{foreignKey:'customerId', onDelete:"CASCADE", as:'customer'});
+customer.hasMany(ProFormaInvoice,{foreignKey:'customerId', onDelete:"CASCADE", as:'customer'});
 ProFormaInvoice.belongsTo(customer,{foreignKey:'customerId', onDelete:'CASCADE', as:'customer'});
 
 module.exports = ProFormaInvoice;

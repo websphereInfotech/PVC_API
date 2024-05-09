@@ -1,5 +1,13 @@
 const company = require("../models/company");
 
+exports.create_company = async(req,res) => {
+    try {
+        const {companyname, gstnumber, email, mobileno, address1, pincode, state,city,country} = req.dody;
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ status:'false', message:'Internal Server Error'});
+    }
+}
 exports.get_all_company = async(req,res) => {
     try {
         const data = await company.findAll();

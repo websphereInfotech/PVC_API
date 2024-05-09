@@ -3,9 +3,6 @@ const sequelize = require("../config/index");
 const expense = require("./expense");
 
 const expenseItem = sequelize.define("P_expenseItem", {
-  serialno: {
-    type: DataTypes.INTEGER,
-  },
   expensse: {
     type: DataTypes.STRING,
   },

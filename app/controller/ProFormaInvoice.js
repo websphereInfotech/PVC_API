@@ -9,17 +9,27 @@ exports.create_ProFormaInvoice = async (req, res) => {
     const numberOf = await ProFormaInvoice.findOne({
       where: { ProFormaInvoice_no: ProFormaInvoice_no },
     });
-
     if (numberOf) {
       return res
-        .status(400)
-        .json({ status: "false", message: "ProForma Invoice Number Already Exists" });
+      .status(400)
+      .json({ status: "false", message: "ProForma Invoice Number Already Exists" });
+    }
+    const customerData = await customer.findByPk(customerId);
+    if(!customerData) {
+      return res.status(404).json({status:'false', message:'Customer Not Found'});
     }
 
     if (!items || items.length === 0) {
       return res
         .status(400)
         .json({ status: "false", message: "Required Field oF items" });
+    }
+  
+    for(const item of items) {
+      const productname = await product.findByPk(item.productId)
+      if(!productname) {
+        return res.status(404).json({ status:'false', message:'Product Not Found'});
+      }
     }
     const createdInvoice = await ProFormaInvoice.create({
       ProFormaInvoice_no,
@@ -107,7 +117,7 @@ exports.view_ProFormaInvoice = async (req, res) => {
 exports.update_ProFormaInvoice = async (req, res) => {
   try {
     const { id } = req.params;
-    const { ProFormaInvoice_no, date, validtill, customerId, items } = req.body;
+    const { ProFormaInvoice_no, date, validtill, customerId, items ,totalIgst,totalSgst,totalMrp,mainTotal} = req.body;
 
     const existingInvoice = await ProFormaInvoice.findByPk(id);
 
@@ -117,13 +127,23 @@ exports.update_ProFormaInvoice = async (req, res) => {
         message: "ProForma Invoice Not Found",
       });
     }
-
+    const customerData = await customer.findByPk(customerId);
+    if(!customerData) {
+      return res.status(404).json({status:'false', message:'Customer Not Found'});
+    }
+    for(const item of items) {
+      const productname = await product.findByPk(item.productId)
+      if(!productname) {
+        return res.status(404).json({ status:'false', message:'Product Not Found'});
+      }
+    }
     await ProFormaInvoice.update(
       {
         ProFormaInvoice_no,
         date,
         validtill,
         customerId,
+        totalIgst,totalSgst,totalMrp,mainTotal
       },
       { where: { id } }
     );
@@ -132,64 +152,60 @@ exports.update_ProFormaInvoice = async (req, res) => {
       where: { InvoiceId: id },
     });
 
-    const updatedProducts = items.map((item) => item.product);
+    const updatedProducts = items.map((item) => item.productId);
 
     const itemsToDelete = existingItems.filter(
-      (item) => !updatedProducts.includes(item.product)
+      (item) => !updatedProducts.includes(item.productId)
     );
 
     for (const item of itemsToDelete) {
       await item.destroy();
     }
 
-    let totalMrp = 0;
-    let totalIgst = 0;
-    let totalSgst = 0;
+    // let totalMrp = 0;
+    // let totalIgst = 0;
+    // let totalSgst = 0;
 
     for (const item of items) {
       const existingItem = existingItems.find(
-        (ei) => ei.product === item.product
+        (ei) => ei.productId === item.productId
       );
-
-      const rate = item.rate;
-      const qty = item.qty;
-      const mrp = Number(item.rate) * Number(item.qty);
 
       if (existingItem) {
         await existingItem.update({
-          qty,
-          rate,
-          mrp,
+          qty : item.qty,
+          rate:item.rate,
+          mrp:item.mrp,
         });
       } else {
         await ProFormaInvoiceItem.create({
           InvoiceId: id,
-          product: item.productId,
-          qty,
-          rate,
-          mrp,
+          productId:id,
+          qty : item.qty,
+          rate:item.rate,
+          mrp:item.mrp,
         });
       }
-      totalMrp += mrp;
+      // totalMrp += mrp;
 
-      const productData = await product.findOne({
-        where: { productname: item.productId },
-      });
+      // const productData = await product.findOne({
+      //   where: { productname: item.productId },
+      // });
 
-      if (productData) {
-        totalIgst += (productData.IGST * mrp) / 100;
-        totalSgst += (productData.SGST * mrp) / 100;
-      }
+      // if (productData) {
+      //   totalIgst += (productData.IGST * mrp) / 100;
+      //   totalSgst += (productData.SGST * mrp) / 100;
+      // }
     }
-    await ProFormaInvoice.update(
-      {
-        totalMrp,
-        totalIgst,
-        totalSgst,
-        mainTotal: totalIgst ? totalMrp + totalIgst : totalSgst + totalMrp,
-      },
-      { where: { id } }
-    );
+    // await ProFormaInvoice.update(
+    //   {
+    //     totalMrp,
+    //     totalIgst,
+    //     totalSgst,
+    //     mainTotal: totalIgst ? totalMrp + totalIgst : totalSgst + totalMrp,
+    //   },
+    //   { where: { id } }
+    // );
 
     const updatedInvoice = await ProFormaInvoice.findOne({
       where: { id },

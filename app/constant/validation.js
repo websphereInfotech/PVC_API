@@ -92,14 +92,14 @@ exports.date = function (req, res, next) {
   }
   next();
 };
-exports.customer = function (req, res, next) {
-  const { customer } = req.body;
+exports.customerId = function (req, res, next) {
+  const { customerId } = req.body;
 
-  const customerSchema = Joi.string().required().messages({
-    "string.empty": "Customer Cannot Be Empty",
+  const customerSchema = Joi.number().required().messages({
+    "number.empty": "Customer Cannot Be Empty",
     "any.required": "Required Filed : Customer",
   });
-  const { error } = customerSchema.validate(customer);
+  const { error } = customerSchema.validate(customerId);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -162,12 +162,12 @@ exports.qty = function (req, res, next) {
   }
   next();
 };
-exports.product = function (req, res, next) {
+exports.productId = function (req, res, next) {
   const { items } = req.body;
 
   for (const item of items) {
-    const { product } = item;
-    const productSchema = Joi.string()
+    const { productId } = item;
+    const productSchema = Joi.number()
 
       .required()
       .messages({
@@ -175,7 +175,7 @@ exports.product = function (req, res, next) {
         "string.empty": "Product Cannot Be Empty",
       });
 
-    const { error } = productSchema.validate(product);
+    const { error } = productSchema.validate(productId);
 
     if (error) {
       return res.status(400).json({ status: "False", message: error.message });

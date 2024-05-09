@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
+const customer = require("./customer");
 
 const deliverychallan = sequelize.define("P_deliverychallan", {
   challanno: {
@@ -12,7 +13,9 @@ const deliverychallan = sequelize.define("P_deliverychallan", {
   },
   email: { type: DataTypes.STRING },
   mobileno: { type: DataTypes.BIGINT },
-  customer: { type: DataTypes.STRING },
+  customerId: { type: DataTypes.INTEGER,
+    allowNull:false
+   },
   totalIgst: {
     type: DataTypes.FLOAT,
     defaultValue: 0,
@@ -30,5 +33,8 @@ const deliverychallan = sequelize.define("P_deliverychallan", {
     defaultValue: 0,
   },
 });
+
+customer.hasMany(deliverychallan,{ foreignKey:'customerId', onDelete:'CASCADE',as:'DeliveryCustomer'});
+deliverychallan.belongsTo(customer,{ foreignKey:'customerId', onDelete:'CASCADE', as:'DeliveryCustomer'});
 
 module.exports = deliverychallan;

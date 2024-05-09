@@ -18,10 +18,10 @@ const salesInvoice = sequelize.define("P_salesInvoice", {
   mobileno: { type: DataTypes.BIGINT },
   customerId: { type: DataTypes.INTEGER,
     allowNull:false,
-    references : {
-      model:"P_customer",
-      key:'id'
-    },
+    // references : {
+    //   model:"P_customer",
+    //   key:'id'
+    // },
    },
   totalIgst: { type: DataTypes.FLOAT, defaultValue: 0 },
   totalSgst: { type: DataTypes.FLOAT, defaultValue: 0 },
@@ -29,6 +29,7 @@ const salesInvoice = sequelize.define("P_salesInvoice", {
   mainTotal: { type: DataTypes.FLOAT, defaultValue: 0 },
 });
 
-customer.hasOne(salesInvoice, {foreignKey:'customerId', onDelete:'CASCADE'});
-salesInvoice.belongsTo(customer, {foreignKey:'customerId', onDelete:'CASCADE'});
+customer.hasMany(salesInvoice, {foreignKey:'customerId', onDelete:'CASCADE', as:'InvioceCustomer'});
+salesInvoice.belongsTo(customer, {foreignKey:'customerId', onDelete:'CASCADE', as:'InvioceCustomer'});
+
 module.exports = salesInvoice;

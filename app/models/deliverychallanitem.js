@@ -11,8 +11,8 @@ const deliverychallanitem = sequelize.define("P_deliverychallanItem", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  product: {
-    type: DataTypes.STRING,
+  productId: {
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   description: {
