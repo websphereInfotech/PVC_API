@@ -1,10 +1,11 @@
+const customer = require("../models/customer");
 const expense = require("../models/expense");
 const expenseItem = require("../models/expenseItem");
 
 exports.create_expense = async (req, res) => {
   try {
     const {
-      customer,
+      customerId,
       voucherno,
       date,
       gstin,
@@ -22,34 +23,26 @@ exports.create_expense = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Voucher Number Already Exists" });
     }
+    const customerData = await customer.findByPk(customerId);
+    if(!customerData) {
+      return res.status(404).json({ status:'false', message:'Customer Not Foumd'});
+    }
     if (!items || items.length === 0) {
       return res
         .status(400)
         .json({ status: "false", message: "Required Field oF items" });
     }
-    for (const item of items) {
-      const existingItem = await expenseItem.findOne({
-        where: { serialno: item.serialno },
-      });
-      if (existingItem) {
-        return res
-          .status(400)
-          .json({ status: "false", message: "Serial Number Already Exists" });
-      }
-    }
     const data = await expense.create({
-      customer: customer,
-      voucherno: voucherno,
-      date: date,
-      gstin: gstin,
-      mobileno: mobileno,
-      email: email,
-      billno: billno,
-      billdate: billdate,
-      payment: payment,
+      customerId,
+      voucherno,
+      date,
+      gstin,
+      mobileno,
+      email,
+      billno,
+      billdate,
+      payment,
     });
-   
-
     const addToItem = items.map((item) => ({
       expenseId: data.id,
       ...item,
@@ -76,7 +69,7 @@ exports.create_expense = async (req, res) => {
 exports.get_all_expense = async (req, res) => {
   try {
     const data = await expense.findAll({
-      include: [{ model: expenseItem, as: "items" }],
+      include: [{ model: expenseItem, as: "items" },{model:customer, as:'ExpenseCustomer'}],
     });
 
     if (!data) {
@@ -102,7 +95,7 @@ exports.view_expense = async (req, res) => {
     const { id } = req.params;
     const data = await expense.findOne({
       where: { id },
-      include: [{ model: expenseItem, as: "items" }],
+      include: [{ model: expenseItem, as: "items" },{model:customer, as:'ExpenseCustomer'}],
     });
 
     if (!data) {
@@ -173,7 +166,6 @@ exports.update_expense = async (req, res) => {
 
         await expenseItem.update(
           {
-            serialno: itemData.serialno,
             expensse: itemData.expensse,
             description: itemData.description,
             taxable: itemData.taxable,

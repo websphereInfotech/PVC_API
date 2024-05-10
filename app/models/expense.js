@@ -1,9 +1,11 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
+const customer = require("./customer");
 
 const expense = sequelize.define("P_expense", {
-  customer: {
-    type: DataTypes.STRING,
+  customerId: {
+    type: DataTypes.INTEGER,
+    allowNull: false
   },
   voucherno: {
     type: DataTypes.STRING,
@@ -30,5 +32,8 @@ const expense = sequelize.define("P_expense", {
     type: DataTypes.STRING,
   },
 });
+
+customer.hasMany(expense, {foreignKey:'customerId', onDelete:'CASCADE', as:'ExpenseCustomer'});
+expense.belongsTo(customer,{foreignKey:'customerId', onDelete:'CASCADE', as:'ExpenseCustomer'});
 
 module.exports = expense;

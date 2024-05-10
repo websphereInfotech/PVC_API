@@ -1,10 +1,11 @@
+const customer = require("../models/customer");
 const deliverychallan = require("../models/deliverychallan");
 const deliverychallanitem = require("../models/deliverychallanitem");
 const product = require("../models/product");
 
 exports.create_deliverychallan = async (req, res) => {
   try {
-    const { email, date, challanno, mobileno, customer, items } = req.body;
+    const { email, date, challanno, mobileno, customerId, items ,totalIgst,totalSgst,totalMrp,mainTotal} = req.body;
     const numberOf = await deliverychallan.findOne({
       where: { challanno: challanno },
     });
@@ -13,73 +14,33 @@ exports.create_deliverychallan = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Challan Number Already Exists" });
     }
+    const customerData = await customer.findByPk(customerId);
+    if(!customerData) {
+      return res.status(404).json({status:'false', message:'Customer Not Found'});
+    }
     if (!items || items.length === 0) {
       return res
         .status(400)
         .json({ status: "false", message: "Required Field oF items" });
     }
-    // for (const item of items) {
-    //   const existingItem = await deliverychallanitem.findOne({
-    //     where: {
-    //       serialno: item.serialno,
-    //     },
-    //   });
-    //   if (existingItem) {
-    //     return res
-    //       .status(400)
-    //       .json({ status: "false", message: "Serial Number Already Exists" });
-    //   }
-    // }
-    let totalIgst = 0;
-    let totalSgst = 0;
-    let totalMrp = 0;
-
-    const itemGST = await Promise.all(
-      items.map(async (item) => {
-        const productData = await product.findOne({
-          where: { productname: item.product },
-        });
-console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>",productData.IGST);
-        if (!productData) {
-          return res
-            .status(404)
-            .json({
-              status: "false",
-              message: `Product Not Found: ${item.product}`,
-            });
-        }
-
-        const mrp = Number(item.qty) * Number(item.rate);
-        console.log("mrp<<<<<<<<<<<<<<<<",mrp);
-        totalMrp += mrp;
-        const igstValue = (productData.IGST * mrp) / 100;
-        console.log("igstValue",igstValue);
-        const sgstValue = productData.SGST ? productData.SGST / 2 : 0;
-        const gstvalue = (sgstValue * mrp) / 100;
-        totalIgst += igstValue, 
-        totalSgst += gstvalue ? gstvalue * 2 : 0;
-        console.log("totalIgst",totalIgst);
-        return {
-          ...item,
-          mrp,
-          sgst: sgstValue,
-          cgst: sgstValue,
-          igst: igstValue,
-        };
-      })
-    );
+    for(const item of items) {
+      const productname = await product.findByPk(item.productId)
+      if(!productname) {
+        return res.status(404).json({ status:'false', message:'Product Not Found'});
+      }
+    }
     const data = await deliverychallan.create({
       email,
       mobileno,
       date,
       challanno,
-      customer,
+      customerId,
       totalSgst,
       totalIgst,
       totalMrp,
-      mainTotal: totalIgst ? totalIgst + totalMrp : totalSgst + totalMrp,
+      mainTotal,
     });
-    const addToItem = itemGST.map((item) => ({
+    const addToItem = items.map((item) => ({
       deliverychallanId: data.id,
       ...item,
     }));
@@ -105,7 +66,7 @@ console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>",productData.IGST);
 exports.update_deliverychallan = async (req, res) => {
   try {
     const { id } = req.params;
-    const { email, mobileno, date, challanno, customer, items } = req.body;
+    const { email, mobileno, date, challanno, customer, items,totalIgst,totalSgst,totalMrp,mainTotal } = req.body;
 
     const updatechallan = await deliverychallan.findByPk(id);
 
@@ -117,11 +78,12 @@ exports.update_deliverychallan = async (req, res) => {
 
     await deliverychallan.update(
       {
-        challanno: challanno,
-        date: date,
-        email: email,
-        mobileno: mobileno,
-        customer: customer,
+        challanno,
+        date,
+        email,
+        mobileno,
+        customer,
+        totalIgst,totalSgst,totalMrp,mainTotal
       },
       {
         where: { id: id },
@@ -131,63 +93,65 @@ exports.update_deliverychallan = async (req, res) => {
     const existingItems = await deliverychallanitem.findAll({
       where: { deliverychallanId: id },
     });
-    const updatedProducts = items.map((item) => item.product);
+    const updatedProducts = items.map((item) => item.productId);
     const itemsToDelete = existingItems.filter(
-      (item) => !updatedProducts.includes(item.product)
+      (item) => !updatedProducts.includes(item.productId)
     );
 
     for (const item of itemsToDelete) {
       await item.destroy();
     }
 
-    let totalMrp = 0;
-    let totalSgst = 0;
-    let totalIgst = 0;
+    // let totalMrp = 0;
+    // let totalSgst = 0;
+    // let totalIgst = 0;
 
     for (const item of items) {
       const existingItem = existingItems.find(
-        (ei) => ei.product === item.product
+        (ei) => ei.productId === item.productId
       );
-
-      const rate = item.rate;
-      const qty = item.qty;
-      const mrp = Number(item.rate) * Number(item.qty);
 
       if (existingItem) {
         await existingItem.update({
-          qty,
-          rate,
-          mrp,
+          qty:item.qty,
+          mrp: item.mrp,
+          quotationno: item.quotationno,
+          description:item.description,
+          batchno: item.batchno,
+          expirydate: item.expirydate
         });
       } else {
         await deliverychallanitem.create({
           deliverychallanId: id,
-          product: item.product,
-          qty,
-          rate,
-          mrp,
+          productId: id,
+          qty:item.qty,
+          mrp: item.mrp,
+          quotationno: item.quotationno,
+          description:item.description,
+          batchno: item.batchno,
+          expirydate: item.expirydate
         });
       }
-      totalMrp += mrp;
+      // totalMrp += mrp;
 
-      const productData = await product.findOne({
-        where: { productname: item.product },
-      });
+      // const productData = await product.findOne({
+      //   where: { productname: item.product },
+      // });
 
-      if (productData) {
-        totalIgst += (productData.IGST * mrp) / 100;
-        totalSgst += (productData.SGST * mrp) / 100;
-      }
+      // if (productData) {
+      //   totalIgst += (productData.IGST * mrp) / 100;
+      //   totalSgst += (productData.SGST * mrp) / 100;
+      // }
     }
-    await deliverychallan.update(
-      {
-        totalMrp,
-        totalIgst,
-        totalSgst,
-        mainTotal: totalIgst ? totalIgst + totalMrp : totalSgst + totalMrp,
-      },
-      { where: { id } }
-    );
+    // await deliverychallan.update(
+    //   {
+    //     totalMrp,
+    //     totalIgst,
+    //     totalSgst,
+    //     mainTotal: totalIgst ? totalIgst + totalMrp : totalSgst + totalMrp,
+    //   },
+    //   { where: { id } }
+    // );
 
     const data = await deliverychallan.findOne({
       where: { id },
@@ -253,7 +217,7 @@ exports.delete_deliverychallanitem = async (req, res) => {
 exports.get_all_deliverychallan = async (req, res) => {
   try {
     const data = await deliverychallan.findAll({
-      include: [{ model: deliverychallanitem, as: "items" }],
+      include: [{ model: deliverychallanitem, as: "items",include:[{model:product, as:'DeliveryProduct'}] },{model:customer, as:'DeliveryCustomer'}],
     });
     if (!data) {
       return res
@@ -278,7 +242,9 @@ exports.view_deliverychallan = async (req, res) => {
 
     const data = await deliverychallan.findOne({
       where: { id },
-      include: [{ model: deliverychallanitem, as: "items" }],
+      include: [{ model: deliverychallanitem, as: "items",include:[{model:product, as:'DeliveryProduct'}] },{
+        model:customer,as:'DeliveryCustomer'
+      }],
     });
 
     if (!data) {

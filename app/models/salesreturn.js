@@ -1,9 +1,10 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
+const customer = require("./customer");
 
 const salesReturn = sequelize.define("P_salesReturn", {
-  customer: {
-    type: DataTypes.STRING,
+  customerId: {
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   creditnote: {
@@ -13,30 +14,11 @@ const salesReturn = sequelize.define("P_salesReturn", {
   creditdate: {
     type: DataTypes.DATE,
     allowNull: false,
-  },
-  sr_no: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  batch_no: {
-    type: DataTypes.STRING,
-  },
-  expiry_date: {
-    type: DataTypes.DATE,
-  },
-  amount: {
-    type: DataTypes.FLOAT,
-  },
-  invoiceno: {
-    type: DataTypes.INTEGER,
-  },
-  invoicedate: {
-    type: DataTypes.DATE,
-  },
-  quantity: {
-    //qty
-    type: DataTypes.INTEGER,
-  },
+  }
 });
+
+customer.hasMany(salesReturn, {foreignKey:'customerId', onDelete:'CASCADE', as:'SalesCustomer'});
+salesReturn.belongsTo(customer, {foreignKey:'customerId', onDelete:'CASCADE', as:'SalesCustomer'});
+
 
 module.exports = salesReturn;
