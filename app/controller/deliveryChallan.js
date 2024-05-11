@@ -123,7 +123,7 @@ exports.update_deliverychallan = async (req, res) => {
       } else {
         await deliverychallanitem.create({
           deliverychallanId: id,
-          productId: id,
+          productId: item.productId,
           qty:item.qty,
           mrp: item.mrp,
           quotationno: item.quotationno,
