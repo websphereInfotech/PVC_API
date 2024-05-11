@@ -218,7 +218,7 @@ exports.update_salesInvoice = async (req, res) => {
       } else {
           await salesInvoiceItem.create({
           salesInvoiceId: id,
-          productId:id,
+          productId:item.productId,
           qty : item.qty,
           rate:item.rate,
           mrp:item.mrp,

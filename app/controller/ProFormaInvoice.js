@@ -170,7 +170,6 @@ exports.update_ProFormaInvoice = async (req, res) => {
       const existingItem = existingItems.find(
         (ei) => ei.productId === item.productId
       );
-
       if (existingItem) {
         await existingItem.update({
           qty : item.qty,
@@ -180,7 +179,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
       } else {
         await ProFormaInvoiceItem.create({
           InvoiceId: id,
-          productId:id,
+          productId:item.productId,
           qty : item.qty,
           rate:item.rate,
           mrp:item.mrp,

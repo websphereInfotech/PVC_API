@@ -14,10 +14,6 @@ const ProFormaInvoiceItem = sequelize.define("P_ProFormaInvoiceItem", {
   productId: { 
     type: DataTypes.INTEGER,
     allowNull: false,
-    // references: {
-    //   model: 'P_product', 
-    //   key: 'id',
-    // },
   },
   mrp: {
     type: DataTypes.FLOAT,

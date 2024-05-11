@@ -13,35 +13,10 @@ const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
   validtill: {
     type: DataTypes.DATE
   },
-  // date: {
-  //   type: DataTypes.DATEONLY,
-  //   set(value) {
-  //     const formattedDate = moment(value, "DD-MM-YYYY").format("YYYY-MM-DD");
-  //     this.setDataValue("date", formattedDate);
-  //   },
-  //   get() {
-  //     const rawDate = this.getDataValue("date");
-  //     return moment(rawDate).format("DD-MM-YYYY"); 
-  //   },
-  // },
-  // validtill: {
-  //   type: DataTypes.DATEONLY,
-  //   set(value) {
-  //     const formattedDate = moment(value, "DD-MM-YYYY").format("YYYY-MM-DD");
-  //     this.setDataValue("validtill", formattedDate);
-  //   },
-  //   get() {
-  //     const rawDate = this.getDataValue("validtill");
-  //     return moment(rawDate).format("DD-MM-YYYY"); 
-  //   },
-  // },
   customerId:{  
     type: DataTypes.INTEGER,
     allowNull: false,
-    // references: {
-    //   model: 'P_customers', 
-    //   key: 'id',
-    // },
+
   },
   totalIgst: {
     type: DataTypes.FLOAT,
