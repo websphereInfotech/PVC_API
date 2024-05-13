@@ -87,7 +87,7 @@ const adminToken = (permissionString) => {
       console.error("Error during permission check:", error);
       return res.status(401).send({
         status: "false",
-        message: "Invalid token or permission check error",
+        message: "Token expired",
       });
     }
   };

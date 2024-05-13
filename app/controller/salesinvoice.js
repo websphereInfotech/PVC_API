@@ -6,22 +6,25 @@ const salesInvoiceItem = require("../models/salesInvoiceitem");
 exports.create_salesInvoice = async (req, res) => {
   try {
     const {
-      email,
-      mobileno,
       customerId,
-      book,
-      seriesname,
       invoiceno,
       invoicedate,
+      dispatchThrough,
+      dispatchno,
+      deliverydate,
+      destination,
+      LL_RR_no,
+      motorVehicleNo,
       terms,
       duedate,
-      ProFormaInvoice_no,
+      proFormaId,
       totalIgst,
       totalSgst,
       totalMrp,
       mainTotal,
       items,
     } = req.body;
+
     const numberOf = await salesInvoice.findOne({
       where: { invoiceno: invoiceno },
     });
@@ -49,16 +52,18 @@ exports.create_salesInvoice = async (req, res) => {
     }
    
     const data = await salesInvoice.create({
-      email,
-      mobileno,
       customerId,
-      book,
-      seriesname,
+      dispatchThrough,
+      dispatchno,
+      destination,
+      deliverydate,
+      LL_RR_no,
+      motorVehicleNo,
       invoiceno,
       invoicedate,
       terms,
       duedate,
-      ProFormaInvoice_no,
+      proFormaId,
       totalIgst,
       totalSgst,
       totalMrp,
@@ -148,7 +153,7 @@ exports.update_salesInvoice = async (req, res) => {
       invoicedate,
       terms,
       duedate,
-      ProFormaInvoice_no,
+      proFormaId,
       items,
     } = req.body;
 
@@ -180,7 +185,7 @@ exports.update_salesInvoice = async (req, res) => {
         invoicedate: invoicedate,
         terms: terms,
         duedate: duedate,
-        ProFormaInvoice_no: ProFormaInvoice_no,
+        proFormaId: proFormaId,
       },
       {
         where: { id: id },
@@ -261,27 +266,6 @@ exports.update_salesInvoice = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-exports.delete_salesInvoiceItem = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const data = await salesInvoiceItem.destroy({ where: { id: id } });
-
-    if (!data) {
-      return res
-        .status(404)
-        .json({ status: "false", message: "Sales Invoice Not Found" });
-    } else {
-      return res
-        .status(200)
-        .json({ status: "true", message: "Sales Deleted Successfully" });
-    }
-  } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ status: "false", message: "Internal Server Error" });
-  }
-};
 exports.delete_salesInvoice = async (req, res) => {
   try {
     const { id } = req.params;
@@ -303,11 +287,15 @@ exports.delete_salesInvoice = async (req, res) => {
       .json({ status: "false", message: "nternal Server Error" });
   }
 };
-exports.pdf_file = async (req,res) => {
-  try {
-    
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ status:'false', message:'Internal Server Error'});
-  }
-}
+// exports.pdf_file = async (req,res) => {
+//   try {
+//       const {id} = req.params;
+
+//       const data = await salesInvoice.findByPk(id);
+//       console.log("data",data);
+//       return res.status(200).json({ status:'true', message:'message'})
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(500).json({ status:'false', message:'Internal Server Error'});
+//   }
+// }

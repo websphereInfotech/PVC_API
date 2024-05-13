@@ -22,11 +22,7 @@ router.delete(
   adminAuth("ProFormaInvoice:delete_ProFormaInvoice"),
   delete_ProFormaInvoice
 );
-router.delete(
-  "/delete_ProFormaInvoiceItem/:id",
-  adminAuth("ProFormaInvoice:delete_ProFormaInvoiceItem"),
-  delete_ProFormaInvoiceItem
-);
+
 router.get(
   "/view_single_ProFormaInvoice/:id",
   adminAuth("ProFormaInvoice:view_single_ProFormaInvoice"),

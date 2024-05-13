@@ -5,7 +5,6 @@ const {
   create_salesInvoice,
   update_salesInvoice,
   delete_salesInvoice,
-  delete_salesInvoiceItem,
   view_salesInvoice,
   get_all_salesInvoice,
 } = require("../controller/salesinvoice");
@@ -22,17 +21,13 @@ router.post(
 router.put(
   "/update_salesInvoice/:id",
   adminAuth("Sales Invoice:update_salesInvoice"),
+  validation('update_salesInvoice'),
   update_salesInvoice
 );
 router.delete(
   "/delete_salesInvoice/:id",
   adminAuth("Sales Invoice:delete_salesInvoice"),
   delete_salesInvoice
-);
-router.delete(
-  "/delete_salesInvoiceItem/:id",
-  adminAuth("Sales Invoice:delete_salesInvoiceItem"),
-  delete_salesInvoiceItem
 );
 router.get(
   "/view_salesInvoice/:id",
