@@ -66,7 +66,7 @@ exports.create_deliverychallan = async (req, res) => {
 exports.update_deliverychallan = async (req, res) => {
   try {
     const { id } = req.params;
-    const { email, mobileno, date, challanno, customer, items,totalIgst,totalSgst,totalMrp,mainTotal } = req.body;
+    const { email, mobileno, date, challanno, customerId, items,totalIgst,totalSgst,totalMrp,mainTotal } = req.body;
 
     const updatechallan = await deliverychallan.findByPk(id);
 
@@ -75,14 +75,24 @@ exports.update_deliverychallan = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Delivery challan Not Found" });
     }
-
+    const customerData = await customer.findByPk(customerId);
+    if(!customerData) {
+      return res.status(404).json({status:'false', message:'Customer Not Found'});
+    }
+    for(const item of items) {
+      const productname = await product.findByPk(item.productId);
+      console.log("productname",productname);
+      if(!productname) {
+        return res.status(404).json({ status:'false', message:'Product Not Found'});
+      }
+    }
     await deliverychallan.update(
       {
         challanno,
         date,
         email,
         mobileno,
-        customer,
+        customerId,
         totalIgst,totalSgst,totalMrp,mainTotal
       },
       {
@@ -101,10 +111,6 @@ exports.update_deliverychallan = async (req, res) => {
     for (const item of itemsToDelete) {
       await item.destroy();
     }
-
-    // let totalMrp = 0;
-    // let totalSgst = 0;
-    // let totalIgst = 0;
 
     for (const item of items) {
       const existingItem = existingItems.find(
@@ -132,26 +138,7 @@ exports.update_deliverychallan = async (req, res) => {
           expirydate: item.expirydate
         });
       }
-      // totalMrp += mrp;
-
-      // const productData = await product.findOne({
-      //   where: { productname: item.product },
-      // });
-
-      // if (productData) {
-      //   totalIgst += (productData.IGST * mrp) / 100;
-      //   totalSgst += (productData.SGST * mrp) / 100;
-      // }
     }
-    // await deliverychallan.update(
-    //   {
-    //     totalMrp,
-    //     totalIgst,
-    //     totalSgst,
-    //     mainTotal: totalIgst ? totalIgst + totalMrp : totalSgst + totalMrp,
-    //   },
-    //   { where: { id } }
-    // );
 
     const data = await deliverychallan.findOne({
       where: { id },
@@ -183,28 +170,6 @@ exports.delete_deliverychallan = async (req, res) => {
       return res.status(200).json({
         status: "true",
         message: "Delivery challan Delete Successfully",
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ status: "false", message: "Internal Server Error" });
-  }
-};
-exports.delete_deliverychallanitem = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const data = await deliverychallanitem.destroy({ where: { id: id } });
-
-    if (!data) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Delivery challan Item Not Found" });
-    } else {
-      return res.status(200).json({
-        status: "true",
-        message: "Delivery challan Item Delete Successfully",
       });
     }
   } catch (error) {

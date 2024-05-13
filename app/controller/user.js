@@ -125,7 +125,7 @@ exports.update_user = async (req, res) => {
     const { id } = req.params;
     // const dataRole = req.user.role;
 
-    const { username, email, role, mobileno, salary, password } = req.body;
+    const { username, email, role, mobileno, salary } = req.body;
 
     const FindID = await User.findByPk(id);
     if (!FindID) {

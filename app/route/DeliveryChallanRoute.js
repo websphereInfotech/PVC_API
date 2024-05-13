@@ -9,6 +9,7 @@ const {
   view_deliverychallan,
   get_all_deliverychallan,
 } = require("../controller/deliveryChallan");
+const { pdf_file } = require("../controller/salesinvoice");
 
 const router = express.Router();
 
@@ -28,11 +29,6 @@ router.delete(
   adminAuth("Delivery Challan:delete_deliverychallan"),
   delete_deliverychallan
 );
-router.delete(
-  "/delete_deliverychallanitem/:id",
-  adminAuth("Delivery Challan:delete_deliverychallanitem"),
-  delete_deliverychallanitem
-);
 router.get(
   "/view_deliverychallan/:id",
   adminAuth("Delivery Challan:view_single_deliverychallan"),
@@ -43,5 +39,6 @@ router.get(
   adminAuth("Delivery Challan:view_all_deliverychallan"),
   get_all_deliverychallan
 );
+// router.get("/pdf_file/:id",pdf_file);
 
 module.exports = router;

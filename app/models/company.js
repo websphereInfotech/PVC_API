@@ -5,7 +5,7 @@ const company = sequelize.define('P_company', {
     companyname: { type: DataTypes.STRING},
     gstnumber : { type: DataTypes.STRING},
     email: { type: DataTypes.STRING},
-    mobileno : {type: DataTypes.STRING},
+    mobileno : {type: DataTypes.BIGINT},
     address1: {
         type: DataTypes.STRING,
       },

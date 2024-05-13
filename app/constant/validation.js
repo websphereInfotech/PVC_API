@@ -631,12 +631,12 @@ exports.expiry_date = function (req, res, next) {
 };
 exports.invoiceno = function (req, res, next) {
   const { invoiceno } = req.body;
-  const invoicenoSchema = Joi.string()
+  const invoicenoSchema = Joi.number()
 
     .required()
     .messages({
       "any.required": "Required Field : Invoice Number",
-      "string.empty": "Invoice Number Cannot Be Empty",
+      "number.empty": "Invoice Number Cannot Be Empty",
     });
   const { error } = invoicenoSchema.validate(invoiceno);
   if (error) {
@@ -1545,6 +1545,22 @@ exports.HSNcode = function (req,res,next) {
   const {error} = HSNcodeSchema.validate(HSNcode);
   if(error) {
     return res.status(400).json({ status:'false', message:error.message});
+  }
+  next();
+}
+exports.companyname = function(req,res,next) {
+  const {companyname} = req.body
+
+  const companynameSchema = Joi.string()
+  .required()
+  .messages({
+    "any.required" :'Required field : Company Name',
+    "string.empty":"Company Cannot Be Empty"
+  });
+
+  const {error} = companynameSchema.validate(companyname);
+  if(error) {
+    return res.status(400).json({ status:'false', message: error.message});
   }
   next();
 }

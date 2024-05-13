@@ -1,4 +1,12 @@
 exports.permissions = {
+    "Company" :{
+        "Super Admin" :{
+            "create_company":true,
+            "update_company":true,
+            "delete_company":true,
+            "view_all_company":true
+        },
+    },
     "Login" : {
         "Super Admin" :{
             "create_user":true,
@@ -71,7 +79,6 @@ exports.permissions = {
             "create_ProFormaInvoice":true,
             "update_ProFormaInvoice":true,
             "delete_ProFormaInvoice":true,
-            "delete_ProFormaInvoiceItem":true,
             "view_single_ProFormaInvoice":true,
             "view_all_ProFormaInvoice":true
         },
@@ -79,7 +86,6 @@ exports.permissions = {
             "create_ProFormaInvoice":true,
             "update_ProFormaInvoice":true,
             "delete_ProFormaInvoice":true,
-            "delete_ProFormaInvoiceItem":true,
             "view_single_ProFormaInvoice":true,
             "view_all_ProFormaInvoice":true
         },
@@ -87,7 +93,6 @@ exports.permissions = {
             "create_ProFormaInvoice":true,
             "update_ProFormaInvoice":true,
             "delete_ProFormaInvoice":true,
-            "delete_ProFormaInvoiceItem":true,
             "view_single_ProFormaInvoice":true,
             "view_all_ProFormaInvoice":true
         },
@@ -95,7 +100,6 @@ exports.permissions = {
             "create_ProFormaInvoice":true,
             "update_ProFormaInvoice":true,
             "delete_ProFormaInvoice":true,
-            "delete_ProFormaInvoiceItem":true,
             "view_single_ProFormaInvoice":true,
             "view_all_ProFormaInvoice":true
         },
@@ -103,7 +107,6 @@ exports.permissions = {
             "create_ProFormaInvoice":true,
             "update_ProFormaInvoice":true,
             "delete_ProFormaInvoice":true,
-            "delete_ProFormaInvoiceItem":true,
             "view_single_ProFormaInvoice":true,
             "view_all_ProFormaInvoice":true
         },
@@ -111,7 +114,6 @@ exports.permissions = {
             "create_ProFormaInvoice":true,
             "update_ProFormaInvoice":true,
             "delete_ProFormaInvoice":true,
-            "delete_ProFormaInvoiceItem":true,
             "view_single_ProFormaInvoice":true,
             "view_all_ProFormaInvoice":true
         },
@@ -197,7 +199,6 @@ exports.permissions = {
             "create_salesinvoice":true,
             "update_salesInvoice":true,
             "delete_salesInvoice":true,
-            "delete_salesInvoiceItem":true,
             "view_single_salesInvoice":true,
             "view_all_salesInvoice":true
         },
@@ -205,7 +206,6 @@ exports.permissions = {
             "create_salesinvoice":true,
             "update_salesInvoice":true,
             "delete_salesInvoice":true,
-            "delete_salesInvoiceItem":true,
             "view_single_salesInvoice":true,
             "view_all_salesInvoice":true
         },
@@ -213,7 +213,6 @@ exports.permissions = {
             "create_salesinvoice":true,
             "update_salesInvoice":true,
             "delete_salesInvoice":true,
-            "delete_salesInvoiceItem":true,
             "view_single_salesInvoice":true,
             "view_all_salesInvoice":true
         },
@@ -221,7 +220,6 @@ exports.permissions = {
             "create_salesinvoice":true,
             "update_salesInvoice":true,
             "delete_salesInvoice":true,
-            "delete_salesInvoiceItem":true,
             "view_single_salesInvoice":true,
             "view_all_salesInvoice":true
         },
@@ -229,7 +227,6 @@ exports.permissions = {
             "create_salesinvoice":true,
             "update_salesInvoice":true,
             "delete_salesInvoice":true,
-            "delete_salesInvoiceItem":true,
             "view_single_salesInvoice":true,
             "view_all_salesInvoice":true
         },
@@ -237,7 +234,6 @@ exports.permissions = {
             "create_salesinvoice":true,
             "update_salesInvoice":true,
             "delete_salesInvoice":true,
-            "delete_salesInvoiceItem":true,
             "view_single_salesInvoice":true,
             "view_all_salesInvoice":true
         }
@@ -247,7 +243,6 @@ exports.permissions = {
             "create_deliverychallan":true,
             "update_deliverychallan":true,
             "delete_deliverychallan":true,
-            "delete_deliverychallanitem":true,
             "view_single_deliverychallan":true,
             "view_all_deliverychallan":true
         },
@@ -255,7 +250,6 @@ exports.permissions = {
             "create_deliverychallan":true,
             "update_deliverychallan":true,
             "delete_deliverychallan":true,
-            "delete_deliverychallanitem":true,
             "view_single_deliverychallan":true,
             "view_all_deliverychallan":true
         },
@@ -263,7 +257,6 @@ exports.permissions = {
             "create_deliverychallan":true,
             "update_deliverychallan":true,
             "delete_deliverychallan":true,
-            "delete_deliverychallanitem":true,
             "view_single_deliverychallan":true,
             "view_all_deliverychallan":true
         },
@@ -271,7 +264,6 @@ exports.permissions = {
             "create_deliverychallan":true,
             "update_deliverychallan":true,
             "delete_deliverychallan":true,
-            "delete_deliverychallanitem":true,
             "view_single_deliverychallan":true,
             "view_all_deliverychallan":true
         },
@@ -279,7 +271,6 @@ exports.permissions = {
             "create_deliverychallan":true,
             "update_deliverychallan":true,
             "delete_deliverychallan":true,
-            "delete_deliverychallanitem":true,
             "view_single_deliverychallan":true,
             "view_all_deliverychallan":true
         },
@@ -287,7 +278,6 @@ exports.permissions = {
             "create_deliverychallan":true,
             "update_deliverychallan":true,
             "delete_deliverychallan":true,
-            "delete_deliverychallanitem":true,
             "view_single_deliverychallan":true,
             "view_all_deliverychallan":true
         }

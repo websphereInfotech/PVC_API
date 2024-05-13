@@ -152,23 +152,19 @@ exports.update_ProFormaInvoice = async (req, res) => {
       where: { InvoiceId: id },
     });
 
-    const updatedProducts = items.map((item) => item.productId);
+    const updatedProducts = items.map((item) => item.productId && item.rate);
 
     const itemsToDelete = existingItems.filter(
-      (item) => !updatedProducts.includes(item.productId)
+      (item) => !updatedProducts.includes(item.productId && item.rate)
     );
 
     for (const item of itemsToDelete) {
       await item.destroy();
     }
 
-    // let totalMrp = 0;
-    // let totalIgst = 0;
-    // let totalSgst = 0;
-
     for (const item of items) {
       const existingItem = existingItems.find(
-        (ei) => ei.productId === item.productId
+        (ei) => ei.productId === item.productId && ei.rate === item.rate
       );
       if (existingItem) {
         await existingItem.update({
@@ -185,27 +181,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
           mrp:item.mrp,
         });
       }
-      // totalMrp += mrp;
-
-      // const productData = await product.findOne({
-      //   where: { productname: item.productId },
-      // });
-
-      // if (productData) {
-      //   totalIgst += (productData.IGST * mrp) / 100;
-      //   totalSgst += (productData.SGST * mrp) / 100;
-      // }
     }
-    // await ProFormaInvoice.update(
-    //   {
-    //     totalMrp,
-    //     totalIgst,
-    //     totalSgst,
-    //     mainTotal: totalIgst ? totalMrp + totalIgst : totalSgst + totalMrp,
-    //   },
-    //   { where: { id } }
-    // );
-
     const updatedInvoice = await ProFormaInvoice.findOne({
       where: { id },
       include: [{ model: ProFormaInvoiceItem, as: "items" }],
@@ -222,28 +198,6 @@ exports.update_ProFormaInvoice = async (req, res) => {
       status: "false",
       message: "Internal Server Error",
     });
-  }
-};
-
-exports.delete_ProFormaInvoiceItem = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const data = await ProFormaInvoiceItem.destroy({ where: { id: id } });
-
-    if (!data) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "ProForma Invoice Item Not Found" });
-    } else {
-      return res
-        .status(200)
-        .json({ status: "true", message: "ProForma Invoice delete Successfully" });
-    }
-  } catch (error) {
-    console.log(error.message);
-    return res
-      .status(500)
-      .json({ status: "false", message: "Internal Server Error" });
   }
 };
 exports.delete_ProFormaInvoice = async (req, res) => {
