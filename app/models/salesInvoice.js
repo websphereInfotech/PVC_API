@@ -30,8 +30,8 @@ const salesInvoice = sequelize.define("P_salesInvoice", {
 });
 
 
-ProFormaInvoice.hasMany(salesInvoice, { foreignKey: 'proFormaId', onDelete: 'CASCADE' });
-salesInvoice.belongsTo(ProFormaInvoice, { foreignKey: 'proFormaId', onDelete: 'CASCADE' });
+ProFormaInvoice.hasMany(salesInvoice, { foreignKey: 'proFormaId', onDelete: 'CASCADE',as:'proFormaItem' });
+salesInvoice.belongsTo(ProFormaInvoice, { foreignKey: 'proFormaId', onDelete: 'CASCADE',as:'proFormaItem' });
 
 customer.hasMany(salesInvoice, { foreignKey: 'customerId', onDelete: 'CASCADE', as: 'InvioceCustomer' });
 salesInvoice.belongsTo(customer, { foreignKey: 'customerId', onDelete: 'CASCADE', as: 'InvioceCustomer' });

@@ -4,7 +4,8 @@ exports.permissions = {
             "create_company":true,
             "update_company":true,
             "delete_company":true,
-            "view_all_company":true
+            "view_all_company":true,
+            "view_single_company":true
         },
     },
     "Login" : {

@@ -166,10 +166,10 @@ exports.update_ProFormaInvoice = async (req, res) => {
       const existingItem = existingItems.find(
         (ei) => ei.productId === item.productId && ei.rate === item.rate
       );
+ 
       if (existingItem) {
         await existingItem.update({
-          qty : item.qty,
-          rate:item.rate,
+        qty: item.qty + existingItem.qty,
           mrp:item.mrp,
         });
       } else {

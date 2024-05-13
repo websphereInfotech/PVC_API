@@ -9,6 +9,7 @@ router.post('/create_company',validation('create_company'),adminAuth('Company:cr
 router.put('/update_company/:id',adminAuth('Company:update_company'),update_company);
 router.delete('/delete_company/:id',adminAuth('Company:delete_company'),delete_company);
 router.get('/get_all_company',adminAuth('Company:view_all_company'),get_all_company);
+// router.get('/view_single_company/:id',adminAuth('Company:view_single_company'),view_single_company);
 router.get('/view_single_company/:id',view_single_company);
 
 

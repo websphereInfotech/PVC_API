@@ -1,3 +1,4 @@
+const ProFormaInvoice = require("../models/ProFormaInvoice");
 const customer = require("../models/customer");
 const product = require("../models/product");
 const salesInvoice = require("../models/salesInvoice");
@@ -120,7 +121,7 @@ exports.view_salesInvoice = async (req, res) => {
 
     const data = await salesInvoice.findOne({
       where: { id },
-      include: [{ model: salesInvoiceItem, as: "items",include:[{model:product, as:'InvoiceProduct'}] },{ model:customer, as:'InvioceCustomer'}],
+      include: [{ model: salesInvoiceItem, as: "items",include:[{model:product, as:'InvoiceProduct'}] },{ model:customer, as:'InvioceCustomer'},{model: ProFormaInvoice, as:'proFormaItem'}], 
     });
 
     if (!data) {

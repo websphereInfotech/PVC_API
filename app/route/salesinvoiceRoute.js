@@ -21,7 +21,6 @@ router.post(
 router.put(
   "/update_salesInvoice/:id",
   adminAuth("Sales Invoice:update_salesInvoice"),
-  validation('update_salesInvoice'),
   update_salesInvoice
 );
 router.delete(
