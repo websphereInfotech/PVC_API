@@ -197,30 +197,24 @@ exports.update_salesInvoice = async (req, res) => {
       where: { salesInvoiceId: id },
     });
 
-    const updatedProducts = items.map((item) => item.productId);
-    const itemsToDelete = existingItem.filter(
-      (item) => !updatedProducts.includes(item.productId)
-    );
+    const mergedItems = []; 
 
-    for (const item of itemsToDelete) {
-      await item.destroy();
-    }
-
-    // let totalMrp = 0;
-    // let totalIgst = 0;
-    // let totalSgst = 0;
-
-    for (const item of items) {
+    items.forEach((item) => {
+      let existingItem = mergedItems.find((i) => i.productId === item.productId && i.rate === item.rate);
+      if(existingItem) {
+        existingItem.qty +=item.qty;
+      } else {
+        mergedItems.push(item);
+      }
+    });
+    for (const item of mergedItems) {
       const existingItems = existingItem.find(
-        (ei) => ei.productId === item.productId
+        (ei) => ei.productId === item.productId && ei.rate === item.rate
       );
 
       if (existingItems) {
-        await existingItems.update({
-          qty : item.qty,
-          rate:item.rate,
-          mrp:item.mrp,
-        });
+          existingItems.qty = item.qty,
+          await existingItems.save();
       } else {
           await salesInvoiceItem.create({
           salesInvoiceId: id,
@@ -230,26 +224,15 @@ exports.update_salesInvoice = async (req, res) => {
           mrp:item.mrp,
         });
       }
-      // totalMrp += mrp;
-
-    //   const productData = await product.findOne({
-    //     where: { productname: item.product},
-    //   });
-
-    //   if (productData) {
-    //     totalIgst += (productData.IGST * mrp) / 100;
-    //     totalSgst += (productData.SGST * mrp) / 100;
-    //   }
     }
-    // await salesInvoice.update(
-    //   {
-    //     totalMrp,
-    //     totalIgst,
-    //     totalSgst,
-    //     mainTotal: totalIgst ? totalIgst + totalMrp : totalSgst + totalMrp,
-    //   },
-    //   { where: { id } }
-    // );
+    const updatedProducts = items.map((item) =>({productId: item.productId, rate: item.rate}));
+    const itemsToDelete = existingItem.filter(
+      (item) => !updatedProducts.some((updatedItem) => updatedItem.productId === item.productId && updatedItem.rate === item.rate)
+    );
+
+    for (const item of itemsToDelete) {
+      await item.destroy();
+    }
 
     const data = await salesInvoice.findOne({
       where: { id },
