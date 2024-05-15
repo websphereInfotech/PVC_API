@@ -52,9 +52,6 @@ const vendor = sequelize.define("P_vendor", {
   balance: {
     type: DataTypes.INTEGER,
   },
-  country: {
-    type: DataTypes.STRING,
-  },
   gstnumber : {
     type: DataTypes.STRING,
   }

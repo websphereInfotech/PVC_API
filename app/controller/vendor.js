@@ -2,7 +2,7 @@ const vendor = require("../models/vendor");
 
 exports.create_vendor = async (req,res) => {
     try {
-        const { accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, address2, pincode, state, city, bankdetail, creditlimit, balance,country,gstnumber } = req.body
+        const { accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, address2, pincode, state, city, bankdetail, creditlimit, balance,gstnumber } = req.body
 
         const data = await vendor.create({
             accountname,
@@ -20,7 +20,6 @@ exports.create_vendor = async (req,res) => {
             bankdetail,
             creditlimit,
             balance,
-            country,
             gstnumber
         });
          return res.status(200).json({ status:'true', message:'Vendor Create Successfully', data: data });
@@ -32,7 +31,7 @@ exports.create_vendor = async (req,res) => {
 exports.update_vendor = async(req,res) => {
     try {
         const {id} = req.params;
-        const { accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, address2, pincode, state, city, bankdetail, creditlimit, balance,country,gstnumber } = req.body
+        const { accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, address2, pincode, state, city, bankdetail, creditlimit, balance,gstnumber } = req.body
 
         const vendorId = await vendor.findOne({
             where:{id}
@@ -58,7 +57,6 @@ exports.update_vendor = async(req,res) => {
             bankdetail,
             creditlimit,
             balance,
-            country,
             gstnumber
         },{ where:{id}});
         const data = await vendor.findByPk(id)

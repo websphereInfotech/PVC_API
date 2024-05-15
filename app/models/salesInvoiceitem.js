@@ -20,6 +20,10 @@ const salesInvoiceItem = sequelize.define("P_salesInvoiceItem", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  totalQty: {
+    type: DataTypes.INTEGER,
+    defaultValue:0
+  },
   rate: {
     type: DataTypes.FLOAT,
   },

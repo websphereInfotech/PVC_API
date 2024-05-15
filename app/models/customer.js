@@ -49,9 +49,6 @@ const customer = sequelize.define("P_customer", {
   balance: {
     type: DataTypes.INTEGER,
   },
-  country: {
-    type: DataTypes.STRING,
-  },
   gstnumber : {
     type: DataTypes.STRING,
   },

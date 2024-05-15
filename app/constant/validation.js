@@ -1259,10 +1259,12 @@ exports.gstnumber = function (req, res, next) {
   const { gstnumber } = req.body;
   const gstnumberSchema = Joi.string()
 
+    .length(15)
     .required()
     .messages({
       "any.required": " Required field : GST Number",
       "string.empty": "GST Number Cannot Be Empty",
+      "string.length": "GST Number must be exactly 15 characters long",
     });
   const { error } = gstnumberSchema.validate(gstnumber);
   if (error) {

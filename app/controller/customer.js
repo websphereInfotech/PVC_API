@@ -19,7 +19,6 @@ exports.create_customer = async (req, res) => {
       bankdetail,
       creditlimit,
       balance,
-      country,
       gstnumber,
       bankdetails,
       totalcreadit,
@@ -70,7 +69,6 @@ exports.create_customer = async (req, res) => {
       bankdetail,
       creditlimit,
       balance,
-      country,
       gstnumber,
     };
 
@@ -127,7 +125,6 @@ exports.update_customer = async (req, res) => {
       bankdetail,
       creditlimit,
       balance,
-      country,
       gstnumber,
       bankdetails,
       totalcreadit,
@@ -143,7 +140,7 @@ exports.update_customer = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
-
+    
     const customerUpdate = {
       accountname,
       shortname,
@@ -160,7 +157,6 @@ exports.update_customer = async (req, res) => {
       bankdetail,
       creditlimit,
       balance,
-      country,
       gstnumber,
     };
     if (creditlimit === true) {
@@ -170,11 +166,11 @@ exports.update_customer = async (req, res) => {
     await customer.update(customerUpdate, { where: { id } });
 
     if (bankdetail === true && bankdetails) {
-      // for (const item of items) {
+     
         const existingItem = await bankAccount.findOne({
           where: { customerId: id, accountnumber: bankdetails.accountnumber },
         });
-// console.log("existingItem".existingItem);
+
         if (existingItem) {
           await bankAccount.update(
             {

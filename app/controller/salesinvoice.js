@@ -39,7 +39,10 @@ exports.create_salesInvoice = async (req, res) => {
     if(!customerData) {
       return res.status(404).json({status:'false', message:'Customer Not Found'});
     }
- 
+    const proFormaItem = await ProFormaInvoice.findByPk(proFormaId);
+    if(!proFormaItem) {
+      return res.status(404).json({status:'false', message:'proForma Invoice Not Found'});
+    }
     if (!items || items.length === 0) {
       return res
         .status(400)
@@ -83,7 +86,7 @@ exports.create_salesInvoice = async (req, res) => {
     });
     return res.status(200).json({
       status: "true",
-      message: "SalesInvoice Create Successfully",
+      message: "Sales Invoice Create Successfully",
       data: salesInvoiceData,
     });
   } catch (error) {
@@ -145,17 +148,23 @@ exports.update_salesInvoice = async (req, res) => {
   try {
     const { id } = req.params;
     const {
-      email,
-      mobileno,
       customerId,
-      book,
-      seriesname,
+      dispatchThrough,
+      dispatchno,
+      destination,
+      deliverydate,
+      LL_RR_no,
+      motorVehicleNo,
       invoiceno,
       invoicedate,
       terms,
       duedate,
       proFormaId,
-      items,
+      totalIgst,
+      totalSgst,
+      totalMrp,
+      mainTotal,
+      items
     } = req.body;
 
     const salesId = await salesInvoice.findByPk(id);
@@ -169,6 +178,10 @@ exports.update_salesInvoice = async (req, res) => {
     if(!customerData) {
       return res.status(404).json({status:'false', message:'Customer Not Found'});
     }
+    const proFormaItem = await ProFormaInvoice.findByPk(proFormaId);
+    if(!proFormaItem) {
+      return res.status(404).json({status:'false', message:'proForma Invoice Not Found'});
+    }
     for(const item of items) {
       const productname = await product.findByPk(item.productId)
       if(!productname) {
@@ -177,16 +190,22 @@ exports.update_salesInvoice = async (req, res) => {
     }
     await salesInvoice.update(
       {
-        email: email,
-        mobileno: mobileno,
-        customerId:customerId,
-        book: book,
-        seriesname: seriesname,
-        invoiceno: invoiceno,
-        invoicedate: invoicedate,
-        terms: terms,
-        duedate: duedate,
-        proFormaId: proFormaId,
+        customerId,
+        dispatchThrough,
+        dispatchno,
+        destination,
+        deliverydate,
+        LL_RR_no,
+        motorVehicleNo,
+        invoiceno,
+        invoicedate,
+        terms,
+        duedate,
+        proFormaId,
+        totalIgst,
+        totalSgst,
+        totalMrp,
+        mainTotal,
       },
       {
         where: { id: id },
@@ -268,7 +287,7 @@ exports.delete_salesInvoice = async (req, res) => {
     console.log(error);
     return res
       .status(500)
-      .json({ status: "false", message: "nternal Server Error" });
+      .json({ status: "false", message: "Internal Server Error" });
   }
 };
 // exports.pdf_file = async (req,res) => {

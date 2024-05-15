@@ -10,11 +10,9 @@ module.exports.validation = function (method) {
         case "update_user":
             return [email, mobileno]
         case "create_deliverychallan":
-            return [challanno, date, customerId, mobileno, email]
-        case "update_deliverychallan":
-            return [email, mobileno]
+            return [challanno, date, customerId]
         case "create_deliverychallanitem":
-            return [mrp, qty, productId, description, batchno, quotationno, expirydate]
+            return [qty, productId]
         case "create_expense":
             return [mobileno, customerId, voucherno, date, gstin, mobileno, email, billno, billdate, payment, expensse, description, taxable, mrp]
         case "create_payment":
@@ -26,13 +24,13 @@ module.exports.validation = function (method) {
         case "create_ProFormaInvoice":
             return [ProFormaInvoice_no, date, validtill, customerId, rate, qty, productId]
         case "create_salesinvoice":
-            return [customerId, invoiceno, invoicedate, duedate, proFormaId, productId, rate, qty, rate]
+            return [customerId, invoiceno, invoicedate, duedate, productId, rate, qty, rate,terms]
         case "create_salesReturn":
             return [customerId, creditnote, creditdate]
         case "create_stoke":
             return [itemname, unit, email,]
         case "create_customer":
-            return [accountname, contactpersonname, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, country, gstnumber]
+            return [accountname, contactpersonname, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, gstnumber]
         case "update_customer":
             return [email, mobileno]
         case "create_product":
@@ -54,9 +52,9 @@ module.exports.validation = function (method) {
         case "create_receipt":
             return [voucherno, account, email, mode, refno, depositto, amountrecive, receiptdate]
         case "create_company":
-            return [companyname, gstnumber, email, mobileno, address1, pincode, state, city, country, accountname, bankname, accountnumber, ifsccode, branch]
+            return [companyname, gstnumber, email, mobileno, address1, pincode, state, city, accountname, bankname, accountnumber, ifsccode, branch]
         case "create_vendor":
-            return [accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, pincode, state, city, bankdetail, creditlimit, balance, country, gstnumber]
+            return [accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, pincode, state, city, bankdetail, creditlimit, balance, gstnumber]
         default:
             throw new Error('Invalid validation method')
     }

@@ -11,6 +11,10 @@ const ProFormaInvoiceItem = sequelize.define("P_ProFormaInvoiceItem", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  totalQty: {
+    type: DataTypes.INTEGER,
+    defaultValue:0
+  },
   productId: { 
     type: DataTypes.INTEGER,
     allowNull: false,
