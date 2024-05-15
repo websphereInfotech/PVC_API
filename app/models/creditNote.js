@@ -7,7 +7,7 @@ const creditNote = sequelize.define("P_creditNote", {
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    creditnoteno : {
+    creditnoteNo : {
         type: DataTypes.INTEGER
     },
     creditdate: {

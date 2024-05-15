@@ -1,4 +1,4 @@
-const { email, password, mobileno, challanno, date, customerId, serialno, mrp, qty, productId, description, batchno, quotationno, expirydate, vendor, voucherno, gstin, billno, billdate, payment, expensse, taxable, account, paymentdate, refno, quotationref, pono, mode, paidfrom, amount, ProFormaInvoice_no, rate, discount, validtill, creditnote, creditdate, invoiceno, invoicedate, itemname, unit, accountname, shortname, contactpersonname, panno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, itemtype, productname, nagativeqty, lowstock, purchaseprice, salesprice, group, remarks, category, unitname, terms, duedate, book, debitnote, debitdate, refdate, price, bill_no, bill_date, depositto, amountrecive, receiptdate, accountnumber, ifsccode, bankname, country, username, salary, role, gstnumber, HSNcode, companyname, proFormaId, branch, debitnoteno
+const { email, password, mobileno, challanno, date, customerId, serialno, mrp, qty, productId, description, batchno, quotationno, expirydate, vendor, voucherno, gstin, billno, billdate, payment, expensse, taxable, account, paymentdate, refno, quotationref, pono, mode, paidfrom, amount, ProFormaInvoice_no, rate, discount, validtill, creditnote, creditdate, invoiceno, invoicedate, itemname, unit, accountname, shortname, contactpersonname, panno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, itemtype, productname, nagativeqty, lowstock, purchaseprice, salesprice, group, remarks, category, unitname, terms, duedate, book, debitnote, debitdate, refdate, price, bill_no, bill_date, depositto, amountrecive, receiptdate, accountnumber, ifsccode, bankname, country, username, salary, role, gstnumber, HSNcode, companyname, proFormaId, branch, debitnoteno, creditnoteNo, org_invoiceno, org_invoicedate
 } = require("./validation")
 
 module.exports.validation = function (method) {
@@ -22,9 +22,11 @@ module.exports.validation = function (method) {
         case "create_ProFormaInvoice":
             return [ProFormaInvoice_no, date, validtill, customerId, rate, qty, productId]
         case "create_salesinvoice":
-            return [customerId, invoiceno, invoicedate, duedate, productId, rate, qty, rate,terms]
+            return [customerId, invoiceno, invoicedate, duedate, productId, rate, qty, terms]
         case "create_debitNote":
             return [customerId, debitdate, debitnoteno, productId, qty,mrp,rate]
+        case "create_creditNote":
+            return [customerId,creditnoteNo,creditdate,org_invoiceno,org_invoicedate, productId,rate,qty]
         case "create_stoke":
             return [itemname, unit, email,]
         case "create_customer":

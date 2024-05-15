@@ -234,6 +234,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
       }
     }
     const updatedProducts = items.map((item) => ({ productId: item.productId, rate: item.rate }));
+    
     const itemsToDelete = existingItems.filter(
       (item) => !updatedProducts.some((updatedItem) => updatedItem.productId === item.productId && updatedItem.rate === item.rate)
     );

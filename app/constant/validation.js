@@ -542,16 +542,16 @@ exports.validtill = function (req, res, next) {
   }
   next();
 };
-exports.creditnote = function (req, res, next) {
-  const { creditnote } = req.body;
-  const creditnoteSchema = Joi.string()
+exports.creditnoteNo = function (req, res, next) {
+  const { creditnoteNo } = req.body;
+  const creditnoteNoSchema = Joi.number()
 
     .required()
     .messages({
       "any.required": "Required Field : Credit Note",
-      "string.empty": "Credit Note Cannot Be Empty",
+      "number.empty": "Credit Note Cannot Be Empty",
     });
-  const { error } = creditnoteSchema.validate(creditnote);
+  const { error } = creditnoteNoSchema.validate(creditnoteNo);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -1323,3 +1323,32 @@ exports.proFormaId = function (req, res, next) {
   }
   next();
 }
+exports.org_invoiceno = function (req, res, next) {
+  const { org_invoiceno } = req.body
+
+  const org_invoicenoSchema = Joi.number()
+    .required()
+    .messages({
+      "any.required": "Required feild: Org. Invoice Number",
+      "number.empty": "Org. Invoice Number Cannot Be Empty"
+    })
+
+  const { error } = org_invoicenoSchema.validate(org_invoiceno);
+  if (error) {
+    return res.status(400).json({ status: 'false', message: error.message });
+  }
+  next();
+}
+exports.org_invoicedate = function (req, res, next) {
+  const { org_invoicedate } = req.body;
+
+  const org_invoicedateSchema = Joi.string().required().messages({
+    "string.empty": "Org. Invoice Date Cannot Be Empty",
+    "any.required": "Required Filed : Org. Invoice Date",
+  });
+  const { error } = org_invoicedateSchema.validate(org_invoicedate);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+};
