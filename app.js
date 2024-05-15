@@ -12,7 +12,7 @@ app.use(express.json());
 
 const {
     ProFormaInvoice,
-    salesreturnRoute,
+    debitNoteRoute,
     expenseRoute,
     salesinvoiceRoute,
     deliverychallanRoute,
@@ -36,7 +36,7 @@ const {
 
 
 app.use("/admin", ProFormaInvoice);
-app.use("/admin", salesreturnRoute);
+app.use("/admin", debitNoteRoute);
 app.use("/admin", expenseRoute);
 app.use("/admin", salesinvoiceRoute);
 app.use("/admin", deliverychallanRoute);

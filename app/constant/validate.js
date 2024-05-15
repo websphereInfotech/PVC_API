@@ -1,4 +1,4 @@
-const { email, password, mobileno, challanno, date, customerId, serialno, mrp, qty, productId, description, batchno, quotationno, expirydate, vendor, voucherno, gstin, billno, billdate, payment, expensse, taxable, account, paymentdate, refno, quotationref, pono, mode, paidfrom, amount, ProFormaInvoice_no, rate, discount, validtill, creditnote, creditdate, invoiceno, invoicedate, itemname, unit, accountname, shortname, contactpersonname, panno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, itemtype, productname, nagativeqty, lowstock, purchaseprice, salesprice, group, remarks, category, unitname, terms, duedate, book, debitnote, debitdate, refdate, price, bill_no, bill_date, depositto, amountrecive, receiptdate, accountnumber, ifsccode, bankname, country, username, salary, role, gstnumber, HSNcode, companyname, proFormaId, branch
+const { email, password, mobileno, challanno, date, customerId, serialno, mrp, qty, productId, description, batchno, quotationno, expirydate, vendor, voucherno, gstin, billno, billdate, payment, expensse, taxable, account, paymentdate, refno, quotationref, pono, mode, paidfrom, amount, ProFormaInvoice_no, rate, discount, validtill, creditnote, creditdate, invoiceno, invoicedate, itemname, unit, accountname, shortname, contactpersonname, panno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, itemtype, productname, nagativeqty, lowstock, purchaseprice, salesprice, group, remarks, category, unitname, terms, duedate, book, debitnote, debitdate, refdate, price, bill_no, bill_date, depositto, amountrecive, receiptdate, accountnumber, ifsccode, bankname, country, username, salary, role, gstnumber, HSNcode, companyname, proFormaId, branch, debitnoteno
 } = require("./validation")
 
 module.exports.validation = function (method) {
@@ -10,9 +10,7 @@ module.exports.validation = function (method) {
         case "update_user":
             return [email, mobileno]
         case "create_deliverychallan":
-            return [challanno, date, customerId]
-        case "create_deliverychallanitem":
-            return [qty, productId]
+            return [challanno, date, customerId,qty, productId]
         case "create_expense":
             return [mobileno, customerId, voucherno, date, gstin, mobileno, email, billno, billdate, payment, expensse, description, taxable, mrp]
         case "create_payment":
@@ -25,8 +23,8 @@ module.exports.validation = function (method) {
             return [ProFormaInvoice_no, date, validtill, customerId, rate, qty, productId]
         case "create_salesinvoice":
             return [customerId, invoiceno, invoicedate, duedate, productId, rate, qty, rate,terms]
-        case "create_salesReturn":
-            return [customerId, creditnote, creditdate]
+        case "create_debitNote":
+            return [customerId, debitdate, debitnoteno, productId, qty]
         case "create_stoke":
             return [itemname, unit, email,]
         case "create_customer":

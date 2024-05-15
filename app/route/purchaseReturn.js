@@ -17,7 +17,7 @@ const router = express.Router();
 router.post(
   "/create_purchaseReturn",
   adminAuth("Purchase Return:create_purchaseReturn"),
-  validation("create_purchaseReturn"),
+  // validation("create_purchaseReturn"),
   create_purchaseReturn
 );
 router.post(

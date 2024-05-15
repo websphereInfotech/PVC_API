@@ -4,7 +4,7 @@ const customer = require("./customer");
 
 const deliverychallan = sequelize.define("P_deliverychallan", {
   challanno: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   date: {
@@ -14,6 +14,10 @@ const deliverychallan = sequelize.define("P_deliverychallan", {
   customerId: { type: DataTypes.INTEGER,
     allowNull:false
    },
+   totalQty: {
+    type: DataTypes.INTEGER,
+    defaultValue:0
+  }
 });
 
 customer.hasMany(deliverychallan,{ foreignKey:'customerId', onDelete:'CASCADE',as:'DeliveryCustomer'});

@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const deliverychallan = require("./deliverychallan");
+const product = require("./product");
 
 const deliverychallanitem = sequelize.define("P_deliverychallanItem", {
   qty: {
@@ -10,12 +11,12 @@ const deliverychallanitem = sequelize.define("P_deliverychallanItem", {
   productId: {
     type: DataTypes.INTEGER,
     allowNull: false,
-  },
-  totalQty: {
-    type: DataTypes.INTEGER,
-    defaultValue:0
   }
 });
+
+
+product.hasMany(deliverychallanitem,{foreignKey:'productId',onDelete:'CASCADE', as:'DeliveryProduct'});
+deliverychallanitem.belongsTo(product,{ foreignKey:'productId', onDelete:'CASCADE', as:'DeliveryProduct'});
 
 deliverychallan.hasMany(deliverychallanitem, {
   foreignKey: "deliverychallanId", onDelete:'CASCADE',as:'items'

@@ -68,8 +68,8 @@ exports.mobileno = function (req, res, next) {
 exports.challanno = function (req, res, next) {
   const { challanno } = req.body;
 
-  const challannoSchema = Joi.string().required().messages({
-    "string.empty": "ChallanNo Cannot Be Empty",
+  const challannoSchema = Joi.number().required().messages({
+    "number.empty": "ChallanNo Cannot Be Empty",
     "any.required": "Required Field : ChallanNo",
   });
   const { error } = challannoSchema.validate(challanno);
@@ -1007,13 +1007,13 @@ exports.book = function (req, res, next) {
   }
   next();
 };
-exports.debitnote = function (req, res, next) {
-  const { debitnote } = req.body;
-  const debitnoteSchema = Joi.string().required().messages({
-    "any.required": "Required Field : Debit Note",
-    "string.empty": "Debit Note Cannot Be Empty",
+exports.debitnoteno = function (req, res, next) {
+  const { debitnoteno } = req.body;
+  const debitnotenoSchema = Joi.number().required().messages({
+    "any.required": "Required Field : Debit Note Number",
+    "number.empty": "Debit Note Cannot Be Empty",
   });
-  const { error } = debitnoteSchema.validate(debitnote);
+  const { error } = debitnotenoSchema.validate(debitnoteno);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }

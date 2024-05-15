@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const ProFormaInvoice = require("./ProFormaInvoice");
+const product = require("./product");
 
 const ProFormaInvoiceItem = sequelize.define("P_ProFormaInvoiceItem", {
   rate: {
@@ -10,10 +11,6 @@ const ProFormaInvoiceItem = sequelize.define("P_ProFormaInvoiceItem", {
   qty: {
     type: DataTypes.INTEGER,
     allowNull: false,
-  },
-  totalQty: {
-    type: DataTypes.INTEGER,
-    defaultValue:0
   },
   productId: { 
     type: DataTypes.INTEGER,
@@ -25,8 +22,12 @@ const ProFormaInvoiceItem = sequelize.define("P_ProFormaInvoiceItem", {
   },
 });
 
+product.hasMany(ProFormaInvoiceItem,{ foreignKey:'productId', onDelete:'CASCADE', as:'product'})
+ProFormaInvoiceItem.belongsTo(product, {foreignKey:"productId", onDelete:"CASCADE", as:'product'});
+
 ProFormaInvoice.hasMany(ProFormaInvoiceItem, { foreignKey: "InvoiceId" ,onDelete:'CASCADE', as:'items'});
 ProFormaInvoiceItem.belongsTo(ProFormaInvoice, { foreignKey: "InvoiceId", onDelete:'CASCADE',as:'items' });
+
 
 
 module.exports = ProFormaInvoiceItem;

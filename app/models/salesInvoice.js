@@ -27,6 +27,10 @@ const salesInvoice = sequelize.define("P_salesInvoice", {
   totalSgst: { type: DataTypes.FLOAT, defaultValue: 0 },
   totalMrp: { type: DataTypes.FLOAT, defaultValue: 0 },
   mainTotal: { type: DataTypes.FLOAT, defaultValue: 0 },
+  totalQty: {
+    type: DataTypes.INTEGER,
+    defaultValue:0
+  },
 });
 
 
