@@ -24,7 +24,7 @@ module.exports.validation = function (method) {
         case "create_salesinvoice":
             return [customerId, invoiceno, invoicedate, duedate, productId, rate, qty, rate,terms]
         case "create_debitNote":
-            return [customerId, debitdate, debitnoteno, productId, qty]
+            return [customerId, debitdate, debitnoteno, productId, qty,mrp,rate]
         case "create_stoke":
             return [itemname, unit, email,]
         case "create_customer":

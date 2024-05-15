@@ -31,7 +31,8 @@ const {
     permissionRoute,
     userRoute,
     vendorRoute,
-    companyRoute
+    companyRoute,
+    creditNoteRoute
 } = require('./app/route/adminRoute');
 
 
@@ -56,6 +57,7 @@ app.use("/admin", permissionRoute);
 app.use("/admin", userRoute);
 app.use("/admin", vendorRoute);
 app.use("/admin", companyRoute);
+app.use("/admin",creditNoteRoute);
 
 app.get("/", (req, res) => res.send("Hello World!"));
 

@@ -119,30 +119,48 @@ exports.permissions = {
             "view_all_ProFormaInvoice":true
         },
     },
-    "Sales Return" : {
+    "Debit Note" : {
         "Super Admin" :{
-            "create_salesReturn":true,
-            "view_all_salesReturn":true,
+            "create_debitNote":true,
+            "update_debitNote":true,
+            "view_all_debitNote":true,
+            "view_single_debitNote":true,
+            "delete_debitNote":true
         },
         "Admin" :{
-            "create_salesReturn":true,
-            "view_all_salesReturn":true,
+            "create_debitNote":true,
+            "update_debitNote":true,
+            "view_all_debitNote":true,
+            "view_single_debitNote":true,
+            "delete_debitNote":true
         },
         "Account" :{
-            "create_salesReturn":true,
-            "view_all_salesReturn":true,
+            "create_debitNote":true,
+            "update_debitNote":true,
+            "view_all_debitNote":true,
+            "view_single_debitNote":true,
+            "delete_debitNote":true
         },
         "Employee" :{
-            "create_salesReturn":true,
-            "view_all_salesReturn":true,
+            "create_debitNote":true,
+            "update_debitNote":true,
+            "view_all_debitNote":true,
+            "view_single_debitNote":true,
+            "delete_debitNote":true
         },
         "Workers" :{
-            "create_salesReturn":true,
-            "view_all_salesReturn":true,
+            "create_debitNote":true,
+            "update_debitNote":true,
+            "view_all_debitNote":true,
+            "view_single_debitNote":true,
+            "delete_debitNote":true
         },
         "Other" :{
-            "create_salesReturn":true,
-            "view_all_salesReturn":true,
+            "create_debitNote":true,
+            "update_debitNote":true,
+            "view_all_debitNote":true,
+            "view_single_debitNote":true,
+            "delete_debitNote":true
         }
     },
     "Expense" : {

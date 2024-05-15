@@ -5,7 +5,7 @@ const product = require("../models/product");
 
 exports.create_deliverychallan = async (req, res) => {
   try {
-    const { date, challanno, customerId, items } = req.body;
+    const { date, challanno, customerId,totalQty, items } = req.body;
     const numberOf = await deliverychallan.findOne({
       where: { challanno: challanno },
     });
@@ -33,6 +33,7 @@ exports.create_deliverychallan = async (req, res) => {
       date,
       challanno,
       customerId,
+      totalQty
     });
     const addToItem = items.map((item) => ({
       deliverychallanId: data.id,
@@ -60,7 +61,7 @@ exports.create_deliverychallan = async (req, res) => {
 exports.update_deliverychallan = async (req, res) => {
   try {
     const { id } = req.params;
-    const { date, challanno, customerId, items } = req.body;
+    const { date, challanno, customerId,totalQty, items } = req.body;
 
     const updatechallan = await deliverychallan.findByPk(id);
 
@@ -84,7 +85,8 @@ exports.update_deliverychallan = async (req, res) => {
       {
         challanno,
         date,
-        customerId
+        customerId,
+        totalQty
       },
       {
         where: { id: id },

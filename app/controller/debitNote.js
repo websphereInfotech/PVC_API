@@ -5,7 +5,7 @@ const product = require("../models/product");
 
 exports.create_debitNote = async (req, res) => {
   try {
-    const { customerId, debitnoteno, debitdate, items } = req.body;
+    const { customerId, debitnoteno, debitdate,totalQty, items } = req.body;
     const existingCredit = await debitNote.findOne({
       where: { debitnoteno: debitnoteno },
     });
@@ -39,6 +39,7 @@ exports.create_debitNote = async (req, res) => {
       customerId,
       debitnoteno,
       debitdate,
+      totalQty
     });
     const addToProduct = items.map((item) => ({
       DebitId: debitNoteData.id,
@@ -71,7 +72,7 @@ exports.update_debitNote = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { customerId, debitnoteno, debitdate, items } = req.body;
+    const { customerId, debitnoteno, debitdate,totalQty, items } = req.body;
 
     const existingDebit = await debitNote.findByPk(id);
 
@@ -100,6 +101,7 @@ exports.update_debitNote = async (req, res) => {
         customerId,
         debitnoteno,
         debitdate,
+        totalQty
       },
       { where: { id } }
     );

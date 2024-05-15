@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
+const customer = require('./customer');
 
 const creditNote = sequelize.define("P_creditNote", {
     customerId : {
@@ -47,5 +48,8 @@ const creditNote = sequelize.define("P_creditNote", {
         defaultValue:0
       },
 });
+
+customer.hasMany(creditNote, {foreignKey:'customerId', onDelete:'CASCADE',as:'CreditCustomer'});
+creditNote.belongsTo(customer, {foreignKey:'customerId', onDelete:'CASCADE', as:"CreditCustomer"});
 
 module.exports = creditNote;

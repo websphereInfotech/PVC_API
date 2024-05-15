@@ -23,6 +23,7 @@ exports.create_salesInvoice = async (req, res) => {
       totalSgst,
       totalMrp,
       mainTotal,
+      totalQty,
       items,
     } = req.body;
 
@@ -72,6 +73,7 @@ exports.create_salesInvoice = async (req, res) => {
       totalSgst,
       totalMrp,
       mainTotal,
+      totalQty
     });
     const addToItem = items.map((item) => ({
       salesInvoiceId: data.id,
@@ -164,6 +166,7 @@ exports.update_salesInvoice = async (req, res) => {
       totalSgst,
       totalMrp,
       mainTotal,
+      totalQty,
       items
     } = req.body;
 
@@ -206,6 +209,7 @@ exports.update_salesInvoice = async (req, res) => {
         totalSgst,
         totalMrp,
         mainTotal,
+        totalQty
       },
       {
         where: { id: id },

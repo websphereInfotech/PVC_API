@@ -14,6 +14,7 @@ exports.create_ProFormaInvoice = async (req, res) => {
       totalSgst,
       totalMrp,
       mainTotal,
+      totalQty,
       items,
     } = req.body;
     const numberOf = await ProFormaInvoice.findOne({
@@ -55,6 +56,7 @@ exports.create_ProFormaInvoice = async (req, res) => {
       totalSgst,
       totalMrp,
       mainTotal,
+      totalQty
     });
 
     const addToProduct = items.map((item) => ({
@@ -155,6 +157,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
       totalSgst,
       totalMrp,
       mainTotal,
+      totalQty
     } = req.body;
 
     const existingInvoice = await ProFormaInvoice.findByPk(id);
@@ -189,6 +192,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
         totalSgst,
         totalMrp,
         mainTotal,
+        totalQty
       },
       { where: { id } }
     );
