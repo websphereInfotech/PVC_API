@@ -54,6 +54,10 @@ const vendor = sequelize.define("P_vendor", {
   },
   gstnumber : {
     type: DataTypes.STRING,
+  },
+  totalcreadit : {
+    type : DataTypes.BIGINT,
+    defaultValue:0
   }
 });
 

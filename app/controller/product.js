@@ -1,3 +1,4 @@
+const C_product = require("../models/C_product");
 const itemcategory = require("../models/itemcategory");
 const itemgroup = require("../models/itemgroup");
 const product = require("../models/product");
@@ -43,7 +44,8 @@ exports.create_product = async (req, res) => {
       HSNcode,
       cess,
     });
-    // console.log("data",data);
+    await C_product.create({ productname: productname });
+
     return res
       .status(200)
       .json({

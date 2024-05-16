@@ -1,13 +1,44 @@
+const bankAccount = require("../models/bankAccount");
 const vendor = require("../models/vendor");
 
 exports.create_vendor = async (req,res) => {
     try {
-        const { accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, address2, pincode, state, city, bankdetail, creditlimit, balance,gstnumber } = req.body
-
-        const data = await vendor.create({
+        const { accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, address2, pincode, state, city, bankdetail, creditlimit, balance,gstnumber,bankdetails,
+            totalcreadit, } = req.body
+            if (bankdetail === true) {
+                if (!bankdetails || bankdetails.length === 0) {
+                  return res
+                    .status(400)
+                    .json({ status: "false", message: "Required Filed Of Items" });
+                }
+              // for (const item of items) {
+                const existingAccount = await bankAccount.findOne({
+                  where: { accountnumber: bankdetails.accountnumber },
+                });
+          
+                const existingIFSC = await bankAccount.findOne({
+                  where: { ifsccode: bankdetails.ifsccode },
+                });
+          
+                if (existingAccount) {
+                  return res.status(400).json({
+                    status: "false",
+                    message: "Account Number Already Exists",
+                  });
+                }
+                if (existingIFSC) {
+                  return res.status(400).json({
+                    status: "false",
+                    message: "IFSC Code Already Exists",
+                  });
+                }
+              // }
+            }
+        const vendorData = {
             accountname,
             shortname,
-            email,contactpersonname,
+            email,
+            contactpersonname,
             mobileno,
             panno,
             creditperiod,
@@ -21,7 +52,21 @@ exports.create_vendor = async (req,res) => {
             creditlimit,
             balance,
             gstnumber
-        });
+        };
+        if(creditlimit === true) {
+            vendorData.totalcreadit = totalcreadit;
+        }
+        const  data = await vendor.create(vendorData);
+        if (bankdetail === true && bankdetails) {
+            const bankdata = {
+              customerId: data.id,
+              accountnumber: bankdetails.accountnumber,
+              ifsccode: bankdetails.ifsccode,
+              bankname: bankdetails.bankname,
+              accounttype: bankdetails.accounttype,
+            };
+            await bankAccount.create(bankdata);
+          }
          return res.status(200).json({ status:'true', message:'Vendor Create Successfully', data: data });
     } catch (error) {
         console.log(error);

@@ -82,6 +82,88 @@ exports.create_ProFormaInvoice = async (req, res) => {
       .json({ status: "false", error: "Internal Server Error" });
   }
 };
+// exports.create_ProFormaInvoice = async (req, res) => {
+//   try {
+//     const {
+//       ProFormaInvoice_no,
+//       date,
+//       validtill,
+//       customerId,
+//       totalIgst,
+//       totalSgst,
+//       totalMrp,
+//       mainTotal,
+//       totalQty,
+//       items,
+//     } = req.body;
+
+//     const existingInvoice = await ProFormaInvoice.findOne({
+//       where: { ProFormaInvoice_no: ProFormaInvoice_no },
+//     });
+
+//     if (existingInvoice) {
+//       return res.status(400).json({
+//         status: "false",
+//         message: "ProForma Invoice Number Already Exists",
+//       });
+//     }
+
+//     const customerData = await customer.findByPk(customerId);
+//     if (!customerData) {
+//       return res.status(404).json({ status: "false", message: "Customer Not Found" });
+//     }
+
+//     if (!items || items.length === 0) {
+//       return res.status(400).json({ status: "false", message: "Required Field of items" });
+//     }
+
+//     const createdInvoice = await ProFormaInvoice.create({
+//       ProFormaInvoice_no,
+//       date,
+//       validtill,
+//       customerId,
+//       totalIgst,
+//       totalSgst,
+//       totalMrp,
+//       mainTotal,
+//       totalQty
+//     });
+
+//     for (const item of items) {
+//       let existingItem = await ProFormaInvoiceItem.findOne({
+//         where: {
+//           InvoiceId: createdInvoice.id,
+//           productId: item.productId,
+//           rate: item.rate
+//         }
+//       });
+
+//       if (existingItem) {
+//         await existingItem.update({ qty: existingItem.qty + item.qty });
+//       } else {
+//         await ProFormaInvoiceItem.create({
+//           InvoiceId: createdInvoice.id,
+//           ...item,
+//         });
+//       }
+//     }
+
+//     const quotationWithItems = await ProFormaInvoice.findOne({
+//       where: { id: createdInvoice.id },
+//       include: [{ model: ProFormaInvoiceItem, as: "items" }],
+//     });
+
+//     return res.status(200).json({
+//       status: "true",
+//       message: "ProForma Invoice created successfully",
+//       data: quotationWithItems,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({ status: "false", error: "Internal Server Error" });
+//   }
+// };
+
 exports.get_all_ProFormaInvoice = async (req, res) => {
   try {
     const allInvoice = await ProFormaInvoice.findAll({

@@ -42,9 +42,7 @@ module.exports.validation = function (method) {
         case "create_unit":
             return [shortname, unitname]
         case "create_purchasebill":
-            return [vendor, mobileno, email, billno, billdate, terms, duedate, book, pono]
-        case "create_purchasebill_item":
-            return [productId, qty, rate, mrp]
+            return [terms, duedate,productId, qty, rate, mrp]
         case "create_purchaseReturn":
             return [vendor, debitnote, debitdate, refno, refdate]
         case "create_purchaseReturn_item":

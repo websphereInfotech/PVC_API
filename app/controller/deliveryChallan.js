@@ -48,7 +48,7 @@ exports.create_deliverychallan = async (req, res) => {
     });
     return res.status(200).json({
       status: "true",
-      message: "delivery challan created successfully",
+      message: "Delivery Challan Created Successfully",
       data: deliveryChallan,
     });
   } catch (error) {
@@ -140,7 +140,7 @@ exports.update_deliverychallan = async (req, res) => {
     });
     return res.status(200).json({
       status: "true",
-      message: "Delivery challan Update Successfully",
+      message: "Delivery Challan Update Successfully",
       data: data,
     });
   } catch (error) {
@@ -159,11 +159,11 @@ exports.delete_deliverychallan = async (req, res) => {
     if (!data) {
       return res
         .status(400)
-        .json({ status: "false", message: "Delivery challan Not Found" });
+        .json({ status: "false", message: "Delivery Challan Not Found" });
     } else {
       return res.status(200).json({
         status: "true",
-        message: "Delivery challan Delete Successfully",
+        message: "Delivery Challan Delete Successfully",
       });
     }
   } catch (error) {
@@ -181,11 +181,11 @@ exports.get_all_deliverychallan = async (req, res) => {
     if (!data) {
       return res
         .status(404)
-        .json({ status: "false", message: "Delivery challan Not Found" });
+        .json({ status: "false", message: "Delivery Challan Not Found" });
     }
     return res.status(200).json({
       status: "true",
-      message: "Delivery challan Data Fetch Successfully",
+      message: "Delivery Challan Data Fetch Successfully",
       data: data,
     });
   } catch (error) {
@@ -209,11 +209,11 @@ exports.view_deliverychallan = async (req, res) => {
     if (!data) {
       return res
         .status(404)
-        .json({ status: "false", message: "Delivery challan Not Found" });
+        .json({ status: "false", message: "Delivery Challan Not Found" });
     }
     return res.status(200).json({
       status: "true",
-      message: "Fetch delivery challan data successfully",
+      message: "Fetch delivery Challan data successfully",
       data: data,
     });
   } catch (error) {
