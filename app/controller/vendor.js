@@ -59,7 +59,7 @@ exports.create_vendor = async (req,res) => {
         const  data = await vendor.create(vendorData);
         if (bankdetail === true && bankdetails) {
             const bankdata = {
-              customerId: data.id,
+                vendorBank: data.id,
               accountnumber: bankdetails.accountnumber,
               ifsccode: bankdetails.ifsccode,
               bankname: bankdetails.bankname,
@@ -67,6 +67,10 @@ exports.create_vendor = async (req,res) => {
             };
             await bankAccount.create(bankdata);
           }
+          const vendoedata = await vendor.findOne({
+            where: {id: data.id},
+            include: [{ model:bankAccount, as:'v_bankdetails'}]
+          })
          return res.status(200).json({ status:'true', message:'Vendor Create Successfully', data: data });
     } catch (error) {
         console.log(error);

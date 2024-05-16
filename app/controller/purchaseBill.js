@@ -6,7 +6,7 @@ const vendor = require("../models/vendor");
 
 exports.create_purchasebill = async (req, res) => {
     try {
-      const { vendorId, invoiceno, invoicedate, terms, duedate,totalIgst,totalSgst,totalMrp,mainTotal,totalQty,items } = req.body;
+      const { vendorId,date, invoiceno, invoicedate, terms, duedate,totalIgst,totalSgst,totalMrp,mainTotal,totalQty,items } = req.body;
       
       const vendorData = await vendor.findByPk(vendorId);
       if(!vendorData) {
@@ -24,6 +24,7 @@ exports.create_purchasebill = async (req, res) => {
       }
       const purchseData = await purchasebill.create({
         vendorId,
+        date,
         invoiceno,
         invoicedate,
         terms,
@@ -55,7 +56,7 @@ exports.create_purchasebill = async (req, res) => {
 exports.update_purchasebill = async (req, res) => {
     try {
       const { id } = req.params;
-      const { vendorId, invoiceno, invoicedate, terms, duedate,totalIgst,totalSgst,totalMrp,mainTotal,totalQty,items } = req.body;
+      const { vendorId,date, invoiceno, invoicedate, terms, duedate,totalIgst,totalSgst,totalMrp,mainTotal,totalQty,items } = req.body;
   
     const existingPurchase = await purchasebill.findByPk(id);
     if(!existingPurchase) {
@@ -65,7 +66,7 @@ exports.update_purchasebill = async (req, res) => {
       });
     }
   const vendorData = await vendor.findByPk(vendorId);
-  if(!vendorId) {
+  if(!vendorData) {
     return res.status(404).json({status:'false', message:'Vendor Not Found'})
   }
   for(const item of items) {
@@ -76,6 +77,7 @@ exports.update_purchasebill = async (req, res) => {
   }
       await purchasebill.update({
         vendorId,
+        date,
         terms,
         duedate,
         invoiceno,

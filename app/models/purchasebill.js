@@ -6,6 +6,7 @@ const purchasebill = sequelize.define("P_purchasebill", {
   vendorId: {
     type: DataTypes.INTEGER,
   },
+  date: {type: DataTypes.DATEONLY},
   invoiceno: { type: DataTypes.INTEGER },
   invoicedate: { type: DataTypes.DATEONLY },
   terms: { type: DataTypes.INTEGER },
