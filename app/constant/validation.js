@@ -284,13 +284,13 @@ exports.voucherno = function (req, res, next) {
   }
   next();
 };
-exports.gstin = function (req, res, next) {
-  const { gstin } = req.body;
-  const gstinSchema = Joi.string().required().messages({
-    "any.required": "Required Filed : GSTIN",
-    "string.empty": "GSTIN Cannot Be Empty",
+exports.gstrate = function (req, res, next) {
+  const { gstrate } = req.body;
+  const gstrateSchema = Joi.string().required().messages({
+    "any.required": "Required Filed : GST Rate",
+    "string.empty": "GST Rate Cannot Be Empty",
   });
-  const { error } = gstinSchema.validate(gstin);
+  const { error } = gstrateSchema.validate(gstrate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -728,8 +728,9 @@ exports.pincode = function (req, res, next) {
 
     .required()
     .messages({
+      "number.base": "PinCode Must Be A Number",
       "any.required": "Required Field : PinCode",
-      "number.empty": "PanCode Cannot Be Empty",
+      "number.empty": "PinCode Cannot Be Empty",
     });
   const { error } = pincodeSchema.validate(pincode);
   if (error) {

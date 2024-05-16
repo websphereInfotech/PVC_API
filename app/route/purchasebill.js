@@ -7,10 +7,17 @@ const {
   delete_purchasebill,
   view_purchasebill,
   get_all_purchasebill,
+  C_create_purchasebill,
+  C_delete_purchasebill,
+  C_get_all_purchasebill,
+  C_view_purchasebill,
 } = require("../controller/purchaseBill");
 
 const router = express.Router();
 
+/*=============================================================================================================
+                                          Without Typc C API
+ ============================================================================================================ */
 router.post(
   "/create_purchasebill",
   adminAuth("Purchase Bill:create_purchasebill"),
@@ -37,5 +44,15 @@ router.get(
   adminAuth("Purchase Bill:view_all_purchasebill"),
   get_all_purchasebill
 );
+
+/*=============================================================================================================
+                                           Typc C API
+ ============================================================================================================ */
+
+ router.post('/C_create_purchasebill',C_create_purchasebill);
+ router.put('/C_update_purchasebill/:id',update_purchasebill);
+ router.delete('/C_delete_purchasebill/:id',C_delete_purchasebill);
+ router.get('/C_get_all_purchasebill',C_get_all_purchasebill);
+ router.get('/C_view_purchasebill/:id',C_view_purchasebill);
 
 module.exports = router;

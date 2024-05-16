@@ -1,3 +1,4 @@
+const C_customer = require("../models/C_customer");
 const bankAccount = require("../models/bankAccount");
 const customer = require("../models/customer");
 
@@ -91,7 +92,7 @@ exports.create_customer = async (req, res) => {
       where: { id: data.id },
       include: [{ model: bankAccount, as: "bankdetails" }],
     });
-
+  await C_customer.create({ customername:contactpersonname })
     return res
       .status(200)
       .json({
@@ -234,61 +235,6 @@ exports.delete_customer = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-// exports.create_customfeild = async (req, res) => {
-//   try {
-//     const { customerId, items } = req.body;
-
-//     await Promise.all(items.map(async item => {
-//       await customfeild.create({
-//         ...item,
-//         customerId
-//       });
-//     }));
-
-//     const createdItems = await customfeild.findAll({ where: { customerId } });
-//     // console.log(createdItems,">>>>>>>>>>>>>>>>>>>>>>>");
-//     return res.status(200).json({ status: "true", message: "Customfeild Created Successfully", data: createdItems });
-//   } catch (error) {
-//     console.log(error.message);
-//     return res.status(500).json({ status: "false", message: "Internal Server Error" });
-//   }
-// }
-// exports.update_customfeild = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const { label, value } = req.body;
-
-//     const deliverychallan = await customfeild.findByPk(id);
-//     if (!deliverychallan) {
-//       return res.status(404).json({ message: "Custom feild not Found" });
-//     }
-//     await customfeild.update({
-//       label: label,
-//       value: value
-//     }, {
-//       where: { id: id }
-//     });
-
-//     return res.status(200).json({ status: "true", message: "Custom feild Update Successfully" });
-//   } catch (error) {
-//     console.log(error.message);
-//     return res.status(500).json({ status: "false", message: "Internal Server Error" });
-//   }
-// }
-// exports.delete_customfeild = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const data = await customfeild.destroy({ where: { id: id } });
-
-//     if (!data) {
-//       return res.status(400).json({ status: "false", message: "Custom feild Not Found" });
-//     } else {
-//       return res.status(200).json({ status: "true", message: 'Custom feild Delete Successfully' });
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(500).json({ status: "false", message: "Internal Server Error" });
-//   }
 // }
 exports.view_customer = async (req, res) => {
   try {

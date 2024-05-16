@@ -7,9 +7,18 @@ const {
   delete_salesInvoice,
   view_salesInvoice,
   get_all_salesInvoice,
+  C_create_salesinvoice,
+  C_update_salesinvoice,
+  C_delete_salesInvoice,
+  C_view_salesInvoice,
+  C_get_all_salesInvoice,
 } = require("../controller/salesinvoice");
 
 const router = express.Router();
+
+/*=============================================================================================================
+                                          Without Typc C API
+ ============================================================================================================ */
 
 router.post(
   "/create_salesinvoice",
@@ -38,5 +47,15 @@ router.get(
   adminAuth("Sales Invoice:view_all_salesInvoice"),
   get_all_salesInvoice
 );
+
+/*=============================================================================================================
+                                           Typc C API
+ ============================================================================================================ */
+router.post('/C_create_salesinvoice',C_create_salesinvoice);
+router.put('/C_update_salesinvoice/:id',C_update_salesinvoice);
+router.delete('/C_delete_salesInvoice/:id',C_delete_salesInvoice);
+router.get('/C_view_salesInvoice/:id',C_view_salesInvoice);
+router.get('/C_get_all_salesInvoice',C_get_all_salesInvoice);
+
 
 module.exports = router;

@@ -23,11 +23,9 @@ const product = sequelize.define("P_product", {
   },
   openingstock: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false,
   },
   nagativeqty: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false,
   },
   lowstock: {
     type: DataTypes.BOOLEAN,

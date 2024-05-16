@@ -1,9 +1,16 @@
+const C_customer = require("../models/C_customer");
+const C_product = require("../models/C_product");
+const C_salesinvoice = require("../models/C_salesinvoice");
+const C_salesinvoiceItem = require("../models/C_salesinvoiceItem");
 const ProFormaInvoice = require("../models/ProFormaInvoice");
 const customer = require("../models/customer");
 const product = require("../models/product");
 const salesInvoice = require("../models/salesInvoice");
 const salesInvoiceItem = require("../models/salesInvoiceitem");
 
+/*=============================================================================================================
+                                          Without Typc C API
+ ============================================================================================================ */
 exports.create_salesInvoice = async (req, res) => {
   try {
     const {
@@ -306,3 +313,201 @@ exports.delete_salesInvoice = async (req, res) => {
 //     return res.status(500).json({ status:'false', message:'Internal Server Error'});
 //   }
 // }
+
+/*=============================================================================================================
+                                           Typc C API
+ ============================================================================================================ */
+
+exports.C_create_salesinvoice = async (req,res) => {
+  try {
+      const {customerId, date, totalMrp, items} = req.body;
+
+      const customerData = await C_customer.findByPk(customerId);
+      if(!customerData) {
+        return res.status(404).json({ status:'false', message:'Cusomer Not Found'});
+      }
+      if(!items || items.length === 0) {
+        return res.status(400).json({ status: "false", message: "Required Field of items" });
+      }
+      for(const item of items) {
+        const productData = await C_product.findByPk(item.productId);
+        if(!productData) {
+          return res.status(404).json({ status:'false', message:'Product Not Found'});
+        }
+      }
+      const salesInvoiceData = await C_salesinvoice.create({
+        customerId,
+        date,
+        totalMrp
+      });
+
+      const addToProduct = await items.map((item) => ({
+        invoiceId : salesInvoiceData.id,
+        ...item
+      }));
+      await C_salesinvoiceItem.bulkCreate(addToProduct);
+
+      const data = await C_salesinvoice.findOne({
+        where:{id: salesInvoiceData.id},
+        include:[{model: C_salesinvoiceItem, as:'items'}]
+      });
+      return res.status(200).json({ status:'true', message:'Sales Invoice Created Successfully',data:data});
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status:'false', message:'Internal Server Error'});
+  }
+}
+exports.C_update_salesinvoice = async(req,res) => {
+  try {
+    const {id} = req.params;
+    const {customerId, date, totalMrp, items} = req.body;
+
+    const existingInvoice = await C_salesinvoice.findByPk(id);
+    if(!existingInvoice) {
+      return res.status(404).json({
+        status: "false",
+        message: "Sales Invoice Not Found",
+      });
+    }
+    const customerData = await C_customer.findByPk(customerId);
+
+    if(!customerData) {
+      return res.status(404).json({ status:'false', message:'Cusomer Not Found'});
+    }
+    for(const item of items) {
+      const productData = await C_product.findByPk(item.productId);
+      if(!productData) {
+        return res.status(404).json({ status:'false', message:'Product Not Found'});
+      }
+    }
+    await C_salesinvoice.update({
+      customerId,
+      date,
+      totalMrp
+    }, { where: {id}});
+
+    const existingItems = await C_salesinvoiceItem.findAll({
+      where:{invoiceId: id},
+    });
+    const mergedItems = [];
+
+    items.forEach((item) => {
+      let existingItem = mergedItems.find((i) => i.productId === item.productId && i.rate === item.rate);
+      if(existingItem) {
+        existingItem.qty += item.qty
+      } else {
+        mergedItems.push(item);
+      }
+    });
+    for (const item of mergedItems) {
+      const existingItem = existingItems.find(
+        (ei) => ei.productId === item.productId && ei.rate === item.rate
+      );
+      if (existingItem) {
+        
+        existingItem.qty = item.qty;
+        await existingItem.save();
+      } else {
+        
+        await C_salesinvoiceItem.create({
+          invoiceId: id,
+          productId: item.productId,
+          qty: item.qty,
+          rate: item.rate,
+          mrp: item.mrp,
+        });
+      }
+    }
+    const updatedProducts = items.map((item) => ({ productId: item.productId, rate: item.rate }));
+    
+    const itemsToDelete = existingItems.filter(
+      (item) => !updatedProducts.some((updatedItem) => updatedItem.productId === item.productId && updatedItem.rate === item.rate)
+    );
+    
+    for (const item of itemsToDelete) {
+      await item.destroy();
+    }
+    const updatedInvoice = await C_salesinvoice.findOne({
+      where: { id },
+      include: [{ model: C_salesinvoiceItem, as: "items" }],
+    });
+
+    return res.status(200).json({
+      status: "true",
+      message: "Sales Invoice Updated Successfully",
+      data: updatedInvoice,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status:'false', message:'Internal Server Error'});
+  }
+}
+exports.C_get_all_salesInvoice = async (req, res) => {
+  try {
+    const data = await C_salesinvoice.findAll({
+      include: [{ model: C_salesinvoiceItem, as: "items"}],
+    });
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Sales Invoice Not Found" });
+    }
+    return res.status(200).json({
+      status: "true",
+      message: "Sales Invoice Data Fetch Successfully",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+exports.C_view_salesInvoice = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const data = await C_salesinvoice.findOne({
+      where: { id },
+      include: [{ model: C_salesinvoiceItem, as: "items"}], 
+    });
+
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Sales Invoice Not Found" });
+    }
+    return res.status(200).json({
+      status: "ture",
+      message: "Sales Invoice Data Fetch SUccessfully",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+exports.C_delete_salesInvoice = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await C_salesinvoice.destroy({ where: { id: id } });
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Sales Invoice Not Found" });
+    } else {
+      return res.status(200).json({
+        status: "true",
+        message: "Sales Invoice Deleted Successfully",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};

@@ -1,4 +1,4 @@
-const { email, password, mobileno, challanno, date, customerId, serialno, mrp, qty, productId, description, batchno, quotationno, expirydate, vendor, voucherno, gstin, billno, billdate, payment, expensse, taxable, account, paymentdate, refno, quotationref, pono, mode, paidfrom, amount, ProFormaInvoice_no, rate, discount, validtill, creditnote, creditdate, invoiceno, invoicedate, itemname, unit, accountname, shortname, contactpersonname, panno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, itemtype, productname, nagativeqty, lowstock, purchaseprice, salesprice, group, remarks, category, unitname, terms, duedate, book, debitnote, debitdate, refdate, price, bill_no, bill_date, depositto, amountrecive, receiptdate, accountnumber, ifsccode, bankname, country, username, salary, role, gstnumber, HSNcode, companyname, proFormaId, branch, debitnoteno, creditnoteNo, org_invoiceno, org_invoicedate
+const { email, password, mobileno, challanno, date, customerId, serialno, mrp, qty, productId, description, batchno, quotationno, expirydate, vendor, voucherno, gstin, billno, billdate, payment, expensse, taxable, account, paymentdate, refno, quotationref, pono, mode, paidfrom, amount, ProFormaInvoice_no, rate, discount, validtill, creditnote, creditdate, invoiceno, invoicedate, itemname, unit, accountname, shortname, contactpersonname, panno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, itemtype, productname, nagativeqty, lowstock, purchaseprice, salesprice, group, remarks, category, unitname, terms, duedate, book, debitnote, debitdate, refdate, price, bill_no, bill_date, depositto, amountrecive, receiptdate, accountnumber, ifsccode, bankname, country, username, salary, role, gstnumber, HSNcode, companyname, proFormaId, branch, debitnoteno, creditnoteNo, org_invoiceno, org_invoicedate, gstrate
 } = require("./validation")
 
 module.exports.validation = function (method) {
@@ -12,7 +12,7 @@ module.exports.validation = function (method) {
         case "create_deliverychallan":
             return [challanno, date, customerId,qty, productId]
         case "create_expense":
-            return [mobileno, customerId, voucherno, date, gstin, mobileno, email, billno, billdate, payment, expensse, description, taxable, mrp]
+            return [mobileno, customerId, voucherno, date, mobileno, email, billno, billdate, payment, expensse, description, taxable, mrp]
         case "create_payment":
             return [voucherno, account, email, paymentdate, mode, paidfrom, refno, billno, amount]
         case "create_purchase":
@@ -30,11 +30,11 @@ module.exports.validation = function (method) {
         case "create_stoke":
             return [itemname, unit, email,]
         case "create_customer":
-            return [accountname, contactpersonname, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, gstnumber]
+            return [accountname,email,mobileno, contactpersonname, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, gstnumber]
         case "update_customer":
             return [email, mobileno]
         case "create_product":
-            return [itemtype, productname, unit, nagativeqty, lowstock, purchaseprice, salesprice, HSNcode]
+            return [itemtype, productname, unit, nagativeqty,gstrate, lowstock, purchaseprice, salesprice, HSNcode]
         case "create_itemgroup":
             return [group, remarks]
         case "create_itemcategory":
@@ -42,7 +42,7 @@ module.exports.validation = function (method) {
         case "create_unit":
             return [shortname, unitname]
         case "create_purchasebill":
-            return [invoiceno, invoicedate,terms, duedate,productId, qty, rate, mrp]
+            return [date,invoiceno, invoicedate,terms, duedate,productId, qty, rate]
         case "create_purchaseReturn":
             return [vendor, debitnote, debitdate, refno, refdate]
         case "create_purchaseReturn_item":
@@ -53,6 +53,10 @@ module.exports.validation = function (method) {
             return [companyname, gstnumber, email, mobileno, address1, pincode, state, city, accountname, bankname, accountnumber, ifsccode, branch]
         case "create_vendor":
             return [accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, pincode, state, city, bankdetail, creditlimit, balance, gstnumber]
+        case "C_create_salesinvoice": 
+            return [date,qty,rate]
+        case "C_create_purchasebill":
+            return [date,qty,rate]
         default:
             throw new Error('Invalid validation method')
     }
