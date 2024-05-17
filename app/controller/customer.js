@@ -2,6 +2,9 @@ const C_customer = require("../models/C_customer");
 const bankAccount = require("../models/bankAccount");
 const customer = require("../models/customer");
 
+/*=============================================================================================================
+                                          Widhout Typc C API
+ ============================================================================================================ */
 exports.create_customer = async (req, res) => {
   try {
     const {
@@ -288,3 +291,24 @@ exports.get_all_customer = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
+/*=============================================================================================================
+                                           Typc C API
+ ============================================================================================================ */
+exports.C_get_all_customer = async (req,res) => {
+  try {
+    const data = await C_customer.findAll();
+    if(data) {
+      return res.status(200).json({ status:'true', message:'Customer Data Fetch Successfully', data:data});
+    } else {
+      return res
+      .status(404)
+      .json({ status: "false", message: "Customer Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+}

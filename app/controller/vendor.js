@@ -4,7 +4,7 @@ const vendor = require("../models/vendor");
 
 exports.create_vendor = async (req,res) => {
     try {
-        const { accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, address2, pincode, state, city, bankdetail, creditlimit, balance,gstnumber,bankdetails,
+        const { accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod,  address1, address2, pincode, state, city, bankdetail, creditlimit, balance,gstnumber,bankdetails,
             totalcreadit, } = req.body
             if (bankdetail === true) {
                 if (!bankdetails || bankdetails.length === 0) {
@@ -43,7 +43,6 @@ exports.create_vendor = async (req,res) => {
             mobileno,
             panno,
             creditperiod,
-            mode,
             address1,
             address2,
             pincode,
@@ -82,7 +81,7 @@ exports.create_vendor = async (req,res) => {
 exports.update_vendor = async(req,res) => {
     try {
         const {id} = req.params;
-        const { accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, address2, pincode, state, city, bankdetail, creditlimit, balance,gstnumber,bankdetails,
+        const { accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, address1, address2, pincode, state, city, bankdetail, creditlimit, balance,gstnumber,bankdetails,
             totalcreadit, } = req.body
 
         const vendorId = await vendor.findOne({

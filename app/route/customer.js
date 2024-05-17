@@ -7,9 +7,14 @@ const {
   delete_customer,
   view_customer,
   get_all_customer,
+  C_get_all_customer,
 } = require("../controller/customer");
 
 const router = express.Router();
+
+/*=============================================================================================================
+                                          Widhout Typc C API
+ ============================================================================================================ */
 
 router.post(
   "/create_customer",
@@ -38,5 +43,11 @@ router.get(
   adminAuth("Customer:view_all_customer"),
   get_all_customer
 );
+
+/*=============================================================================================================
+                                           Typc C API
+ ============================================================================================================ */
+
+router.get('/C_get_all_customer',C_get_all_customer);
 
 module.exports = router;

@@ -52,7 +52,7 @@ module.exports.validation = function (method) {
         case "create_company":
             return [companyname, gstnumber, email, mobileno, address1, pincode, state, city, accountname, bankname, accountnumber, ifsccode, branch]
         case "create_vendor":
-            return [accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, pincode, state, city, bankdetail, creditlimit, balance, gstnumber]
+            return [accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, gstnumber]
         case "C_create_salesinvoice": 
             return [date,qty,rate]
         case "C_create_purchasebill":
