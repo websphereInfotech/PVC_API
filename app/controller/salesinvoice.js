@@ -445,7 +445,7 @@ exports.C_update_salesinvoice = async(req,res) => {
 exports.C_get_all_salesInvoice = async (req, res) => {
   try {
     const data = await C_salesinvoice.findAll({
-      include: [{ model: C_salesinvoiceItem, as: "items"}],
+      include: [{ model: C_salesinvoiceItem, as: "items",include:[{model:C_product, as:'CashProduct'}] },{ model:C_customer, as:'CashCustomer'}], 
     });
     if (!data) {
       return res
@@ -470,7 +470,7 @@ exports.C_view_salesInvoice = async (req, res) => {
 
     const data = await C_salesinvoice.findOne({
       where: { id },
-      include: [{ model: C_salesinvoiceItem, as: "items"}], 
+      include: [{ model: C_salesinvoiceItem, as: "items",include:[{model:C_product, as:'CashProduct'}] },{ model:C_customer, as:'CashCustomer'}], 
     });
 
     if (!data) {

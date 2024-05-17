@@ -16,8 +16,8 @@ const C_purchaseBillItem = sequelize.define('P_C_purchaseBillItem', {
     }
 });
 
-C_product.hasMany(C_purchaseBillItem, {foreignKey:'productId',onDelete:'CASCADE'});
-C_purchaseBillItem.belongsTo(C_product, {foreignKey:'productId', onDelete:'CASCADE'});
+C_product.hasMany(C_purchaseBillItem, {foreignKey:'productId',onDelete:'CASCADE',as:'ProductPurchase'});
+C_purchaseBillItem.belongsTo(C_product, {foreignKey:'productId', onDelete:'CASCADE',as:'ProductPurchase'});
 
 C_purchasebill.hasMany(C_purchaseBillItem, {foreignKey:'PurchaseId', onDelete:'CASCADE', as:'items'});
 C_purchaseBillItem.belongsTo(C_purchasebill, {foreignKey:'PurchaseId', onDelete:'CASCADE', as:'items'});

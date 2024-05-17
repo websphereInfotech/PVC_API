@@ -11,7 +11,7 @@ const C_purchasebill = sequelize.define('P_C_purchasebill', {
     }
 });
 
-C_vendor.hasMany(C_purchasebill, {foreignKey:'customerId', onDelete:'CASCADE'});
-C_purchasebill.belongsTo(C_vendor, {foreignKey:'customerId', onDelete:'CASCADE'});
+C_vendor.hasMany(C_purchasebill, {foreignKey:'vendorId', onDelete:'CASCADE', as:'VendorPurchase'});
+C_purchasebill.belongsTo(C_vendor, {foreignKey:'vendorId', onDelete:'CASCADE',as:'VendorPurchase'});
 
 module.exports = C_purchasebill;

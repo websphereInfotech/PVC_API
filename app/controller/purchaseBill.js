@@ -242,6 +242,8 @@ exports.update_purchasebill = async (req, res) => {
   exports.C_update_purchasebill = async (req, res) => {
     try {
       const { id } = req.params;
+
+      console.log("id>>>>>>>>>>>>",id);
       const { vendorId,date,totalMrp,items } = req.body;
   
     const existingPurchase = await C_purchasebill.findByPk(id);
@@ -332,7 +334,7 @@ exports.update_purchasebill = async (req, res) => {
   exports.C_get_all_purchasebill = async (req, res) => {
     try {
       const data = await C_purchasebill.findAll({
-        include: [{ model: C_purchaseBillItem,as:'items'}]
+        include: [{ model: C_purchaseBillItem, as: "items",include:[{model:C_product, as:'ProductPurchase'}] },{ model:C_vendor, as:'VendorPurchase'}]
       });
   
       if (data) {
@@ -350,7 +352,7 @@ exports.update_purchasebill = async (req, res) => {
       const { id } = req.params;
       const data = await C_purchasebill.findOne({
         where: { id },
-        include: [{ model: C_purchaseBillItem,as:'items'}]
+        include: [{ model: C_purchaseBillItem, as: "items",include:[{model:C_product, as:'ProductPurchase'}] },{ model:C_vendor, as:'VendorPurchase'}], 
       });
       if (data) {
         return res.status(200).json({ status: "true", message: "Purchase data show Successfully", data: data });

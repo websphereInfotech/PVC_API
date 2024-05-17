@@ -11,7 +11,7 @@ const C_salesinvoice = sequelize.define('P_C_salesinvoice', {
     }
 });
 
-C_customer.hasMany(C_salesinvoice, {foreignKey:'customerId', onDelete:'CASCADE'});
-C_salesinvoice.belongsTo(C_customer, {foreignKey:'customerId', onDelete:'CASCADE'});
+C_customer.hasMany(C_salesinvoice, {foreignKey:'customerId', onDelete:'CASCADE',as:'CashCustomer'});
+C_salesinvoice.belongsTo(C_customer, {foreignKey:'customerId', onDelete:'CASCADE',as:'CashCustomer'});
 
 module.exports = C_salesinvoice;
