@@ -2,6 +2,10 @@ const C_vendor = require("../models/C_vendor");
 const bankAccount = require("../models/bankAccount");
 const vendor = require("../models/vendor");
 
+/*=============================================================================================================
+                                          Widhout Typc C API
+ ============================================================================================================ */
+
 exports.create_vendor = async (req,res) => {
     try {
         const { accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod,  address1, address2, pincode, state, city, bankdetail, creditlimit, balance,gstnumber,bankdetails,
@@ -205,4 +209,22 @@ exports.view_vendor = async(req,res) => {
         console.log(error);
         return res.status(500).json({status:'false', message:"Internal Server Error"});
     }
+}
+
+/*=============================================================================================================
+                                           Typc C API
+ ============================================================================================================ */
+
+ exports.C_get_all_vandor = async(req,res) => {
+  try {
+      const data = await C_vendor.findAll();
+      if(data) {
+          return res.status(200).json({ status:'true', message:"Vendor Show Successfully", data: data});
+      } else {
+          return res.status(404).json({ status:'false', message:'Vendor not Found'})
+      }
+  } catch (error) {
+      console.log(error);
+      return res.status(500).json({ status:'false', message:'Internal Server Error'});
+  }
 }

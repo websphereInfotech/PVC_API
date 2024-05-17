@@ -5,11 +5,16 @@ const {
   delete_vandor,
   get_all_vandor,
   view_vendor,
+  C_get_all_vandor,
 } = require("../controller/vendor");
 const adminAuth = require("../middleware/adminAuth");
 const { validation } = require("../constant/validate");
 
 const router = express.Router();
+
+/*=============================================================================================================
+                                          Widhout Typc C API
+ ============================================================================================================ */
 
 router.post(
   "/create_vendor",
@@ -32,6 +37,13 @@ router.get(
   adminAuth("Vendor:get_all_vandor"),
   get_all_vandor
 );
+
 router.get("/view_vendor/:id", adminAuth("Vendor:view_vendor"), view_vendor);
+
+/*=============================================================================================================
+                                           Typc C API
+ ============================================================================================================ */
+
+ router.get('/C_get_all_vandor',C_get_all_vandor)
 
 module.exports = router;

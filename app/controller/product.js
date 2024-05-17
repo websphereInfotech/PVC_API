@@ -4,6 +4,10 @@ const itemgroup = require("../models/itemgroup");
 const product = require("../models/product");
 const unit = require("../models/unit");
 
+/*=============================================================================================================
+                                          Widhout Typc C API
+ ============================================================================================================ */
+
 exports.create_product = async (req, res) => {
   try {
     const {
@@ -202,3 +206,30 @@ exports.get_all_product = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
+/*=============================================================================================================
+                                            Typc C API
+ ============================================================================================================ */
+
+ exports.C_get_all_product = async(req,res) => {
+  try {
+    const data = await C_product.findAll();
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Product Not Found" });
+    }
+    return res
+      .status(200)
+      .json({
+        status: "true",
+        message: "Product Data Fetch Successfully",
+        data: data,
+      });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+ }
