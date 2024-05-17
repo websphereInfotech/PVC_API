@@ -926,4 +926,64 @@ exports.permissions = {
             "view_all_purchase_cash":true
         },
     },
+    "Customer Cash" : {
+        "Super Admin" :{
+            "get_all_customer_cash":true,
+        },
+        "Admin" :{
+            "get_all_customer_cash":true,
+        },
+        "Account" :{
+            "get_all_customer_cash":true,
+        },
+        "Employee" :{
+            "get_all_customer_cash":true,
+        },
+        "Workers" :{
+            "get_all_customer_cash":true,
+        },
+        "Other" :{
+            "get_all_customer_cash":true,
+        },
+    },
+    "Vendor Cash" : {
+        "Super Admin" :{
+            "get_all_vandor_cash":true,
+        },
+        "Admin" :{
+            "get_all_vandor_cash":true,
+        },
+        "Account" :{
+            "get_all_vandor_cash":true,
+        },
+        "Employee" :{
+            "get_all_vandor_cash":true,
+        },
+        "Workers" :{
+            "get_all_vandor_cash":true,
+        },
+        "Other" :{
+            "get_all_vandor_cash":true,
+        },
+    },
+    "Product Cash" : {
+        "Super Admin" :{
+            "get_all_product_cash":true,
+        },
+        "Admin" :{
+            "get_all_product_cash":true,
+        },
+        "Account" :{
+            "get_all_product_cash":true,
+        },
+        "Employee" :{
+            "get_all_product_cash":true,
+        },
+        "Workers" :{
+            "get_all_product_cash":true,
+        },
+        "Other" :{
+            "get_all_product_cash":true,
+        },
+    },
 }
