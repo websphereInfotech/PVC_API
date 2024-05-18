@@ -3,7 +3,7 @@ const sequelize = require("../config/index");
 const purchasebill = require("./purchasebill");
 const product = require("./product");
 
-const purchasebillItem = sequelize.define("P_purchasebillItem", {
+const purchasebillItem = sequelize.define("P_purchaseBillItem", {
   productId: { type: DataTypes.INTEGER },
   qty: { type: DataTypes.INTEGER },
   rate: { type: DataTypes.INTEGER },

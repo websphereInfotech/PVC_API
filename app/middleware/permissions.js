@@ -882,6 +882,94 @@ exports.permissions = {
             "view_all_sales_cash":true
         },
     },
+    "Receive Cash" : {
+        "Super Admin" :{
+            "create_receive_Cash":true,
+            "update_receive_Cash":true,
+            "delete_receive_Cash":true,
+            "view_receive_Cash":true,
+            "view_all_receive_Cash":true
+        },
+        "Admin" :{
+            "create_receive_Cash":true,
+            "update_receive_Cash":true,
+            "delete_receive_Cash":true,
+            "view_receive_Cash":true,
+            "view_all_receive_Cash":true
+        },
+        "Account" :{
+            "create_receive_Cash":true,
+            "update_receive_Cash":true,
+            "delete_receive_Cash":true,
+            "view_receive_Cash":true,
+            "view_all_receive_Cash":true
+        },
+        "Employee" :{
+            "create_receive_Cash":true,
+            "update_receive_Cash":true,
+            "delete_receive_Cash":true,
+            "view_receive_Cash":true,
+            "view_all_receive_Cash":true
+        },
+        "Workers" :{
+            "create_receive_Cash":true,
+            "update_receive_Cash":true,
+            "delete_receive_Cash":true,
+            "view_receive_Cash":true,
+            "view_all_receive_Cash":true
+        },
+        "Other" :{
+            "create_receive_Cash":true,
+            "update_receive_Cash":true,
+            "delete_receive_Cash":true,
+            "view_receive_Cash":true,
+            "view_all_receive_Cash":true
+        },
+    },
+    "Payment Cash" : {
+        "Super Admin" :{
+            "create_payment_Cash":true,
+            "update_payment_Cash":true,
+            "delete_payment_Cash":true,
+            "view_payment_Cash":true,
+            "view_all_payment_Cash":true
+        },
+        "Admin" :{
+            "create_payment_Cash":true,
+            "update_payment_Cash":true,
+            "delete_payment_Cash":true,
+            "view_payment_Cash":true,
+            "view_all_payment_Cash":true
+        },
+        "Account" :{
+            "create_payment_Cash":true,
+            "update_payment_Cash":true,
+            "delete_payment_Cash":true,
+            "view_payment_Cash":true,
+            "view_all_payment_Cash":true
+        },
+        "Employee" :{
+            "create_payment_Cash":true,
+            "update_payment_Cash":true,
+            "delete_payment_Cash":true,
+            "view_payment_Cash":true,
+            "view_all_payment_Cash":true
+        },
+        "Workers" :{
+            "create_payment_Cash":true,
+            "update_payment_Cash":true,
+            "delete_payment_Cash":true,
+            "view_payment_Cash":true,
+            "view_all_payment_Cash":true
+        },
+        "Other" :{
+            "create_payment_Cash":true,
+            "update_payment_Cash":true,
+            "delete_payment_Cash":true,
+            "view_payment_Cash":true,
+            "view_all_payment_Cash":true
+        },
+    },
     "Purchase Cash" : {
         "Super Admin" :{
             "create_purchase_cash":true,

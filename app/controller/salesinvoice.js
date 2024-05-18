@@ -1,4 +1,5 @@
 const C_customer = require("../models/C_customer");
+const C_customerLedger = require("../models/C_customerLedger");
 const C_product = require("../models/C_product");
 const C_salesinvoice = require("../models/C_salesinvoice");
 const C_salesinvoiceItem = require("../models/C_salesinvoiceItem");
@@ -341,6 +342,14 @@ exports.C_create_salesinvoice = async (req,res) => {
         totalMrp
       });
 
+      
+      const ledger = await C_customerLedger.create({ 
+        customerId,
+        creditId: salesInvoiceData.id,
+      date
+    });
+
+      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>ledger",ledger);
       const addToProduct = await items.map((item) => ({
         invoiceId : salesInvoiceData.id,
         ...item

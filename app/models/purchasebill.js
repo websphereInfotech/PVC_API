@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const vendor = require("./vendor");
 
-const purchasebill = sequelize.define("P_purchasebill", {
+const purchasebill = sequelize.define("P_purchaseBill", {
   vendorId: {
     type: DataTypes.INTEGER,
   },

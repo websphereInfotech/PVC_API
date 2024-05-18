@@ -71,8 +71,10 @@ exports.challanno = function (req, res, next) {
   const challannoSchema = Joi.number().required().messages({
     "number.empty": "ChallanNo Cannot Be Empty",
     "any.required": "Required Field : ChallanNo",
+    "number.base": "ChallanNo must be a number",
   });
-  const { error } = challannoSchema.validate(challanno);
+  const valueToValidate = challanno === '' ? undefined : challanno;
+  const { error } = challannoSchema.validate(valueToValidate);
 
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
@@ -105,24 +107,25 @@ exports.customerId = function (req, res, next) {
   }
   next();
 };
-exports.serialno = function (req, res, next) {
-  const { items } = req.body;
-  // console.log("itmes",items);
-  for (const item of items) {
-    const { serialno } = item;
+// exports.serialno = function (req, res, next) {
+//   const { items } = req.body;
+//   // console.log("itmes",items);
+//   for (const item of items) {
+//     const { serialno } = item;
 
-    const serialnoSchema = Joi.number().required().messages({
-      "string.empty": "SerialNo Cannot Be Empty",
-      "any.required": "Required Field: Serial Number",
-    });
-    const { error } = serialnoSchema.validate(serialno);
+//     const serialnoSchema = Joi.number().required().messages({
+//       "string.empty": "SerialNo Cannot Be Empty",
+//       "any.required": "Required Field: Serial Number",
 
-    if (error) {
-      return res.status(400).json({ status: "False", message: error.message });
-    }
-  }
-  next();
-};
+//     });
+//     const { error } = serialnoSchema.validate(serialno);
+
+//     if (error) {
+//       return res.status(400).json({ status: "False", message: error.message });
+//     }
+//   }
+//   next();
+// };
 exports.mrp = function (req, res, next) {
   const { items } = req.body;
   // console.log("items",items);
@@ -134,9 +137,10 @@ exports.mrp = function (req, res, next) {
       .messages({
         "number.empty": "MRP Cannot Be Empty",
         "any.required": "Required Filed : MRP",
+        "number.base": "Mrp must be a number",
       });
-
-    const { error } = mrpSchema.validate(mrp);
+const valueToValidate = mrp === '' ? undefined : mrp;
+    const { error } = mrpSchema.validate(valueToValidate);
     if (error) {
       return res.status(400).json({ status: "False", message: error.message });
     }
@@ -154,8 +158,10 @@ exports.qty = function (req, res, next) {
       .messages({
         "any.required": "Required Filed : QTY",
         "number.empty": "QTY Cannot Be Empty",
+        "number.base": "Qty must be a number",
       });
-    const { error } = qtySchema.validate(qty);
+      const valueToValidate = qty === '' ? undefined : qty;
+    const { error } = qtySchema.validate(valueToValidate);
     if (error) {
       return res.status(400).json({ status: "False", message: error.message });
     }
@@ -362,8 +368,10 @@ exports.taxable = function (req, res, next) {
     const taxableSchema = Joi.number().required().messages({
       "any.required": "Required Field : TaxAble",
       "string.empty": "TaxAble Cannot Be Empty",
+      "number.base": "TaxAble must be a number",
     });
-    const { error } = taxableSchema.validate(taxable);
+    const valueToValidate = taxable === '' ? undefined : taxable;
+    const { error } = taxableSchema.validate(valueToValidate);
     if (error) {
       return res.status(400).json({ status: "False", message: error.message });
     }
@@ -428,11 +436,12 @@ exports.refno = function (req, res, next) {
 };
 exports.amount = function (req, res, next) {
   const { amount } = req.body;
-  const amountSchema = Joi.string().required().messages({
+  const amountSchema = Joi.number().required().messages({
     "any.required": "Required Field : Amount",
     "string.empty": "Amount Cannot Be Empty",
   });
-  const { error } = amountSchema.validate(amount);
+  const valueToValidate = amount === '' ? undefined :amount;
+  const { error } = amountSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -501,8 +510,10 @@ exports.rate = function (req, res, next) {
     const rateSchema = Joi.number().required().messages({
       "any.required": "Required Field : Rate",
       "number.empty": "Rate Cannot Be Empty",
+      "number.base": "Rate must be a number",
     });
-    const { error } = rateSchema.validate(rate);
+    const valueToValidate = rate ==='' ? undefined : rate
+    const { error } = rateSchema.validate(valueToValidate);
     if (error) {
       return res.status(400).json({ status: "False", message: error.message });
     }
@@ -548,10 +559,12 @@ exports.creditnoteNo = function (req, res, next) {
 
     .required()
     .messages({
+      "number.base": "Credit Note must be a number",
       "any.required": "Required Field : Credit Note",
       "number.empty": "Credit Note Cannot Be Empty",
     });
-  const { error } = creditnoteNoSchema.validate(creditnoteNo);
+    const valueToValidate = creditnoteNo === '' ? undefined : creditnoteNo;
+  const { error } = creditnoteNoSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -578,10 +591,12 @@ exports.invoiceno = function (req, res, next) {
 
     .required()
     .messages({
+      "number.base": "Invoice Number must be a number",
       "any.required": "Required Field : Invoice Number",
       "number.empty": "Invoice Number Cannot Be Empty",
     });
-  const { error } = invoicenoSchema.validate(invoiceno);
+    const valueToValidate = invoiceno === '' ? undefined : invoiceno;
+  const { error } = invoicenoSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -677,31 +692,20 @@ exports.contactpersonname = function (req, res, next) {
   }
   next();
 };
-exports.panno = function (req, res, next) {
-  const { panno } = req.body;
-  const pannoSchema = Joi.number()
-
-    .required()
-    .messages({
-      "any.required": "Required Field : Pan No",
-      "number.empty": "Pan No Cannot Be Empty",
-    });
-  const { error } = pannoSchema.validate(panno);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
 exports.creditperiod = function (req, res, next) {
   const { creditperiod } = req.body;
   const creditperiodSchema = Joi.number()
 
     .required()
     .messages({
-      "any.required": "Required Field : creditperiod",
-      "number.empty": "creditperiod Cannot Be Empty",
+      "any.required": "Required Field : Default Credit Period",
+      "number.base": "Default Credit Period must be a number",
+      "number.empty": "Default Credit Period Cannot Be Empty",
     });
-  const { error } = creditperiodSchema.validate(creditperiod);
+  // const { error } = creditperiodSchema.validate(creditperiod);
+  const valueToValidate = creditperiod === "" ? undefined : creditperiod;
+
+  const { error } = creditperiodSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -732,7 +736,8 @@ exports.pincode = function (req, res, next) {
       "any.required": "Required Field : PinCode",
       "number.empty": "PinCode Cannot Be Empty",
     });
-  const { error } = pincodeSchema.validate(pincode);
+    const valueToValidate = pincode === '' ? undefined : pincode
+    const { error } = pincodeSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -806,8 +811,10 @@ exports.balance = function (req, res, next) {
     .messages({
       "any.required": "Required Field : Balance",
       "number.empty": "Balance Cannot Be Empty",
+      "number.base": "Balance must be a number",
     });
-  const { error } = balanceSchema.validate(balance);
+    const valueToValidate = balance === '' ? undefined : balance;
+  const { error } = balanceSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -879,10 +886,12 @@ exports.purchaseprice = function (req, res, next) {
 
     .required()
     .messages({
-      "any.required": "Required Field :purchaseprice",
-      "number.empty": "purchaseprice Cannot Be Empty",
+      "any.required": "Required Field :Purchase Price",
+      "number.empty": "Purchase price Cannot Be Empty",
+      "number.base": "Purchase Price must be a number",
     });
-  const { error } = purchasepriceSchema.validate(purchaseprice);
+    const valueToValidate = purchaseprice === "" ? undefined : purchaseprice
+  const { error } = purchasepriceSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -894,10 +903,12 @@ exports.salesprice = function (req, res, next) {
 
     .required()
     .messages({
-      "any.required": "Required Field : salesprice",
-      "number.empty": "salesprice Cannot Be Empty",
+      "any.required": "Required Field : Sales Price",
+      "number.empty": "Sales Price Cannot Be Empty",
+      "number.base": "Sales Price must be a number",
     });
-  const { error } = salespriceSchema.validate(salesprice);
+    const valueToValidate = salesprice === '' ? undefined : salesprice;
+  const { error } = salespriceSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -969,10 +980,12 @@ exports.terms = function (req, res, next) {
 
     .required()
     .messages({
+      "number.base": "terms must be a number",
       "any.required": "Required Field : terms",
       "number.empty": "terms Cannot Be Empty",
     });
-  const { error } = termsSchema.validate(terms);
+    const valueToValidate = terms === '' ? undefined: terms;
+  const { error } = termsSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -1013,8 +1026,10 @@ exports.debitnoteno = function (req, res, next) {
   const debitnotenoSchema = Joi.number().required().messages({
     "any.required": "Required Field : Debit Note Number",
     "number.empty": "Debit Note Cannot Be Empty",
+    "number.base": "Debit Note must be a number",
   });
-  const { error } = debitnotenoSchema.validate(debitnoteno);
+  const valueToValidate = debitnoteno === '' ? undefined : debitnoteno
+  const { error } = debitnotenoSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -1051,8 +1066,10 @@ exports.price = function (req, res, next) {
     const priceSchema = Joi.number().required().messages({
       "any.required": "Required Field : Price",
       "number.empty": "Price Cannot Be Empty",
+      "number.base": "Price must be a number",
     });
-    const { error } = priceSchema.validate(price);
+    const valueToValidate = price === ''? undefined :price
+    const { error } = priceSchema.validate(valueToValidate);
     if (error) {
       return res.status(400).json({ status: "False", message: error.message });
     }
@@ -1126,18 +1143,20 @@ exports.depositto = function (req, res, next) {
   }
   next();
 };
-exports.amountrecive = function (req, res, next) {
-  const { amountrecive } = req.body;
-  const amountreciveSchema = Joi.number().required().messages({
-    "any.required": "Required filed : Amount Recive",
-    "number.empty": "Amount Recive Cannot Be Empty",
-  });
-  const { error } = amountreciveSchema.validate(amountrecive);
-  if (error) {
-    return res.status(400).json({ status: "false", message: error.message });
-  }
-  next();
-};
+// exports.amountreceive = function (req, res, next) {
+//   const { amountreceive } = req.body;
+//   const amountreceiveSchema = Joi.number().required().messages({
+//     "any.required": "Required filed : Amount Receive",
+//     "number.empty": "Amount Receive Cannot Be Empty",
+//     "number.base": "Amount Receive must be a number",
+//   });
+
+//   const { error } = amountreceiveSchema.validate(amountreceive);
+//   if (error) {
+//     return res.status(400).json({ status: "false", message: error.message });
+//   }
+//   next();
+// };
 exports.accountnumber = function (req, res, next) {
   const { accountnumber } = req.body;
   const accountnumberSchema = Joi.string()
@@ -1234,8 +1253,10 @@ exports.salary = function (req, res, next) {
     .messages({
       "any.required": "Required filed : Salary",
       "string.empty": "Salary Cannot Be Empty",
+      "number.base": "Salary must be a number",
     });
-  const { error } = salarySchema.validate(salary);
+    const valueToValidate = salary === '' ? undefined: salary;
+  const { error } = salarySchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "false", message: error.message });
   }
@@ -1283,10 +1304,12 @@ exports.HSNcode = function (req, res, next) {
     .required()
     .messages({
       "any.required": "Required Filed : HSN Code",
+      "number.base": "HSN Code must be a number",
       "number.empty": "HSN Code Cannot Be Empty",
       "number.max": "HSN Code Cannot Have More Then 6 Digits",
     });
-  const { error } = HSNcodeSchema.validate(HSNcode);
+    const valueToValidate = HSNcode === '' ? undefined : HSNcode;
+  const { error } = HSNcodeSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: 'false', message: error.message });
   }
@@ -1330,11 +1353,12 @@ exports.org_invoiceno = function (req, res, next) {
   const org_invoicenoSchema = Joi.number()
     .required()
     .messages({
+      "number.base": "Org. Invoice Number must be a number",
       "any.required": "Required feild: Org. Invoice Number",
       "number.empty": "Org. Invoice Number Cannot Be Empty"
     })
-
-  const { error } = org_invoicenoSchema.validate(org_invoiceno);
+const valueToValidate = org_invoiceno === '' ? undefined : org_invoiceno;
+  const { error } = org_invoicenoSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: 'false', message: error.message });
   }

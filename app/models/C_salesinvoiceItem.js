@@ -3,7 +3,7 @@ const sequelize = require('../config/index');
 const C_product = require('./C_product');
 const C_salesinvoice = require('./C_salesinvoice');
 
-const C_salesinvoiceItem = sequelize.define('P_C_salesinvoiceItem', {
+const C_salesinvoiceItem = sequelize.define('P_C_salesInvoiceItem', {
     productId : {type: DataTypes.INTEGER},
     qty :{type: DataTypes.INTEGER,
         defaultValue:0

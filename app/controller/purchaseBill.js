@@ -1,6 +1,5 @@
 const C_product = require("../models/C_product");
 const C_purchasebill = require("../models/C_purchasebill");
-const C_purchaseBillItem = require("../models/C_purchsecillItem");
 const C_vendor = require("../models/C_vendor");
 const product = require("../models/product");
 const purchasebill = require("../models/purchasebill");

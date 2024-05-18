@@ -21,7 +21,8 @@ const permissionRoute = require("./permissions");
 const userRoute = require("./user");
 const vendorRoute = require("./vendor");
 const companyRoute = require("./company");
-// const 
+const receiveCash = require('./receiveCash');
+const paymentCash = require('./paymentCash');
 
 module.exports = {
   ProFormaInvoice,
@@ -44,5 +45,7 @@ module.exports = {
   permissionRoute,
   userRoute,
   vendorRoute,
-  companyRoute
+  companyRoute,
+  receiveCash,
+  paymentCash
 };

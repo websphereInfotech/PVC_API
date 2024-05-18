@@ -40,11 +40,9 @@ const customer = sequelize.define("P_customer", {
   },
   bankdetail: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false,
   },
   creditlimit: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false,
   },
   balance: {
     type: DataTypes.INTEGER,
