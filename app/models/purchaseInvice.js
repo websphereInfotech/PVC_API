@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const vendor = require("./vendor");
 
-const purchasebill = sequelize.define("P_purchaseBill", {
+const purchaseInvoice = sequelize.define("P_purchaseInvoice", {
   vendorId: {
     type: DataTypes.INTEGER,
   },
@@ -33,7 +33,7 @@ const purchasebill = sequelize.define("P_purchaseBill", {
   },
 });
 
-vendor.hasMany(purchasebill,{foreignKey:'vendorId', onDelete:'CASCADE',as:'purchseVendor'});
-purchasebill.belongsTo(vendor, {foreignKey:'vendorId', onDelete:'CASCADE',as:'purchseVendor'});
+vendor.hasMany(purchaseInvoice,{foreignKey:'vendorId', onDelete:'CASCADE',as:'purchseVendor'});
+purchaseInvoice.belongsTo(vendor, {foreignKey:'vendorId', onDelete:'CASCADE',as:'purchseVendor'});
 
-module.exports = purchasebill;
+module.exports = purchaseInvoice;

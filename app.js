@@ -16,7 +16,6 @@ const {
     expenseRoute,
     salesinvoiceRoute,
     deliverychallanRoute,
-    purchaseRoute,
     paymentRoute,
     stockRoute,
     customerRoute,
@@ -24,8 +23,7 @@ const {
     itemgroupRoute,
     itemcategoryRoute,
     unitRoute,
-    purchaseBill,
-    purchaseReturn,
+    purchaseInvoice,
     receiptRoute,
     // bankAccount,
     permissionRoute,
@@ -34,7 +32,8 @@ const {
     companyRoute,
     creditNoteRoute,
     receiveCash,
-    paymentCash
+    paymentCash,
+    customerLedger
 } = require('./app/route/adminRoute');
 
 
@@ -43,7 +42,6 @@ app.use("/admin", debitNoteRoute);
 app.use("/admin", expenseRoute);
 app.use("/admin", salesinvoiceRoute);
 app.use("/admin", deliverychallanRoute);
-app.use("/admin", purchaseRoute);
 app.use("/admin", paymentRoute);
 app.use("/admin", stockRoute);
 app.use("/admin", customerRoute);
@@ -51,8 +49,7 @@ app.use("/admin", productRoute);
 app.use("/admin", itemgroupRoute);
 app.use("/admin", itemcategoryRoute);
 app.use("/admin", unitRoute);
-app.use("/admin", purchaseBill);
-app.use("/admin", purchaseReturn);
+app.use("/admin", purchaseInvoice);
 app.use("/admin", receiptRoute);
 // app.use("/admin", bankAccount);
 app.use("/admin", permissionRoute);
@@ -62,6 +59,7 @@ app.use("/admin", companyRoute);
 app.use("/admin",creditNoteRoute);
 app.use("/admin",receiveCash);
 app.use("/admin",paymentCash);
+app.use("/admin",customerLedger);
 
 app.get("/", (req, res) => res.send("Hello World!"));
 

@@ -1,16 +1,18 @@
 const C_product = require("../models/C_product");
-const C_purchasebill = require("../models/C_purchasebill");
+const C_purchaseCash = require("../models/C_purchaseCash");
+const C_purchaseCashItem = require("../models/C_purchseCashItem");
 const C_vendor = require("../models/C_vendor");
+const C_vendorLedger = require("../models/C_vendorLedger");
 const product = require("../models/product");
-const purchasebill = require("../models/purchasebill");
-const purchasebillItem = require("../models/purchasebill_item");
+const purchaseInvoice = require("../models/purchaseInvice");
+const purchaseInvoiceItem = require("../models/purchaseInvoiceItem");
 const vendor = require("../models/vendor");
 
 /*=============================================================================================================
                                           Without Typc C API
  ============================================================================================================ */
 
-exports.create_purchasebill = async (req, res) => {
+exports.create_purchaseInvoice = async (req, res) => {
     try {
       const { vendorId,date, invoiceno, invoicedate, terms, duedate,totalIgst,totalSgst,totalMrp,mainTotal,totalQty,items } = req.body;
       
@@ -28,7 +30,7 @@ exports.create_purchasebill = async (req, res) => {
           return res.status(404).json({ status:'false', message:'Product Not Found'});
         }
       }
-      const purchseData = await purchasebill.create({
+      const purchseData = await purchaseInvoice.create({
         vendorId,
         date,
         invoiceno,
@@ -47,28 +49,28 @@ exports.create_purchasebill = async (req, res) => {
       ...item,
     }));
 
-    await purchasebillItem.bulkCreate(addToItem);
+    await purchaseInvoiceItem.bulkCreate(addToItem);
 
-    const data = await purchasebill.findOne({
+    const data = await purchaseInvoice.findOne({
       where:{id: purchseData.id},
-      include:[{model:purchasebillItem, as:'items'}]
+      include:[{model:purchaseInvoiceItem, as:'items'}]
     });
-      return res.status(200).json({ status: "true", message: "Purchase Bill Created Successfully", data: data });
+      return res.status(200).json({ status: "true", message: "Purchase Invoice Created Successfully", data: data });
     } catch (error) {
       console.log(error);
       return res.status(500).json({ status: "false", message: "Internal Server Error" });
     }
   }
-exports.update_purchasebill = async (req, res) => {
+exports.update_purchaseInvoice = async (req, res) => {
     try {
       const { id } = req.params;
       const { vendorId,date, invoiceno, invoicedate, terms, duedate,totalIgst,totalSgst,totalMrp,mainTotal,totalQty,items } = req.body;
   
-    const existingPurchase = await purchasebill.findByPk(id);
+    const existingPurchase = await purchaseInvoice.findByPk(id);
     if(!existingPurchase) {
       return res.status(404).json({
         status:'false',
-        message:'Purchase Bill Not Found'
+        message:'Purchase Invoice Not Found'
       });
     }
   const vendorData = await vendor.findByPk(vendorId);
@@ -81,7 +83,7 @@ exports.update_purchasebill = async (req, res) => {
       return res.status(404).json({ status:'false', message:'Product Not Found'});
     }
   }
-      await purchasebill.update({
+      await purchaseInvoice.update({
         vendorId,
         date,
         terms,
@@ -96,7 +98,7 @@ exports.update_purchasebill = async (req, res) => {
         totalQty,
         mainTotal
       }, { where: { id } });
-  const existingItems = await purchasebillItem.findAll({ where:{ purchasebillId :id}});
+  const existingItems = await purchaseInvoiceItem.findAll({ where:{ purchasebillId :id}});
 
   const mergedItems =[];
   items.forEach((item) => {
@@ -115,7 +117,7 @@ exports.update_purchasebill = async (req, res) => {
         existingItem.qty = item.qty;
         await existingItem.save();
     } else {
-      await purchasebillItem.create({
+      await purchaseInvoiceItem.create({
         purchasebillId :id,
         productId: item.productId,
         qty: item.qty,
@@ -133,59 +135,59 @@ exports.update_purchasebill = async (req, res) => {
     for (const item of itemsToDelete) {
       await item.destroy();
     }
-      const data = await purchasebill.findOne({
+      const data = await purchaseInvoice.findOne({
         where:{id},
-        include:[{model:purchasebillItem, as:'items'}]
+        include:[{model:purchaseInvoiceItem, as:'items'}]
       });
-      return res.status(200).json({ status: 'true', message: "Purchase Bill Updated Successfully", data: data });
+      return res.status(200).json({ status: 'true', message: "Purchase Invoice Updated Successfully", data: data });
   
     } catch (error) {
       console.log(error);
       return res.status(500).json({ status: "false", message: "Internal Server Error" });
     }
   }
-  exports.delete_purchasebill = async (req, res) => {
+  exports.delete_purchaseInvoice = async (req, res) => {
     try {
       const { id } = req.params;
-      const billId = await purchasebill.destroy({ where: { id: id } });
+      const billId = await purchaseInvoice.destroy({ where: { id: id } });
   
       if (billId) {
-        return res.status(200).json({ status: "true", message: "Purchase Bill Delete Successfully" });
+        return res.status(200).json({ status: "true", message: "Purchase Invoice Delete Successfully" });
       } else {
-        return res.status(404).json({ status: "False", message: "Purchase Bill Not Found" });
+        return res.status(404).json({ status: "False", message: "Purchase Invoice Not Found" });
       }
     } catch (error) {
       console.log(error);
       return res.status(500).json({ status: "false", message: "Internal Server Error" });
     }
   }
-  exports.get_all_purchasebill = async (req, res) => {
+  exports.get_all_purchaseInvoice = async (req, res) => {
     try {
-      const data = await purchasebill.findAll({
-        include: [{ model: purchasebillItem,as:'items',include:[{model:product, as:'purchseProduct'}]}, {model: vendor, as:'purchseVendor'}]
-      });
   
+      const data = await purchaseInvoice.findAll({
+        include: [{ model: purchaseInvoiceItem,as:'items',include:[{model:product, as:'purchseProduct'}]}, {model: vendor, as:'purchseVendor'}]
+      });
       if (data) {
-        return res.status(200).json({ status: "true", message: "All Purchase data show Successfully", data: data });
+        return res.status(200).json({ status: "true", message: "All Purchase Invoice show Successfully", data: data });
       } else {
-        return res.status(404).json({ status: "false", message: "Purchase Bill Not Found" });
+        return res.status(404).json({ status: "false", message: "Purchase Invoice Not Found" });
       }
     } catch (error) {
       console.log(error);
       return res.status(500).json({ status: "false", message: "Internal Server Error" });
     }
   }
-  exports.view_purchasebill = async (req, res) => {
+  exports.view_purchaseInvoice = async (req, res) => {
     try {
       const { id } = req.params;
-      const data = await purchasebill.findOne({
+      const data = await purchaseInvoice.findOne({
         where: { id },
-        include: [{ model: purchasebillItem,as:'items',include:[{model:product,as:'purchseProduct'}] }, {model:vendor, as:'purchseVendor'}]
+        include: [{ model: purchaseInvoiceItem,as:'items',include:[{model:product,as:'purchseProduct'}] }, {model:vendor, as:'purchseVendor'}]
       });
       if (data) {
-        return res.status(200).json({ status: "true", message: "Purchase data show Successfully", data: data });
+        return res.status(200).json({ status: "true", message: "Purchase Invoice show Successfully", data: data });
       } else {
-        return res.status(404).json({ status: "false", message: "Purchase Bill Not Found" });
+        return res.status(404).json({ status: "false", message: "Purchase Invoice Not Found" });
       }
     } catch (error) {
       console.log(error);
@@ -197,7 +199,7 @@ exports.update_purchasebill = async (req, res) => {
                                            Typc C API
  ============================================================================================================ */
 
-  exports.C_create_purchasebill = async (req, res) => {
+  exports.C_create_purchaseCash = async (req, res) => {
     try {
       const { vendorId,date,totalMrp,items } = req.body;
       
@@ -215,41 +217,46 @@ exports.update_purchasebill = async (req, res) => {
           return res.status(404).json({ status:'false', message:'Product Not Found'});
         }
       }
-      const purchseData = await C_purchasebill.create({
+      const purchseData = await C_purchaseCash.create({
         vendorId,
         date,
         totalMrp,
       });
+
+      await C_vendorLedger.create({
+        vendorId,
+        creditId : purchseData.id,
+        date
+      })
 
     const addToItem = items.map((item) => ({
       PurchaseId:purchseData.id,
       ...item,
     }));
 
-    await C_purchaseBillItem.bulkCreate(addToItem);
+    await C_purchaseCashItem.bulkCreate(addToItem);
 
-    const data = await C_purchasebill.findOne({
+    const data = await C_purchaseCash.findOne({
       where:{id: purchseData.id},
-      include:[{model:C_purchaseBillItem, as:'items'}]
+      include:[{model:C_purchaseCashItem, as:'items'}]
     });
-      return res.status(200).json({ status: "true", message: "Purchase Bill Created Successfully", data: data });
+      return res.status(200).json({ status: "true", message: "Purchase Cash Created Successfully", data: data });
     } catch (error) {
       console.log(error);
       return res.status(500).json({ status: "false", message: "Internal Server Error" });
     }
   }
-  exports.C_update_purchasebill = async (req, res) => {
+  exports.C_update_purchaseCash = async (req, res) => {
     try {
       const { id } = req.params;
 
-      console.log("id>>>>>>>>>>>>",id);
       const { vendorId,date,totalMrp,items } = req.body;
   
-    const existingPurchase = await C_purchasebill.findByPk(id);
+    const existingPurchase = await C_purchaseCash.findByPk(id);
     if(!existingPurchase) {
       return res.status(404).json({
         status:'false',
-        message:'Purchase Bill Not Found'
+        message:'Purchase Invoice Not Found'
       });
     }
   const vendorData = await C_vendor.findByPk(vendorId);
@@ -262,13 +269,19 @@ exports.update_purchasebill = async (req, res) => {
       return res.status(404).json({ status:'false', message:'Product Not Found'});
     }
   }
-      await C_purchasebill.update({
+      await C_purchaseCash.update({
         vendorId,
         date,
         totalMrp,
       }, { where: { id } });
-  const existingItems = await C_purchaseBillItem.findAll({ where:{ PurchaseId :id}});
+  const existingItems = await C_purchaseCashItem.findAll({ where:{ PurchaseId :id}});
 
+  const creditId = existingItems.id;
+  
+  await C_vendorLedger.update({
+    vendorId,
+    date
+  }, { where: {creditId}})
   const mergedItems =[];
   items.forEach((item) => {
     let existingItem = mergedItems.find((i) => i.productId === item.productId && i.rate === item.rate);
@@ -286,7 +299,7 @@ exports.update_purchasebill = async (req, res) => {
         existingItem.qty = item.qty;
         await existingItem.save();
     } else {
-      await C_purchaseBillItem.create({
+      await C_purchaseCashItem.create({
         PurchaseId :id,
         productId: item.productId,
         qty: item.qty,
@@ -304,59 +317,59 @@ exports.update_purchasebill = async (req, res) => {
     for (const item of itemsToDelete) {
       await item.destroy();
     }
-      const data = await C_purchasebill.findOne({
+      const data = await C_purchaseCash.findOne({
         where:{id},
-        include:[{model:C_purchaseBillItem, as:'items'}]
+        include:[{model:C_purchaseCashItem, as:'items'}]
       });
-      return res.status(200).json({ status: 'true', message: "Purchase Bill Updated Successfully", data: data });
+      return res.status(200).json({ status: 'true', message: "Purchase Cash Updated Successfully", data: data });
   
     } catch (error) {
       console.log(error);
       return res.status(500).json({ status: "false", message: "Internal Server Error" });
     }
   }
-  exports.C_delete_purchasebill = async (req, res) => {
+  exports.C_delete_purchaseCash = async (req, res) => {
     try {
       const { id } = req.params;
-      const billId = await C_purchasebill.destroy({ where: { id: id } });
+      const billId = await C_purchaseCash.destroy({ where: { id: id } });
   
       if (billId) {
-        return res.status(200).json({ status: "true", message: "Purchase Bill Delete Successfully" });
+        return res.status(200).json({ status: "true", message: "Purchase Cash Delete Successfully" });
       } else {
-        return res.status(404).json({ status: "False", message: "Purchase Bill Not Found" });
+        return res.status(404).json({ status: "False", message: "Purchase Cash Not Found" });
       }
     } catch (error) {
       console.log(error);
       return res.status(500).json({ status: "false", message: "Internal Server Error" });
     }
   }
-  exports.C_get_all_purchasebill = async (req, res) => {
+  exports.C_get_all_purchaseCash = async (req, res) => {
     try {
-      const data = await C_purchasebill.findAll({
-        include: [{ model: C_purchaseBillItem, as: "items",include:[{model:C_product, as:'ProductPurchase'}] },{ model:C_vendor, as:'VendorPurchase'}]
+      const data = await C_purchaseCash.findAll({
+        include: [{ model: C_purchaseCashItem, as: "items",include:[{model:C_product, as:'ProductPurchase'}] },{ model:C_vendor, as:'VendorPurchase'}]
       });
   
       if (data) {
-        return res.status(200).json({ status: "true", message: "All Purchase data show Successfully", data: data });
+        return res.status(200).json({ status: "true", message: "All Purchase Cash show Successfully", data: data });
       } else {
-        return res.status(404).json({ status: "false", message: "Purchase Bill Not Found" });
+        return res.status(404).json({ status: "false", message: "Purchase Cash Not Found" });
       }
     } catch (error) {
       console.log(error);
       return res.status(500).json({ status: "false", message: "Internal Server Error" });
     }
   }
-  exports.C_view_purchasebill = async (req, res) => {
+  exports.C_view_purchaseCash = async (req, res) => {
     try {
       const { id } = req.params;
-      const data = await C_purchasebill.findOne({
+      const data = await C_purchaseCash.findOne({
         where: { id },
-        include: [{ model: C_purchaseBillItem, as: "items",include:[{model:C_product, as:'ProductPurchase'}] },{ model:C_vendor, as:'VendorPurchase'}], 
+        include: [{ model: C_purchaseCashItem, as: "items",include:[{model:C_product, as:'ProductPurchase'}] },{ model:C_vendor, as:'VendorPurchase'}], 
       });
       if (data) {
-        return res.status(200).json({ status: "true", message: "Purchase data show Successfully", data: data });
+        return res.status(200).json({ status: "true", message: "Purchase Cash show Successfully", data: data });
       } else {
-        return res.status(404).json({ status: "false", message: "Purchase Bill Not Found" });
+        return res.status(404).json({ status: "false", message: "Purchase Cash Not Found" });
       }
     } catch (error) {
       console.log(error);

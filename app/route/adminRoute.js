@@ -1,11 +1,10 @@
-// const loginRoute = require("./loginRoute");
+
 const ProFormaInvoice = require("./ProFormaInvoice");
 const debitNoteRoute = require('./debitnoteRoute');
 const creditNoteRoute = require('./creditnote');
 const expenseRoute = require("./expenseRoute");
 const salesinvoiceRoute = require("./salesinvoiceRoute");
 const deliverychallanRoute = require("./DeliveryChallanRoute");
-const purchaseRoute = require("./purchaseOrderRoute");
 const paymentRoute = require("./paymentRoute");
 const stockRoute = require("./stockRoute");
 const customerRoute = require("./customer");
@@ -13,16 +12,15 @@ const productRoute = require("./product");
 const itemgroupRoute = require("./itemgroup");
 const itemcategoryRoute = require("./itemcategory");
 const unitRoute = require("./unit");
-const purchaseBill = require("./purchasebill");
-const purchaseReturn = require("./purchaseReturn");
 const receiptRoute = require("./receipt");
-// const bankAccount = require("./bankRoute");
 const permissionRoute = require("./permissions");
 const userRoute = require("./user");
 const vendorRoute = require("./vendor");
 const companyRoute = require("./company");
 const receiveCash = require('./receiveCash');
 const paymentCash = require('./paymentCash');
+const customerLedger = require('./cusomerLedger');
+const purchaseInvoice = require('./purchaseInvoice')
 
 module.exports = {
   ProFormaInvoice,
@@ -31,7 +29,6 @@ module.exports = {
   expenseRoute,
   salesinvoiceRoute,
   deliverychallanRoute,
-  purchaseRoute,
   paymentRoute,
   stockRoute,
   customerRoute,
@@ -39,13 +36,13 @@ module.exports = {
   itemgroupRoute,
   itemcategoryRoute,
   unitRoute,
-  purchaseBill,
-  purchaseReturn,
   receiptRoute,
   permissionRoute,
   userRoute,
   vendorRoute,
   companyRoute,
   receiveCash,
-  paymentCash
+  paymentCash,
+  customerLedger,
+  purchaseInvoice
 };

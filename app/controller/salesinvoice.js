@@ -343,13 +343,12 @@ exports.C_create_salesinvoice = async (req,res) => {
       });
 
       
-      const ledger = await C_customerLedger.create({ 
+      await C_customerLedger.create({ 
         customerId,
         creditId: salesInvoiceData.id,
       date
     });
 
-      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>ledger",ledger);
       const addToProduct = await items.map((item) => ({
         invoiceId : salesInvoiceData.id,
         ...item
@@ -398,6 +397,13 @@ exports.C_update_salesinvoice = async(req,res) => {
     const existingItems = await C_salesinvoiceItem.findAll({
       where:{invoiceId: id},
     });
+
+    const creditId = existingInvoice.id;
+    
+    await C_customerLedger.update({
+      customerId,
+      date
+    }, { where: { creditId } });
     const mergedItems = [];
 
     items.forEach((item) => {

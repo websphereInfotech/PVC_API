@@ -2,7 +2,7 @@ const {DataTypes} = require('sequelize');
 const sequelize = require('../config/index');
 const C_vendor = require('./C_vendor');
 
-const C_PaymentCash = sequelize.define('P_C_PaymentCash', {
+const C_PaymentCash = sequelize.define('P_C_paymentCash', {
     vendorId:{ type: DataTypes.INTEGER},
     amount: {type: DataTypes.INTEGER},
     description : {type: DataTypes.STRING,

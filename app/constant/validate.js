@@ -55,7 +55,7 @@ module.exports.validation = function (method) {
             return [accountname, email, contactpersonname, mobileno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, gstnumber]
         case "C_create_salesinvoice": 
             return [date,qty,rate]
-        case "C_create_purchasebill":
+        case "C_create_purchase_Cash":
             return [date,qty,rate]
         case "create_receiveCash" : 
             return [date,amount]
