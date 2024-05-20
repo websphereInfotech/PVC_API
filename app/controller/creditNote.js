@@ -7,7 +7,26 @@ const product = require("../models/product");
 exports.create_creditNote = async (req, res) => {
     try {
         const { customerId, creditnoteNo, creditdate, org_invoicedate, org_invoiceno, LL_RR_no, dispatchThrough, motorVehicleNo, destination, totalIgst, totalSgst, totalMrp, mainTotal, totalQty, items } = req.body;
-
+        
+        for (const item of items) {
+            const mrp = item.qty * item.rate;
+            if (item.mrp !== mrp) {
+              return res.status(400).json({
+                status: "false",
+                message: `MRP for item ${item.productId} does not match the calculated value`,
+              });
+            }
+          }
+          const totalMrpFromItems = items.reduce((total, item) => {
+            return total + (item.qty * item.rate);
+          }, 0);
+      
+          if (totalMrp !== totalMrpFromItems) {
+            return res.status(400).json({
+              status: "false",
+              message: "Total MRP Not Match",
+            });
+          }
         const numberOf = await creditNote.findOne({ where: { creditnoteNo: creditnoteNo } });
         if (numberOf) {
             return res.status(400).json({ status: 'false', message: 'Credit Note Number Already Exists' });

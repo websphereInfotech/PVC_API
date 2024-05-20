@@ -22,7 +22,7 @@ const router = express.Router();
 router.post(
   "/create_purchaseInvoice",
   adminAuth("Purchase Invoice:create_purchase_Invoice"),
-  validation("create_purchasebill"),
+  validation("create_purchaseInvoice"),
   create_purchaseInvoice
 );
 router.put(

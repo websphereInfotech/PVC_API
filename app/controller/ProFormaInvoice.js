@@ -26,7 +26,6 @@ exports.create_ProFormaInvoice = async (req, res) => {
         });
       }
     }
-
     const totalMrpFromItems = items.reduce((total, item) => {
       return total + (item.qty * item.rate);
     }, 0);

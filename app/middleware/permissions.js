@@ -836,4 +836,64 @@ exports.permissions = {
             "get_all_product_cash":true,
         },
     },
+    "Customer Ledger Cash" : {
+        "Super Admin" :{
+            "View_Cash_customer_Ledger":true,
+        },
+        "Admin" :{
+            "View_Cash_customer_Ledger":true,
+        },
+        "Account" :{
+            "View_Cash_customer_Ledger":true,
+        },
+        "Employee" :{
+            "View_Cash_customer_Ledger":true,
+        },
+        "Workers" :{
+            "View_Cash_customer_Ledger":true,
+        },
+        "Other" :{
+            "View_Cash_customer_Ledger":true,
+        },
+    },
+    "Vendor Ledger Cash" : {
+        "Super Admin" :{
+            "View_Cash_vendor_Ledger":true,
+        },
+        "Admin" :{
+            "View_Cash_vendor_Ledger":true,
+        },
+        "Account" :{
+            "View_Cash_vendor_Ledger":true,
+        },
+        "Employee" :{
+            "View_Cash_vendor_Ledger":true,
+        },
+        "Workers" :{
+            "View_Cash_vendor_Ledger":true,
+        },
+        "Other" :{
+            "View_Cash_vendor_Ledger":true,
+        },
+    },
+    "Claim" : {
+        "Super Admin" :{
+            "create_claim":true,
+        },
+        "Admin" :{
+            "create_claim":true,
+        },
+        "Account" :{
+            "create_claim":true,
+        },
+        "Employee" :{
+            "create_claim":true,
+        },
+        "Workers" :{
+            "create_claim":true,
+        },
+        "Other" :{
+            "create_claim":true,
+        },
+    },
 }

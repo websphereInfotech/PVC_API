@@ -49,7 +49,8 @@ exports.C_create_paymentCash = async (req, res) => {
 exports.C_get_all_paymentCash = async (req, res) => {
   try {
     const data = await C_PaymentCash.findAll({
-      include: [{ model: C_vendor, as: 'PaymentVendor' }]
+      include: [{ model: C_vendor, as: 'PaymentVendor' }],
+      order:[['createdAt','DESC']]
     })
     if (data) {
       return res.status(200).json({ status: 'true', message: 'Payment Cash Data Fetch Successfully', data: data });

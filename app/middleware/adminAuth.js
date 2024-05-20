@@ -67,7 +67,7 @@ const adminToken = (permissionString) => {
       }
       const verify = jwt.verify(checkToken.token, process.env.SECRET_KEY);
       req.user = verify;
-
+      
       const [resource, permission] = permissionString.split(":");
       const rolePermissions = await permissionData.findOne({
         where: {

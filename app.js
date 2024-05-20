@@ -25,7 +25,6 @@ const {
     unitRoute,
     purchaseInvoice,
     receiptRoute,
-    // bankAccount,
     permissionRoute,
     userRoute,
     vendorRoute,
@@ -33,7 +32,9 @@ const {
     creditNoteRoute,
     receiveCash,
     paymentCash,
-    customerLedger
+    customerLedger,
+    vendorLedger,
+    claimRoute
 } = require('./app/route/adminRoute');
 
 
@@ -60,6 +61,8 @@ app.use("/admin",creditNoteRoute);
 app.use("/admin",receiveCash);
 app.use("/admin",paymentCash);
 app.use("/admin",customerLedger);
+app.use("/admin",vendorLedger);
+app.use("/admin",claimRoute);
 
 app.get("/", (req, res) => res.send("Hello World!"));
 

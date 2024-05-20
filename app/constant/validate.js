@@ -41,18 +41,16 @@ module.exports.validation = function (method) {
             return [category, remarks]
         case "create_unit":
             return [shortname, unitname]
-        case "create_purchasebill":
+        case "create_purchaseInvoice":
             return [date,invoiceno, invoicedate,terms, duedate,productId, qty, rate]
-        case "create_purchaseReturn":
-            return [vendor, debitnote, debitdate, refno, refdate]
-        case "create_purchaseReturn_item":
-            return [ productId, batchno, expirydate, mrp, bill_no, bill_date, qty, rate, taxable, price]
         case "create_receipt":
             return [voucherno, account, email, mode, refno, depositto, receiptdate]
         case "create_company":
             return [companyname, gstnumber, email, mobileno, address1, pincode, state, city, accountname, bankname, accountnumber, ifsccode, branch]
         case "create_vendor":
             return [accountname, email, contactpersonname, mobileno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, gstnumber]
+        case "update_vendor": 
+            return [email,mobileno]
         case "C_create_salesinvoice": 
             return [date,qty,rate]
         case "C_create_purchase_Cash":

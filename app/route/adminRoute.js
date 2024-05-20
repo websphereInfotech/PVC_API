@@ -20,7 +20,9 @@ const companyRoute = require("./company");
 const receiveCash = require('./receiveCash');
 const paymentCash = require('./paymentCash');
 const customerLedger = require('./cusomerLedger');
-const purchaseInvoice = require('./purchaseInvoice')
+const purchaseInvoice = require('./purchaseInvoice');
+const vendorLedger = require('./vendorLedger');
+const claimRoute = require('./claim');
 
 module.exports = {
   ProFormaInvoice,
@@ -44,5 +46,7 @@ module.exports = {
   receiveCash,
   paymentCash,
   customerLedger,
-  purchaseInvoice
+  purchaseInvoice,
+  vendorLedger,
+  claimRoute
 };

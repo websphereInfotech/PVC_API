@@ -250,7 +250,7 @@ exports.update_purchaseInvoice = async (req, res) => {
     try {
       const { id } = req.params;
 
-      const { vendorId,date,totalMrp,items } = req.body;
+      const { vendorId, date,totalMrp,items } = req.body;
   
     const existingPurchase = await C_purchaseCash.findByPk(id);
     if(!existingPurchase) {
@@ -276,12 +276,12 @@ exports.update_purchaseInvoice = async (req, res) => {
       }, { where: { id } });
   const existingItems = await C_purchaseCashItem.findAll({ where:{ PurchaseId :id}});
 
-  const creditId = existingItems.id;
+  const creditId = existingPurchase.id;
   
   await C_vendorLedger.update({
     vendorId,
     date
-  }, { where: {creditId}})
+  }, { where: {creditId}});
   const mergedItems =[];
   items.forEach((item) => {
     let existingItem = mergedItems.find((i) => i.productId === item.productId && i.rate === item.rate);

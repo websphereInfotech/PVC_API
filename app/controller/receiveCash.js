@@ -48,7 +48,8 @@ exports.C_create_receiveCash = async (req, res) => {
 exports.C_get_all_receiveCash = async (req, res) => {
   try {
     const data = await C_receiveCash.findAll({
-      include: [{ model: C_customer, as: 'ReceiveCustomer' }]
+      include: [{ model: C_customer, as: 'ReceiveCustomer' }],
+      order:[['createdAt', 'DESC']]
     })
     if (data) {
       return res.status(200).json({ status: 'true', message: 'Receive Cash Data Fetch Successfully', data: data });
