@@ -2,6 +2,7 @@ const { Sequelize } = require("sequelize");
 const C_customerLedger = require("../models/C_customerLedger");
 const C_receiveCash = require("../models/C_receiveCash");
 const C_salesinvoice = require("../models/C_salesinvoice");
+const C_customer = require("../models/C_customer");
 const { Op, literal } = Sequelize;
 /*=============================================================================================================
                                            Typc C API
@@ -140,6 +141,10 @@ exports.C_get_customerLedger = async (req, res) => {
           model: C_receiveCash,
           as: "receiceLedger",
         },
+        {
+          model: C_customer,
+          as:'customerData'
+        }
       ],
       where: quaryData,
       order: [

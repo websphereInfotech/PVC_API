@@ -4,6 +4,10 @@ exports.create_claim = async (req, res) => {
   try {
     const fromUserId = req.user.userId;
     const { toUserId, amount, description } = req.body;
+    
+    if(toUserId === '' || toUserId === undefined || !toUserId) {
+        return res.status(400).json({status:'true',message:'Required Field : toUserId'})
+    }
     const data = await C_claim.create({
       toUserId,
       amount,
@@ -136,9 +140,9 @@ exports.isapproved_claim = async(req,res) => {
         return res.status(403).json({ status:'false', message:'Invalid Id'})
     }
 
-    // if(data.isApproved !== null) {
-
-    // }
+    if(data.isApproved !== null) {
+        return res.status(400).json({status:'false', message:'Claim has already been approved or rejected'})
+    }
     data.isApproved = isApproved;
 
     await data.save();

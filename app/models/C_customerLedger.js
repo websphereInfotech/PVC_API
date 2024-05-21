@@ -2,6 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 const C_salesinvoice = require('./C_salesinvoice');
 const C_receiveCash = require('./C_receiveCash');
+const C_customer = require('./C_customer');
 
 const C_customerLedger = sequelize.define("P_C_customerLedger", {
     customerId: { type: DataTypes.INTEGER },
@@ -15,5 +16,8 @@ C_customerLedger.belongsTo(C_salesinvoice, { foreignKey: 'creditId', onDelete: '
 
 C_receiveCash.hasMany(C_customerLedger, { foreignKey: 'debitId', onDelete: 'CASCADE', as: 'receiceLedger' });
 C_customerLedger.belongsTo(C_receiveCash, { foreignKey: 'debitId', onDelete: 'CASCADE', as: 'receiceLedger' });
+
+C_customer.hasMany(C_customerLedger,{foreignKey:'customerId', onDelete:'CASCADE', as:'customerData'});
+C_customerLedger.belongsTo(C_customer, {foreignKey:'customerId', onDelete:'CASCADE', as:'customerData'});
 
 module.exports = C_customerLedger;

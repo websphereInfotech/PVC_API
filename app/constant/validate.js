@@ -59,6 +59,8 @@ module.exports.validation = function (method) {
             return [date,amount]
         case "create_paymentCash" :
             return [date,amount]
+        case "create_claim":
+            return [amount]
         default:
             throw new Error('Invalid validation method')
     }
