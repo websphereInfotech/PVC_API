@@ -23,9 +23,6 @@ const vendor = sequelize.define("P_vendor", {
   creditperiod: {
     type: DataTypes.INTEGER,
   },
-  mode: {
-    type: DataTypes.STRING,
-  },
   address1: {
     type: DataTypes.STRING,
   },

@@ -2,6 +2,7 @@ const { Sequelize } = require("sequelize");
 const C_PaymentCash = require("../models/C_paymentCash");
 const C_purchaseCash = require("../models/C_purchaseCash");
 const C_vendorLedger = require("../models/C_vendorLedger");
+const C_vendor = require("../models/C_vendor");
 const { Op, literal } = Sequelize;
 
 /*=============================================================================================================
@@ -71,6 +72,10 @@ const { Op, literal } = Sequelize;
                 model: C_PaymentCash,
                 as: "paymentLedger",
               },
+              {
+                model: C_vendor,
+                as:'vendorData'
+              }
             ],
              where: quaryData,
             order: [

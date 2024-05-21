@@ -879,21 +879,51 @@ exports.permissions = {
     "Claim" : {
         "Super Admin" :{
             "create_claim":true,
+            "update_claim":true,
+            "delete_claim":true,
+            "view_myclaim":true,
+            "view_reciveclaim":true,
+            "isapproved_claim":true
         },
         "Admin" :{
             "create_claim":true,
+            "update_claim":true,
+            "delete_claim":true,
+            "view_myclaim":true,
+            "view_reciveclaim":true,
+            "isapproved_claim":true
         },
         "Account" :{
             "create_claim":true,
+            "update_claim":true,
+            "delete_claim":true,
+            "view_myclaim":true,
+            "view_reciveclaim":true,
+            "isapproved_claim":true
         },
         "Employee" :{
             "create_claim":true,
+            "update_claim":true,
+            "delete_claim":true,
+            "view_myclaim":true,
+            "view_reciveclaim":true,
+            "isapproved_claim":true
         },
         "Workers" :{
             "create_claim":true,
+            "update_claim":true,
+            "delete_claim":true,
+            "view_myclaim":true,
+            "view_reciveclaim":true,
+            "isapproved_claim":true
         },
         "Other" :{
             "create_claim":true,
+            "update_claim":true,
+            "delete_claim":true,
+            "view_myclaim":true,
+            "view_reciveclaim":true,
+            "isapproved_claim":true
         },
     },
 }
