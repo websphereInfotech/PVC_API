@@ -1,5 +1,6 @@
 const C_claim = require("../models/C_claim");
 const C_customer = require("../models/C_customer");
+const User = require("../models/user");
 
 exports.create_claim = async (req, res) => {
   try {
@@ -96,7 +97,7 @@ exports.view_myclaim = async (req, res) => {
   try {
     const id = req.user.userId;
 
-    const data = await C_claim.findAll({ where: { fromUserId: id },include:[ { model: C_customer, as: 'fromUser' },] });
+    const data = await C_claim.findAll({ where: { fromUserId: id },include:[ { model: User, as: 'fromUser' },] });
 
     if (data.length > 0) {
       return res
@@ -123,7 +124,7 @@ exports.view_reciveclaim = async (req, res) => {
   try {
     const id = req.user.userId;
 
-    const data = await C_claim.findAll({ where: { toUserId: id },include:[{model:C_customer, as:'toUser'}] });
+    const data = await C_claim.findAll({ where: { toUserId: id },include:[{model:User, as:'toUser'}] });
     if (data.length > 0) {
       return res
         .status(200)
@@ -193,8 +194,8 @@ exports.view_single_claim = async (req, res) => {
     const data = await C_claim.findOne({ 
       where: { id },
       include: [
-        { model: C_customer, as: 'fromUser' },
-        { model: C_customer, as: 'toUser' }
+        { model: User, as: 'fromUser' },
+        { model: User, as: 'toUser' }
       ]
     });
     
