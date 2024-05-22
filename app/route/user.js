@@ -1,5 +1,5 @@
 const express = require('express');
-const { create_user, get_all_user, delete_user, update_user, user_login, reset_password, view_user, user_logout } = require('../controller/user');
+const { create_user, get_all_user, delete_user, update_user, user_login, reset_password, view_user, user_logout, get_all_ClaimUser } = require('../controller/user');
 const adminAuth = require('../middleware/adminAuth');
 const { validation } = require('../constant/validate');
 const router = express.Router();
@@ -12,5 +12,6 @@ router.put('/update_user/:id',adminAuth("Login:update_user"),validation('update_
 router.post('/user_login',validation('userLogin'),user_login);
 router.post('/reset_password/:id',adminAuth('Login:reset_password'),reset_password);
 router.post('/user_logout',adminAuth('Login:user_logout'),user_logout);
+router.get('/get_all_ClaimUser',adminAuth('Login:view_all_ClaimUser'),get_all_ClaimUser);
 
 module.exports = router;

@@ -2,6 +2,7 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const admintoken = require("../models/admintoken");
+const { Sequelize } = require("sequelize");
 
 exports.create_user = async (req, res) => {
   try {
@@ -281,6 +282,36 @@ exports.user_logout = async (req, res) => {
     return res
       .status(200)
       .json({ status: "true", message: "User Log Out Successfully" });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+exports.get_all_ClaimUser = async (req, res) => {
+  try {
+    const userID = req.user.userId;
+
+    const data = await User.findAll({
+      where: {
+        id: {
+          [Sequelize.Op.ne]: userID, 
+        },
+      },
+      attributes: { exclude: ["password"] },
+    });
+    if (data) {
+      return res.status(200).json({
+        status: "true",
+        message: "User Data Show Successfully",
+        data: data,
+      });
+    } else {
+      return res
+        .status(404)
+        .json({ status: "false", message: "User Data Not Found" });
+    }
   } catch (error) {
     console.log(error);
     return res

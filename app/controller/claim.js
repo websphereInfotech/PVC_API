@@ -4,9 +4,11 @@ exports.create_claim = async (req, res) => {
   try {
     const fromUserId = req.user.userId;
     const { toUserId, amount, description } = req.body;
-    
-    if(toUserId === '' || toUserId === undefined || !toUserId) {
-        return res.status(400).json({status:'true',message:'Required Field : toUserId'})
+
+    if (toUserId === "" || toUserId === undefined || !toUserId) {
+      return res
+        .status(400)
+        .json({ status: "true", message: "Required Field : toUserId" });
     }
     const data = await C_claim.create({
       toUserId,
@@ -14,13 +16,11 @@ exports.create_claim = async (req, res) => {
       description,
       fromUserId,
     });
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Claim Created Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Claim Created Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -50,13 +50,11 @@ exports.update_claim = async (req, res) => {
         { where: { id } }
       );
       const data = await C_claim.findByPk(id);
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "Claim Updated successfully",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "Claim Updated successfully",
+        data: data,
+      });
     } else {
       return res.status(403).json({ status: "false", message: "Invalid Id" });
     }
@@ -94,62 +92,97 @@ exports.delete_claim = async (req, res) => {
   }
 };
 exports.view_myclaim = async (req, res) => {
-    try {
-        const id = req.user.userId; 
+  try {
+    const id = req.user.userId;
 
-        const data = await C_claim.findAll({ where: { fromUserId: id } });
-    
-        if (data.length > 0) {
-            return res.status(200).json({ status: 'true', message: 'Claim Data Fetch Successfully', data: data });
-        } else {
-            return res.status(404).json({ status: 'false', message: 'Claim Not Found' });
-        }
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ status: 'false', message: 'Internal Server Error' });
-    }
-}
+    const data = await C_claim.findAll({ where: { fromUserId: id } });
 
-exports.view_reciveclaim = async(req,res) => {
-    try {
-        const id = req.user.userId;
-
-    const data = await C_claim.findAll({ where: {toUserId: id}});
-    if (data.length > 0 ) {
-        return res.status(200).json({ status: 'true', message: 'Claim Data Fetch Successfully', data: data });
+    if (data.length > 0) {
+      return res
+        .status(200)
+        .json({
+          status: "true",
+          message: "Claim Data Fetch Successfully",
+          data: data,
+        });
     } else {
-        return res.status(404).json({ status: 'false', message: 'Claim Not Found' });
+      return res
+        .status(404)
+        .json({ status: "false", message: "Claim Not Found" });
     }
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ status: 'false', message: 'Internal Server Error' });
-    }
-}
-exports.isapproved_claim = async(req,res) => {
-   try {
-    const {id} = req.params;
-    
-    const data  = await C_claim.findByPk(id);
-    
-    if(!data) {
-        return res.status(404).json({ status:'false', message:'Claim Not Found'});
-    }
-    const {toUserId,isApproved} = req.body;
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
 
-    if(req.user.userId !== toUserId) {
-        return res.status(403).json({ status:'false', message:'Invalid Id'})
+exports.view_reciveclaim = async (req, res) => {
+  try {
+    const id = req.user.userId;
+
+    const data = await C_claim.findAll({ where: { toUserId: id } });
+    if (data.length > 0) {
+      return res
+        .status(200)
+        .json({
+          status: "true",
+          message: "Claim Data Fetch Successfully",
+          data: data,
+        });
+    } else {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Claim Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+exports.isapproved_claim = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const data = await C_claim.findByPk(id);
+
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Claim Not Found" });
+    }
+    const { toUserId, isApproved } = req.body;
+
+    if (req.user.userId !== toUserId) {
+      return res.status(403).json({ status: "false", message: "Invalid Id" });
     }
 
-    if(data.isApproved !== null) {
-        return res.status(400).json({status:'false', message:'Claim has already been approved or rejected'})
+    if (data.isApproved !== null) {
+      return res
+        .status(400)
+        .json({
+          status: "false",
+          message: "Claim has already been approved or rejected",
+        });
     }
     data.isApproved = isApproved;
 
     await data.save();
 
-    return res.status(200).json({status:'true',message:`Claim Approved ${isApproved}`,data:data})
-   } catch (error) {
+    return res
+      .status(200)
+      .json({
+        status: "true",
+        message: `Claim Approved ${isApproved}`,
+        data: data,
+      });
+  } catch (error) {
     console.log(error);
-    return res.status(500).json({ status: 'false', message: 'Internal Server Error' });
-   }
-}
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
