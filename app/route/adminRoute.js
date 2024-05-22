@@ -18,7 +18,6 @@ const userRoute = require("./user");
 const vendorRoute = require("./vendor");
 const companyRoute = require("./company");
 const receiveCash = require('./receiveCash');
-const paymentCash = require('./paymentCash');
 const customerLedger = require('./cusomerLedger');
 const purchaseInvoice = require('./purchaseInvoice');
 const vendorLedger = require('./vendorLedger');
@@ -44,7 +43,6 @@ module.exports = {
   vendorRoute,
   companyRoute,
   receiveCash,
-  paymentCash,
   customerLedger,
   purchaseInvoice,
   vendorLedger,

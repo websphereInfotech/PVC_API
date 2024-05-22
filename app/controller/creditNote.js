@@ -1,6 +1,7 @@
 const creditNote = require("../models/creditNote");
 const creditNoteItem = require("../models/creditNoteItem");
 const customer = require("../models/customer");
+const customerLedger = require("../models/customerLedger");
 const product = require("../models/product");
 
 
@@ -55,6 +56,11 @@ exports.create_creditNote = async (req, res) => {
             customerId, creditnoteNo, creditdate, org_invoiceno, org_invoicedate, LL_RR_no, dispatchThrough, destination, motorVehicleNo, totalIgst, totalSgst, totalMrp, totalQty, mainTotal
         });
 
+        await customerLedger.create({
+            customerId,
+            debitId:creditData.id,
+            date
+        })
         const addToProduct = items.map((item) => ({
             creditId : creditData.id,
             ...item

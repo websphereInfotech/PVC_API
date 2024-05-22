@@ -31,7 +31,6 @@ const {
     companyRoute,
     creditNoteRoute,
     receiveCash,
-    paymentCash,
     customerLedger,
     vendorLedger,
     claimRoute
@@ -59,7 +58,6 @@ app.use("/admin", vendorRoute);
 app.use("/admin", companyRoute);
 app.use("/admin",creditNoteRoute);
 app.use("/admin",receiveCash);
-app.use("/admin",paymentCash);
 app.use("/admin",customerLedger);
 app.use("/admin",vendorLedger);
 app.use("/admin",claimRoute);
