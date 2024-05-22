@@ -1,4 +1,5 @@
 const C_claim = require("../models/C_claim");
+const C_customer = require("../models/C_customer");
 
 exports.create_claim = async (req, res) => {
   try {
@@ -95,7 +96,7 @@ exports.view_myclaim = async (req, res) => {
   try {
     const id = req.user.userId;
 
-    const data = await C_claim.findAll({ where: { fromUserId: id } });
+    const data = await C_claim.findAll({ where: { fromUserId: id },include:[ { model: C_customer, as: 'fromUser' },] });
 
     if (data.length > 0) {
       return res
@@ -122,7 +123,7 @@ exports.view_reciveclaim = async (req, res) => {
   try {
     const id = req.user.userId;
 
-    const data = await C_claim.findAll({ where: { toUserId: id } });
+    const data = await C_claim.findAll({ where: { toUserId: id },include:[{model:C_customer, as:'toUser'}] });
     if (data.length > 0) {
       return res
         .status(200)
@@ -186,3 +187,24 @@ exports.isapproved_claim = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+exports.view_single_claim = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await C_claim.findOne({ 
+      where: { id },
+      include: [
+        { model: C_customer, as: 'fromUser' },
+        { model: C_customer, as: 'toUser' }
+      ]
+    });
+    
+    if (data) {
+      return res.status(200).json({ status: 'true', message: 'View Data Show Successfully', data: data });
+    } else {
+      return res.status(404).json({ status: 'false', message: 'Claim Not Found' });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+}

@@ -6,6 +6,7 @@ const {
   view_myclaim,
   view_reciveclaim,
   isapproved_claim,
+  view_single_claim,
 } = require("../controller/claim");
 const adminToken = require("../middleware/adminAuth");
 const { validation } = require("../constant/validate");
@@ -36,4 +37,5 @@ router.post(
   isapproved_claim
 );
 
+router.get('/view_single_claim/:id',adminToken('Claim:view_single_claim'),view_single_claim);
 module.exports = router;
