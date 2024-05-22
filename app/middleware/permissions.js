@@ -9,16 +9,6 @@ exports.permissions = {
         },
     },
     "Login" : {
-        "Super Admin" :{
-            "create_user":true,
-            "delete_user":true,
-            "view_all_user":true,
-            "view_user":true,
-            "update_user":true,
-            "reset_password":true,
-            "user_logout":true,
-            "view_all_ClaimUser":true
-        },
         "Admin" : {
             "update_user":true,
             "reset_password":true,
@@ -938,4 +928,16 @@ exports.permissions = {
             "view_single_claim":true
         },
     },
+    "Login Cash" : {
+        "Super Admin" :{
+            "create_user":true,
+            "delete_user":true,
+            "view_all_user":true,
+            "view_user":true,
+            "update_user":true,
+            "reset_password":true,
+            "user_logout":true,
+            "view_all_ClaimUser":true
+        },
+    }
 }
