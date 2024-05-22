@@ -15,25 +15,25 @@ const router = express.Router();
 
 router.post(
   "/create_claim",
-  adminToken("Claim:create_claim"),
+  adminToken("Claim Cash:create_claim"),
   validation("create_claim"),
   create_claim
 );
-router.put("/update_claim/:id", adminToken("Claim:update_claim"), update_claim);
+router.put("/update_claim/:id", adminToken("Claim Cash:update_claim"), update_claim);
 router.delete(
   "/delete_claim/:id",
-  adminToken("Claim:delete_claim"),
+  adminToken("Claim Cash:delete_claim"),
   delete_claim
 );
-router.get("/view_myclaim", adminToken("Claim:view_myclaim"), view_myclaim);
+router.get("/view_myclaim", adminToken("Claim Cash:view_myclaim"), view_myclaim);
 router.get(
   "/view_reciveclaim",
-  adminToken("Claim:view_reciveclaim"),
+  adminToken("Claim Cash:view_reciveclaim"),
   view_reciveclaim
 );
 router.post(
   "/isapproved_claim/:id",
-  adminToken("Claim:isapproved_claim"),
+  adminToken("Claim Cash:isapproved_claim"),
   isapproved_claim
 );
 
