@@ -882,7 +882,7 @@ exports.permissions = {
             "View_Cash_vendor_Ledger":true,
         },
     },
-    "Claim" : {
+    "Claim Cash" : {
         "Super Admin" :{
             "create_claim":true,
             "update_claim":true,
