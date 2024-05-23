@@ -2,10 +2,6 @@ const Permission = require("../models/permission");
 
 exports.get_all_permissions = async (req, res) => {
   try {
-    const user= req.user.type;
-
-    console.log("usser>>>>>>>>>",user);
-    
        const data = await Permission.findAll();
 
     if (data.length > 0) {

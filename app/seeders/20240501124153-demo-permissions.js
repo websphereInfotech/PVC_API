@@ -62,14 +62,14 @@ module.exports = {
         for (const permissionKey in permissionsForRole) {
           const permissionValue = permissionsForRole[permissionKey];
           const permissionIdentifier = `${role}-${resource}-${permissionKey}`;
-          const type = resource.includes('Cash') ? "C" : "";
+          // const type = resource.includes('Cash') ? "C" : "";
           if (!existingPermissionSet.has(permissionIdentifier)) {
             promises.push({
               role: role,
               resource: resource,
               permission: permissionKey,
               permissionValue: permissionValue,
-              type:type,
+              // type:type,
               createdAt: new Date(),
               updatedAt: new Date(),
             });
