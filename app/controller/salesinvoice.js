@@ -5,6 +5,7 @@ const C_salesinvoice = require("../models/C_salesinvoice");
 const C_salesinvoiceItem = require("../models/C_salesinvoiceItem");
 const ProFormaInvoice = require("../models/ProFormaInvoice");
 const customer = require("../models/customer");
+const customerLedger = require("../models/customerLedger");
 const product = require("../models/product");
 const salesInvoice = require("../models/salesInvoice");
 const salesInvoiceItem = require("../models/salesInvoiceitem");
@@ -102,6 +103,11 @@ exports.create_salesInvoice = async (req, res) => {
       mainTotal,
       totalQty
     });
+    await customerLedger.create({
+      customerId,
+      creditId: data.id,
+      date:invoicedate
+    });
     const addToItem = items.map((item) => ({
       salesInvoiceId: data.id,
       ...item,
@@ -113,6 +119,7 @@ exports.create_salesInvoice = async (req, res) => {
       where: { id: data.id },
       include: [{ model: salesInvoiceItem, as: "items" }],
     });
+
     return res.status(200).json({
       status: "true",
       message: "Sales Invoice Create Successfully",
@@ -243,6 +250,10 @@ exports.update_salesInvoice = async (req, res) => {
       }
     );
 
+    await customerLedger.update({
+      customerId,
+      date:invoicedate
+    },{ where:{creditId:id}});
     const existingItem = await salesInvoiceItem.findAll({
       where: { salesInvoiceId: id },
     });

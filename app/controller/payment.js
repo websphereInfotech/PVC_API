@@ -17,7 +17,7 @@ exports.create_payment = async (req, res) => {
         billfromdate,
         billtodate,
         amount
-      })
+      });
       return res.status(200).json({ status: "true", message: "Payment created successfully", data: data })
     } catch (error) {
       console.log(error);

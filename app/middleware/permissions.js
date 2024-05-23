@@ -16,7 +16,8 @@ exports.permissions = {
             "view_user":true,
             "update_user":true,
             "reset_password":true,
-            "user_logout":true
+            "user_logout":true,
+            "view_all_ClaimUser":true
         },
         "Admin" : {
             "update_user":true,
@@ -202,56 +203,56 @@ exports.permissions = {
             "view_single_creditNote":true
         }
     },
-    "Expense" : {
-        "Super Admin" :{
-            "create_expense":true,
-            "update_expense":true,
-            "delete_expense":true,
-            "delete_expenseItem":true,
-            "view_single_expense":true,
-            "view_all_expense":true
-        },
-        "Admin" :{
-            "create_expense":true,
-            "update_expense":true,
-            "delete_expense":true,
-            "delete_expenseItem":true,
-            "view_single_expense":true,
-            "view_all_expense":true
-        },
-        "Account" :{
-            "create_expense":true,
-            "update_expense":true,
-            "delete_expense":true,
-            "delete_expenseItem":true,
-            "view_single_expense":true,
-            "view_all_expense":true
-        },
-        "Employee" :{
-            "create_expense":true,
-            "update_expense":true,
-            "delete_expense":true,
-            "delete_expenseItem":true,
-            "view_single_expense":true,
-            "view_all_expense":true
-        },
-        "Workers" :{
-            "create_expense":true,
-            "update_expense":true,
-            "delete_expense":true,
-            "delete_expenseItem":true,
-            "view_single_expense":true,
-            "view_all_expense":true
-        },
-        "Other" :{
-            "create_expense":true,
-            "update_expense":true,
-            "delete_expense":true,
-            "delete_expenseItem":true,
-            "view_single_expense":true,
-            "view_all_expense":true
-        }
-    },
+    // "Expense" : {
+    //     "Super Admin" :{
+    //         "create_expense":true,
+    //         "update_expense":true,
+    //         "delete_expense":true,
+    //         "delete_expenseItem":true,
+    //         "view_single_expense":true,
+    //         "view_all_expense":true
+    //     },
+    //     "Admin" :{
+    //         "create_expense":true,
+    //         "update_expense":true,
+    //         "delete_expense":true,
+    //         "delete_expenseItem":true,
+    //         "view_single_expense":true,
+    //         "view_all_expense":true
+    //     },
+    //     "Account" :{
+    //         "create_expense":true,
+    //         "update_expense":true,
+    //         "delete_expense":true,
+    //         "delete_expenseItem":true,
+    //         "view_single_expense":true,
+    //         "view_all_expense":true
+    //     },
+    //     "Employee" :{
+    //         "create_expense":true,
+    //         "update_expense":true,
+    //         "delete_expense":true,
+    //         "delete_expenseItem":true,
+    //         "view_single_expense":true,
+    //         "view_all_expense":true
+    //     },
+    //     "Workers" :{
+    //         "create_expense":true,
+    //         "update_expense":true,
+    //         "delete_expense":true,
+    //         "delete_expenseItem":true,
+    //         "view_single_expense":true,
+    //         "view_all_expense":true
+    //     },
+    //     "Other" :{
+    //         "create_expense":true,
+    //         "update_expense":true,
+    //         "delete_expense":true,
+    //         "delete_expenseItem":true,
+    //         "view_single_expense":true,
+    //         "view_all_expense":true
+    //     }
+    // },
     "Sales Invoice" : {
         "Super Admin" :{
             "create_salesinvoice":true,
@@ -340,76 +341,76 @@ exports.permissions = {
             "view_all_deliverychallan":true
         }
     },
-    "Payment" : {
-        "Super Admin" :{
-            "create_payment":true,
-            "update_payment":true,
-            "delete_payment":true,
-            "view_single_payment":true,
-            "view_all_payment":true,
-        },
-        "Admin" :{
-            "create_payment":true,
-            "update_payment":true,
-            "delete_payment":true,
-            "view_single_payment":true,
-            "view_all_payment":true,
-        },
-        "Account" :{
-            "create_payment":true,
-            "update_payment":true,
-            "delete_payment":true,
-            "view_single_payment":true,
-            "view_all_payment":true,
-        },
-        "Employee" :{
-            "create_payment":true,
-            "update_payment":true,
-            "delete_payment":true,
-            "view_single_payment":true,
-            "view_all_payment":true,
-        },
-        "Workers" :{
-            "create_payment":true,
-            "update_payment":true,
-            "delete_payment":true,
-            "view_single_payment":true,
-            "view_all_payment":true,
-        },
-        "Other" :{
-            "create_payment":true,
-            "update_payment":true,
-            "delete_payment":true,
-            "view_single_payment":true,
-            "view_all_payment":true,
-        }
-    },
-    "Stock" : {
-        "Super Admin" :{
-            "create_stockitem":true,
-            "view_all_stock":true,
-        },
-        "Admin" :{
-            "create_stockitem":true,
-            "view_all_stock":true,
-        },
-        "Account" :{
-            "create_stockitem":true,
-            "view_all_stock":true,
-        },
-        "Employee" :{
-            "create_stockitem":true,
-            "view_all_stock":true,
-        },
-        "Workers" :{
-            "create_stockitem":true,
-            "view_all_stock":true,
-        },
-        "Other" :{
-            "create_stockitem":true,
-            "view_all_stock":true,
-        }
-    },
+    // "Payment" : {
+    //     "Super Admin" :{
+    //         "create_payment":true,
+    //         "update_payment":true,
+    //         "delete_payment":true,
+    //         "view_single_payment":true,
+    //         "view_all_payment":true,
+    //     },
+    //     "Admin" :{
+    //         "create_payment":true,
+    //         "update_payment":true,
+    //         "delete_payment":true,
+    //         "view_single_payment":true,
+    //         "view_all_payment":true,
+    //     },
+    //     "Account" :{
+    //         "create_payment":true,
+    //         "update_payment":true,
+    //         "delete_payment":true,
+    //         "view_single_payment":true,
+    //         "view_all_payment":true,
+    //     },
+    //     "Employee" :{
+    //         "create_payment":true,
+    //         "update_payment":true,
+    //         "delete_payment":true,
+    //         "view_single_payment":true,
+    //         "view_all_payment":true,
+    //     },
+    //     "Workers" :{
+    //         "create_payment":true,
+    //         "update_payment":true,
+    //         "delete_payment":true,
+    //         "view_single_payment":true,
+    //         "view_all_payment":true,
+    //     },
+    //     "Other" :{
+    //         "create_payment":true,
+    //         "update_payment":true,
+    //         "delete_payment":true,
+    //         "view_single_payment":true,
+    //         "view_all_payment":true,
+    //     }
+    // },
+    // "Stock" : {
+    //     "Super Admin" :{
+    //         "create_stockitem":true,
+    //         "view_all_stock":true,
+    //     },
+    //     "Admin" :{
+    //         "create_stockitem":true,
+    //         "view_all_stock":true,
+    //     },
+    //     "Account" :{
+    //         "create_stockitem":true,
+    //         "view_all_stock":true,
+    //     },
+    //     "Employee" :{
+    //         "create_stockitem":true,
+    //         "view_all_stock":true,
+    //     },
+    //     "Workers" :{
+    //         "create_stockitem":true,
+    //         "view_all_stock":true,
+    //     },
+    //     "Other" :{
+    //         "create_stockitem":true,
+    //         "view_all_stock":true,
+    //     }
+    // },
     "Customer" : {
         "Super Admin" :{
             "create_customer":true,
@@ -593,6 +594,26 @@ exports.permissions = {
             "delete_vandor":true,
             "view_vendor":true,
             "get_all_vandor":true,
+        },
+    },
+    "Customer Ledger" : {
+        "Super Admin" :{
+            "View_customer_Ledger":true,
+        },
+        "Admin" :{
+            "View_customer_Ledger":true,
+        },
+        "Account" :{
+            "View_customer_Ledger":true,
+        },
+        "Employee" :{
+            "View_customer_Ledger":true,
+        },
+        "Workers" :{
+            "View_customer_Ledger":true,
+        },
+        "Other" :{
+            "View_customer_Ledger":true,
         },
     },
     "Sales Cash" : {
@@ -921,4 +942,9 @@ exports.permissions = {
             "isapproved_claim":true
         },
     },
+    // "Permission":{
+    //     "Super Admin": {
+    //         "view_all_permissions":true,
+    //     }
+    // },
 }

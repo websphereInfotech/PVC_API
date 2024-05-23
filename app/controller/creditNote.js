@@ -59,7 +59,7 @@ exports.create_creditNote = async (req, res) => {
         await customerLedger.create({
             customerId,
             debitId:creditData.id,
-            date
+            date:creditdate
         })
         const addToProduct = items.map((item) => ({
             creditId : creditData.id,
@@ -118,6 +118,10 @@ exports.update_creditNote = async (req, res) => {
             mainTotal
         }, {where: {id}});
 
+        await customer.update({
+            customerId,
+            date:creditdate,
+        },{where:{debitId:id}});
         const existingItems = await creditNoteItem.findAll({ where:{ creditId:id },
         });
 

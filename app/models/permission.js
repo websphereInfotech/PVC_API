@@ -34,5 +34,6 @@ const permissions = sequelize.define("P_permissions", {
   permission: {
     type: DataTypes.STRING,
   },
+  type: {type: DataTypes.STRING}
 });
 module.exports = permissions;

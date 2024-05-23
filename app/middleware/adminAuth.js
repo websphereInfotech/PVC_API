@@ -74,6 +74,7 @@ const adminToken = (permissionString) => {
           role: verify.role,
           resource,
           permission,
+          type: verify.type
         },
       });
       if (rolePermissions && rolePermissions.permissionValue) {
