@@ -731,10 +731,14 @@ exports.pincode = function (req, res, next) {
   const pincodeSchema = Joi.number()
 
     .required()
+    .min(100000)
+    .max(999999)
     .messages({
       "number.base": "PinCode Must Be A Number",
       "any.required": "Required Field : PinCode",
       "number.empty": "PinCode Cannot Be Empty",
+      "number.min":"Pincode Must Be At Least 6 Digits",
+      "number.max":"Pincode Must Be At Most 6 Digits"
     });
     const valueToValidate = pincode === '' ? undefined : pincode
     const { error } = pincodeSchema.validate(valueToValidate);
