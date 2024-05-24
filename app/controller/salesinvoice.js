@@ -68,10 +68,7 @@ exports.create_salesInvoice = async (req, res) => {
     if(!customerData) {
       return res.status(404).json({status:'false', message:'Customer Not Found'});
     }
-    const proFormaItem = await ProFormaInvoice.findByPk(proFormaId);
-    if(!proFormaItem) {
-      return res.status(404).json({status:'false', message:'proForma Invoice Not Found'});
-    }
+   
     if (!items || items.length === 0) {
       return res
         .status(400)

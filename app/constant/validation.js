@@ -107,28 +107,9 @@ exports.customerId = function (req, res, next) {
   }
   next();
 };
-// exports.serialno = function (req, res, next) {
-//   const { items } = req.body;
-//   // console.log("itmes",items);
-//   for (const item of items) {
-//     const { serialno } = item;
-
-//     const serialnoSchema = Joi.number().required().messages({
-//       "string.empty": "SerialNo Cannot Be Empty",
-//       "any.required": "Required Field: Serial Number",
-
-//     });
-//     const { error } = serialnoSchema.validate(serialno);
-
-//     if (error) {
-//       return res.status(400).json({ status: "False", message: error.message });
-//     }
-//   }
-//   next();
-// };
 exports.mrp = function (req, res, next) {
   const { items } = req.body;
-  // console.log("items",items);
+ 
   for (const item of items) {
     const { mrp } = item;
     const mrpSchema = Joi.number()

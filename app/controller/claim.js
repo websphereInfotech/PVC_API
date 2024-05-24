@@ -208,109 +208,84 @@ exports.view_single_claim = async (req, res) => {
     return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
 }
-exports.view_claim_ledger = async (req, res) => {
-  try {
-       // const id = req.user.userId;
-    // console.log("req.user.userId>>>>>>",req.user.userId);
-    // const data = await C_claim.findAll();
-    // const data = await C_claim.findAll({
-    //   attributes: [
-    //     "fromUserId",
-    //     "toUserId",
-    //     "updatedAt",
-    //     [Sequelize.literal("CASE WHEN fromUserId = :userId THEN amount ELSE 0 END"), "debitAmount"],
-    //     [Sequelize.literal("CASE WHEN toUserId = :userId THEN amount ELSE 0 END"), "creditAmount"],
-    //     [Sequelize.literal(`
-    //       CAST(
-    //         (
-    //           SELECT 
-    //             IFNULL(SUM(CASE WHEN cl2.fromUserId = :userId THEN cl2.amount ELSE 0 END - CASE WHEN cl2.toUserId = :userId THEN cl2.amount ELSE 0 END), 0) 
-    //           FROM 
-    //             P_C_claims AS cl2 
-    //           WHERE 
-    //             (cl2.fromUserId = :userId OR cl2.toUserId = :userId) 
-    //             AND (cl2.updatedAt <= P_C_claim.updatedAt)
-    //         ) AS CHAR
-    //       )
-    //     `), "openingBalance"],
-    //     [Sequelize.literal(`
-    //       CAST(
-    //         (
-    //           SUM(CASE WHEN fromUserId = :userId THEN amount ELSE 0 END - CASE WHEN toUserId = :userId THEN amount ELSE 0 END)
-    //         ) AS CHAR
-    //       )
-    //     `), "remainingBalance"],
-    //   ],
-    //   where: {
-    //     [Op.or]: [
-    //       { fromUserId: req.user.userId },
-    //       { toUserId: req.user.userId }
-    //     ]
-    //   },
-    //   group: [
-    //     "fromUserId",
-    //     "toUserId",
-    //     "updatedAt",
-    //     "amount"
-    //   ],
-    //   order: [
-    //     ["updatedAt", "ASC"]
-    //   ],
-    //   replacements: { userId: req.user.userId },
-    //   raw: true
-    // });
-    const data = await C_claim.findAll({
-      attributes: [
-        "fromUserId",
-        "toUserId",
-        "updatedAt",
-        [Sequelize.literal("CASE WHEN fromUserId = :userId THEN amount ELSE 0 END"), "debitAmount"],
-        [Sequelize.literal("CASE WHEN toUserId = :userId THEN amount ELSE 0 END"), "creditAmount"],
-        [Sequelize.literal(`
-      CAST(
-        COALESCE((
-          SELECT SUM(CASE WHEN cl2.fromUserId = :userId THEN cl2.amount ELSE 0 END - CASE WHEN cl2.toUserId = :userId THEN cl2.amount ELSE 0 END)
-          FROM P_C_claims AS cl2
-          WHERE cl2.updatedAt < P_C_claim.updatedAt
-          AND (cl2.fromUserId = :userId OR cl2.toUserId = :userId)
-        ), 0) AS CHAR
-      )
-    `), "openingBalance"],
-    [Sequelize.literal(`
-      CAST(
-        (
-          SUM(CASE WHEN fromUserId = :userId THEN amount ELSE 0 END - CASE WHEN toUserId = :userId THEN amount ELSE 0 END)
-          OVER (PARTITION BY NULL ORDER BY updatedAt ASC)
-        ) AS CHAR
-      )
-    `), "remainingBalance"],
-  ],
-      where: {
+
+  exports.view_claim_ledger = async (req, res) => {
+    try {
+      const userId = req.user.userId; 
+      const { fromDate, toDate } = req.query; 
+
+      let whereCondition = {
         [Op.or]: [
-          { fromUserId: req.user.userId },
-          { toUserId: req.user.userId }
+          { fromUserId: userId },
+          { toUserId: userId }
         ]
-      },
-      group: [
-            "fromUserId",
-            "toUserId",
-            "updatedAt",
-            "amount"
-          ],
-      order: [
-        ["updatedAt", "ASC"]
-      ],
-      replacements: { userId: req.user.userId },
-      raw: true
-    });
-    
-    if (data) {
-      return res.status(200).json({ status: 'true', message: 'Claim Ledger Show Successfully', data: data });
-    } else {
-      return res.status(404).json({ status: 'false', message: 'Claim Ledger Not Found' });
+      };
+
+      if (fromDate && toDate) {
+        whereCondition.updatedAt = {
+          [Op.between]: [new Date(fromDate), new Date(toDate)]
+        };
+      }
+
+      const data = await C_claim.findAll({
+        attributes: [
+          "fromUserId",
+          "toUserId",
+          "updatedAt",
+          [Sequelize.literal(`
+      CASE 
+        WHEN fromUserId = :userId THEN ''
+        ELSE (SELECT username FROM P_users WHERE id = P_C_claim.fromUserId)
+      END
+    `), "fromUsername"],
+    [Sequelize.literal(`
+      CASE 
+        WHEN toUserId = :userId THEN ''
+        ELSE (SELECT username FROM P_users WHERE id = P_C_claim.toUserId)
+      END
+    `), "toUsername"],
+          [Sequelize.literal("CASE WHEN fromUserId = :userId THEN amount ELSE 0 END"), "debitAmount"],
+          [Sequelize.literal("CASE WHEN toUserId = :userId THEN amount ELSE 0 END"), "creditAmount"],
+          [Sequelize.literal(`
+            CAST(
+              COALESCE((
+                SELECT SUM(CASE WHEN cl2.fromUserId = :userId THEN cl2.amount ELSE 0 END - CASE WHEN cl2.toUserId = :userId THEN cl2.amount ELSE 0 END)
+                FROM P_C_claims AS cl2
+                WHERE cl2.updatedAt < P_C_claim.updatedAt
+                AND (cl2.fromUserId = :userId OR cl2.toUserId = :userId)
+              ), 0) AS CHAR
+            )
+          `), "openingBalance"],
+          [Sequelize.literal(`
+            CAST(
+              (
+                SUM(CASE WHEN fromUserId = :userId THEN amount ELSE 0 END - CASE WHEN toUserId = :userId THEN amount ELSE 0 END)
+                OVER (PARTITION BY NULL ORDER BY updatedAt ASC)
+              ) AS CHAR
+            )
+          `), "remainingBalance"],
+        ],
+        where: whereCondition,
+        group: [
+          "fromUserId",
+          "toUserId",
+          "updatedAt",
+          "amount"
+        ],
+        order: [
+          ["updatedAt", "ASC"]
+        ],
+        replacements: { userId: userId },
+        raw: true,
+      });
+
+      if (data) {
+        return res.status(200).json({ status: 'true', message: 'Claim Ledger Show Successfully', data: data });
+      } else {
+        return res.status(404).json({ status: 'false', message: 'Claim Ledger Not Found' });
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ status: 'false', message: 'Internal Server Error' });
     }
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ status: 'false', message: 'Internal Server Error' });
-  }
-}
+  };
