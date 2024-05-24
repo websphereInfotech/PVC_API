@@ -130,6 +130,60 @@ exports.get_customerLedger = async (req, res) => {
       };
     }
 
+    // const data = await customerLedger.findAll({
+    //   attributes: [
+    //     "customerId",
+    //     "date",
+    //     "id",
+    //     [Sequelize.literal("IFNULL(creditCustomer.totalMrp, 0)"), "debitAmount"],
+    //     [Sequelize.literal("IFNULL(invoiceCustomer.totalMrp, 0)"), "creditAmount"],
+    //     [Sequelize.literal(`
+    //       (
+    //         SELECT
+    //           IFNULL(SUM(IFNULL(invoiceCustomer.totalMrp, 0) - IFNULL(creditCustomer.totalMrp, 0)), 0)
+    //         FROM
+    //           \`P_customerLedgers\` AS cl2
+    //           LEFT OUTER JOIN \`P_salesInvoices\` AS invoiceCustomer ON cl2.creditId = invoiceCustomer.id
+    //           LEFT OUTER JOIN \`P_creditNotes\` AS creditCustomer ON cl2.debitId = creditCustomer.id
+    //         WHERE
+    //           cl2.customerId = \`P_customerLedger\`.\`customerId\`
+    //           AND (cl2.date < \`P_customerLedger\`.\`date\` OR (cl2.date = \`P_customerLedger\`.\`date\` AND cl2.id < \`P_customerLedger\`.\`id\`))
+    //       )
+    //     `), "openingBalance"],
+    //     [Sequelize.literal(`
+    //       (
+    //         SELECT
+    //           IFNULL(SUM(IFNULL(invoiceCustomer.totalMrp, 0) - IFNULL(creditCustomer.totalMrp, 0)), 0)
+    //         FROM
+    //           \`P_customerLedgers\` AS cl2
+    //           LEFT OUTER JOIN \`P_salesInvoices\` AS invoiceCustomer ON cl2.creditId = invoiceCustomer.id
+    //           LEFT OUTER JOIN \`P_creditNotes\` AS creditCustomer ON cl2.debitId = creditCustomer.id
+    //         WHERE
+    //           cl2.customerId = \`P_customerLedger\`.\`customerId\`
+    //           AND (cl2.date < \`P_customerLedger\`.\`date\` OR (cl2.date = \`P_customerLedger\`.\`date\` AND cl2.id < \`P_customerLedger\`.\`id\`))
+    //       ) + IFNULL(invoiceCustomer.totalMrp, 0) - IFNULL(creditCustomer.totalMrp, 0)
+    //     `), "remainingBalance"],
+    //   ],
+    //   include: [
+    //     {
+    //       model: salesInvoice,
+    //       as: "invoiceCustomer",
+    //     },
+    //     {
+    //       model: creditNote,
+    //       as: "creditCustomer",
+    //     },
+    //     {
+    //       model: customer,
+    //       as: "customerData"
+    //     }
+    //   ],
+    //   where: queryData,
+    //   order: [
+    //     ["date", "ASC"],
+    //     ["id", "ASC"],
+    //   ],
+    // });
     const data = await customerLedger.findAll({
       attributes: [
         "customerId",
@@ -138,30 +192,36 @@ exports.get_customerLedger = async (req, res) => {
         [Sequelize.literal("IFNULL(creditCustomer.totalMrp, 0)"), "debitAmount"],
         [Sequelize.literal("IFNULL(invoiceCustomer.totalMrp, 0)"), "creditAmount"],
         [Sequelize.literal(`
-          (
-            SELECT
-              IFNULL(SUM(IFNULL(invoiceCustomer.totalMrp, 0) - IFNULL(creditCustomer.totalMrp, 0)), 0)
-            FROM
-              \`P_customerLedgers\` AS cl2
-              LEFT OUTER JOIN \`P_salesInvoices\` AS invoiceCustomer ON cl2.creditId = invoiceCustomer.id
-              LEFT OUTER JOIN \`P_creditNotes\` AS creditCustomer ON cl2.debitId = creditCustomer.id
-            WHERE
-              cl2.customerId = \`P_customerLedger\`.\`customerId\`
-              AND (cl2.date < \`P_customerLedger\`.\`date\` OR (cl2.date = \`P_customerLedger\`.\`date\` AND cl2.id < \`P_customerLedger\`.\`id\`))
+          CAST(
+            (
+              SELECT
+                IFNULL(SUM(IFNULL(invoiceCustomer.totalMrp, 0) - IFNULL(creditCustomer.totalMrp, 0)), 0)
+              FROM
+                \`P_customerLedgers\` AS cl2
+                LEFT OUTER JOIN \`P_salesInvoices\` AS invoiceCustomer ON cl2.creditId = invoiceCustomer.id
+                LEFT OUTER JOIN \`P_creditNotes\` AS creditCustomer ON cl2.debitId = creditCustomer.id
+              WHERE
+                cl2.customerId = \`P_customerLedger\`.\`customerId\`
+                AND (cl2.date < \`P_customerLedger\`.\`date\` OR (cl2.date = \`P_customerLedger\`.\`date\` AND cl2.id < \`P_customerLedger\`.\`id\`))
+            ) AS CHAR
           )
         `), "openingBalance"],
         [Sequelize.literal(`
-          (
-            SELECT
-              IFNULL(SUM(IFNULL(invoiceCustomer.totalMrp, 0) - IFNULL(creditCustomer.totalMrp, 0)), 0)
-            FROM
-              \`P_customerLedgers\` AS cl2
-              LEFT OUTER JOIN \`P_salesInvoices\` AS invoiceCustomer ON cl2.creditId = invoiceCustomer.id
-              LEFT OUTER JOIN \`P_creditNotes\` AS creditCustomer ON cl2.debitId = creditCustomer.id
-            WHERE
-              cl2.customerId = \`P_customerLedger\`.\`customerId\`
-              AND (cl2.date < \`P_customerLedger\`.\`date\` OR (cl2.date = \`P_customerLedger\`.\`date\` AND cl2.id < \`P_customerLedger\`.\`id\`))
-          ) + IFNULL(invoiceCustomer.totalMrp, 0) - IFNULL(creditCustomer.totalMrp, 0)
+          CAST(
+            (
+              (
+                SELECT
+                  IFNULL(SUM(IFNULL(invoiceCustomer.totalMrp, 0) - IFNULL(creditCustomer.totalMrp, 0)), 0)
+                FROM
+                  \`P_customerLedgers\` AS cl2
+                  LEFT OUTER JOIN \`P_salesInvoices\` AS invoiceCustomer ON cl2.creditId = invoiceCustomer.id
+                  LEFT OUTER JOIN \`P_creditNotes\` AS creditCustomer ON cl2.debitId = creditCustomer.id
+                WHERE
+                  cl2.customerId = \`P_customerLedger\`.\`customerId\`
+                  AND (cl2.date < \`P_customerLedger\`.\`date\` OR (cl2.date = \`P_customerLedger\`.\`date\` AND cl2.id < \`P_customerLedger\`.\`id\`))
+              ) + IFNULL(invoiceCustomer.totalMrp, 0) - IFNULL(creditCustomer.totalMrp, 0)
+            ) AS CHAR
+          )
         `), "remainingBalance"],
       ],
       include: [
@@ -184,7 +244,6 @@ exports.get_customerLedger = async (req, res) => {
         ["id", "ASC"],
       ],
     });
-
     if (data) {
       return res.status(200).json({
         status: "true",

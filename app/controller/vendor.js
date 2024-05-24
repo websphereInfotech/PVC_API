@@ -45,7 +45,6 @@ exports.create_vendor = async (req,res) => {
             email,
             contactpersonname,
             mobileno,
-            panno,
             creditperiod,
             address1,
             address2,
@@ -57,6 +56,9 @@ exports.create_vendor = async (req,res) => {
             balance,
             gstnumber
         };
+        if(panno === '') {
+          panno = null;
+        }
         if(creditlimit === true) {
             vendorData.totalcreadit = totalcreadit;
         }

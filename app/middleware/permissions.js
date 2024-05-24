@@ -899,7 +899,9 @@ exports.permissions = {
             "delete_claim":true,
             "view_myclaim":true,
             "view_reciveclaim":true,
-            "isapproved_claim":true
+            "isapproved_claim":true,
+            "view_single_claim":true,
+            "view_claim_ledger":true
         },
         "Admin" :{
             "create_claim":true,
@@ -907,7 +909,9 @@ exports.permissions = {
             "delete_claim":true,
             "view_myclaim":true,
             "view_reciveclaim":true,
-            "isapproved_claim":true
+            "isapproved_claim":true,
+            "view_single_claim":true,
+            "view_claim_ledger":true
         },
         "Account" :{
             "create_claim":true,
@@ -915,7 +919,9 @@ exports.permissions = {
             "delete_claim":true,
             "view_myclaim":true,
             "view_reciveclaim":true,
-            "isapproved_claim":true
+            "isapproved_claim":true,
+            "view_single_claim":true,
+            "view_claim_ledger":true
         },
         "Employee" :{
             "create_claim":true,
@@ -923,7 +929,9 @@ exports.permissions = {
             "delete_claim":true,
             "view_myclaim":true,
             "view_reciveclaim":true,
-            "isapproved_claim":true
+            "isapproved_claim":true,
+            "view_single_claim":true,
+            "view_claim_ledger":true
         },
         "Workers" :{
             "create_claim":true,
@@ -931,7 +939,9 @@ exports.permissions = {
             "delete_claim":true,
             "view_myclaim":true,
             "view_reciveclaim":true,
-            "isapproved_claim":true
+            "isapproved_claim":true,
+            "view_single_claim":true,
+            "view_claim_ledger":true
         },
         "Other" :{
             "create_claim":true,
@@ -939,7 +949,9 @@ exports.permissions = {
             "delete_claim":true,
             "view_myclaim":true,
             "view_reciveclaim":true,
-            "isapproved_claim":true
+            "isapproved_claim":true,
+            "view_single_claim":true,
+            "view_claim_ledger":true
         },
     },
     // "Permission":{

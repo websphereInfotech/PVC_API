@@ -13,7 +13,6 @@ exports.create_customer = async (req, res) => {
       email,
       contactpersonname,
       mobileno,
-      panno,
       creditperiod,
       address1,
       address2,
@@ -28,6 +27,10 @@ exports.create_customer = async (req, res) => {
       totalcreadit,
     } = req.body;
 
+    let panno = req.body.panno;
+    if(panno === '') {
+      panno = null;
+    }
     if (bankdetail === true) {
       if (!bankdetails || bankdetails.length === 0) {
         return res
