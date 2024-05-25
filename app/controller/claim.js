@@ -97,7 +97,7 @@ exports.view_myclaim = async (req, res) => {
   try {
     const id = req.user.userId;
 
-    const data = await C_claim.findAll({ where: { fromUserId: id },include:[ { model: User, as: 'toUser' },] });
+    const data = await C_claim.findAll({ where: { fromUserId: id },include:[ { model: User, as: 'fromUser' },] });
 
     if (data.length > 0) {
       return res

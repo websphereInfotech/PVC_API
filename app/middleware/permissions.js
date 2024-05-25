@@ -23,31 +23,36 @@ exports.permissions = {
             "update_user":true,
             "reset_password":true,
             "view_user":true,
-            "user_logout":true
+            "user_logout":true,
+            "view_all_ClaimUser":true
         },
         "Account" : {
             "update_user":true,
             "reset_password":true,
             "view_user":true,
-            "user_logout":true
+            "user_logout":true,
+            "view_all_ClaimUser":true
         },
         "Employee":{
             "update_user":true,
             "reset_password":true,
             "view_user":true,
-            "user_logout":true
+            "user_logout":true,
+            "view_all_ClaimUser":true
         },
         "Workers":{
             "update_user":true,
             "reset_password":true,
             "view_user":true,
-            "user_logout":true
+            "user_logout":true,
+            "view_all_ClaimUser":true
         },
         "Other":{
             "update_user":true,
             "reset_password":true,
             "view_user":true,
-            "user_logout":true
+            "user_logout":true,
+            "view_all_ClaimUser":true
         }
     },
     "Permission" : {

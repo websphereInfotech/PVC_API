@@ -27,7 +27,6 @@ exports.create_salesInvoice = async (req, res) => {
       motorVehicleNo,
       terms,
       duedate,
-      proFormaId,
       totalIgst,
       totalSgst,
       totalMrp,
@@ -35,7 +34,11 @@ exports.create_salesInvoice = async (req, res) => {
       totalQty,
       items,
     } = req.body;
+let proFormaId = req.body.proFormaId;
 
+if(proFormaId === '') {
+  proFormaId = null
+}
     // for (const item of items) {
     //   const mrp = item.qty * item.rate;
     //   if (item.mrp !== mrp) {
