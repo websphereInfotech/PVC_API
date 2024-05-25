@@ -232,18 +232,24 @@ exports.view_single_claim = async (req, res) => {
           "fromUserId",
           "toUserId",
           "updatedAt",
-          [Sequelize.literal(`
-      CASE 
-        WHEN fromUserId = :userId THEN ''
-        ELSE (SELECT username FROM P_users WHERE id = P_C_claim.fromUserId)
-      END
-    `), "fromUsername"],
+    //       [Sequelize.literal(`
+    //   CASE 
+    //     WHEN fromUserId = :userId THEN ''
+    //     ELSE (SELECT username FROM P_users WHERE id = P_C_claim.fromUserId)
+    //   END
+    // `), "fromUsername"],
+    // [Sequelize.literal(`
+    //   CASE 
+    //     WHEN toUserId = :userId THEN ''
+    //     ELSE (SELECT username FROM P_users WHERE id = P_C_claim.toUserId)
+    //   END
+    // `), "toUsername"],
     [Sequelize.literal(`
-      CASE 
-        WHEN toUserId = :userId THEN ''
-        ELSE (SELECT username FROM P_users WHERE id = P_C_claim.toUserId)
-      END
-    `), "toUsername"],
+    CASE 
+      WHEN fromUserId = :userId THEN (SELECT username FROM P_users WHERE id = P_C_claim.toUserId)
+      ELSE (SELECT username FROM P_users WHERE id = P_C_claim.fromUserId)
+    END
+  `), "username"],
           [Sequelize.literal("CASE WHEN fromUserId = :userId THEN amount ELSE 0 END"), "debitAmount"],
           [Sequelize.literal("CASE WHEN toUserId = :userId THEN amount ELSE 0 END"), "creditAmount"],
           [Sequelize.literal(`
@@ -270,7 +276,8 @@ exports.view_single_claim = async (req, res) => {
           "fromUserId",
           "toUserId",
           "updatedAt",
-          "amount"
+          "amount",
+          
         ],
         order: [
           ["updatedAt", "ASC"]
