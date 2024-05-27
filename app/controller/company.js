@@ -13,11 +13,6 @@ exports.create_company = async (req, res) => {
       state,
       city,
       country,
-      accountname,
-      bankname,
-      accountnumber,
-      ifsccode,
-      branch,
     } = req.body;
 
     const existingCompany = await company.findOne({
@@ -27,22 +22,6 @@ exports.create_company = async (req, res) => {
       return res
         .status(400)
         .json({ status: "false", message: "Company Already Exists" });
-    }
-    const existingAccount = await company.findOne({
-      where: { accountnumber: accountnumber },
-    });
-    if (existingAccount) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Account Number Already Exists" });
-    }
-    const existingIfsc = await company.findOne({
-      where: { ifsccode: ifsccode },
-    });
-    if (existingIfsc) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "IFSC Code Already Exists" });
     }
     const data = await company.create({
       companyname,
@@ -55,11 +34,6 @@ exports.create_company = async (req, res) => {
       state,
       city,
       country,
-      accountname,
-      accountnumber,
-      bankname,
-      ifsccode,
-      branch,
     });
     return res
       .status(200)
@@ -89,12 +63,7 @@ exports.update_company = async (req, res) => {
         pincode,
         state,
         city,
-        country,
-        accountname,
-        bankname,
-        accountnumber,
-        ifsccode,
-        branch,
+        country
       } = req.body;
 
     if (!companyId) {
@@ -114,12 +83,7 @@ exports.update_company = async (req, res) => {
         pincode,
         state,
         city,
-        country,
-        accountname,
-        accountnumber,
-        bankname,
-        branch,
-        ifsccode
+        country
       },
       { where: { id } }
     );

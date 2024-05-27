@@ -621,6 +621,96 @@ exports.permissions = {
             "View_customer_Ledger":true,
         },
     },
+    "Company Bank Details" : {
+        "Super Admin" :{
+            "create_company_bankDetails":true,
+            "update_company_bankDetails":true,
+            "delete_company_bankDetails":true,
+            "view_company_bankDetails":true,
+            "view_all_company_bankDetails":true
+
+        },
+        "Admin" :{
+            "create_company_bankDetails":true,
+            "update_company_bankDetails":true,
+            "delete_company_bankDetails":true,
+            "view_company_bankDetails":true,
+            "view_all_company_bankDetails":true
+        },
+        "Account" :{
+            "create_company_bankDetails":true,
+            "update_company_bankDetails":true,
+            "delete_company_bankDetails":true,
+            "view_company_bankDetails":true,
+            "view_all_company_bankDetails":true
+        },
+        "Employee" :{
+            "create_company_bankDetails":true,
+            "update_company_bankDetails":true,
+            "delete_company_bankDetails":true,
+            "view_company_bankDetails":true,
+            "view_all_company_bankDetails":true
+        },
+        "Workers" :{
+            "create_company_bankDetails":true,
+            "update_company_bankDetails":true,
+            "delete_company_bankDetails":true,
+            "view_company_bankDetails":true,
+            "view_all_company_bankDetails":true
+        },
+        "Other" :{
+            "create_company_bankDetails":true,
+            "update_company_bankDetails":true,
+            "delete_company_bankDetails":true,
+            "view_company_bankDetails":true,
+            "view_all_company_bankDetails":true
+        },
+    },
+    "Receive Bank" : {
+        "Super Admin" :{
+            "create_receive_bank":true,
+            "update_receive_bank":true,
+            "delete_receive_bank":true,
+            "view_receive_bank":true,
+            "get_all_receive_bank":true
+
+        },
+        "Admin" :{
+            "create_receive_bank":true,
+            "update_receive_bank":true,
+            "delete_receive_bank":true,
+            "view_receive_bank":true,
+            "get_all_receive_bank":true
+        },
+        "Account" :{
+            "create_receive_bank":true,
+            "update_receive_bank":true,
+            "delete_receive_bank":true,
+            "view_receive_bank":true,
+            "get_all_receive_bank":true
+        },
+        "Employee" :{
+            "create_receive_bank":true,
+            "update_receive_bank":true,
+            "delete_receive_bank":true,
+            "view_receive_bank":true,
+            "get_all_receive_bank":true
+        },
+        "Workers" :{
+            "create_receive_bank":true,
+            "update_receive_bank":true,
+            "delete_receive_bank":true,
+            "view_receive_bank":true,
+            "get_all_receive_bank":true
+        },
+        "Other" :{
+            "create_receive_bank":true,
+            "update_receive_bank":true,
+            "delete_receive_bank":true,
+            "view_receive_bank":true,
+            "get_all_receive_bank":true
+        },
+    },
     "Sales Cash" : {
         "Super Admin" :{
             "create_sales_cash":true,

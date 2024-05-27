@@ -22,6 +22,7 @@ const customerLedger = require('./cusomerLedger');
 const purchaseInvoice = require('./purchaseInvoice');
 const vendorLedger = require('./vendorLedger');
 const claimRoute = require('./claim');
+const companyBankDetails = require('./companyBankdetails');
 
 module.exports = {
   ProFormaInvoice,
@@ -46,5 +47,6 @@ module.exports = {
   customerLedger,
   purchaseInvoice,
   vendorLedger,
-  claimRoute
+  claimRoute,
+  companyBankDetails
 };
