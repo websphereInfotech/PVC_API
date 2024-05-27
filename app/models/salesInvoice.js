@@ -10,6 +10,13 @@ const salesInvoice = sequelize.define("P_salesInvoice", {
   deliverydate: {
     type: DataTypes.DATEONLY,
   },
+  terms: {
+    type: DataTypes.ENUM(
+      "Advance",
+      "Immediate",
+      "Terms"
+    )
+  },
   invoiceno: { type: DataTypes.INTEGER },
   invoicedate: { type: DataTypes.DATE },
   termsOfDelivery : {type: DataTypes.STRING},

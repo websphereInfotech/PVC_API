@@ -26,6 +26,13 @@ const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
   dispatchno: {
     type: DataTypes.INTEGER,
   },
+  terms: {
+    type: DataTypes.ENUM(
+      "Advance",
+      "Immediate",
+      "Terms"
+    )
+  },
   totalIgst: {
     type: DataTypes.FLOAT,
     defaultValue: 0,
