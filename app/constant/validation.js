@@ -1316,22 +1316,6 @@ exports.companyname = function (req, res, next) {
   }
   next();
 }
-exports.proFormaId = function (req, res, next) {
-  const { proFormaId } = req.body
-
-  const proFormaIdSchema = Joi.number()
-    .required()
-    .messages({
-      "any.required": "Required feild: Pro Forma Number",
-      "number.empty": "Pro Forma Number Cannot Be Empty"
-    })
-
-  const { error } = proFormaIdSchema.validate(proFormaId);
-  if (error) {
-    return res.status(400).json({ status: 'false', message: error.message });
-  }
-  next();
-}
 exports.org_invoiceno = function (req, res, next) {
   const { org_invoiceno } = req.body
 
@@ -1362,3 +1346,19 @@ exports.org_invoicedate = function (req, res, next) {
   }
   next();
 };
+exports.referance = function (req, res, next) {
+  const { referance } = req.body
+
+  const referanceSchema = Joi.string()
+    .required()
+    .messages({
+      "any.required": 'Required field : Referance',
+      "string.empty": "Referance Cannot Be Empty"
+    });
+
+  const { error } = referanceSchema.validate(referance);
+  if (error) {
+    return res.status(400).json({ status: 'false', message: error.message });
+  }
+  next();
+}

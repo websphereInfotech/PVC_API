@@ -18,6 +18,14 @@ const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
     allowNull: false,
 
   },
+  termsOfDelivery : {type: DataTypes.STRING},
+  dispatchThrough: { type: DataTypes.STRING },
+  destination: { type: DataTypes.STRING },
+  LL_RR_no: { type: DataTypes.INTEGER },
+  motorVehicleNo: { type: DataTypes.STRING },
+  dispatchno: {
+    type: DataTypes.INTEGER,
+  },
   totalIgst: {
     type: DataTypes.FLOAT,
     defaultValue: 0,

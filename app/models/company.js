@@ -21,14 +21,6 @@ const company = sequelize.define('P_company', {
   city: {
     type: DataTypes.STRING,
   },
-  country: {
-    type: DataTypes.STRING,
-  },
-  accountname: { type: DataTypes.STRING },
-  bankname: { type: DataTypes.STRING },
-  accountnumber: { type: DataTypes.STRING },
-  ifsccode: { type: DataTypes.STRING },
-  branch: { type: DataTypes.STRING }
 });
 
 module.exports = company;

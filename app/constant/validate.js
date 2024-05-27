@@ -22,7 +22,7 @@ module.exports.validation = function (method) {
         case "create_ProFormaInvoice":
             return [ProFormaInvoice_no, date, validtill, customerId, rate, qty, productId]
         case "create_salesinvoice":
-            return [customerId, invoiceno, invoicedate, duedate, productId, rate, qty]
+            return [customerId, invoiceno, invoicedate, productId, rate, qty]
         case "create_debitNote":
             return [customerId, debitdate, debitnoteno, productId, qty,mrp,rate]
         case "create_creditNote":
@@ -46,7 +46,7 @@ module.exports.validation = function (method) {
         case "create_receipt":
             return [voucherno, account, email, mode, refno, depositto, receiptdate]
         case "create_company":
-            return [companyname, gstnumber, email, mobileno, address1, pincode, state, city, accountname, bankname, accountnumber, ifsccode, branch]
+            return [companyname, gstnumber, email, mobileno, address1, pincode, state, city]
         case "create_vendor":
             return [accountname, email, contactpersonname, mobileno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, gstnumber]
         case "update_vendor": 
@@ -61,6 +61,10 @@ module.exports.validation = function (method) {
             return [date,amount]
         case "create_claim":
             return [amount]
+        case "create_company_bankDetails":
+            return [bankname,accountnumber,ifsccode,branch]
+        case "create_receive_bank":
+          return [voucherno,paymentdate,mode,referance,amount]
         default:
             throw new Error('Invalid validation method')
     }

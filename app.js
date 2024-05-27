@@ -33,7 +33,8 @@ const {
     receiveCash,
     customerLedger,
     vendorLedger,
-    claimRoute
+    claimRoute,
+    companyBankDetails
 } = require('./app/route/adminRoute');
 
 
@@ -61,6 +62,7 @@ app.use("/admin",receiveCash);
 app.use("/admin",customerLedger);
 app.use("/admin",vendorLedger);
 app.use("/admin",claimRoute);
+app.use("/admin",companyBankDetails);
 
 app.get("/", (req, res) => res.send("Hello World!"));
 
