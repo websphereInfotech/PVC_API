@@ -5,7 +5,7 @@ const User = require("../models/user");
 exports.create_claim = async (req, res) => {
   try {
     const fromUserId = req.user.userId;
-    const { toUserId, amount, description } = req.body;
+    const { toUserId, amount, description,purpose } = req.body;
 
     if (toUserId === "" || toUserId === undefined || !toUserId) {
       return res
@@ -17,6 +17,7 @@ exports.create_claim = async (req, res) => {
       amount,
       description,
       fromUserId,
+      purpose
     });
     return res.status(200).json({
       status: "true",
@@ -34,7 +35,7 @@ exports.create_claim = async (req, res) => {
 exports.update_claim = async (req, res) => {
   try {
     const { id } = req.params;
-    const { toUserId, amount, description } = req.body;
+    const { toUserId, amount, description,purpose } = req.body;
 
     const userData = await C_claim.findByPk(id);
 
@@ -49,6 +50,7 @@ exports.update_claim = async (req, res) => {
           toUserId,
           amount,
           description,
+          purpose
         },
         { where: { id } }
       );

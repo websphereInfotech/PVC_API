@@ -7,7 +7,15 @@ const C_claim = sequelize.define('P_C_claim',{
     toUserId : { type : DataTypes.INTEGER},
     amount : { type: DataTypes.INTEGER},
     description : { type: DataTypes.STRING},
-    isApproved : { type: DataTypes.BOOLEAN}
+    isApproved : { type: DataTypes.BOOLEAN},
+    
+  purpose:{
+    type: DataTypes.ENUM(
+      "Salary",
+      "Advance",
+      "Expense"
+    )
+  },
 });
 
 User.hasMany(C_claim, {foreignKey:'fromUserId', onDelete:'CASCADE', as:'fromUser'});

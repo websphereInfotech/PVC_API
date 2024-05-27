@@ -17,13 +17,6 @@ const debitNote = sequelize.define("P_debitNote", {
   debitdate: {
     type: DataTypes.DATEONLY
   },
-  purpose:{
-    type: DataTypes.ENUM(
-      "Salary",
-      "Advance",
-      "Expense"
-    )
-  },
   totalIgst: {
     type: DataTypes.FLOAT,
     defaultValue: 0,

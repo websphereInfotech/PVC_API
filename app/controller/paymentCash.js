@@ -179,6 +179,29 @@ exports.C_delete_paymentCash = async (req, res) => {
     if(!paymentdata) {
       return res.status(404).json({ status:'false', message:'Bank Payment Not Found'})
     }
+
+    const vendordata = await vendor.findByPk(vendorId);
+    if(!vendordata) {
+        return res.status(404).json({ status:'false', message:'Vendor Not Found'});
+    }
+
+    const accountData = await companyBankDetails.findByPk(accountId);
+    if(!accountData) {
+      return res.status(404).json({ status:'false', message:'Bank Account Not Found'});
+    }
+    await paymentBank.update({
+      voucherno,
+      vendorId,
+      paymentdate,
+      mode,
+      referance,
+      accountId,
+      amount
+    }, {where:{id}});
+
+    const data = await paymentBank.findByPk(id);
+    
+    return res.status(200).json({ status:'true', message:'Bank Payment Updated Successfully',data:data});
   } catch (error) {
     console.log(error);
     return res

@@ -24,7 +24,7 @@ module.exports.validation = function (method) {
         case "create_salesinvoice":
             return [customerId, invoiceno, invoicedate, productId, rate, qty]
         case "create_debitNote":
-            return [customerId, debitnoteno,debitdate,invoicedate, purpose,productId, qty,mrp,rate]
+            return [customerId, debitnoteno,debitdate,invoicedate, productId, qty,mrp,rate]
         case "create_creditNote":
             return [customerId,creditnoteNo,creditdate,org_invoiceno,org_invoicedate, productId,rate,qty]
         case "create_stoke":
@@ -60,7 +60,7 @@ module.exports.validation = function (method) {
         case "create_paymentCash" :
             return [date,amount]
         case "create_claim":
-            return [amount]
+            return [amount,purpose]
         case "create_company_bankDetails":
             return [bankname,accountnumber,ifsccode,branch]
         case "create_receive_bank":
