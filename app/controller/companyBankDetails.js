@@ -3,7 +3,7 @@ const companyBankDetails = require("../models/companyBankDetails");
 
 exports.create_company_bankDetails = async (req, res) => {
   try {
-    const { companyId, bankname, accountnumber, ifsccode, branch } = req.body;
+    const { companyId,accountname, bankname, accountnumber, ifsccode, branch } = req.body;
 
     if (companyId === "" || companyId === undefined || companyId === null) {
       return res
@@ -28,6 +28,7 @@ exports.create_company_bankDetails = async (req, res) => {
     }
     const data = await companyBankDetails.create({
       companyId,
+      accountname,
       bankname,
       accountnumber,
       ifsccode,
@@ -51,7 +52,7 @@ exports.update_company_bankDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { companyId, bankname, accountnumber, ifsccode, branch } = req.body;
+    const { companyId,accountname, bankname, accountnumber, ifsccode, branch } = req.body;
     const bankData = await companyBankDetails.findByPk(id);
     if (!bankData) {
       return res
@@ -67,6 +68,7 @@ exports.update_company_bankDetails = async (req, res) => {
     await companyBankDetails.update(
       {
         companyId,
+        accountname,
         bankname,
         accountnumber,
         ifsccode,

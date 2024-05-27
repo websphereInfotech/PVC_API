@@ -19,6 +19,7 @@ exports.create_salesInvoice = async (req, res) => {
       customerId,
       invoiceno,
       invoicedate,
+      proFormaId,
       dispatchThrough,
       dispatchno,
       deliverydate,
@@ -34,10 +35,12 @@ exports.create_salesInvoice = async (req, res) => {
       totalQty,
       items,
     } = req.body;
-let proFormaId = req.body.proFormaId;
 
-if(proFormaId === '') {
-  proFormaId = null
+
+if(proFormaId === '' || proFormaId === undefined || proFormaId === null) {
+  return res
+        .status(400)
+        .json({ status: "false", message: "Required Field: ProForma Invoice" });
 }
     // for (const item of items) {
     //   const mrp = item.qty * item.rate;

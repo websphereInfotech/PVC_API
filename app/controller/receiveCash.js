@@ -315,7 +315,7 @@ exports.view_receive_bank = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await receiveBank.findOne({ where: { id } });
+    const data = await receiveBank.findOne({ where: { id },include:[{model:customer,as:'customerBank'},{model:companyBankDetails,as:'receiveBank'}] });
     if (data) {
       return res
         .status(200)
@@ -338,7 +338,7 @@ exports.view_receive_bank = async (req, res) => {
 };
 exports.get_all_receive_bank = async (req, res) => {
   try {
-    const data = await receiveBank.findAll();
+    const data = await receiveBank.findAll({include:[{model:customer,as:'customerBank'},{model:companyBankDetails, as:'receiveBank'}]});
 
     if (data.length > 0) {
       return res

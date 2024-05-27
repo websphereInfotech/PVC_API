@@ -6,10 +6,8 @@ const purchaseInvoice = sequelize.define("P_purchaseInvoice", {
   vendorId: {
     type: DataTypes.INTEGER,
   },
-  date: {type: DataTypes.DATEONLY},
   invoiceno: { type: DataTypes.INTEGER },
   invoicedate: { type: DataTypes.DATEONLY },
-  terms: { type: DataTypes.INTEGER },
   duedate: { type: DataTypes.DATE },
   totalIgst: {
     type: DataTypes.FLOAT,

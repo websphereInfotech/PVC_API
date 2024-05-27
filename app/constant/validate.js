@@ -1,4 +1,4 @@
-const { email, password, mobileno, challanno, date, customerId,  mrp, qty, productId, description, batchno, quotationno, expirydate, vendor, voucherno, gstin, billno, billdate, payment, expensse, taxable, account, paymentdate, refno, quotationref, pono, mode, paidfrom, amount, ProFormaInvoice_no, rate, discount, validtill, creditnote, creditdate, invoiceno, invoicedate, itemname, unit, accountname, shortname, contactpersonname, panno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, itemtype, productname, nagativeqty, lowstock, purchaseprice, salesprice, group, remarks, category, unitname, terms, duedate, book, debitnote, debitdate, refdate, price, bill_no, bill_date, depositto,  receiptdate, accountnumber, ifsccode, bankname, country, username, salary, role, gstnumber, HSNcode, companyname, proFormaId, branch, debitnoteno, creditnoteNo, org_invoiceno, org_invoicedate, gstrate
+const { email, password, mobileno, challanno, date, customerId,  mrp, qty, productId, description, batchno, quotationno, expirydate, vendor, voucherno, gstin, billno, billdate, payment, expensse, taxable, account, paymentdate, refno, quotationref, pono, mode, paidfrom, amount, ProFormaInvoice_no, rate, discount, validtill, creditnote, creditdate, invoiceno, invoicedate, itemname, unit, accountname, shortname, contactpersonname, panno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, itemtype, productname, nagativeqty, lowstock, purchaseprice, salesprice, group, remarks, category, unitname, terms, duedate, book, debitnote, debitdate, refdate, price, bill_no, bill_date, depositto,  receiptdate, accountnumber, ifsccode, bankname, country, username, salary, role, gstnumber, HSNcode, companyname, proFormaId, branch, debitnoteno, creditnoteNo, org_invoiceno, org_invoicedate, gstrate, purpose
 } = require("./validation")
 
 module.exports.validation = function (method) {
@@ -24,7 +24,7 @@ module.exports.validation = function (method) {
         case "create_salesinvoice":
             return [customerId, invoiceno, invoicedate, productId, rate, qty]
         case "create_debitNote":
-            return [customerId, debitdate, debitnoteno, productId, qty,mrp,rate]
+            return [customerId, debitnoteno,debitdate,invoicedate, purpose,productId, qty,mrp,rate]
         case "create_creditNote":
             return [customerId,creditnoteNo,creditdate,org_invoiceno,org_invoicedate, productId,rate,qty]
         case "create_stoke":
@@ -42,7 +42,7 @@ module.exports.validation = function (method) {
         case "create_unit":
             return [shortname, unitname]
         case "create_purchaseInvoice":
-            return [date,invoiceno, invoicedate,terms, duedate,productId, qty, rate]
+            return [duedate,invoiceno, invoicedate, qty, rate]
         case "create_receipt":
             return [voucherno, account, email, mode, refno, depositto, receiptdate]
         case "create_company":

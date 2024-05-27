@@ -2,10 +2,24 @@ const customer = require("../models/customer");
 const debitNote = require("../models/debitNote");
 const debitNoteItem = require("../models/debitNoteItem");
 const product = require("../models/product");
+const purchaseInvoice = require("../models/purchaseInvice");
 
 exports.create_debitNote = async (req, res) => {
   try {
-    const { customerId, debitnoteno, debitdate, totalQty, items, totalIgst, totalSgst, totalMrp, mainTotal } = req.body;
+    const {
+      customerId,
+      debitnoteno,
+      debitdate,
+      invoicedate,
+      invoiceId,
+      totalQty,
+      purpose,
+      items,
+      totalIgst,
+      totalSgst,
+      totalMrp,
+      mainTotal,
+    } = req.body;
     const existingCredit = await debitNote.findOne({
       where: { debitnoteno: debitnoteno },
     });
@@ -57,8 +71,14 @@ exports.create_debitNote = async (req, res) => {
       customerId,
       debitnoteno,
       debitdate,
+      invoicedate,
+      invoiceId,
+      purpose,
       totalQty,
-      totalIgst, totalSgst, totalMrp, mainTotal
+      totalIgst,
+      totalSgst,
+      totalMrp,
+      mainTotal,
     });
     const addToProduct = items.map((item) => ({
       DebitId: debitNoteData.id,
@@ -72,13 +92,11 @@ exports.create_debitNote = async (req, res) => {
       include: [{ model: debitNoteItem, as: "items" }],
     });
 
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Debit Note Create Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Debit Note Create Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -91,7 +109,20 @@ exports.update_debitNote = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { customerId, debitnoteno, debitdate, totalQty, items, totalIgst, totalSgst, totalMrp, mainTotal } = req.body;
+    const {
+      customerId,
+      debitnoteno,
+      debitdate,
+      invoicedate,
+      invoiceId,
+      totalQty,
+      purpose,
+      items,
+      totalIgst,
+      totalSgst,
+      totalMrp,
+      mainTotal,
+    } = req.body;
 
     const existingDebit = await debitNote.findByPk(id);
 
@@ -119,9 +150,15 @@ exports.update_debitNote = async (req, res) => {
       {
         customerId,
         debitnoteno,
+        invoiceId,
+        invoicedate,
         debitdate,
         totalQty,
-        totalIgst, totalSgst, totalMrp, mainTotal
+        purpose,
+        totalIgst,
+        totalSgst,
+        totalMrp,
+        mainTotal,
       },
       { where: { id } }
     );
@@ -185,13 +222,11 @@ exports.update_debitNote = async (req, res) => {
       include: [{ model: debitNoteItem, as: "items" }],
     });
 
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Debit Note Update Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Debit Note Update Successfully",
+      data: data,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
@@ -218,13 +253,11 @@ exports.get_all_debitNote = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Debit Note Not Found" });
     } else {
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "Debit Note Data Fetch Successfully",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "Debit Note Data Fetch Successfully",
+        data: data,
+      });
     }
   } catch (error) {
     console.log(error);
@@ -246,16 +279,15 @@ exports.view_single_debitNote = async (req, res) => {
           include: [{ model: product, as: "DebitProduct" }],
         },
         { model: customer, as: "DebitCustomer" },
-      ],
+        { model: purchaseInvoice, as: "purchaseData" },
+      ]
     });
     if (data) {
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "Debit Note Data Fetch Successfully",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "Debit Note Data Fetch Successfully",
+        data: data,
+      });
     } else {
       return res
         .status(404)

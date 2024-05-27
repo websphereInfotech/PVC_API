@@ -1362,3 +1362,19 @@ exports.referance = function (req, res, next) {
   }
   next();
 }
+exports.purpose = function (req, res, next) {
+  const { purpose } = req.body
+
+  const purposeSchema = Joi.string()
+    .required()
+    .messages({
+      "any.required": 'Required field : Purpose',
+      "string.empty": "Purpose Cannot Be Empty"
+    });
+
+  const { error } = purposeSchema.validate(purpose);
+  if (error) {
+    return res.status(400).json({ status: 'false', message: error.message });
+  }
+  next();
+}

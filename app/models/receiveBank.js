@@ -26,10 +26,10 @@ const receiveBank = sequelize.define("P_receiveBank", {
     amount: { type: DataTypes.INTEGER}
 });
 
-customer.hasMany(receiveBank, {foreignKey:'customerId', onDelete:'CASCADE'});
-receiveBank.belongsTo(customer,{foreignKey:'customerId', onDelete:'CASCADE'});
+customer.hasMany(receiveBank, {foreignKey:'customerId', onDelete:'CASCADE',as:'customerBank'});
+receiveBank.belongsTo(customer,{foreignKey:'customerId', onDelete:'CASCADE',as:'customerBank'});
 
-companyBankDetails.hasMany(receiveBank, {foreignKey:'accountId', onDelete:'CASCADE'});
-receiveBank.belongsTo(companyBankDetails,{foreignKey:'accountId', onDelete:'CASCADE'});
+companyBankDetails.hasMany(receiveBank, {foreignKey:'accountId', onDelete:'CASCADE',as:'receiveBank'});
+receiveBank.belongsTo(companyBankDetails,{foreignKey:'accountId', onDelete:'CASCADE',as:'receiveBank'});
 
 module.exports = receiveBank;

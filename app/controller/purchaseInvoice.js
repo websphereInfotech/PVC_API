@@ -14,7 +14,7 @@ const vendor = require("../models/vendor");
 
 exports.create_purchaseInvoice = async (req, res) => {
     try {
-      const { vendorId,date, invoiceno, invoicedate, terms, duedate,totalIgst,totalSgst,totalMrp,mainTotal,totalQty,items } = req.body;
+      const { vendorId,duedate, invoiceno, invoicedate, totalIgst,totalSgst,totalMrp,mainTotal,totalQty,items } = req.body;
       
       const vendorData = await vendor.findByPk(vendorId);
       if(!vendorData) {
@@ -32,11 +32,9 @@ exports.create_purchaseInvoice = async (req, res) => {
       }
       const purchseData = await purchaseInvoice.create({
         vendorId,
-        date,
+        duedate,
         invoiceno,
         invoicedate,
-        terms,
-        duedate,
         totalIgst,
         totalSgst,
         totalMrp,
@@ -64,7 +62,7 @@ exports.create_purchaseInvoice = async (req, res) => {
 exports.update_purchaseInvoice = async (req, res) => {
     try {
       const { id } = req.params;
-      const { vendorId,date, invoiceno, invoicedate, terms, duedate,totalIgst,totalSgst,totalMrp,mainTotal,totalQty,items } = req.body;
+      const { vendorId,duedate, invoiceno, invoicedate,totalIgst,totalSgst,totalMrp,mainTotal,totalQty,items } = req.body;
   
     const existingPurchase = await purchaseInvoice.findByPk(id);
     if(!existingPurchase) {
@@ -85,13 +83,9 @@ exports.update_purchaseInvoice = async (req, res) => {
   }
       await purchaseInvoice.update({
         vendorId,
-        date,
-        terms,
         duedate,
         invoiceno,
         invoicedate,
-        terms,
-        duedate,
         totalIgst,
         totalSgst,
         totalMrp,

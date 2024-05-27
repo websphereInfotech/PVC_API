@@ -1,6 +1,9 @@
 const C_PaymentCash = require("../models/C_paymentCash");
 const C_vendor = require("../models/C_vendor");
 const C_vendorLedger = require("../models/C_vendorLedger");
+const companyBankDetails = require("../models/companyBankDetails");
+const paymentBank = require("../models/paymentBank");
+const vendor = require("../models/vendor");
 
 
 /*=============================================================================================================
@@ -132,3 +135,54 @@ exports.C_delete_paymentCash = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 }
+/*=============================================================================================================
+                                        Without Typc C API
+ ============================================================================================================ */
+
+ exports.create_payment_bank = async(req,res) => {
+  try {
+      const {voucherno,vendorId,paymentdate,mode,referance,accountId,amount} = req.body;
+
+      const vendordata = await vendor.findByPk(vendorId);
+      if(!vendordata) {
+          return res.status(404).json({ status:'false', message:'Vendor Not Found'});
+      }
+
+      const accountData = await companyBankDetails.findByPk(accountId);
+      if(!accountData) {
+        return res.status(404).json({ status:'false', message:'Bank Account Not Found'});
+      }
+
+      const data = await paymentBank.create({
+        voucherno,
+        vendorId,
+        paymentdate,
+        mode,
+        referance,
+        accountId,
+        amount
+      });
+      return res.status(200).json({ status:'true', message:'Bank Payment Create Successfully', data:data});
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+ }
+ exports.update_payment_bank = async(req,res) => {
+  try {
+    const {id} = req.params;
+    const {voucherno,vendorId,paymentdate,mode,referance,accountId,amount} = req.body;
+    
+    const paymentdata = await paymentBank.findByPk(id);
+    if(!paymentdata) {
+      return res.status(404).json({ status:'false', message:'Bank Payment Not Found'})
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+ }
