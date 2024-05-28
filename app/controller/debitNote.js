@@ -2,7 +2,7 @@ const customer = require("../models/customer");
 const debitNote = require("../models/debitNote");
 const debitNoteItem = require("../models/debitNoteItem");
 const product = require("../models/product");
-const purchaseInvoice = require("../models/purchaseInvice");
+const purchaseInvoice = require("../models/purchaseInvoice");
 
 exports.create_debitNote = async (req, res) => {
   try {

@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const product = require("./product");
-const purchaseInvoice = require("./purchaseInvice");
+const purchaseInvoice = require("./purchaseInvoice");
 
 const purchaseInvoiceItem = sequelize.define("P_purchaseInvoiceItem", {
   productId: { type: DataTypes.INTEGER },

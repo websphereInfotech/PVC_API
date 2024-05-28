@@ -1,23 +1,47 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/index');
-const customer = require('./customer');
-const salesInvoice = require('./salesInvoice');
-const creditNote = require('./creditNote');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/index");
+const customer = require("./customer");
+const salesInvoice = require("./salesInvoice");
+const receiveBank = require("./receiveBank");
 
-const customerLedger = sequelize.define('P_customerLedger', {
-    customerId : {type: DataTypes.INTEGER},
-    creditId : {type: DataTypes.INTEGER},
-    debitId : {type: DataTypes.INTEGER},
-    date : {type: DataTypes.DATEONLY}
+const customerLedger = sequelize.define("P_customerLedger", {
+  customerId: { type: DataTypes.INTEGER },
+  creditId: { type: DataTypes.INTEGER },
+  debitId: { type: DataTypes.INTEGER },
+  date: { type: DataTypes.DATEONLY },
 });
 
-customer.hasMany(customerLedger, {foreignKey:'customerId', onDelete:'CASCADE', as:'customerData'});
-customerLedger.belongsTo(customer, {foreignKey:'customerId', onDelete:'CASCADE', as:'customerData'});
+customer.hasMany(customerLedger, {
+  foreignKey: "customerId",
+  onDelete: "CASCADE",
+  as: "customerData",
+});
+customerLedger.belongsTo(customer, {
+  foreignKey: "customerId",
+  onDelete: "CASCADE",
+  as: "customerData",
+});
 
-salesInvoice.hasMany(customerLedger, {foreignKey:'creditId', onDelete:'CASCADE', as:'invoiceCustomer'});
-customerLedger.belongsTo(salesInvoice, {foreignKey:'creditId', onDelete:'CASCADE', as:'invoiceCustomer'});
+salesInvoice.hasMany(customerLedger, {
+  foreignKey: "creditId",
+  onDelete: "CASCADE",
+  as: "invoiceCustomer",
+});
+customerLedger.belongsTo(salesInvoice, {
+  foreignKey: "creditId",
+  onDelete: "CASCADE",
+  as: "invoiceCustomer",
+});
 
-creditNote.hasMany(customerLedger,{foreignKey:'debitId',onDelete:'CASCADE',as:'creditCustomer'});
-customerLedger.belongsTo(creditNote, {foreignKey:'debitId',onDelete:'CASCADE',as:'creditCustomer'});
+receiveBank.hasMany(customerLedger, {
+  foreignKey: "debitId",
+  onDelete: "CASCADE",
+  as: "receiveCustomer",
+});
+customerLedger.belongsTo(receiveBank, {
+  foreignKey: "debitId",
+  onDelete: "CASCADE",
+  as: "receiveCustomer",
+});
 
 module.exports = customerLedger;

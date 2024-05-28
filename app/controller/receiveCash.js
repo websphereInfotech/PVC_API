@@ -3,6 +3,7 @@ const C_customerLedger = require("../models/C_customerLedger");
 const C_receiveCash = require("../models/C_receiveCash");
 const companyBankDetails = require("../models/companyBankDetails");
 const customer = require("../models/customer");
+const customerLedger = require("../models/customerLedger");
 const receiveBank = require("../models/receiveBank");
 
 /*=============================================================================================================
@@ -21,12 +22,10 @@ exports.C_create_receiveCash = async (req, res) => {
     }
 
     if (description.length > 20) {
-      return res
-        .status(400)
-        .json({
-          status: "false",
-          message: "Description Cannot Have More Then 20 Characters",
-        });
+      return res.status(400).json({
+        status: "false",
+        message: "Description Cannot Have More Then 20 Characters",
+      });
     }
     const data = await C_receiveCash.create({
       customerId,
@@ -60,13 +59,11 @@ exports.C_get_all_receiveCash = async (req, res) => {
       order: [["createdAt", "DESC"]],
     });
     if (data) {
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "Receive Cash Data Fetch Successfully",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "Receive Cash Data Fetch Successfully",
+        data: data,
+      });
     } else {
       return res
         .status(404)
@@ -88,13 +85,11 @@ exports.C_view_receiveCash = async (req, res) => {
       include: [{ model: C_customer, as: "ReceiveCustomer" }],
     });
     if (data) {
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "Receive Cash Data Fetch Successfully",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "Receive Cash Data Fetch Successfully",
+        data: data,
+      });
     } else {
       return res
         .status(404)
@@ -140,13 +135,11 @@ exports.C_update_receiveCash = async (req, res) => {
 
     const data = await C_receiveCash.findByPk(id);
 
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Receive Cash Updated Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Receive Cash Updated Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -213,13 +206,17 @@ exports.create_receive_bank = async (req, res) => {
       accountId,
       amount,
     });
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Receive Bank Create Successfully",
-        data: data,
-      });
+
+    await customerLedger.create({
+      customerId,
+      debitId: data.id,
+      date: paymentdate,
+    });
+    return res.status(200).json({
+      status: "true",
+      message: "Receive Bank Create Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -273,15 +270,20 @@ exports.update_receive_bank = async (req, res) => {
       { where: { id } }
     );
 
+    await customerLedger.update(
+      {
+        customerId,
+        date: paymentdate,
+      },
+      { where: { debitId: id } }
+    );
     const data = await receiveBank.findByPk(id);
 
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Recive Bank Updated Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Recive Bank Updated Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -315,15 +317,19 @@ exports.view_receive_bank = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await receiveBank.findOne({ where: { id },include:[{model:customer,as:'customerBank'},{model:companyBankDetails,as:'receiveBank'}] });
+    const data = await receiveBank.findOne({
+      where: { id },
+      include: [
+        { model: customer, as: "customerBank" },
+        { model: companyBankDetails, as: "receiveBank" },
+      ],
+    });
     if (data) {
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "Receive Bank Show Successfully",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "Receive Bank Show Successfully",
+        data: data,
+      });
     } else {
       return res
         .status(404)
@@ -338,16 +344,19 @@ exports.view_receive_bank = async (req, res) => {
 };
 exports.get_all_receive_bank = async (req, res) => {
   try {
-    const data = await receiveBank.findAll({include:[{model:customer,as:'customerBank'},{model:companyBankDetails, as:'receiveBank'}]});
+    const data = await receiveBank.findAll({
+      include: [
+        { model: customer, as: "customerBank" },
+        { model: companyBankDetails, as: "receiveBank" },
+      ],
+    });
 
     if (data.length > 0) {
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "Receive Bank Show Successfully",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "Receive Bank Show Successfully",
+        data: data,
+      });
     } else {
       return res
         .status(404)

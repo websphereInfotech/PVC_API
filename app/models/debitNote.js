@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const customer = require("./customer");
-const purchaseInvoice = require("./purchaseInvice");
+const purchaseInvoice = require("./purchaseInvoice");
 
 const debitNote = sequelize.define("P_debitNote", {
   customerId: {

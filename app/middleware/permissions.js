@@ -600,6 +600,41 @@ exports.permissions = {
             "view_vendor":true,
             "get_all_vandor":true,
         },
+        "Admin" :{
+            "create_vendor":true,
+            "update_vendor":true,
+            "delete_vandor":true,
+            "view_vendor":true,
+            "view_all_vandor":true,
+        },
+        "Account" :{
+            "create_vendor":true,
+            "update_vendor":true,
+            "delete_vandor":true,
+            "view_vendor":true,
+            "view_all_vandor":true,
+        },
+        "Employee" :{
+            "create_vendor":true,
+            "update_vendor":true,
+            "delete_vandor":true,
+            "view_vendor":true,
+            "view_all_vandor":true,
+        },
+        "Workers" :{
+            "create_vendor":true,
+            "update_vendor":true,
+            "delete_vandor":true,
+            "view_vendor":true,
+            "view_all_vandor":true,
+        },
+        "Other" :{
+            "create_vendor":true,
+            "update_vendor":true,
+            "delete_vandor":true,
+            "view_vendor":true,
+            "view_all_vandor":true,
+        }
     },
     "Customer Ledger" : {
         "Super Admin" :{
@@ -619,6 +654,26 @@ exports.permissions = {
         },
         "Other" :{
             "View_customer_Ledger":true,
+        },
+    },
+    "Vendor Ledger" : {
+        "Super Admin" :{
+            "View_vendor_Ledger":true,
+        },
+        "Admin" :{
+            "View_vendor_Ledger":true,
+        },
+        "Account" :{
+            "View_vendor_Ledger":true,
+        },
+        "Employee" :{
+            "View_vendor_Ledger":true,
+        },
+        "Workers" :{
+            "View_vendor_Ledger":true,
+        },
+        "Other" :{
+            "View_vendor_Ledger":true,
         },
     },
     "Company Bank Details" : {
@@ -709,6 +764,51 @@ exports.permissions = {
             "delete_receive_bank":true,
             "view_receive_bank":true,
             "get_all_receive_bank":true
+        },
+    },
+    "Payment Bank" : {
+        "Super Admin" :{
+            "create_payment_bank":true,
+            "update_payment_bank":true,
+            "delete_payment_bank":true,
+            "view_payment_bank":true,
+            "view_all_payment_bank":true
+
+        },
+        "Admin" :{
+            "create_payment_bank":true,
+            "update_payment_bank":true,
+            "delete_payment_bank":true,
+            "view_payment_bank":true,
+            "view_all_payment_bank":true
+        },
+        "Account" :{
+            "create_payment_bank":true,
+            "update_payment_bank":true,
+            "delete_payment_bank":true,
+            "view_payment_bank":true,
+            "view_all_payment_bank":true
+        },
+        "Employee" :{
+            "create_payment_bank":true,
+            "update_payment_bank":true,
+            "delete_payment_bank":true,
+            "view_payment_bank":true,
+            "view_all_payment_bank":true
+        },
+        "Workers" :{
+            "create_payment_bank":true,
+            "update_payment_bank":true,
+            "delete_payment_bank":true,
+            "view_payment_bank":true,
+            "view_all_payment_bank":true
+        },
+        "Other" :{
+            "create_payment_bank":true,
+            "update_payment_bank":true,
+            "delete_payment_bank":true,
+            "view_payment_bank":true,
+            "view_all_payment_bank":true
         },
     },
     "Sales Cash" : {
