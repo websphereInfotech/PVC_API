@@ -51,11 +51,31 @@ router.get(
 /*=============================================================================================================
                                            Typc C API
  ============================================================================================================ */
-router.post('/C_create_salesinvoice',adminAuth("Sales Cash:create_sales_cash"),validation('C_create_salesinvoice'),C_create_salesinvoice);
-router.put('/C_update_salesinvoice/:id',adminAuth("Sales Cash:update_sales_cash"),C_update_salesinvoice);
-router.delete('/C_delete_salesInvoice/:id',adminAuth("Sales Cash:delete_sales_cash"),C_delete_salesInvoice);
-router.get('/C_view_salesInvoice/:id',adminAuth("Sales Cash:view_sales_cash"),C_view_salesInvoice);
-router.get('/C_get_all_salesInvoice',adminAuth("Sales Cash:view_all_sales_cash"),C_get_all_salesInvoice);
-
+router.post(
+  "/C_create_salesinvoice",
+  adminAuth("Sales Cash:create_sales_cash"),
+  validation("C_create_salesinvoice"),
+  C_create_salesinvoice
+);
+router.put(
+  "/C_update_salesinvoice/:id",
+  adminAuth("Sales Cash:update_sales_cash"),
+  C_update_salesinvoice
+);
+router.delete(
+  "/C_delete_salesInvoice/:id",
+  adminAuth("Sales Cash:delete_sales_cash"),
+  C_delete_salesInvoice
+);
+router.get(
+  "/C_view_salesInvoice/:id",
+  adminAuth("Sales Cash:view_sales_cash"),
+  C_view_salesInvoice
+);
+router.get(
+  "/C_get_all_salesInvoice",
+  adminAuth("Sales Cash:view_all_sales_cash"),
+  C_get_all_salesInvoice
+);
 
 module.exports = router;

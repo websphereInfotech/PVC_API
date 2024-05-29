@@ -53,6 +53,7 @@ router.delete(
 router.post(
   "/create_receive_bank",
   adminAuth("Receive Bank:create_receive_bank"),
+  validation('create_receive_bank'),
   create_receive_bank
 );
 router.put(

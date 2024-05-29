@@ -253,6 +253,7 @@ exports.vendor = function (req, res, next) {
     "any.required": "Required Filed : Vendor",
     "string.empty": "Vendor Cannot Be Empty",
   });
+  
   const { error } = vendorSchema.validate(vendor);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
@@ -261,11 +262,12 @@ exports.vendor = function (req, res, next) {
 };
 exports.voucherno = function (req, res, next) {
   const { voucherno } = req.body;
-  const vouchernoSchema = Joi.string().required().messages({
+  const vouchernoSchema = Joi.number().required().messages({
     "any.required": "Required Filed : Voucher No",
-    "string.empty": "Voucher No Cannot Be Empty",
+    "number.empty": "Voucher No Cannot Be Empty",
   });
-  const { error } = vouchernoSchema.validate(voucherno);
+  const valueToValidate = voucherno === '' ? undefined : voucherno;
+    const { error } = vouchernoSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }

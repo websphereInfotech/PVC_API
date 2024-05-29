@@ -5,6 +5,7 @@ const companyBankDetails = require("../models/companyBankDetails");
 const customer = require("../models/customer");
 const customerLedger = require("../models/customerLedger");
 const receiveBank = require("../models/receiveBank");
+const User = require("../models/user");
 
 /*=============================================================================================================
                                            Typc C API
@@ -175,6 +176,8 @@ exports.C_delete_receiveCash = async (req, res) => {
  ============================================================================================================ */
 exports.create_receive_bank = async (req, res) => {
   try {
+    const user = req.user.userId;
+
     const {
       voucherno,
       customerId,
@@ -185,6 +188,11 @@ exports.create_receive_bank = async (req, res) => {
       amount,
     } = req.body;
 
+    if (!customerId || customerId === "" || customerId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required field : Customer" });
+    }
     const customerData = await customer.findByPk(customerId);
     if (!customerData) {
       return res
@@ -205,6 +213,8 @@ exports.create_receive_bank = async (req, res) => {
       referance,
       accountId,
       amount,
+      createdBy: user,
+      updatedBy: user,
     });
 
     await customerLedger.create({
@@ -226,6 +236,7 @@ exports.create_receive_bank = async (req, res) => {
 };
 exports.update_receive_bank = async (req, res) => {
   try {
+    const user = req.user.userId;
     const { id } = req.params;
 
     const {
@@ -242,7 +253,7 @@ exports.update_receive_bank = async (req, res) => {
     if (!receiveBankId) {
       return res
         .status(404)
-        .json({ status: "false", message: "Recive Bank Not Found" });
+        .json({ status: "false", message: "Receive Bank Not Found" });
     }
     const customerData = await customer.findByPk(customerId);
     if (!customerData) {
@@ -266,6 +277,8 @@ exports.update_receive_bank = async (req, res) => {
         referance,
         accountId,
         amount,
+        createdBy: receiveBankId.createdBy,
+        updatedBy: user,
       },
       { where: { id } }
     );
@@ -348,6 +361,8 @@ exports.get_all_receive_bank = async (req, res) => {
       include: [
         { model: customer, as: "customerBank" },
         { model: companyBankDetails, as: "receiveBank" },
+        { model: User, as: "bankCreateUser", attributes: ["username"] },
+        { model: User, as: "bankUpdateUser", attributes: ["username"] },
       ],
     });
 

@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const customer = require("./customer");
 const ProFormaInvoice = require("./ProFormaInvoice");
+const User = require('./user');
 
 const salesInvoice = sequelize.define("P_salesInvoice", {
   dispatchno: {
@@ -18,7 +19,7 @@ const salesInvoice = sequelize.define("P_salesInvoice", {
     )
   },
   invoiceno: { type: DataTypes.INTEGER },
-  invoicedate: { type: DataTypes.DATE },
+  invoicedate: { type: DataTypes.DATEONLY },
   termsOfDelivery : {type: DataTypes.STRING},
   proFormaId: { type: DataTypes.INTEGER },
   dispatchThrough: { type: DataTypes.STRING },
@@ -37,11 +38,20 @@ const salesInvoice = sequelize.define("P_salesInvoice", {
     type: DataTypes.INTEGER,
     defaultValue:0
   },
+  createdBy : {
+    type: DataTypes.INTEGER
+  },
+  updatedBy: { type: DataTypes.INTEGER}
 });
 
+User.hasMany(salesInvoice,{foreignKey:'createdBy',onDelete:'CASCADE', as:'createUser'});
+salesInvoice.belongsTo(User,{foreignKey:'createdBy',onDelete:"CASCADE", as:'createUser'});
 
-ProFormaInvoice.hasMany(salesInvoice, { foreignKey: 'proFormaId', onDelete: 'CASCADE',as:'proFormaItem' });
-salesInvoice.belongsTo(ProFormaInvoice, { foreignKey: 'proFormaId', onDelete: 'CASCADE',as:'proFormaItem' });
+User.hasMany(salesInvoice,{foreignKey:'updatedBy',onDelete:'CASCADE', as:'updateUser'});
+salesInvoice.belongsTo(User,{foreignKey:'updatedBy',onDelete:"CASCADE", as:'updateUser'});
+
+ProFormaInvoice.hasMany(salesInvoice, { foreignKey: 'proFormaId', onDelete: 'CASCADE', as:'proFormaItem' });
+salesInvoice.belongsTo(ProFormaInvoice, { foreignKey: 'proFormaId', onDelete: 'CASCADE', as:'proFormaItem' });
 
 customer.hasMany(salesInvoice, { foreignKey: 'customerId', onDelete: 'CASCADE', as: 'InvioceCustomer' });
 salesInvoice.belongsTo(customer, { foreignKey: 'customerId', onDelete: 'CASCADE', as: 'InvioceCustomer' });

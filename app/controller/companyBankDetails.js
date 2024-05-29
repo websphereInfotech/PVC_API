@@ -10,6 +10,10 @@ exports.create_company_bankDetails = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Required Feild:Comapny" });
     }
+    const companyData = await company.findByPk(companyId); 
+    if(!companyData) {
+      return res.status(404).json({ status:'false', message:'Comapny Not Found'});
+    }
     const existingAccount = await companyBankDetails.findOne({
       where: { accountnumber: accountnumber },
     });

@@ -54,6 +54,7 @@ router.get(
 router.post(
   "/create_payment_bank",
   adminAuth("Payment Bank:create_payment_bank"),
+  validation("create_payment_bank"),
   create_payment_bank
 );
 router.put(

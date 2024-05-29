@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const customer = require("./customer");
+const User = require("./user");
 // const moment = require('moment');
 const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
   ProFormaInvoice_no: {
@@ -8,10 +9,10 @@ const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
     allowNull: false,
   },
   date: {
-    type: DataTypes.DATE
+    type: DataTypes.DATEONLY
   },
   validtill: {
-    type: DataTypes.DATE
+    type: DataTypes.DATEONLY
   },
   customerId:{  
     type: DataTypes.INTEGER,
@@ -53,7 +54,15 @@ const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
     type: DataTypes.INTEGER,
     defaultValue:0
   },
+  createdBy : { type: DataTypes.INTEGER},
+  updatedBy: {type: DataTypes.INTEGER}
 });
+
+User.hasMany(ProFormaInvoice,{foreignKey:'createdBy',onDelete:'CASCADE', as:'proCreateUser'});
+ProFormaInvoice.belongsTo(User,{foreignKey:'createdBy',onDelete:"CASCADE", as:'proCreateUser'});
+
+User.hasMany(ProFormaInvoice,{foreignKey:'updatedBy',onDelete:'CASCADE', as:'proUpdateUser'});
+ProFormaInvoice.belongsTo(User,{foreignKey:'updatedBy',onDelete:"CASCADE", as:'proUpdateUser'});
 
 customer.hasMany(ProFormaInvoice,{foreignKey:'customerId', onDelete:"CASCADE", as:'customer'});
 ProFormaInvoice.belongsTo(customer,{foreignKey:'customerId', onDelete:'CASCADE', as:'customer'});

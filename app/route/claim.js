@@ -20,13 +20,21 @@ router.post(
   validation("create_claim"),
   create_claim
 );
-router.put("/update_claim/:id", adminToken("Claim Cash:update_claim"), update_claim);
+router.put(
+  "/update_claim/:id",
+  adminToken("Claim Cash:update_claim"),
+  update_claim
+);
 router.delete(
   "/delete_claim/:id",
   adminToken("Claim Cash:delete_claim"),
   delete_claim
 );
-router.get("/view_myclaim", adminToken("Claim Cash:view_myclaim"), view_myclaim);
+router.get(
+  "/view_myclaim",
+  adminToken("Claim Cash:view_myclaim"),
+  view_myclaim
+);
 router.get(
   "/view_reciveclaim",
   adminToken("Claim Cash:view_reciveclaim"),
@@ -38,7 +46,15 @@ router.post(
   isapproved_claim
 );
 
-router.get('/view_single_claim/:id',adminToken('Claim Cash:view_single_claim'),view_single_claim);
+router.get(
+  "/view_single_claim/:id",
+  adminToken("Claim Cash:view_single_claim"),
+  view_single_claim
+);
 
-router.get('/view_claim_ledger',adminToken("Claim Cash:view_claim_ledger"),view_claim_ledger);
+router.get(
+  "/view_claim_ledger",
+  adminToken("Claim Cash:view_claim_ledger"),
+  view_claim_ledger
+);
 module.exports = router;

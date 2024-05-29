@@ -47,6 +47,10 @@ router.get(
                                            Typc C API
  ============================================================================================================ */
 
- router.get('/C_get_all_product',adminAuth("Product Cash:get_all_product_cash"),C_get_all_product);
+router.get(
+  "/C_get_all_product",
+  adminAuth("Product Cash:get_all_product_cash"),
+  C_get_all_product
+);
 
 module.exports = router;

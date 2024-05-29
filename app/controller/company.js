@@ -1,4 +1,5 @@
 const company = require("../models/company");
+const companyBankDetails = require("../models/companyBankDetails");
 
 exports.create_company = async (req, res) => {
   try {
@@ -35,13 +36,11 @@ exports.create_company = async (req, res) => {
       city,
       country,
     });
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Company Create Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Company Create Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -54,17 +53,17 @@ exports.update_company = async (req, res) => {
     const { id } = req.params;
     const companyId = await company.findByPk(id);
     const {
-        companyname,
-        gstnumber,
-        email,
-        mobileno,
-        address1,
-        address2,
-        pincode,
-        state,
-        city,
-        country
-      } = req.body;
+      companyname,
+      gstnumber,
+      email,
+      mobileno,
+      address1,
+      address2,
+      pincode,
+      state,
+      city,
+      country,
+    } = req.body;
 
     if (!companyId) {
       return res
@@ -83,20 +82,18 @@ exports.update_company = async (req, res) => {
         pincode,
         state,
         city,
-        country
+        country,
       },
       { where: { id } }
     );
 
     const data = await company.findByPk(id);
 
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Company Updated Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Company Updated Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -129,13 +126,11 @@ exports.get_all_company = async (req, res) => {
   try {
     const data = await company.findAll();
     if (data) {
-      return res
-        .status(200)
-        .json({
-          status: "Success",
-          message: "Company Data Show Successfully",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "Success",
+        message: "Company Data Show Successfully",
+        data: data,
+      });
     } else {
       return res
         .status(404)
@@ -152,19 +147,20 @@ exports.view_single_company = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await company.findByPk(id);
+    const data = await company.findOne({
+      where: { id },
+      include: [{ model: companyBankDetails, as: "comapnyBank" }],
+    });
     if (!data) {
       return res
         .status(404)
         .json({ status: "false", message: "Company Not Found" });
     } else {
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "Company Show Successfully",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "Company Show Successfully",
+        data: data,
+      });
     }
   } catch (error) {
     console.error(error);

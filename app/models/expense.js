@@ -11,7 +11,7 @@ const expense = sequelize.define("P_expense", {
     type: DataTypes.STRING,
   },
   date: {
-    type: DataTypes.DATE,
+    type: DataTypes.DATEONLY,
   },
   gstin: {
     type: DataTypes.STRING,

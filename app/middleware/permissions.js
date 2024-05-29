@@ -346,50 +346,6 @@ exports.permissions = {
             "view_all_deliverychallan":true
         }
     },
-    // "Payment" : {
-    //     "Super Admin" :{
-    //         "create_payment":true,
-    //         "update_payment":true,
-    //         "delete_payment":true,
-    //         "view_single_payment":true,
-    //         "view_all_payment":true,
-    //     },
-    //     "Admin" :{
-    //         "create_payment":true,
-    //         "update_payment":true,
-    //         "delete_payment":true,
-    //         "view_single_payment":true,
-    //         "view_all_payment":true,
-    //     },
-    //     "Account" :{
-    //         "create_payment":true,
-    //         "update_payment":true,
-    //         "delete_payment":true,
-    //         "view_single_payment":true,
-    //         "view_all_payment":true,
-    //     },
-    //     "Employee" :{
-    //         "create_payment":true,
-    //         "update_payment":true,
-    //         "delete_payment":true,
-    //         "view_single_payment":true,
-    //         "view_all_payment":true,
-    //     },
-    //     "Workers" :{
-    //         "create_payment":true,
-    //         "update_payment":true,
-    //         "delete_payment":true,
-    //         "view_single_payment":true,
-    //         "view_all_payment":true,
-    //     },
-    //     "Other" :{
-    //         "create_payment":true,
-    //         "update_payment":true,
-    //         "delete_payment":true,
-    //         "view_single_payment":true,
-    //         "view_all_payment":true,
-    //     }
-    // },
     // "Stock" : {
     //     "Super Admin" :{
     //         "create_stockitem":true,
@@ -598,7 +554,7 @@ exports.permissions = {
             "update_vendor":true,
             "delete_vandor":true,
             "view_vendor":true,
-            "get_all_vandor":true,
+            "view_all_vandor":true,
         },
         "Admin" :{
             "create_vendor":true,

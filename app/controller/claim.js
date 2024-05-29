@@ -172,7 +172,7 @@ exports.isapproved_claim = async (req, res) => {
         });
     }
     data.isApproved = isApproved;
-
+    
     await data.save();
 
     return res

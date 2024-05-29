@@ -1,4 +1,4 @@
-const { email, password, mobileno, challanno, date, customerId,  mrp, qty, productId, description, batchno, quotationno, expirydate, vendor, voucherno, gstin, billno, billdate, payment, expensse, taxable, account, paymentdate, refno, quotationref, pono, mode, paidfrom, amount, ProFormaInvoice_no, rate, discount, validtill, creditnote, creditdate, invoiceno, invoicedate, itemname, unit, accountname, shortname, contactpersonname, panno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, itemtype, productname, nagativeqty, lowstock, purchaseprice, salesprice, group, remarks, category, unitname, terms, duedate, book, debitnote, debitdate, refdate, price, bill_no, bill_date, depositto,  receiptdate, accountnumber, ifsccode, bankname, country, username, salary, role, gstnumber, HSNcode, companyname, proFormaId, branch, debitnoteno, creditnoteNo, org_invoiceno, org_invoicedate, gstrate, purpose
+const { email, password, mobileno, challanno, date, customerId,  mrp, qty, productId, description, batchno, quotationno, expirydate, vendor, voucherno, gstin, billno, billdate, payment, expensse, taxable, account, paymentdate, refno, quotationref, pono, mode, paidfrom, amount, ProFormaInvoice_no, rate, discount, validtill, creditnote, creditdate, invoiceno, invoicedate, itemname, unit, accountname, shortname, contactpersonname, panno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, itemtype, productname, nagativeqty, lowstock, purchaseprice, salesprice, group, remarks, category, unitname, terms, duedate, book, debitnote, debitdate, refdate, price, bill_no, bill_date, depositto,  receiptdate, accountnumber, ifsccode, bankname, country, username, salary, role, gstnumber, HSNcode, companyname, proFormaId, branch, debitnoteno, creditnoteNo, org_invoiceno, org_invoicedate, gstrate, purpose, referance
 } = require("./validation")
 
 module.exports.validation = function (method) {
@@ -65,6 +65,8 @@ module.exports.validation = function (method) {
             return [bankname,accountnumber,ifsccode,branch]
         case "create_receive_bank":
           return [voucherno,paymentdate,mode,referance,amount]
+        case "create_payment_bank":
+            return[voucherno,paymentdate,mode,referance,amount]
         default:
             throw new Error('Invalid validation method')
     }

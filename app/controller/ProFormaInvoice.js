@@ -2,9 +2,11 @@ const ProFormaInvoice = require("../models/ProFormaInvoice");
 const ProFormaInvoiceItem = require("../models/ProFormaInvoiceItem");
 const customer = require("../models/customer");
 const product = require("../models/product");
+const User = require("../models/user");
 
 exports.create_ProFormaInvoice = async (req, res) => {
   try {
+    const user = req.user.userId;
     const {
       ProFormaInvoice_no,
       date,
@@ -22,7 +24,7 @@ exports.create_ProFormaInvoice = async (req, res) => {
       totalMrp,
       mainTotal,
       totalQty,
-      items
+      items,
     } = req.body;
     // for (const item of items) {
     //   const mrp = item.qty * item.rate;
@@ -89,7 +91,9 @@ exports.create_ProFormaInvoice = async (req, res) => {
       totalSgst,
       totalMrp,
       mainTotal,
-      totalQty
+      totalQty,
+      createdBy: user,
+      updatedBy: user,
     });
 
     const addToProduct = items.map((item) => ({
@@ -125,6 +129,8 @@ exports.get_all_ProFormaInvoice = async (req, res) => {
           include: [{ model: product, as: "product" }],
         },
         { model: customer, as: "customer" },
+        { model: User, as: "proCreateUser", attributes: ["username"] },
+        { model: User, as: "proUpdateUser", attributes: ["username"] },
       ],
     });
 
@@ -179,6 +185,7 @@ exports.view_ProFormaInvoice = async (req, res) => {
 };
 exports.update_ProFormaInvoice = async (req, res) => {
   try {
+    const user = req.user.userId;
     const { id } = req.params;
     const {
       ProFormaInvoice_no,
@@ -197,7 +204,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
       totalSgst,
       totalMrp,
       mainTotal,
-      totalQty
+      totalQty,
     } = req.body;
 
     const existingInvoice = await ProFormaInvoice.findByPk(id);
@@ -239,7 +246,9 @@ exports.update_ProFormaInvoice = async (req, res) => {
         totalSgst,
         totalMrp,
         mainTotal,
-        totalQty
+        totalQty,
+        createdBy: existingInvoice.createdBy,
+        updatedBy: user,
       },
       { where: { id } }
     );
@@ -266,11 +275,9 @@ exports.update_ProFormaInvoice = async (req, res) => {
         (ei) => ei.productId === item.productId && ei.rate === item.rate
       );
       if (existingItem) {
-        
         existingItem.qty = item.qty;
         await existingItem.save();
       } else {
-        
         await ProFormaInvoiceItem.create({
           InvoiceId: id,
           productId: item.productId,
@@ -280,12 +287,20 @@ exports.update_ProFormaInvoice = async (req, res) => {
         });
       }
     }
-    const updatedProducts = items.map((item) => ({ productId: item.productId, rate: item.rate }));
-    
+    const updatedProducts = items.map((item) => ({
+      productId: item.productId,
+      rate: item.rate,
+    }));
+
     const itemsToDelete = existingItems.filter(
-      (item) => !updatedProducts.some((updatedItem) => updatedItem.productId === item.productId && updatedItem.rate === item.rate)
+      (item) =>
+        !updatedProducts.some(
+          (updatedItem) =>
+            updatedItem.productId === item.productId &&
+            updatedItem.rate === item.rate
+        )
     );
-    
+
     for (const item of itemsToDelete) {
       await item.destroy();
     }

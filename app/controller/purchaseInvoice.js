@@ -6,6 +6,7 @@ const C_vendorLedger = require("../models/C_vendorLedger");
 const product = require("../models/product");
 const purchaseInvoice = require("../models/purchaseInvoice");
 const purchaseInvoiceItem = require("../models/purchaseInvoiceItem");
+const User = require("../models/user");
 const vendor = require("../models/vendor");
 const vendorLedger = require("../models/vendorLedger");
 
@@ -15,6 +16,7 @@ const vendorLedger = require("../models/vendorLedger");
 
 exports.create_purchaseInvoice = async (req, res) => {
   try {
+    const user = req.user.userId;
     const {
       vendorId,
       duedate,
@@ -58,6 +60,8 @@ exports.create_purchaseInvoice = async (req, res) => {
       totalMrp,
       totalQty,
       mainTotal,
+      createdBy:user,
+      updatedBy:user
     });
 
     await vendorLedger.create({
@@ -92,6 +96,7 @@ exports.create_purchaseInvoice = async (req, res) => {
 };
 exports.update_purchaseInvoice = async (req, res) => {
   try {
+    const user = req.user.userId;
     const { id } = req.params;
     const {
       vendorId,
@@ -138,6 +143,8 @@ exports.update_purchaseInvoice = async (req, res) => {
         totalMrp,
         totalQty,
         mainTotal,
+        createdBy:existingPurchase.createdBy,
+        updatedBy:user
       },
       { where: { id } }
     );
@@ -252,6 +259,8 @@ exports.get_all_purchaseInvoice = async (req, res) => {
           include: [{ model: product, as: "purchseProduct" }],
         },
         { model: vendor, as: "purchseVendor" },
+        {model: User, as:'salesCreateUser', attributes:['username']},
+        {model:User, as:'salesUpdateUser',attributes:['username']}
       ],
     });
     if (data) {

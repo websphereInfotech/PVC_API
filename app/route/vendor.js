@@ -35,7 +35,7 @@ router.delete(
 );
 router.get(
   "/get_all_vandor",
-  adminAuth("Vendor:get_all_vandor"),
+  adminAuth("Vendor:view_all_vandor"),
   get_all_vandor
 );
 
@@ -45,6 +45,10 @@ router.get("/view_vendor/:id", adminAuth("Vendor:view_vendor"), view_vendor);
                                            Typc C API
  ============================================================================================================ */
 
- router.get('/C_get_all_vandor',adminAuth('Vendor Cash:get_all_vandor_cash'),C_get_all_vandor)
+router.get(
+  "/C_get_all_vandor",
+  adminAuth("Vendor Cash:get_all_vandor_cash"),
+  C_get_all_vandor
+);
 
 module.exports = router;

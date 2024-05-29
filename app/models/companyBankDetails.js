@@ -11,7 +11,7 @@ const companyBankDetails = sequelize.define('P_companyBankDetails', {
     branch: {type: DataTypes.STRING}
 });
 
-company.hasMany(companyBankDetails,{foreignKey:'companyId', onDelete:'CASCADE'});
-companyBankDetails.belongsTo(company,{foreignKey:'companyId', onDelete:'CASCADE'});
+company.hasMany(companyBankDetails,{foreignKey:'companyId', onDelete:'CASCADE',as:'comapnyBank'});
+companyBankDetails.belongsTo(company,{foreignKey:'companyId', onDelete:'CASCADE',as:'comapnyBank'});
 
 module.exports = companyBankDetails;

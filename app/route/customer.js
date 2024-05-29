@@ -25,7 +25,7 @@ router.post(
 router.put(
   "/update_customer/:id",
   adminAuth("Customer:update_customer"),
-  validation('update_customer'),
+  validation("update_customer"),
   update_customer
 );
 router.delete(
@@ -48,6 +48,10 @@ router.get(
                                            Typc C API
  ============================================================================================================ */
 
-router.get('/C_get_all_customer',adminAuth('Customer Cash:get_all_customer_cash'),C_get_all_customer);
+router.get(
+  "/C_get_all_customer",
+  adminAuth("Customer Cash:get_all_customer_cash"),
+  C_get_all_customer
+);
 
 module.exports = router;
