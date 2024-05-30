@@ -407,6 +407,7 @@ exports.delete_salesInvoice = async (req, res) => {
 
 exports.C_create_salesinvoice = async (req, res) => {
   try {
+    const user = req.user.userId;
     const { customerId, date, totalMrp, items } = req.body;
 
     const customerData = await C_customer.findByPk(customerId);
@@ -432,6 +433,8 @@ exports.C_create_salesinvoice = async (req, res) => {
       customerId,
       date,
       totalMrp,
+      createdBy:user,
+      updatedBy:user
     });
 
     await C_customerLedger.create({
@@ -466,6 +469,8 @@ exports.C_create_salesinvoice = async (req, res) => {
 };
 exports.C_update_salesinvoice = async (req, res) => {
   try {
+    const user = req.user.userId;
+    
     const { id } = req.params;
     const { customerId, date, totalMrp, items } = req.body;
 
@@ -496,6 +501,8 @@ exports.C_update_salesinvoice = async (req, res) => {
         customerId,
         date,
         totalMrp,
+        createdBy:existingInvoice.createdBy,
+        updatedBy:user
       },
       { where: { id } }
     );
@@ -586,6 +593,8 @@ exports.C_get_all_salesInvoice = async (req, res) => {
           include: [{ model: C_product, as: "CashProduct" }],
         },
         { model: C_customer, as: "CashCustomer" },
+        {model:User,as:'salesInvoiceCreate', attributes:['username']},
+        {model:User,as:'salesInvoiceUpdate',attributes:['username']}
       ],
     });
     if (!data) {

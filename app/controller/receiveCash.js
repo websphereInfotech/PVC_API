@@ -1,3 +1,5 @@
+
+const C_claimLedger = require("../models/C_claimLedger");
 const C_customer = require("../models/C_customer");
 const C_customerLedger = require("../models/C_customerLedger");
 const C_receiveCash = require("../models/C_receiveCash");
@@ -13,6 +15,7 @@ const User = require("../models/user");
 
 exports.C_create_receiveCash = async (req, res) => {
   try {
+    const user = req.user.userId;
     const { customerId, amount, description, date } = req.body;
 
     const customerData = await C_customer.findByPk(customerId);
@@ -33,12 +36,20 @@ exports.C_create_receiveCash = async (req, res) => {
       amount,
       description,
       date,
+      createdBy: user,
+      updatedBy: user,
     });
 
     await C_customerLedger.create({
       customerId,
       debitId: data.id,
       date,
+    });
+
+    await C_claimLedger.create({
+      receiveId:data.id,
+      userId:user,
+      date
     });
     return res.status(200).json({
       status: "true",
@@ -56,7 +67,11 @@ exports.C_create_receiveCash = async (req, res) => {
 exports.C_get_all_receiveCash = async (req, res) => {
   try {
     const data = await C_receiveCash.findAll({
-      include: [{ model: C_customer, as: "ReceiveCustomer" }],
+      include: [
+        { model: C_customer, as: "ReceiveCustomer" },
+        { model: User, as: "receiveCreate", attributes: ["username"] },
+        { model: User, as: "receiveUpdate", attributes: ["username"] },
+      ],
       order: [["createdAt", "DESC"]],
     });
     if (data) {
@@ -106,6 +121,7 @@ exports.C_view_receiveCash = async (req, res) => {
 
 exports.C_update_receiveCash = async (req, res) => {
   try {
+    const user = req.user.userId;
     const { id } = req.params;
     const { customerId, amount, description, date } = req.body;
 
@@ -122,6 +138,8 @@ exports.C_update_receiveCash = async (req, res) => {
         amount,
         description,
         date,
+        createdBy:receiveId.createdBy,
+        updatedBy:user
       },
       { where: { id: id } }
     );
@@ -133,7 +151,9 @@ exports.C_update_receiveCash = async (req, res) => {
       },
       { where: { debitId: id } }
     );
-
+    await C_claimLedger.update({
+      date
+    },{where:{receiveId:id}});
     const data = await C_receiveCash.findByPk(id);
 
     return res.status(200).json({

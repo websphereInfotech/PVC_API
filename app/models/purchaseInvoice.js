@@ -34,11 +34,11 @@ const purchaseInvoice = sequelize.define("P_purchaseInvoice", {
   updatedBy:{type: DataTypes.INTEGER}
 });
 
-User.hasMany(purchaseInvoice,{foreignKey:'createdBy',onDelete:'CASCADE', as:'salesCreateUser'});
-purchaseInvoice.belongsTo(User,{foreignKey:'createdBy',onDelete:"CASCADE", as:'salesCreateUser'});
+User.hasMany(purchaseInvoice,{foreignKey:'createdBy', as:'salesCreateUser'});
+purchaseInvoice.belongsTo(User,{foreignKey:'createdBy', as:'salesCreateUser'});
 
-User.hasMany(purchaseInvoice,{foreignKey:'updatedBy',onDelete:'CASCADE', as:'salesUpdateUser'});
-purchaseInvoice.belongsTo(User,{foreignKey:'updatedBy',onDelete:"CASCADE", as:'salesUpdateUser'});
+User.hasMany(purchaseInvoice,{foreignKey:'updatedBy', as:'salesUpdateUser'});
+purchaseInvoice.belongsTo(User,{foreignKey:'updatedBy', as:'salesUpdateUser'});
 
 vendor.hasMany(purchaseInvoice,{foreignKey:'vendorId', onDelete:'CASCADE',as:'purchseVendor'});
 purchaseInvoice.belongsTo(vendor, {foreignKey:'vendorId', onDelete:'CASCADE',as:'purchseVendor'});

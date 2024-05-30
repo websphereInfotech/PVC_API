@@ -9,17 +9,16 @@ const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
     allowNull: false,
   },
   date: {
-    type: DataTypes.DATEONLY
+    type: DataTypes.DATEONLY,
   },
   validtill: {
-    type: DataTypes.DATEONLY
+    type: DataTypes.DATEONLY,
   },
-  customerId:{  
+  customerId: {
     type: DataTypes.INTEGER,
     allowNull: false,
-
   },
-  termsOfDelivery : {type: DataTypes.STRING},
+  termsOfDelivery: { type: DataTypes.STRING },
   dispatchThrough: { type: DataTypes.STRING },
   destination: { type: DataTypes.STRING },
   LL_RR_no: { type: DataTypes.INTEGER },
@@ -28,11 +27,7 @@ const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
     type: DataTypes.INTEGER,
   },
   terms: {
-    type: DataTypes.ENUM(
-      "Advance",
-      "Immediate",
-      "Terms"
-    )
+    type: DataTypes.ENUM("Advance", "Immediate", "Terms"),
   },
   totalIgst: {
     type: DataTypes.FLOAT,
@@ -52,19 +47,33 @@ const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
   },
   totalQty: {
     type: DataTypes.INTEGER,
-    defaultValue:0
+    defaultValue: 0,
   },
-  createdBy : { type: DataTypes.INTEGER},
-  updatedBy: {type: DataTypes.INTEGER}
+  createdBy: { type: DataTypes.INTEGER },
+  updatedBy: { type: DataTypes.INTEGER },
 });
 
-User.hasMany(ProFormaInvoice,{foreignKey:'createdBy',onDelete:'CASCADE', as:'proCreateUser'});
-ProFormaInvoice.belongsTo(User,{foreignKey:'createdBy',onDelete:"CASCADE", as:'proCreateUser'});
+User.hasMany(ProFormaInvoice, { foreignKey: "createdBy", as: "proCreateUser" });
+ProFormaInvoice.belongsTo(User, {
+  foreignKey: "createdBy",
+  as: "proCreateUser",
+});
 
-User.hasMany(ProFormaInvoice,{foreignKey:'updatedBy',onDelete:'CASCADE', as:'proUpdateUser'});
-ProFormaInvoice.belongsTo(User,{foreignKey:'updatedBy',onDelete:"CASCADE", as:'proUpdateUser'});
+User.hasMany(ProFormaInvoice, { foreignKey: "updatedBy", as: "proUpdateUser" });
+ProFormaInvoice.belongsTo(User, {
+  foreignKey: "updatedBy",
+  as: "proUpdateUser",
+});
 
-customer.hasMany(ProFormaInvoice,{foreignKey:'customerId', onDelete:"CASCADE", as:'customer'});
-ProFormaInvoice.belongsTo(customer,{foreignKey:'customerId', onDelete:'CASCADE', as:'customer'});
+customer.hasMany(ProFormaInvoice, {
+  foreignKey: "customerId",
+  onDelete: "CASCADE",
+  as: "customer",
+});
+ProFormaInvoice.belongsTo(customer, {
+  foreignKey: "customerId",
+  onDelete: "CASCADE",
+  as: "customer",
+});
 
 module.exports = ProFormaInvoice;

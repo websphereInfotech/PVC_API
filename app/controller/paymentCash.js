@@ -13,6 +13,7 @@ const vendorLedger = require("../models/vendorLedger");
 
 exports.C_create_paymentCash = async (req, res) => {
   try {
+    const user = req.user.userId;
     const { vendorId, amount, description, date } = req.body;
 
     const customerData = await C_vendor.findByPk(vendorId);
@@ -33,6 +34,8 @@ exports.C_create_paymentCash = async (req, res) => {
       amount,
       description,
       date,
+      createdBy:user,
+      updatedBy:user
     });
 
     await C_vendorLedger.create({
@@ -56,7 +59,7 @@ exports.C_create_paymentCash = async (req, res) => {
 exports.C_get_all_paymentCash = async (req, res) => {
   try {
     const data = await C_PaymentCash.findAll({
-      include: [{ model: C_vendor, as: "PaymentVendor" }],
+      include: [{ model: C_vendor, as: "PaymentVendor" },{model:User, as:'paymentCreate',attributes:['username']}, {model:User,as:'paymentUpdate',attributes:['username']}],
       order: [["createdAt", "DESC"]],
     });
     if (data) {
@@ -106,9 +109,14 @@ exports.C_view_paymentCash = async (req, res) => {
 
 exports.C_update_paymentCash = async (req, res) => {
   try {
+    const user = req.user.userId;
     const { id } = req.params;
     const { vendorId, amount, description, date } = req.body;
 
+    const vendorData = await vendor.findByPk(vendorId);
+    if(!vendorData) {
+      return res.status(404).json({ status:'false', message:'Vendor Not Found'});
+    }
     const paymentId = await C_PaymentCash.findByPk(id);
     if (!paymentId) {
       return res
@@ -122,6 +130,8 @@ exports.C_update_paymentCash = async (req, res) => {
         amount,
         description,
         date,
+        createdBy:paymentId.createdBy,
+        updatedBy:user
       },
       { where: { id: id } }
     );

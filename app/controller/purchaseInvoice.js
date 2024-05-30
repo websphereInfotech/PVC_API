@@ -60,8 +60,8 @@ exports.create_purchaseInvoice = async (req, res) => {
       totalMrp,
       totalQty,
       mainTotal,
-      createdBy:user,
-      updatedBy:user
+      createdBy: user,
+      updatedBy: user,
     });
 
     await vendorLedger.create({
@@ -80,13 +80,11 @@ exports.create_purchaseInvoice = async (req, res) => {
       where: { id: purchseData.id },
       include: [{ model: purchaseInvoiceItem, as: "items" }],
     });
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Purchase Invoice Created Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Purchase Invoice Created Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -143,8 +141,8 @@ exports.update_purchaseInvoice = async (req, res) => {
         totalMrp,
         totalQty,
         mainTotal,
-        createdBy:existingPurchase.createdBy,
-        updatedBy:user
+        createdBy: existingPurchase.createdBy,
+        updatedBy: user,
       },
       { where: { id } }
     );
@@ -211,13 +209,11 @@ exports.update_purchaseInvoice = async (req, res) => {
       where: { id },
       include: [{ model: purchaseInvoiceItem, as: "items" }],
     });
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Purchase Invoice Updated Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Purchase Invoice Updated Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -231,12 +227,10 @@ exports.delete_purchaseInvoice = async (req, res) => {
     const billId = await purchaseInvoice.destroy({ where: { id: id } });
 
     if (billId) {
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "Purchase Invoice Delete Successfully",
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "Purchase Invoice Delete Successfully",
+      });
     } else {
       return res
         .status(404)
@@ -259,18 +253,16 @@ exports.get_all_purchaseInvoice = async (req, res) => {
           include: [{ model: product, as: "purchseProduct" }],
         },
         { model: vendor, as: "purchseVendor" },
-        {model: User, as:'salesCreateUser', attributes:['username']},
-        {model:User, as:'salesUpdateUser',attributes:['username']}
+        { model: User, as: "salesCreateUser", attributes: ["username"] },
+        { model: User, as: "salesUpdateUser", attributes: ["username"] },
       ],
     });
     if (data) {
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "All Purchase Invoice show Successfully",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "All Purchase Invoice show Successfully",
+        data: data,
+      });
     } else {
       return res
         .status(404)
@@ -298,13 +290,11 @@ exports.view_purchaseInvoice = async (req, res) => {
       ],
     });
     if (data) {
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "Purchase Invoice show Successfully",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "Purchase Invoice show Successfully",
+        data: data,
+      });
     } else {
       return res
         .status(404)
@@ -324,6 +314,7 @@ exports.view_purchaseInvoice = async (req, res) => {
 
 exports.C_create_purchaseCash = async (req, res) => {
   try {
+    const user = req.user.userId;
     const { vendorId, date, totalMrp, items } = req.body;
 
     const vendorData = await C_vendor.findByPk(vendorId);
@@ -350,6 +341,8 @@ exports.C_create_purchaseCash = async (req, res) => {
       vendorId,
       date,
       totalMrp,
+      createdBy: user,
+      updatedBy: user,
     });
 
     await C_vendorLedger.create({
@@ -369,13 +362,11 @@ exports.C_create_purchaseCash = async (req, res) => {
       where: { id: purchseData.id },
       include: [{ model: C_purchaseCashItem, as: "items" }],
     });
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Purchase Cash Created Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Purchase Cash Created Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -385,6 +376,8 @@ exports.C_create_purchaseCash = async (req, res) => {
 };
 exports.C_update_purchaseCash = async (req, res) => {
   try {
+    const user = req.user.userId;
+
     const { id } = req.params;
 
     const { vendorId, date, totalMrp, items } = req.body;
@@ -415,6 +408,8 @@ exports.C_update_purchaseCash = async (req, res) => {
         vendorId,
         date,
         totalMrp,
+        createdBy: existingPurchase.createdBy,
+        updatedBy: user,
       },
       { where: { id } }
     );
@@ -482,13 +477,11 @@ exports.C_update_purchaseCash = async (req, res) => {
       where: { id },
       include: [{ model: C_purchaseCashItem, as: "items" }],
     });
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Purchase Cash Updated Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Purchase Cash Updated Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -527,17 +520,17 @@ exports.C_get_all_purchaseCash = async (req, res) => {
           include: [{ model: C_product, as: "ProductPurchase" }],
         },
         { model: C_vendor, as: "VendorPurchase" },
+        { model: User, as: "purchaseCreateUser", attributes: ["username"] },
+        { model: User, as: "purchaseUpdateUser", attributes: ["username"] },
       ],
     });
 
     if (data) {
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "All Purchase Cash show Successfully",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "All Purchase Cash show Successfully",
+        data: data,
+      });
     } else {
       return res
         .status(404)
@@ -565,13 +558,11 @@ exports.C_view_purchaseCash = async (req, res) => {
       ],
     });
     if (data) {
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "Purchase Cash show Successfully",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "Purchase Cash show Successfully",
+        data: data,
+      });
     } else {
       return res
         .status(404)
