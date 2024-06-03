@@ -5,6 +5,7 @@ const {
   update_company,
   delete_company,
   view_single_company,
+  set_default_comapny,
 } = require("../controller/company");
 const { validation } = require("../constant/validate");
 const adminAuth = require("../middleware/adminAuth");
@@ -36,6 +37,11 @@ router.get(
   "/view_single_company/:id",
   adminAuth("Company:view_single_company"),
   view_single_company
+);
+router.get(
+  "/set_default_comapny/:id",
+  adminAuth("Company:set_default_comapny"),
+  set_default_comapny
 );
 
 module.exports = router;

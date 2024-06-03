@@ -1,8 +1,11 @@
 const company = require("../models/company");
 const companyBankDetails = require("../models/companyBankDetails");
+const companyUser = require("../models/companyUser");
+const permissionAdd = require("../util/permissions");
 
 exports.create_company = async (req, res) => {
   try {
+    const userId = req.user.userId;
     const {
       companyname,
       gstnumber,
@@ -24,6 +27,7 @@ exports.create_company = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Company Already Exists" });
     }
+
     const data = await company.create({
       companyname,
       gstnumber,
@@ -36,6 +40,9 @@ exports.create_company = async (req, res) => {
       city,
       country,
     });
+
+    await data.addUser(userId);
+    permissionAdd(data.id);
     return res.status(200).json({
       status: "true",
       message: "Company Create Successfully",
@@ -164,6 +171,55 @@ exports.view_single_company = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
+exports.set_default_comapny = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.userId;
+
+    const companyData = await company.findOne({ where: { id: id } });
+
+    if (!companyData) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Company Not Found" });
+    }
+    const userData = await companyUser.findAll({ where: { userId: userId } });
+
+    const userToUpdate = userData.find(
+      (userComapny) => userComapny.companyId == id
+    );
+
+    if (userToUpdate.setDefault === true) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Company Already Set Default" });
+    } else {
+      await Promise.all(
+        userData.map(async (userComapny) => {
+          if (userComapny.companyId != id && userComapny.setDefault === true) {
+            await userComapny.update({ setDefault: false });
+          }
+        })
+      );
+
+      await userToUpdate.update({ setDefault: true });
+      const data = await company.findByPk(id);
+      return res
+        .status(200)
+        .json({
+          status: "true",
+          message: "Default Company Set Successfully",
+          data: data,
+        });
+    }
+  } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json({ status: "false", message: "Internal Server Error" });

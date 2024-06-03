@@ -8,7 +8,9 @@ const {
   reset_password,
   view_user,
   user_logout,
-  get_all_ClaimUser,
+  check_user,
+  add_user,
+  view_all_userTOComapny,
 } = require("../controller/user");
 const adminAuth = require("../middleware/adminAuth");
 const { validation } = require("../constant/validate");
@@ -42,10 +44,11 @@ router.post(
   reset_password
 );
 router.post("/user_logout", adminAuth("Login:user_logout"), user_logout);
+router.post("/check_user", adminAuth("Login:check_user"), check_user);
+router.get("/add_user/:id", adminAuth("Login:add_user"), add_user);
 router.get(
-  "/get_all_ClaimUser",
-  adminAuth("Login:view_all_ClaimUser"),
-  get_all_ClaimUser
+  "/view_all_userTOComapny",
+  adminAuth("Login:view_all_userTOComapny"),
+  view_all_userTOComapny
 );
-
 module.exports = router;

@@ -36,6 +36,10 @@ module.exports = {
       city: {
         type: Sequelize.STRING
       },
+      default: {
+        type : Sequelize.BOOLEAN,
+        defaultValue:true
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
@@ -47,6 +51,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('P_companies');
+    // await queryInterface.dropTable('P_companies');
   }
 };

@@ -5,7 +5,33 @@ exports.permissions = {
             "update_company":true,
             "delete_company":true,
             "view_all_company":true,
-            "view_single_company":true
+            "view_single_company":true,
+            "set_default_comapny":true
+        },
+        "Admin" :{
+            "view_all_company":true,
+            "view_single_company":true,
+            "set_default_comapny":true
+        },
+        "Account" :{
+            "view_all_company":true,
+            "view_single_company":true,
+            "set_default_comapny":true
+        },
+        "Employee" :{
+            "view_all_company":true,
+            "view_single_company":true,
+            "set_default_comapny":true
+        },
+        "Workers" :{
+            "view_all_company":true,
+            "view_single_company":true,
+            "set_default_comapny":true
+        },
+        "Other" :{
+            "view_all_company":true,
+            "view_single_company":true,
+            "set_default_comapny":true
         },
     },
     "Login" : {
@@ -17,42 +43,45 @@ exports.permissions = {
             "update_user":true,
             "reset_password":true,
             "user_logout":true,
-            "view_all_ClaimUser":true
+            "check_user":true,
+            "add_user":true,
+            "view_all_userTOComapny":true
         },
         "Admin" : {
             "update_user":true,
             "reset_password":true,
             "view_user":true,
             "user_logout":true,
-            "view_all_ClaimUser":true
+            "view_all_userTOComapny":true
         },
         "Account" : {
             "update_user":true,
             "reset_password":true,
             "view_user":true,
             "user_logout":true,
-            "view_all_ClaimUser":true
+            "view_all_ClaimUser":true,
+            "view_all_userTOComapny":true
         },
         "Employee":{
             "update_user":true,
             "reset_password":true,
             "view_user":true,
             "user_logout":true,
-            "view_all_ClaimUser":true
+            "view_all_userTOComapny":true
         },
         "Workers":{
             "update_user":true,
             "reset_password":true,
             "view_user":true,
             "user_logout":true,
-            "view_all_ClaimUser":true
+            "view_all_userTOComapny":true
         },
         "Other":{
             "update_user":true,
             "reset_password":true,
             "view_user":true,
             "user_logout":true,
-            "view_all_ClaimUser":true
+            "view_all_userTOComapny":true
         }
     },
     "Permission" : {
@@ -504,50 +533,50 @@ exports.permissions = {
             "view_all_purchase_Invoice":true,
         }
     },
-    "Receipt" : {
-        "Super Admin" :{
-            "create_receipt":true,
-            "update_receipt":true,
-            "delete_receipt":true,
-            "view_single_receipt":true,
-            "view_all_receipt":true,
-        },
-        "Admin" :{
-            "create_receipt":true,
-            "update_receipt":true,
-            "delete_receipt":true,
-            "view_single_receipt":true,
-            "view_all_receipt":true,
-        },
-        "Account" :{
-            "create_receipt":true,
-            "update_receipt":true,
-            "delete_receipt":true,
-            "view_single_receipt":true,
-            "view_all_receipt":true,
-        },
-        "Employee" :{
-            "create_receipt":true,
-            "update_receipt":true,
-            "delete_receipt":true,
-            "view_single_receipt":true,
-            "view_all_receipt":true,
-        },
-        "Workers" :{
-            "create_receipt":true,
-            "update_receipt":true,
-            "delete_receipt":true,
-            "view_single_receipt":true,
-            "view_all_receipt":true,
-        },
-        "Other" :{
-            "create_receipt":true,
-            "update_receipt":true,
-            "delete_receipt":true,
-            "view_single_receipt":true,
-            "view_all_receipt":true,
-        }
-    },
+    // "Receipt" : {
+    //     "Super Admin" :{
+    //         "create_receipt":true,
+    //         "update_receipt":true,
+    //         "delete_receipt":true,
+    //         "view_single_receipt":true,
+    //         "view_all_receipt":true,
+    //     },
+    //     "Admin" :{
+    //         "create_receipt":true,
+    //         "update_receipt":true,
+    //         "delete_receipt":true,
+    //         "view_single_receipt":true,
+    //         "view_all_receipt":true,
+    //     },
+    //     "Account" :{
+    //         "create_receipt":true,
+    //         "update_receipt":true,
+    //         "delete_receipt":true,
+    //         "view_single_receipt":true,
+    //         "view_all_receipt":true,
+    //     },
+    //     "Employee" :{
+    //         "create_receipt":true,
+    //         "update_receipt":true,
+    //         "delete_receipt":true,
+    //         "view_single_receipt":true,
+    //         "view_all_receipt":true,
+    //     },
+    //     "Workers" :{
+    //         "create_receipt":true,
+    //         "update_receipt":true,
+    //         "delete_receipt":true,
+    //         "view_single_receipt":true,
+    //         "view_all_receipt":true,
+    //     },
+    //     "Other" :{
+    //         "create_receipt":true,
+    //         "update_receipt":true,
+    //         "delete_receipt":true,
+    //         "view_single_receipt":true,
+    //         "view_all_receipt":true,
+    //     }
+    // },
     "Vendor" :{
         "Super Admin" :{
             "create_vendor":true,
@@ -639,7 +668,6 @@ exports.permissions = {
             "delete_company_bankDetails":true,
             "view_company_bankDetails":true,
             "view_all_company_bankDetails":true
-
         },
         "Admin" :{
             "create_company_bankDetails":true,
@@ -1052,7 +1080,9 @@ exports.permissions = {
             "view_reciveclaim":true,
             "isapproved_claim":true,
             "view_single_claim":true,
-            "view_claim_ledger":true
+            "view_claim_ledger":true,
+            "view_claimBalance_ledger":true,         
+            "view_all_ClaimUser":true
         },
         "Admin" :{
             "create_claim":true,
@@ -1062,7 +1092,9 @@ exports.permissions = {
             "view_reciveclaim":true,
             "isapproved_claim":true,
             "view_single_claim":true,
-            "view_claim_ledger":true
+            "view_claim_ledger":true,
+            "view_claimBalance_ledger":true,
+            "view_all_ClaimUser":true
         },
         "Account" :{
             "create_claim":true,
@@ -1072,7 +1104,9 @@ exports.permissions = {
             "view_reciveclaim":true,
             "isapproved_claim":true,
             "view_single_claim":true,
-            "view_claim_ledger":true
+            "view_claim_ledger":true,
+            "view_claimBalance_ledger":true,
+            "view_all_ClaimUser":true
         },
         "Employee" :{
             "create_claim":true,
@@ -1082,7 +1116,9 @@ exports.permissions = {
             "view_reciveclaim":true,
             "isapproved_claim":true,
             "view_single_claim":true,
-            "view_claim_ledger":true
+            "view_claim_ledger":true,
+            "view_claimBalance_ledger":true,
+            "view_all_ClaimUser":true
         },
         "Workers" :{
             "create_claim":true,
@@ -1092,7 +1128,9 @@ exports.permissions = {
             "view_reciveclaim":true,
             "isapproved_claim":true,
             "view_single_claim":true,
-            "view_claim_ledger":true
+            "view_claim_ledger":true,
+            "view_claimBalance_ledger":true,    
+            "view_all_ClaimUser":true
         },
         "Other" :{
             "create_claim":true,
@@ -1102,7 +1140,9 @@ exports.permissions = {
             "view_reciveclaim":true,
             "isapproved_claim":true,
             "view_single_claim":true,
-            "view_claim_ledger":true
+            "view_claim_ledger":true,
+            "view_claimBalance_ledger":true,
+            "view_all_ClaimUser":true
         },
     },
     // "Permission":{

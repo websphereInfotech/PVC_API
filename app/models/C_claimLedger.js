@@ -11,13 +11,13 @@ const C_claimLedger = sequelize.define("P_C_claimLedger", {
   date: { type: DataTypes.DATEONLY },
 });
 
-C_receiveCash.hasMany(C_claimLedger, { foreignKey: "receiveId" ,onDelete:'CASCADE',as:'claimRE'});
-C_claimLedger.belongsTo(C_receiveCash, { foreignKey: "receiveId",onDelete:'CASCADE' });
+C_receiveCash.hasMany(C_claimLedger, { foreignKey: "receiveId" ,onDelete:'CASCADE',as:'claimLedger'});
+C_claimLedger.belongsTo(C_receiveCash, { foreignKey: "receiveId",onDelete:'CASCADE',as:'claimLedger' });
 
-C_claim.hasMany(C_claimLedger, { foreignKey: "claimId",onDelete:'CASCADE' });
-C_claimLedger.belongsTo(C_claim, { foreignKey: "claimId",onDelete:'CASCADE' });
+C_claim.hasMany(C_claimLedger, { foreignKey: "claimId",onDelete:'CASCADE',as:'claimData' });
+C_claimLedger.belongsTo(C_claim, { foreignKey: "claimId",onDelete:'CASCADE',as:'claimData' });
 
-User.hasMany(C_claimLedger, { foreignKey: "userId" });
-C_claimLedger.belongsTo(User, { foreignKey: "userId" });
+User.hasMany(C_claimLedger, { foreignKey: "userId",as:'claimUser' });
+C_claimLedger.belongsTo(User, { foreignKey: "userId",as:'claimUser' });
 
 module.exports = C_claimLedger;

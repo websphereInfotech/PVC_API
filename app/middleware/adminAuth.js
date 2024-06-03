@@ -69,14 +69,25 @@ const adminToken = (permissionString) => {
       req.user = verify;
   
       const [resource, permission] = permissionString.split(":");
-      const rolePermissions = await permissionData.findOne({
-        where: {
-          role: verify.role,
-          resource,
-          permission,
-          // type: verify.type
-        },
-      });
+      let rolePermissions;
+      if(verify.type === "C"){
+        rolePermissions = await permissionData.findOne({
+          where: {
+            role: verify.role,
+            resource,
+            permission,
+          },
+        });
+      }else{
+        rolePermissions = await permissionData.findOne({
+          where: {
+            role: verify.role,
+            resource,
+            permission,
+            type: false
+          },
+        });
+      }
       if (rolePermissions && rolePermissions.permissionValue) {
         return next();
       } else {

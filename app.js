@@ -5,7 +5,7 @@ const path = require("path");
 
 const app = express();
 const port = process.env.PORT;
-
+// require('./app/models/companyUser.js')
 app.use(cors());
 
 app.use(express.json());

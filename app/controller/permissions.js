@@ -2,7 +2,19 @@ const Permission = require("../models/permission");
 
 exports.get_all_permissions = async (req, res) => {
   try {
-       const data = await Permission.findAll();
+    const userRole = req.user.role;
+    const isType = req.user.type;
+
+    let data;
+    if (userRole === "Super Admin" && isType === "C") {
+      data = await Permission.findAll();
+    } else if (isType === "") {
+      data = await Permission.findAll({
+        where: { role: userRole, type: false },
+      });
+    } else {
+      data = await Permission.findAll({ where: { role: userRole } });
+    }
 
     if (data.length > 0) {
       const groupedPermissions = {};
@@ -38,13 +50,11 @@ exports.get_all_permissions = async (req, res) => {
         });
       });
 
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "Permission Data Fetch Successfully",
-          data: formattedData,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "Permission Data Fetch Successfully",
+        data: formattedData,
+      });
     } else {
       return res
         .status(404)
@@ -61,10 +71,6 @@ exports.get_all_permissions = async (req, res) => {
 exports.update_permissions = async (req, res) => {
   try {
     const { permissions } = req.body;
-    // console.log("userrole",userRole);
-    // if (!userRole) {
-    //   return res.status(403).json({ status: "false", message: "UserRole Required.." });
-    // }
 
     for (const permission of permissions) {
       const { id, permissionValue } = permission;
@@ -72,12 +78,10 @@ exports.update_permissions = async (req, res) => {
       const existingPermission = await Permission.findByPk(id);
 
       if (!existingPermission) {
-        return res
-          .status(404)
-          .json({
-            status: "false",
-            message: `Permission with ID ${id} not found`,
-          });
+        return res.status(404).json({
+          status: "false",
+          message: `Permission with ID ${id} not found`,
+        });
       }
       await existingPermission.update({ permissionValue: permissionValue });
     }

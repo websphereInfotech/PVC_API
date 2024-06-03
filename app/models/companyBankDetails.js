@@ -8,7 +8,8 @@ const companyBankDetails = sequelize.define('P_companyBankDetails', {
     bankname: {type: DataTypes.STRING},
     accountnumber: {type: DataTypes.STRING},
     ifsccode: {type: DataTypes.STRING},
-    branch: {type: DataTypes.STRING}
+    branch: {type: DataTypes.STRING},
+    nickname:{type :DataTypes.STRING}
 });
 
 company.hasMany(companyBankDetails,{foreignKey:'companyId', onDelete:'CASCADE',as:'comapnyBank'});
