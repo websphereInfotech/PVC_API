@@ -3,6 +3,7 @@ const sequelize = require("../config/index");
 const customer = require("./customer");
 const companyBankDetails = require("./companyBankDetails");
 const User = require("./user");
+const company = require("./company");
 
 const receiveBank = sequelize.define("P_receiveBank", {
   voucherno: { type: DataTypes.INTEGER },
@@ -27,7 +28,11 @@ const receiveBank = sequelize.define("P_receiveBank", {
   amount: { type: DataTypes.INTEGER },
   createdBy: { type: DataTypes.INTEGER },
   updatedBy: { type: DataTypes.INTEGER },
+  companyId: {type: DataTypes.INTEGER}
 });
+
+company.hasMany(receiveBank,{ foreignKey:'companyId',onDelete:'CASCADE'});
+receiveBank.hasMany(company,{ foreignKey:'companyId',onDelete:'CASCADE'});
 
 User.hasMany(receiveBank, { foreignKey: "createdBy", as: "bankCreateUser" });
 receiveBank.belongsTo(User, { foreignKey: "createdBy", as: "bankCreateUser" });

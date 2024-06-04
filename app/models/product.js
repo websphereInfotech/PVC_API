@@ -47,6 +47,7 @@ const product = sequelize.define("P_product", {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+  companyId: {type: DataTypes.INTEGER}
 });
 
 

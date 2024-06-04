@@ -35,7 +35,8 @@ exports.C_create_paymentCash = async (req, res) => {
       description,
       date,
       createdBy:user,
-      updatedBy:user
+      updatedBy:user,
+      companyId: req.user.companyId
     });
 
     await C_vendorLedger.create({
@@ -131,7 +132,8 @@ exports.C_update_paymentCash = async (req, res) => {
         description,
         date,
         createdBy:paymentId.createdBy,
-        updatedBy:user
+        updatedBy:user,
+        companyId: req.user.companyId
       },
       { where: { id: id } }
     );
@@ -226,6 +228,7 @@ exports.create_payment_bank = async (req, res) => {
       amount,
       createdBy: user,
       updatedBy: user,
+      companyId: req.user.companyId
     });
 
     await vendorLedger.create({
@@ -290,6 +293,7 @@ exports.update_payment_bank = async (req, res) => {
         amount,
         createdBy: paymentdata.createdBy,
         updatedBy: user,
+        companyId: req.user.companyId
       },
       { where: { id } }
     );

@@ -12,7 +12,7 @@ exports.create_company_bankDetails = async (req, res) => {
     }
     const companyData = await company.findByPk(companyId); 
     if(!companyData) {
-      return res.status(404).json({ status:'false', message:'Comapny Not Found'});
+      return res.status(404).json({ status:'false', message:'Company Not Found'});
     }
     const existingAccount = await companyBankDetails.findOne({
       where: { accountnumber: accountnumber },
@@ -168,3 +168,10 @@ exports.view_all_company_bankDetails = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+// exports.view_compant_bankLedger = async (req,res) => {
+//   try {
+    
+//   } catch (error) {
+    
+//   }
+// }

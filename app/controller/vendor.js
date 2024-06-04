@@ -54,7 +54,8 @@ exports.create_vendor = async (req,res) => {
             bankdetail,
             creditlimit,
             balance,
-            gstnumber
+            gstnumber,
+            companyId: req.user.companyId,
         };
         if(panno === '') {
           panno = null;
@@ -77,7 +78,8 @@ exports.create_vendor = async (req,res) => {
             where: {id: data.id},
             include: [{ model:bankAccount, as:'v_bankdetails'}]
           })
-          await C_vendor.create({ vendorname: contactpersonname})
+          await C_vendor.create({ vendorname: contactpersonname, companyId: req.user.companyId});
+          
          return res.status(200).json({ status:'true', message:'Vendor Create Successfully', data: vendordata });
     } catch (error) {
         console.log(error);
@@ -117,7 +119,8 @@ exports.update_vendor = async(req,res) => {
             balance,
             gstnumber,
             bankdetails,
-            totalcreadit
+            totalcreadit,
+            companyId: req.user.companyId,
         };
         if(creditlimit === true) {
             vendorData.totalcreadit = totalcreadit;

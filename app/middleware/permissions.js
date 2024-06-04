@@ -45,14 +45,14 @@ exports.permissions = {
             "user_logout":true,
             "check_user":true,
             "add_user":true,
-            "view_all_userTOComapny":true
+            "view_all_userTOComapny":true,
         },
         "Admin" : {
             "update_user":true,
             "reset_password":true,
             "view_user":true,
             "user_logout":true,
-            "view_all_userTOComapny":true
+            "view_all_userTOComapny":true,
         },
         "Account" : {
             "update_user":true,
@@ -60,28 +60,28 @@ exports.permissions = {
             "view_user":true,
             "user_logout":true,
             "view_all_ClaimUser":true,
-            "view_all_userTOComapny":true
+            "view_all_userTOComapny":true,
         },
         "Employee":{
             "update_user":true,
             "reset_password":true,
             "view_user":true,
             "user_logout":true,
-            "view_all_userTOComapny":true
+            "view_all_userTOComapny":true,
         },
         "Workers":{
             "update_user":true,
             "reset_password":true,
             "view_user":true,
             "user_logout":true,
-            "view_all_userTOComapny":true
+            "view_all_userTOComapny":true,
         },
         "Other":{
             "update_user":true,
             "reset_password":true,
             "view_user":true,
             "user_logout":true,
-            "view_all_userTOComapny":true
+            "view_all_userTOComapny":true,
         }
     },
     "Permission" : {
@@ -1082,7 +1082,8 @@ exports.permissions = {
             "view_single_claim":true,
             "view_claim_ledger":true,
             "view_claimBalance_ledger":true,         
-            "view_all_ClaimUser":true
+            "view_all_ClaimUser":true,
+            "view_user_balance":true
         },
         "Admin" :{
             "create_claim":true,
@@ -1094,7 +1095,8 @@ exports.permissions = {
             "view_single_claim":true,
             "view_claim_ledger":true,
             "view_claimBalance_ledger":true,
-            "view_all_ClaimUser":true
+            "view_all_ClaimUser":true,
+            "view_user_balance":true
         },
         "Account" :{
             "create_claim":true,
@@ -1106,7 +1108,8 @@ exports.permissions = {
             "view_single_claim":true,
             "view_claim_ledger":true,
             "view_claimBalance_ledger":true,
-            "view_all_ClaimUser":true
+            "view_all_ClaimUser":true,
+            "view_user_balance":true
         },
         "Employee" :{
             "create_claim":true,
@@ -1118,7 +1121,8 @@ exports.permissions = {
             "view_single_claim":true,
             "view_claim_ledger":true,
             "view_claimBalance_ledger":true,
-            "view_all_ClaimUser":true
+            "view_all_ClaimUser":true,
+            "view_user_balance":true
         },
         "Workers" :{
             "create_claim":true,
@@ -1130,7 +1134,8 @@ exports.permissions = {
             "view_single_claim":true,
             "view_claim_ledger":true,
             "view_claimBalance_ledger":true,    
-            "view_all_ClaimUser":true
+            "view_all_ClaimUser":true,
+            "view_user_balance":true
         },
         "Other" :{
             "create_claim":true,
@@ -1142,7 +1147,8 @@ exports.permissions = {
             "view_single_claim":true,
             "view_claim_ledger":true,
             "view_claimBalance_ledger":true,
-            "view_all_ClaimUser":true
+            "view_all_ClaimUser":true,
+            "view_user_balance":true
         },
     },
     // "Permission":{

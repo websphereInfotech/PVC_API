@@ -7,7 +7,7 @@ const companyUser = sequelize.define("P_companyUser", {
   userId: { type: DataTypes.INTEGER },
   companyId: { type: DataTypes.INTEGER },
   setDefault: { type: DataTypes.BOOLEAN ,
-    defaultValue:true
+    defaultValue:false
   },
 });
 
