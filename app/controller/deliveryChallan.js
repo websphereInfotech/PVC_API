@@ -5,7 +5,7 @@ const product = require("../models/product");
 
 exports.create_deliverychallan = async (req, res) => {
   try {
-    const { email, date, challanno, mobileno, customerId, items ,totalIgst,totalSgst,totalMrp,mainTotal} = req.body;
+    const { date, challanno, customerId,totalQty, items } = req.body;
     const numberOf = await deliverychallan.findOne({
       where: { challanno: challanno },
     });
@@ -30,15 +30,10 @@ exports.create_deliverychallan = async (req, res) => {
       }
     }
     const data = await deliverychallan.create({
-      email,
-      mobileno,
       date,
       challanno,
       customerId,
-      totalSgst,
-      totalIgst,
-      totalMrp,
-      mainTotal,
+      totalQty
     });
     const addToItem = items.map((item) => ({
       deliverychallanId: data.id,
@@ -53,7 +48,7 @@ exports.create_deliverychallan = async (req, res) => {
     });
     return res.status(200).json({
       status: "true",
-      message: "delivery challan created successfully",
+      message: "Delivery Challan Created Successfully",
       data: deliveryChallan,
     });
   } catch (error) {
@@ -66,7 +61,7 @@ exports.create_deliverychallan = async (req, res) => {
 exports.update_deliverychallan = async (req, res) => {
   try {
     const { id } = req.params;
-    const { email, mobileno, date, challanno, customerId, items,totalIgst,totalSgst,totalMrp,mainTotal } = req.body;
+    const { date, challanno, customerId,totalQty, items } = req.body;
 
     const updatechallan = await deliverychallan.findByPk(id);
 
@@ -81,7 +76,7 @@ exports.update_deliverychallan = async (req, res) => {
     }
     for(const item of items) {
       const productname = await product.findByPk(item.productId);
-      console.log("productname",productname);
+    
       if(!productname) {
         return res.status(404).json({ status:'false', message:'Product Not Found'});
       }
@@ -90,21 +85,46 @@ exports.update_deliverychallan = async (req, res) => {
       {
         challanno,
         date,
-        email,
-        mobileno,
         customerId,
-        totalIgst,totalSgst,totalMrp,mainTotal
+        totalQty
       },
       {
         where: { id: id },
       }
     );
 
-    const existingItems = await deliverychallanitem.findAll({
+    const existingItem = await deliverychallanitem.findAll({
       where: { deliverychallanId: id },
     });
+
+    const mergedItems = [];
+
+    items.forEach((item) => {
+      let existingItem = mergedItems.find((i) => i.productId === item.productId);
+      if(existingItem) {
+        existingItem.qty += item.qty;
+      } else {
+        mergedItems.push(item);
+      }
+    });
+    for (const item of mergedItems) {
+      const existingItems = existingItem.find(
+        (ei) => ei.productId === item.productId
+      );
+
+      if (existingItems) {
+        existingItems.qty = item.qty,
+        await existingItems.save();
+      } else {
+        await deliverychallanitem.create({
+          deliverychallanId: id,
+          productId: item.productId,
+          qty:item.qty,
+        });
+      }
+    }
     const updatedProducts = items.map((item) => item.productId);
-    const itemsToDelete = existingItems.filter(
+    const itemsToDelete = existingItem.filter(
       (item) => !updatedProducts.includes(item.productId)
     );
 
@@ -112,33 +132,7 @@ exports.update_deliverychallan = async (req, res) => {
       await item.destroy();
     }
 
-    for (const item of items) {
-      const existingItem = existingItems.find(
-        (ei) => ei.productId === item.productId
-      );
-
-      if (existingItem) {
-        await existingItem.update({
-          qty:item.qty,
-          mrp: item.mrp,
-          quotationno: item.quotationno,
-          description:item.description,
-          batchno: item.batchno,
-          expirydate: item.expirydate
-        });
-      } else {
-        await deliverychallanitem.create({
-          deliverychallanId: id,
-          productId: item.productId,
-          qty:item.qty,
-          mrp: item.mrp,
-          quotationno: item.quotationno,
-          description:item.description,
-          batchno: item.batchno,
-          expirydate: item.expirydate
-        });
-      }
-    }
+  
 
     const data = await deliverychallan.findOne({
       where: { id },
@@ -146,7 +140,7 @@ exports.update_deliverychallan = async (req, res) => {
     });
     return res.status(200).json({
       status: "true",
-      message: "Delivery challan Update Successfully",
+      message: "Delivery Challan Update Successfully",
       data: data,
     });
   } catch (error) {
@@ -165,11 +159,11 @@ exports.delete_deliverychallan = async (req, res) => {
     if (!data) {
       return res
         .status(400)
-        .json({ status: "false", message: "Delivery challan Not Found" });
+        .json({ status: "false", message: "Delivery Challan Not Found" });
     } else {
       return res.status(200).json({
         status: "true",
-        message: "Delivery challan Delete Successfully",
+        message: "Delivery Challan Delete Successfully",
       });
     }
   } catch (error) {
@@ -187,11 +181,11 @@ exports.get_all_deliverychallan = async (req, res) => {
     if (!data) {
       return res
         .status(404)
-        .json({ status: "false", message: "Delivery challan Not Found" });
+        .json({ status: "false", message: "Delivery Challan Not Found" });
     }
     return res.status(200).json({
       status: "true",
-      message: "Delivery challan Data Fetch Successfully",
+      message: "Delivery Challan Data Fetch Successfully",
       data: data,
     });
   } catch (error) {
@@ -215,11 +209,11 @@ exports.view_deliverychallan = async (req, res) => {
     if (!data) {
       return res
         .status(404)
-        .json({ status: "false", message: "Delivery challan Not Found" });
+        .json({ status: "false", message: "Delivery Challan Not Found" });
     }
     return res.status(200).json({
       status: "true",
-      message: "Fetch delivery challan data successfully",
+      message: "Fetch delivery Challan data successfully",
       data: data,
     });
   } catch (error) {

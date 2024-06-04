@@ -5,18 +5,17 @@ const path = require("path");
 
 const app = express();
 const port = process.env.PORT;
-
+// require('./app/models/companyUser.js')
 app.use(cors());
 
 app.use(express.json());
 
 const {
     ProFormaInvoice,
-    salesreturnRoute,
+    debitNoteRoute,
     expenseRoute,
     salesinvoiceRoute,
     deliverychallanRoute,
-    purchaseRoute,
     paymentRoute,
     stockRoute,
     customerRoute,
@@ -24,23 +23,26 @@ const {
     itemgroupRoute,
     itemcategoryRoute,
     unitRoute,
-    purchaseBill,
-    purchaseReturn,
+    purchaseInvoice,
     receiptRoute,
-    // bankAccount,
     permissionRoute,
     userRoute,
     vendorRoute,
-    companyRoute
+    companyRoute,
+    creditNoteRoute,
+    receiveCash,
+    customerLedger,
+    vendorLedger,
+    claimRoute,
+    companyBankDetails
 } = require('./app/route/adminRoute');
 
 
 app.use("/admin", ProFormaInvoice);
-app.use("/admin", salesreturnRoute);
+app.use("/admin", debitNoteRoute);
 app.use("/admin", expenseRoute);
 app.use("/admin", salesinvoiceRoute);
 app.use("/admin", deliverychallanRoute);
-app.use("/admin", purchaseRoute);
 app.use("/admin", paymentRoute);
 app.use("/admin", stockRoute);
 app.use("/admin", customerRoute);
@@ -48,14 +50,19 @@ app.use("/admin", productRoute);
 app.use("/admin", itemgroupRoute);
 app.use("/admin", itemcategoryRoute);
 app.use("/admin", unitRoute);
-app.use("/admin", purchaseBill);
-app.use("/admin", purchaseReturn);
+app.use("/admin", purchaseInvoice);
 app.use("/admin", receiptRoute);
 // app.use("/admin", bankAccount);
 app.use("/admin", permissionRoute);
 app.use("/admin", userRoute);
 app.use("/admin", vendorRoute);
 app.use("/admin", companyRoute);
+app.use("/admin",creditNoteRoute);
+app.use("/admin",receiveCash);
+app.use("/admin",customerLedger);
+app.use("/admin",vendorLedger);
+app.use("/admin",claimRoute);
+app.use("/admin",companyBankDetails);
 
 app.get("/", (req, res) => res.send("Hello World!"));
 

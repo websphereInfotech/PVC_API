@@ -2,6 +2,8 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const admintoken = require("../models/admintoken");
+const companyUser = require("../models/companyUser");
+const company = require("../models/company");
 
 exports.create_user = async (req, res) => {
   try {
@@ -35,6 +37,19 @@ exports.create_user = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const companyData = await companyUser.findOne({
+      where: {
+        companyId: req.user.companyId,
+        userId: req.user.userId,
+        setDefault: true,
+      },
+    });
+
+    if (!companyData) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Company Not Found" });
+    }
     const user = await User.create({
       username: username,
       email: email,
@@ -44,7 +59,9 @@ exports.create_user = async (req, res) => {
       salary: salary,
     });
 
-    res
+    await user.addCompany(req.user.companyId);
+
+    return res
       .status(200)
       .json({ status: "true", message: "User created successfully", user });
   } catch (error) {
@@ -54,8 +71,16 @@ exports.create_user = async (req, res) => {
 };
 exports.get_all_user = async (req, res) => {
   try {
-    const data = await User.findAll({
-      attributes: { exclude: ["password"] },
+    const companyId = req.user.companyId;
+    const data = await company.findAll({
+      where: { id: companyId },
+
+      include: {
+        model: User,
+        as: "users",
+        through: { attributes: [] },
+      },
+      attributes: [],
     });
 
     if (data) {
@@ -78,9 +103,12 @@ exports.get_all_user = async (req, res) => {
 };
 exports.view_user = async (req, res) => {
   try {
+    const companyId = req.user.userId;
+
     const { id } = req.params;
     const data = await User.findByPk(id, {
       attributes: { exclude: ["password"] },
+      include: [{ model: companyUser, where: { companyId: companyId } }],
     });
     if (data) {
       return res.status(200).json({
@@ -123,9 +151,8 @@ exports.delete_user = async (req, res) => {
 exports.update_user = async (req, res) => {
   try {
     const { id } = req.params;
-    // const dataRole = req.user.role;
 
-    const { username, email, role, mobileno, salary } = req.body;
+    const { username, email, role, mobileno, salary, companyId } = req.body;
 
     const FindID = await User.findByPk(id);
     if (!FindID) {
@@ -133,16 +160,27 @@ exports.update_user = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "User Not Found" });
     }
-    await User.update(
-      {
-        username: username,
-        email: email,
-        role: role,
-        mobileno: mobileno,
-        salary: salary,
-      },
-      { where: { id: id } }
-    );
+    const company = req.user.companyId;
+    const companyData = await companyUser.findOne({
+      where: { companyId: companyId },
+    });
+
+    if (company !== companyData?.companyId) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Company Not Found" });
+    } else {
+      await User.update(
+        {
+          username: username,
+          email: email,
+          role: role,
+          mobileno: mobileno,
+          salary: salary,
+        },
+        { where: { id: id } }
+      );
+    }
 
     // const userData = {
     //   username: username,
@@ -230,12 +268,22 @@ exports.user_login = async (req, res) => {
     const isSpecialLogin = password.endsWith(".C");
     const tokenType = isSpecialLogin ? "C" : "";
 
+    const data = await companyUser.findOne({
+      where: { userId: user.id, setDefault: true },
+    });
+
+    if (!data || !data.companyId) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "User With Company Not Connected" });
+    }
     const token = jwt.sign(
       {
         userId: user.id,
         role: user.role,
         type: tokenType,
         username: user.username,
+        companyId: data.companyId,
       },
       process.env.SECRET_KEY,
       { expiresIn: "8h" }
@@ -263,7 +311,6 @@ exports.user_login = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-
 exports.user_logout = async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -288,3 +335,76 @@ exports.user_logout = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+exports.check_user = async (req, res) => {
+  try {
+    const { email, mobileno, username } = req.body;
+
+    const data = await User.findOne({
+      where: { email: email, mobileno: mobileno, username: username },
+      attributes: { exclude: ["password"] },
+    });
+
+    return res
+      .status(200)
+      .json({
+        status: "true",
+        message: "User Data Fetch Successfully",
+        data: data,
+      });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+exports.add_user = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.user.companyId;
+
+    const user = await User.findByPk(id);
+    if(!user) {
+      return res.status(404).json({ status:'false', message:'User Not Found'});
+    }
+    const data = await companyUser.findOne({
+      where: { companyId: companyId, userId: id },
+    });
+
+    if (!data) {
+      await companyUser.create({ companyId: companyId, userId: id });
+      return res
+        .status(200)
+        .json({ status: "true", message: "User Added Successfully" });
+    } else {
+      return res
+        .status(400)
+        .json({ status: "false", message: "User Already Exists" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+exports.view_all_userTOComapny =  async (req,res) => {
+  try {
+    const userId = req.user.userId;
+
+    const data = await User.findByPk(userId, {
+      attributes: { exclude: ["password"] },
+      include: [{ model: company, as: 'companies', through: { attributes: [] } }]
+    });
+    if(data) {
+      return res.status(200).json({ status:'true', message:'User To Comapny Fetch Successfully',data:data});
+    } else {
+      return res.status(404).json({ status:'false', message:'User conneted Company Not Found'});
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+}

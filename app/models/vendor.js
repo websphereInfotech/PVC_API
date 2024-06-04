@@ -23,9 +23,6 @@ const vendor = sequelize.define("P_vendor", {
   creditperiod: {
     type: DataTypes.INTEGER,
   },
-  mode: {
-    type: DataTypes.STRING,
-  },
   address1: {
     type: DataTypes.STRING,
   },
@@ -52,11 +49,12 @@ const vendor = sequelize.define("P_vendor", {
   balance: {
     type: DataTypes.INTEGER,
   },
-  country: {
-    type: DataTypes.STRING,
-  },
   gstnumber : {
     type: DataTypes.STRING,
+  },
+  totalcreadit : {
+    type : DataTypes.BIGINT,
+    defaultValue:0
   }
 });
 

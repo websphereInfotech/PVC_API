@@ -26,6 +26,10 @@ const salesInvoiceItem = sequelize.define("P_salesInvoiceItem", {
 });
 
 
+product.hasMany(salesInvoiceItem, { foreignKey:'productId',onDelete:'CASCADE', as:'InvoiceProduct'});
+salesInvoiceItem.belongsTo(product,{foreignKey:'productId',onDelete:'CASCADE', as:'InvoiceProduct'});
+
+
 salesInvoice.hasMany(salesInvoiceItem, {
   foreignKey: "salesInvoiceId",
   onDelete: "CASCADE",

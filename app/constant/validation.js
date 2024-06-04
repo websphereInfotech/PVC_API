@@ -68,11 +68,13 @@ exports.mobileno = function (req, res, next) {
 exports.challanno = function (req, res, next) {
   const { challanno } = req.body;
 
-  const challannoSchema = Joi.string().required().messages({
-    "string.empty": "ChallanNo Cannot Be Empty",
+  const challannoSchema = Joi.number().required().messages({
+    "number.empty": "ChallanNo Cannot Be Empty",
     "any.required": "Required Field : ChallanNo",
+    "number.base": "ChallanNo must be a number",
   });
-  const { error } = challannoSchema.validate(challanno);
+  const valueToValidate = challanno === '' ? undefined : challanno;
+  const { error } = challannoSchema.validate(valueToValidate);
 
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
@@ -105,27 +107,9 @@ exports.customerId = function (req, res, next) {
   }
   next();
 };
-exports.serialno = function (req, res, next) {
-  const { items } = req.body;
-  // console.log("itmes",items);
-  for (const item of items) {
-    const { serialno } = item;
-
-    const serialnoSchema = Joi.number().required().messages({
-      "string.empty": "SerialNo Cannot Be Empty",
-      "any.required": "Required Field: Serial Number",
-    });
-    const { error } = serialnoSchema.validate(serialno);
-
-    if (error) {
-      return res.status(400).json({ status: "False", message: error.message });
-    }
-  }
-  next();
-};
 exports.mrp = function (req, res, next) {
   const { items } = req.body;
-  // console.log("items",items);
+ 
   for (const item of items) {
     const { mrp } = item;
     const mrpSchema = Joi.number()
@@ -134,9 +118,10 @@ exports.mrp = function (req, res, next) {
       .messages({
         "number.empty": "MRP Cannot Be Empty",
         "any.required": "Required Filed : MRP",
+        "number.base": "Mrp must be a number",
       });
-
-    const { error } = mrpSchema.validate(mrp);
+const valueToValidate = mrp === '' ? undefined : mrp;
+    const { error } = mrpSchema.validate(valueToValidate);
     if (error) {
       return res.status(400).json({ status: "False", message: error.message });
     }
@@ -154,8 +139,10 @@ exports.qty = function (req, res, next) {
       .messages({
         "any.required": "Required Filed : QTY",
         "number.empty": "QTY Cannot Be Empty",
+        "number.base": "Qty must be a number",
       });
-    const { error } = qtySchema.validate(qty);
+      const valueToValidate = qty === '' ? undefined : qty;
+    const { error } = qtySchema.validate(valueToValidate);
     if (error) {
       return res.status(400).json({ status: "False", message: error.message });
     }
@@ -266,6 +253,7 @@ exports.vendor = function (req, res, next) {
     "any.required": "Required Filed : Vendor",
     "string.empty": "Vendor Cannot Be Empty",
   });
+  
   const { error } = vendorSchema.validate(vendor);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
@@ -274,23 +262,24 @@ exports.vendor = function (req, res, next) {
 };
 exports.voucherno = function (req, res, next) {
   const { voucherno } = req.body;
-  const vouchernoSchema = Joi.string().required().messages({
+  const vouchernoSchema = Joi.number().required().messages({
     "any.required": "Required Filed : Voucher No",
-    "string.empty": "Voucher No Cannot Be Empty",
+    "number.empty": "Voucher No Cannot Be Empty",
   });
-  const { error } = vouchernoSchema.validate(voucherno);
+  const valueToValidate = voucherno === '' ? undefined : voucherno;
+    const { error } = vouchernoSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
   next();
 };
-exports.gstin = function (req, res, next) {
-  const { gstin } = req.body;
-  const gstinSchema = Joi.string().required().messages({
-    "any.required": "Required Filed : GSTIN",
-    "string.empty": "GSTIN Cannot Be Empty",
+exports.gstrate = function (req, res, next) {
+  const { gstrate } = req.body;
+  const gstrateSchema = Joi.string().required().messages({
+    "any.required": "Required Filed : GST Rate",
+    "string.empty": "GST Rate Cannot Be Empty",
   });
-  const { error } = gstinSchema.validate(gstin);
+  const { error } = gstrateSchema.validate(gstrate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -362,8 +351,10 @@ exports.taxable = function (req, res, next) {
     const taxableSchema = Joi.number().required().messages({
       "any.required": "Required Field : TaxAble",
       "string.empty": "TaxAble Cannot Be Empty",
+      "number.base": "TaxAble must be a number",
     });
-    const { error } = taxableSchema.validate(taxable);
+    const valueToValidate = taxable === '' ? undefined : taxable;
+    const { error } = taxableSchema.validate(valueToValidate);
     if (error) {
       return res.status(400).json({ status: "False", message: error.message });
     }
@@ -428,11 +419,12 @@ exports.refno = function (req, res, next) {
 };
 exports.amount = function (req, res, next) {
   const { amount } = req.body;
-  const amountSchema = Joi.string().required().messages({
+  const amountSchema = Joi.number().required().messages({
     "any.required": "Required Field : Amount",
     "string.empty": "Amount Cannot Be Empty",
   });
-  const { error } = amountSchema.validate(amount);
+  const valueToValidate = amount === '' ? undefined :amount;
+  const { error } = amountSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -501,8 +493,10 @@ exports.rate = function (req, res, next) {
     const rateSchema = Joi.number().required().messages({
       "any.required": "Required Field : Rate",
       "number.empty": "Rate Cannot Be Empty",
+      "number.base": "Rate must be a number",
     });
-    const { error } = rateSchema.validate(rate);
+    const valueToValidate = rate ==='' ? undefined : rate
+    const { error } = rateSchema.validate(valueToValidate);
     if (error) {
       return res.status(400).json({ status: "False", message: error.message });
     }
@@ -542,28 +536,18 @@ exports.validtill = function (req, res, next) {
   }
   next();
 };
-exports.challendate = function (req, res, next) {
-  const { challendate } = req.body;
-  const challendateSchema = Joi.string().required().messages({
-    "any.required": "Required Field : Challen Date",
-    "string.empty": "Challen Date Cannot Be Empty",
-  });
-  const { error } = challendateSchema.validate(challendate);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
-exports.creditnote = function (req, res, next) {
-  const { creditnote } = req.body;
-  const creditnoteSchema = Joi.string()
+exports.creditnoteNo = function (req, res, next) {
+  const { creditnoteNo } = req.body;
+  const creditnoteNoSchema = Joi.number()
 
     .required()
     .messages({
+      "number.base": "Credit Note must be a number",
       "any.required": "Required Field : Credit Note",
-      "string.empty": "Credit Note Cannot Be Empty",
+      "number.empty": "Credit Note Cannot Be Empty",
     });
-  const { error } = creditnoteSchema.validate(creditnote);
+    const valueToValidate = creditnoteNo === '' ? undefined : creditnoteNo;
+  const { error } = creditnoteNoSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -584,61 +568,18 @@ exports.creditdate = function (req, res, next) {
   }
   next();
 };
-exports.sr_no = function (req, res, next) {
-  const { sr_no } = req.body;
-  const sr_noSchema = Joi.string()
-
-    .required()
-    .messages({
-      "any.required": "Required Field : Serial Number",
-      "string.empty": "Serial Number Cannot Be Empty",
-    });
-  const { error } = sr_noSchema.validate(sr_no);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
-exports.batch_no = function (req, res, next) {
-  const { batch_no } = req.body;
-  const batch_noSchema = Joi.string()
-
-    .required()
-    .messages({
-      "any.required": "Required Field : Batch No",
-      "string.empty": "Batch No Cannot Be Empty",
-    });
-  const { error } = batch_noSchema.validate(batch_no);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
-exports.expiry_date = function (req, res, next) {
-  const { expiry_date } = req.body;
-  const expiry_dateSchema = Joi.string()
-
-    .required()
-    .messages({
-      "any.required": "Required Field : Expiry Date",
-      "string.empty": "Expiry_Date Cannot Be Empty",
-    });
-  const { error } = expiry_dateSchema.validate(expiry_date);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
 exports.invoiceno = function (req, res, next) {
   const { invoiceno } = req.body;
   const invoicenoSchema = Joi.number()
 
     .required()
     .messages({
+      "number.base": "Invoice Number must be a number",
       "any.required": "Required Field : Invoice Number",
       "number.empty": "Invoice Number Cannot Be Empty",
     });
-  const { error } = invoicenoSchema.validate(invoiceno);
+    const valueToValidate = invoiceno === '' ? undefined : invoiceno;
+  const { error } = invoicenoSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -654,21 +595,6 @@ exports.invoicedate = function (req, res, next) {
       "string.empty": "Invoice Date Cannot Be Empty",
     });
   const { error } = invoicedateSchema.validate(invoicedate);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
-exports.quantity = function (req, res, next) {
-  const { quantity } = req.body;
-  const quantitySchema = Joi.string()
-
-    .required()
-    .messages({
-      "any.required": "Required Field : Quantity",
-      "string.empty": "Quantity Cannot Be Empty",
-    });
-  const { error } = quantitySchema.validate(quantity);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -749,31 +675,20 @@ exports.contactpersonname = function (req, res, next) {
   }
   next();
 };
-exports.panno = function (req, res, next) {
-  const { panno } = req.body;
-  const pannoSchema = Joi.number()
-
-    .required()
-    .messages({
-      "any.required": "Required Field : Pan No",
-      "number.empty": "Pan No Cannot Be Empty",
-    });
-  const { error } = pannoSchema.validate(panno);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
 exports.creditperiod = function (req, res, next) {
   const { creditperiod } = req.body;
   const creditperiodSchema = Joi.number()
 
     .required()
     .messages({
-      "any.required": "Required Field : creditperiod",
-      "number.empty": "creditperiod Cannot Be Empty",
+      "any.required": "Required Field : Default Credit Period",
+      "number.base": "Default Credit Period must be a number",
+      "number.empty": "Default Credit Period Cannot Be Empty",
     });
-  const { error } = creditperiodSchema.validate(creditperiod);
+  // const { error } = creditperiodSchema.validate(creditperiod);
+  const valueToValidate = creditperiod === "" ? undefined : creditperiod;
+
+  const { error } = creditperiodSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -799,11 +714,17 @@ exports.pincode = function (req, res, next) {
   const pincodeSchema = Joi.number()
 
     .required()
+    .min(100000)
+    .max(999999)
     .messages({
+      "number.base": "PinCode Must Be A Number",
       "any.required": "Required Field : PinCode",
-      "number.empty": "PanCode Cannot Be Empty",
+      "number.empty": "PinCode Cannot Be Empty",
+      "number.min":"Pincode Must Be At Least 6 Digits",
+      "number.max":"Pincode Must Be At Most 6 Digits"
     });
-  const { error } = pincodeSchema.validate(pincode);
+    const valueToValidate = pincode === '' ? undefined : pincode
+    const { error } = pincodeSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -877,46 +798,12 @@ exports.balance = function (req, res, next) {
     .messages({
       "any.required": "Required Field : Balance",
       "number.empty": "Balance Cannot Be Empty",
+      "number.base": "Balance must be a number",
     });
-  const { error } = balanceSchema.validate(balance);
+    const valueToValidate = balance === '' ? undefined : balance;
+  const { error } = balanceSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
-exports.label = function (req, res, next) {
-  const { items } = req.body;
-  // console.log("itmes",items);
-  for (const item of items) {
-    const { label } = item;
-
-    const labelSchema = Joi.string().required().messages({
-      "string.empty": "label Cannot Be Empty",
-      "any.required": "Required Field: label",
-    });
-    const { error } = labelSchema.validate(label);
-
-    if (error) {
-      return res.status(400).json({ status: "False", message: error.message });
-    }
-  }
-  next();
-};
-exports.value = function (req, res, next) {
-  const { items } = req.body;
-  // console.log("itmes",items);
-  for (const item of items) {
-    const { value } = item;
-
-    const valueSchema = Joi.string().required().messages({
-      "string.empty": "value Cannot Be Empty",
-      "any.required": "Required Field: value",
-    });
-    const { error } = valueSchema.validate(value);
-
-    if (error) {
-      return res.status(400).json({ status: "False", message: error.message });
-    }
   }
   next();
 };
@@ -945,51 +832,6 @@ exports.productname = function (req, res, next) {
       "string.empty": "Product Name Cannot Be Empty",
     });
   const { error } = productnameSchema.validate(productname);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
-exports.itemgroup = function (req, res, next) {
-  const { itemgroup } = req.body;
-  const itemgroupSchema = Joi.string()
-
-    .required()
-    .messages({
-      "any.required": "Required Field : itemGroup",
-      "string.empty": "itemGroup Cannot Be Empty",
-    });
-  const { error } = itemgroupSchema.validate(itemgroup);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
-exports.itemcategory = function (req, res, next) {
-  const { itemcategory } = req.body;
-  const itemcategorySchema = Joi.string()
-
-    .required()
-    .messages({
-      "any.required": "Required Field : itemCategory",
-      "string.empty": "itemCategory Cannot Be Empty",
-    });
-  const { error } = itemcategorySchema.validate(itemcategory);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
-exports.openingstock = function (req, res, next) {
-  const { openingstock } = req.body;
-  const openingstockSchema = Joi.boolean()
-
-    .required()
-    .messages({
-      "any.required": "Required Field : Opening Stock",
-      "boolean.empty": "Opening Stock Cannot Be Empty",
-    });
-  const { error } = openingstockSchema.validate(openingstock);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -1025,31 +867,18 @@ exports.lowstock = function (req, res, next) {
   }
   next();
 };
-exports.itemselected = function (req, res, next) {
-  const { itemselected } = req.body;
-  const itemselectedSchema = Joi.string()
-
-    .required()
-    .messages({
-      "any.required": "Required Field : Item Selected",
-      "string.empty": "Item Selected Cannot Be Empty",
-    });
-  const { error } = itemselectedSchema.validate(itemselected);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
 exports.purchaseprice = function (req, res, next) {
   const { purchaseprice } = req.body;
   const purchasepriceSchema = Joi.number()
 
     .required()
     .messages({
-      "any.required": "Required Field :purchaseprice",
-      "number.empty": "purchaseprice Cannot Be Empty",
+      "any.required": "Required Field :Purchase Price",
+      "number.empty": "Purchase price Cannot Be Empty",
+      "number.base": "Purchase Price must be a number",
     });
-  const { error } = purchasepriceSchema.validate(purchaseprice);
+    const valueToValidate = purchaseprice === "" ? undefined : purchaseprice
+  const { error } = purchasepriceSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -1061,40 +890,12 @@ exports.salesprice = function (req, res, next) {
 
     .required()
     .messages({
-      "any.required": "Required Field : salesprice",
-      "number.empty": "salesprice Cannot Be Empty",
+      "any.required": "Required Field : Sales Price",
+      "number.empty": "Sales Price Cannot Be Empty",
+      "number.base": "Sales Price must be a number",
     });
-  const { error } = salespriceSchema.validate(salesprice);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
-exports.gstrate = function (req, res, next) {
-  const { gstrate } = req.body;
-  const gstrateSchema = Joi.number()
-
-    .required()
-    .messages({
-      "any.required": "Required Field : Gstrate",
-      "number.empty": "gstrate Cannot Be Empty",
-    });
-  const { error } = gstrateSchema.validate(gstrate);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
-exports.cess = function (req, res, next) {
-  const { cess } = req.body;
-  const cessSchema = Joi.boolean()
-
-    .required()
-    .messages({
-      "any.required": "Required Field : Cess",
-      "boolean.empty": "Cess Cannot Be Empty",
-    });
-  const { error } = cessSchema.validate(cess);
+    const valueToValidate = salesprice === '' ? undefined : salesprice;
+  const { error } = salespriceSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -1166,10 +967,12 @@ exports.terms = function (req, res, next) {
 
     .required()
     .messages({
+      "number.base": "terms must be a number",
       "any.required": "Required Field : terms",
       "number.empty": "terms Cannot Be Empty",
     });
-  const { error } = termsSchema.validate(terms);
+    const valueToValidate = terms === '' ? undefined: terms;
+  const { error } = termsSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -1205,13 +1008,15 @@ exports.book = function (req, res, next) {
   }
   next();
 };
-exports.debitnote = function (req, res, next) {
-  const { debitnote } = req.body;
-  const debitnoteSchema = Joi.string().required().messages({
-    "any.required": "Required Field : Debit Note",
-    "string.empty": "Debit Note Cannot Be Empty",
+exports.debitnoteno = function (req, res, next) {
+  const { debitnoteno } = req.body;
+  const debitnotenoSchema = Joi.number().required().messages({
+    "any.required": "Required Field : Debit Note Number",
+    "number.empty": "Debit Note Cannot Be Empty",
+    "number.base": "Debit Note must be a number",
   });
-  const { error } = debitnoteSchema.validate(debitnote);
+  const valueToValidate = debitnoteno === '' ? undefined : debitnoteno
+  const { error } = debitnotenoSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -1229,30 +1034,6 @@ exports.debitdate = function (req, res, next) {
   }
   next();
 };
-exports.billaddress = function (req, res, next) {
-  const { billaddress } = req.body;
-  const billaddressSchema = Joi.string().required().messages({
-    "any.required": "Required Field : Bill Address",
-    "string.empty": "Bill Address Cannot Be Empty",
-  });
-  const { error } = billaddressSchema.validate(billaddress);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
-exports.shipaddress = function (req, res, next) {
-  const { shipaddress } = req.body;
-  const shipaddressSchema = Joi.string().required().messages({
-    "any.required": "Required Field : ShipAddress",
-    "string.empty": "ShipAddress Cannot Be Empty",
-  });
-  const { error } = shipaddressSchema.validate(shipaddress);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
 exports.refdate = function (req, res, next) {
   const { refdate } = req.body;
   const refdateSchema = Joi.string().required().messages({
@@ -1265,18 +1046,6 @@ exports.refdate = function (req, res, next) {
   }
   next();
 };
-exports.reason = function (req, res, next) {
-  const { reason } = req.body;
-  const reasonSchema = Joi.string().required().messages({
-    "any.required": "Required Field : Reason",
-    "string.empty": "Reason Cannot Be Empty",
-  });
-  const { error } = reasonSchema.validate(reason);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
 exports.price = function (req, res, next) {
   const { items } = req.body;
   for (const item of items) {
@@ -1284,8 +1053,10 @@ exports.price = function (req, res, next) {
     const priceSchema = Joi.number().required().messages({
       "any.required": "Required Field : Price",
       "number.empty": "Price Cannot Be Empty",
+      "number.base": "Price must be a number",
     });
-    const { error } = priceSchema.validate(price);
+    const valueToValidate = price === ''? undefined :price
+    const { error } = priceSchema.validate(valueToValidate);
     if (error) {
       return res.status(400).json({ status: "False", message: error.message });
     }
@@ -1359,31 +1130,20 @@ exports.depositto = function (req, res, next) {
   }
   next();
 };
-exports.amountrecive = function (req, res, next) {
-  const { amountrecive } = req.body;
-  const amountreciveSchema = Joi.number().required().messages({
-    "any.required": "Required filed : Amount Recive",
-    "number.empty": "Amount Recive Cannot Be Empty",
-  });
-  const { error } = amountreciveSchema.validate(amountrecive);
-  if (error) {
-    return res.status(400).json({ status: "false", message: error.message });
-  }
-  next();
-};
-exports.holdername = function (req, res, next) {
-  const { holdername } = req.body;
+// exports.amountreceive = function (req, res, next) {
+//   const { amountreceive } = req.body;
+//   const amountreceiveSchema = Joi.number().required().messages({
+//     "any.required": "Required filed : Amount Receive",
+//     "number.empty": "Amount Receive Cannot Be Empty",
+//     "number.base": "Amount Receive must be a number",
+//   });
 
-  const holdernameSchema = Joi.string().required().messages({
-    "any.required": "Required filed : Holder Name",
-    "string.empty": "Holder Name Cannot Be Empty",
-  });
-  const { error } = holdernameSchema.validate(holdername);
-  if (error) {
-    return res.status(400).json({ status: "false", message: error.message });
-  }
-  next();
-};
+//   const { error } = amountreceiveSchema.validate(amountreceive);
+//   if (error) {
+//     return res.status(400).json({ status: "false", message: error.message });
+//   }
+//   next();
+// };
 exports.accountnumber = function (req, res, next) {
   const { accountnumber } = req.body;
   const accountnumberSchema = Joi.string()
@@ -1430,21 +1190,21 @@ exports.bankname = function (req, res, next) {
   }
   next();
 };
-exports.openingbalance = function (req, res, next) {
-  const { openingbalance } = req.body;
-  const openingbalanceSchema = Joi.number()
+exports.branch = function (req, res, next) {
+  const { branch } = req.body;
 
+  const branchSchema = Joi.string()
     .required()
     .messages({
-      "any.required": "Required filed : Opening Balance",
-      "number.empty": "Opening Balance Cannot Be Empty",
+      "any.required": "Required Feild: Branch",
+      "string.empty": "Branch Name Cannot Be Empty"
     });
-  const { error } = openingbalanceSchema.validate(openingbalance);
+  const { error } = branchSchema.validate(branch);
   if (error) {
-    return res.status(400).json({ status: "false", message: error.message });
+    return res.status(400).json({ status: 'false', message: error.message });
   }
   next();
-};
+}
 exports.country = function (req, res, next) {
   const { country } = req.body;
   const countrySchema = Joi.string().required().messages({
@@ -1452,18 +1212,6 @@ exports.country = function (req, res, next) {
     "string.empty": "Country Cannot Be Empty",
   });
   const { error } = countrySchema.validate(country);
-  if (error) {
-    return res.status(400).json({ status: "false", message: error.message });
-  }
-  next();
-};
-exports.seriesname = function (req, res, next) {
-  const { seriesname } = req.body;
-  const seriesnameSchema = Joi.string().required().messages({
-    "any.required": "Required Filed : Series Name",
-    "string.empty": "Series Name Cannot Be Empty",
-  });
-  const { error } = seriesnameSchema.validate(seriesname);
   if (error) {
     return res.status(400).json({ status: "false", message: error.message });
   }
@@ -1492,8 +1240,10 @@ exports.salary = function (req, res, next) {
     .messages({
       "any.required": "Required filed : Salary",
       "string.empty": "Salary Cannot Be Empty",
+      "number.base": "Salary must be a number",
     });
-  const { error } = salarySchema.validate(salary);
+    const valueToValidate = salary === '' ? undefined: salary;
+  const { error } = salarySchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "false", message: error.message });
   }
@@ -1518,10 +1268,12 @@ exports.gstnumber = function (req, res, next) {
   const { gstnumber } = req.body;
   const gstnumberSchema = Joi.string()
 
+    .length(15)
     .required()
     .messages({
       "any.required": " Required field : GST Number",
       "string.empty": "GST Number Cannot Be Empty",
+      "string.length": "GST Number must be exactly 15 characters long",
     });
   const { error } = gstnumberSchema.validate(gstnumber);
   if (error) {
@@ -1529,38 +1281,102 @@ exports.gstnumber = function (req, res, next) {
   }
   next();
 };
-exports.HSNcode = function (req,res,next) {
-  const {HSNcode} = req.body;
+exports.HSNcode = function (req, res, next) {
+  const { HSNcode } = req.body;
 
   const HSNcodeSchema = Joi.number()
 
-  .integer()
-  .max(999999)
-  .required()
-  .messages({
-    "any.required":"Required Filed : HSN Code",
-    "number.empty":"HSN Code Cannot Be Empty",
-    "number.max": "HSN Code Cannot Have More Then 6 Digits",
-  });
-  const {error} = HSNcodeSchema.validate(HSNcode);
-  if(error) {
-    return res.status(400).json({ status:'false', message:error.message});
+    .integer()
+    .max(999999)
+    .required()
+    .messages({
+      "any.required": "Required Filed : HSN Code",
+      "number.base": "HSN Code must be a number",
+      "number.empty": "HSN Code Cannot Be Empty",
+      "number.max": "HSN Code Cannot Have More Then 6 Digits",
+    });
+    const valueToValidate = HSNcode === '' ? undefined : HSNcode;
+  const { error } = HSNcodeSchema.validate(valueToValidate);
+  if (error) {
+    return res.status(400).json({ status: 'false', message: error.message });
   }
   next();
 }
-exports.companyname = function(req,res,next) {
-  const {companyname} = req.body
+exports.companyname = function (req, res, next) {
+  const { companyname } = req.body
 
   const companynameSchema = Joi.string()
-  .required()
-  .messages({
-    "any.required" :'Required field : Company Name',
-    "string.empty":"Company Cannot Be Empty"
-  });
+    .required()
+    .messages({
+      "any.required": 'Required field : Company Name',
+      "string.empty": "Company Cannot Be Empty"
+    });
 
-  const {error} = companynameSchema.validate(companyname);
-  if(error) {
-    return res.status(400).json({ status:'false', message: error.message});
+  const { error } = companynameSchema.validate(companyname);
+  if (error) {
+    return res.status(400).json({ status: 'false', message: error.message });
+  }
+  next();
+}
+exports.org_invoiceno = function (req, res, next) {
+  const { org_invoiceno } = req.body
+
+  const org_invoicenoSchema = Joi.number()
+    .required()
+    .messages({
+      "number.base": "Org. Invoice Number must be a number",
+      "any.required": "Required feild: Org. Invoice Number",
+      "number.empty": "Org. Invoice Number Cannot Be Empty"
+    })
+const valueToValidate = org_invoiceno === '' ? undefined : org_invoiceno;
+  const { error } = org_invoicenoSchema.validate(valueToValidate);
+  if (error) {
+    return res.status(400).json({ status: 'false', message: error.message });
+  }
+  next();
+}
+exports.org_invoicedate = function (req, res, next) {
+  const { org_invoicedate } = req.body;
+
+  const org_invoicedateSchema = Joi.string().required().messages({
+    "string.empty": "Org. Invoice Date Cannot Be Empty",
+    "any.required": "Required Filed : Org. Invoice Date",
+  });
+  const { error } = org_invoicedateSchema.validate(org_invoicedate);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+};
+exports.referance = function (req, res, next) {
+  const { referance } = req.body
+
+  const referanceSchema = Joi.string()
+    .required()
+    .messages({
+      "any.required": 'Required field : Referance',
+      "string.empty": "Referance Cannot Be Empty"
+    });
+
+  const { error } = referanceSchema.validate(referance);
+  if (error) {
+    return res.status(400).json({ status: 'false', message: error.message });
+  }
+  next();
+}
+exports.purpose = function (req, res, next) {
+  const { purpose } = req.body
+
+  const purposeSchema = Joi.string()
+    .required()
+    .messages({
+      "any.required": 'Required field : Purpose',
+      "string.empty": "Purpose Cannot Be Empty"
+    });
+
+  const { error } = purposeSchema.validate(purpose);
+  if (error) {
+    return res.status(400).json({ status: 'false', message: error.message });
   }
   next();
 }

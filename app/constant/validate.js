@@ -1,4 +1,4 @@
-const { email, password, mobileno, challanno, date, customerId, serialno, mrp, qty, productId, description, batchno, quotationno, expirydate, vendor, voucherno, gstin, billno, billdate, payment, expensse, taxable, account, paymentdate, refno, quotationref, pono, mode, paidfrom, amount, ProFormaInvoice_no, rate, discount, validtill, challendate, creditnote, creditdate, sr_no, batch_no, expiry_date, invoiceno, invoicedate, quantity, itemname, unit, accountname, shortname, contactpersonname, panno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, label, value, itemtype, productname, itemgroup, itemcategory, openingstock, nagativeqty, lowstock, itemselected, purchaseprice, salesprice, gstrate, cess, group, remarks, category, unitname, terms, duedate, book, debitnote, debitdate, billaddress, shipaddress, refdate, reason, price, bill_no, bill_date, Cess, depositto, amountrecive, receiptdate, holdername, accountnumber, ifsccode, bankname, openingbalance, country, seriesname, username, salary, role, gstnumber, HSNcode, companyname
+const { email, password, mobileno, challanno, date, customerId,  mrp, qty, productId, description, batchno, quotationno, expirydate, vendor, voucherno, gstin, billno, billdate, payment, expensse, taxable, account, paymentdate, refno, quotationref, pono, mode, paidfrom, amount, ProFormaInvoice_no, rate, discount, validtill, creditnote, creditdate, invoiceno, invoicedate, itemname, unit, accountname, shortname, contactpersonname, panno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, itemtype, productname, nagativeqty, lowstock, purchaseprice, salesprice, group, remarks, category, unitname, terms, duedate, book, debitnote, debitdate, refdate, price, bill_no, bill_date, depositto,  receiptdate, accountnumber, ifsccode, bankname, country, username, salary, role, gstnumber, HSNcode, companyname, proFormaId, branch, debitnoteno, creditnoteNo, org_invoiceno, org_invoicedate, gstrate, purpose, referance
 } = require("./validation")
 
 module.exports.validation = function (method) {
@@ -10,55 +10,63 @@ module.exports.validation = function (method) {
         case "update_user":
             return [email, mobileno]
         case "create_deliverychallan":
-            return [challanno, date, customerId, mobileno, email]
-        case "update_deliverychallan" : 
-            return [email,mobileno]
-        case "create_deliverychallanitem":
-            return [mrp, qty, productId, description, batchno, quotationno, expirydate]
+            return [challanno, date, customerId,qty, productId]
         case "create_expense":
-            return [mobileno, customerId, voucherno, date, gstin, mobileno, email, billno, billdate, payment, expensse, description, taxable, mrp]
+            return [mobileno, customerId, voucherno, date, mobileno, email, billno, billdate, payment, expensse, description, taxable, mrp]
         case "create_payment":
             return [voucherno, account, email, paymentdate, mode, paidfrom, refno, billno, amount]
         case "create_purchase":
             return [ProFormaInvoice_no, date, email, mobileno, quotationref, pono, customerId]
         case "create_purchaseitem":
-            return [serialno, rate, qty, productId, discount, mrp]
+            return [ rate, qty, productId, discount, mrp]
         case "create_ProFormaInvoice":
-            return [ProFormaInvoice_no, date, validtill, customerId, rate, qty]
+            return [ProFormaInvoice_no, date, validtill, customerId, rate, qty, productId]
         case "create_salesinvoice":
-            return [ customerId,  invoiceno, invoicedate, duedate,  productId, rate, qty, rate]
-        case "update_salesInvoice":
-            return [email,mobileno]
-        case "create_salesReturn":
-            return [customerId, creditnote, creditdate]
+            return [customerId, invoiceno, invoicedate, productId, rate, qty]
+        case "create_debitNote":
+            return [customerId, debitnoteno,debitdate,invoicedate, productId, qty,mrp,rate]
+        case "create_creditNote":
+            return [customerId,creditnoteNo,creditdate,org_invoiceno,org_invoicedate, productId,rate,qty]
         case "create_stoke":
             return [itemname, unit, email,]
         case "create_customer":
-            return [accountname, contactpersonname, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, country, gstnumber]
+            return [accountname,email,mobileno, contactpersonname, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, gstnumber]
         case "update_customer":
-            return [email,mobileno]
+            return [email, mobileno]
         case "create_product":
-            return [itemtype, productname, unit, nagativeqty, lowstock, purchaseprice, salesprice, HSNcode]
+            return [itemtype, productname, unit, nagativeqty,gstrate, lowstock, salesprice, HSNcode]
         case "create_itemgroup":
             return [group, remarks]
         case "create_itemcategory":
             return [category, remarks]
         case "create_unit":
             return [shortname, unitname]
-        case "create_purchasebill":
-            return [vendor, mobileno, email, billno, billdate, terms, duedate, book, pono]
-        case "create_purchasebill_item":
-            return [productId, qty, rate, mrp]
-        case "create_purchaseReturn":
-            return [vendor, debitnote, debitdate, refno, refdate]
-        case "create_purchaseReturn_item":
-            return [serialno, productId, batchno, expirydate, mrp, bill_no, bill_date, qty, rate, taxable, price]
+        case "create_purchaseInvoice":
+            return [duedate,invoiceno, invoicedate, qty, rate]
         case "create_receipt":
-            return [voucherno, account, email, mode, refno, depositto, amountrecive, receiptdate]
+            return [voucherno, account, email, mode, refno, depositto, receiptdate]
         case "create_company":
-            return [companyname, gstnumber, email, mobileno, address1, pincode, state, city, country]
+            return [companyname, gstnumber, email, mobileno, address1, pincode, state, city]
         case "create_vendor":
-            return [accountname, shortname, email, contactpersonname, mobileno, panno, creditperiod, mode, address1, pincode, state, city, bankdetail, creditlimit, balance, country, gstnumber]
+            return [accountname, email, contactpersonname, mobileno, creditperiod, address1, pincode, state, city, bankdetail, creditlimit, balance, gstnumber]
+        case "update_vendor": 
+            return [email,mobileno]
+        case "C_create_salesinvoice": 
+            return [date,qty,rate]
+        case "C_create_purchase_Cash":
+            return [date,qty,rate]
+        case "create_receiveCash" : 
+            return [date,amount]
+        case "create_paymentCash" :
+            return [date,amount]
+        case "create_claim":
+            return [amount,purpose]
+        case "create_company_bankDetails":
+            return [bankname,accountnumber,ifsccode,branch]
+        case "create_receive_bank":
+          return [voucherno,paymentdate,mode,referance,amount]
+        case "create_payment_bank":
+            return[voucherno,paymentdate,mode,referance,amount]
         default:
             throw new Error('Invalid validation method')
     }

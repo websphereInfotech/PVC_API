@@ -7,9 +7,14 @@ const {
   delete_product,
   view_product,
   get_all_product,
+  C_get_all_product,
 } = require("../controller/product");
 
 const router = express.Router();
+
+/*=============================================================================================================
+                                          Widhout Typc C API
+ ============================================================================================================ */
 
 router.post(
   "/create_product",
@@ -36,6 +41,16 @@ router.get(
   "/get_all_product",
   adminAuth("Product:view_all_product"),
   get_all_product
+);
+
+/*=============================================================================================================
+                                           Typc C API
+ ============================================================================================================ */
+
+router.get(
+  "/C_get_all_product",
+  adminAuth("Product Cash:get_all_product_cash"),
+  C_get_all_product
 );
 
 module.exports = router;

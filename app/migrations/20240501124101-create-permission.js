@@ -21,6 +21,10 @@ module.exports = {
       permission: {
         type: Sequelize.STRING
       },
+      type: {
+        type: Sequelize.BOOLEAN, 
+        allowNull: false
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

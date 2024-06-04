@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const customer = require("./customer");
 const ProFormaInvoice = require("./ProFormaInvoice");
+const User = require("./user");
 
 const salesInvoice = sequelize.define("P_salesInvoice", {
   dispatchno: {
@@ -10,10 +11,12 @@ const salesInvoice = sequelize.define("P_salesInvoice", {
   deliverydate: {
     type: DataTypes.DATEONLY,
   },
+  terms: {
+    type: DataTypes.ENUM("Advance", "Immediate", "Terms"),
+  },
   invoiceno: { type: DataTypes.INTEGER },
-  invoicedate: { type: DataTypes.DATE },
-  terms: { type: DataTypes.INTEGER },
-  duedate: { type: DataTypes.DATE },
+  invoicedate: { type: DataTypes.DATEONLY },
+  termsOfDelivery: { type: DataTypes.STRING },
   proFormaId: { type: DataTypes.INTEGER },
   dispatchThrough: { type: DataTypes.STRING },
   destination: { type: DataTypes.STRING },
@@ -21,19 +24,48 @@ const salesInvoice = sequelize.define("P_salesInvoice", {
   motorVehicleNo: { type: DataTypes.STRING },
   customerId: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
   },
   totalIgst: { type: DataTypes.FLOAT, defaultValue: 0 },
   totalSgst: { type: DataTypes.FLOAT, defaultValue: 0 },
   totalMrp: { type: DataTypes.FLOAT, defaultValue: 0 },
   mainTotal: { type: DataTypes.FLOAT, defaultValue: 0 },
+  totalQty: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+  },
+  createdBy: {
+    type: DataTypes.INTEGER,
+  },
+  updatedBy: { type: DataTypes.INTEGER },
 });
 
+User.hasMany(salesInvoice, { foreignKey: "createdBy", as: "createUser" });
+salesInvoice.belongsTo(User, { foreignKey: "createdBy", as: "createUser" });
 
-ProFormaInvoice.hasMany(salesInvoice, { foreignKey: 'proFormaId', onDelete: 'CASCADE' });
-salesInvoice.belongsTo(ProFormaInvoice, { foreignKey: 'proFormaId', onDelete: 'CASCADE' });
+User.hasMany(salesInvoice, { foreignKey: "updatedBy", as: "updateUser" });
+salesInvoice.belongsTo(User, { foreignKey: "updatedBy", as: "updateUser" });
 
-customer.hasMany(salesInvoice, { foreignKey: 'customerId', onDelete: 'CASCADE', as: 'InvioceCustomer' });
-salesInvoice.belongsTo(customer, { foreignKey: 'customerId', onDelete: 'CASCADE', as: 'InvioceCustomer' });
+ProFormaInvoice.hasMany(salesInvoice, {
+  foreignKey: "proFormaId",
+  onDelete: "CASCADE",
+  as: "proFormaItem",
+});
+salesInvoice.belongsTo(ProFormaInvoice, {
+  foreignKey: "proFormaId",
+  onDelete: "CASCADE",
+  as: "proFormaItem",
+});
+
+customer.hasMany(salesInvoice, {
+  foreignKey: "customerId",
+  onDelete: "CASCADE",
+  as: "InvioceCustomer",
+});
+salesInvoice.belongsTo(customer, {
+  foreignKey: "customerId",
+  onDelete: "CASCADE",
+  as: "InvioceCustomer",
+});
 
 module.exports = salesInvoice;

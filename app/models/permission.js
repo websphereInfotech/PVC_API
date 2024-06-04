@@ -1,31 +1,6 @@
-// 'use strict';
-// const {
-//   Model
-// } = require('sequelize');
-// module.exports = (sequelize, DataTypes) => {
-//   class permission extends Model {
-//     /**
-//      * Helper method for defining associations.
-//      * This method is not a part of Sequelize lifecycle.
-//      * The `models/index` file will call this method automatically.
-//      */
-//     static associate(models) {
-//       // define association here
-//     }
-//   }
-//   permission.init({
-//     role: DataTypes.STRING,
-//     resource: DataTypes.STRING,
-//     permissionValue: DataTypes.BOOLEAN,
-//     permission: DataTypes.STRING
-//   }, {
-//     sequelize,
-//     modelName: 'permission',
-//   });
-//   return permission;
-// };
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
+const company = require("./company");
 
 const permissions = sequelize.define("P_permissions", {
   role: { type: DataTypes.STRING },
@@ -34,5 +9,19 @@ const permissions = sequelize.define("P_permissions", {
   permission: {
     type: DataTypes.STRING,
   },
+  type: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+  },
+  companyId: {
+    type: DataTypes.INTEGER,
+  },
 });
+
+company.hasMany(permissions, { foreignKey: "companyId", onDelete: "CASCADE" });
+permissions.belongsTo(company, {
+  foreignKey: "companyId",
+  onDelete: "CASCADE",
+});
+
 module.exports = permissions;

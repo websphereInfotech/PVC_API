@@ -1,12 +1,9 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const deliverychallan = require("./deliverychallan");
+const product = require("./product");
 
 const deliverychallanitem = sequelize.define("P_deliverychallanItem", {
-  mrp: {
-    type: DataTypes.FLOAT,
-    allowNull: false,
-  },
   qty: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -14,24 +11,12 @@ const deliverychallanitem = sequelize.define("P_deliverychallanItem", {
   productId: {
     type: DataTypes.INTEGER,
     allowNull: false,
-  },
-  description: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  batchno: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  quotationno: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  expirydate: {
-    type: DataTypes.DATE,
-    allowNull: false,
-  },
+  }
 });
+
+
+product.hasMany(deliverychallanitem,{foreignKey:'productId',onDelete:'CASCADE', as:'DeliveryProduct'});
+deliverychallanitem.belongsTo(product,{ foreignKey:'productId', onDelete:'CASCADE', as:'DeliveryProduct'});
 
 deliverychallan.hasMany(deliverychallanitem, {
   foreignKey: "deliverychallanId", onDelete:'CASCADE',as:'items'
