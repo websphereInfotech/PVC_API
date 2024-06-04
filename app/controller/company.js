@@ -1,7 +1,10 @@
+const admintoken = require("../models/admintoken");
 const company = require("../models/company");
 const companyBankDetails = require("../models/companyBankDetails");
 const companyUser = require("../models/companyUser");
 const permissionAdd = require("../util/permissions");
+const jwt = require('jsonwebtoken');
+
 
 exports.create_company = async (req, res) => {
   try {
@@ -42,7 +45,7 @@ exports.create_company = async (req, res) => {
     });
 
     await data.addUser(userId);
-    
+
     permissionAdd(data.id);
     return res.status(200).json({
       status: "true",
@@ -210,14 +213,20 @@ exports.set_default_comapny = async (req, res) => {
       );
 
       await userToUpdate.update({ setDefault: true });
+
+      const token = jwt.sign({  ...req.user,companyId: companyData.id }, process.env.SECRET_KEY);
+      const existingToken = await admintoken.findOne({
+        where: { userId: userId  },
+      });
+      await existingToken.update({token});
+
       const data = await company.findByPk(id);
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "Default Company Set Successfully",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "Default Company Set Successfully",
+        data: data,
+        token
+      });
     }
   } catch (error) {
     console.log(error);

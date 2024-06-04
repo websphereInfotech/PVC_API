@@ -84,7 +84,7 @@ const adminToken = (permissionString) => {
             role: verify.role,
             resource,
             permission,
-            type: false
+            type: false,
           },
         });
       }

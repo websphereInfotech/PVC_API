@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
+const company = require("./company");
 
 const customer = sequelize.define("P_customer", {
   accountname: {
@@ -56,5 +57,8 @@ const customer = sequelize.define("P_customer", {
   },
   companyId: {type: DataTypes.INTEGER}
 });
+
+company.hasMany(customer,{foreignKey:'companyId',onDelete:'CASCADE'});
+customer.belongsTo(company,{foreignKey:'companyId',onDelete:'CASCADE'});
 
 module.exports = customer;

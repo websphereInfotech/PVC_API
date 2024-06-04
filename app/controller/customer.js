@@ -28,7 +28,7 @@ exports.create_customer = async (req, res) => {
     } = req.body;
 
     let panno = req.body.panno;
-    if(panno === '') {
+    if (panno === "") {
       panno = null;
     }
     if (bankdetail === true) {
@@ -37,7 +37,6 @@ exports.create_customer = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Required Filed Of Items" });
       }
-    // for (const item of items) {
       const existingAccount = await bankAccount.findOne({
         where: { accountnumber: bankdetails.accountnumber },
       });
@@ -58,8 +57,7 @@ exports.create_customer = async (req, res) => {
           message: "IFSC Code Already Exists",
         });
       }
-    // }
-  }
+    }
     const customerdata = {
       accountname,
       shortname,
@@ -99,14 +97,15 @@ exports.create_customer = async (req, res) => {
       where: { id: data.id },
       include: [{ model: bankAccount, as: "bankdetails" }],
     });
-  await C_customer.create({ customername:contactpersonname,companyId:req.user.companyId })
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "New customer created successfully",
-        data: customerData,
-      });
+    await C_customer.create({
+      customername: contactpersonname,
+      companyId: req.user.companyId,
+    });
+    return res.status(200).json({
+      status: "true",
+      message: "New customer created successfully",
+      data: customerData,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -148,7 +147,7 @@ exports.update_customer = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
-    
+
     const customerUpdate = {
       accountname,
       shortname,
@@ -175,45 +174,41 @@ exports.update_customer = async (req, res) => {
     await customer.update(customerUpdate, { where: { id } });
 
     if (bankdetail === true && bankdetails) {
-     
-        const existingItem = await bankAccount.findOne({
-          where: { customerId: id, accountnumber: bankdetails.accountnumber },
-        });
+      const existingItem = await bankAccount.findOne({
+        where: { customerId: id, accountnumber: bankdetails.accountnumber },
+      });
 
-        if (existingItem) {
-          await bankAccount.update(
-            {
-              ifsccode: bankdetails.ifsccode,
-              accounttype: bankdetails.accounttype,
-              bankname: bankdetails.bankname,
-            },
-            {
-              where: { id: existingItem.id },
-            }
-          );
-        } else {
-          await bankAccount.create({
-            customerId: id,
-            accountnumber: bankdetails.accountnumber,
+      if (existingItem) {
+        await bankAccount.update(
+          {
             ifsccode: bankdetails.ifsccode,
             accounttype: bankdetails.accounttype,
             bankname: bankdetails.bankname,
-          });
-        }
-      // }
+          },
+          {
+            where: { id: existingItem.id },
+          }
+        );
+      } else {
+        await bankAccount.create({
+          customerId: id,
+          accountnumber: bankdetails.accountnumber,
+          ifsccode: bankdetails.ifsccode,
+          accounttype: bankdetails.accounttype,
+          bankname: bankdetails.bankname,
+        });
+      }
     }
     const data = await customer.findOne({
       where: { id: id },
       include: [{ model: bankAccount, as: "bankdetails" }],
     });
 
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "New customer Updated Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "New customer Updated Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log("ERROR", error);
     return res
@@ -223,9 +218,12 @@ exports.update_customer = async (req, res) => {
 };
 exports.delete_customer = async (req, res) => {
   try {
+    const companyId = req.user.companyId;
     const { id } = req.params;
 
-    const data = await customer.destroy({ where: { id: id } });
+    const data = await customer.destroy({
+      where: { id: id, companyId: companyId },
+    });
 
     if (!data) {
       return res
@@ -243,13 +241,13 @@ exports.delete_customer = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-// }
+
 exports.view_customer = async (req, res) => {
   try {
     const { id } = req.params;
 
     const data = await customer.findOne({
-      where: { id },
+      where: { id: id, companyId: req.user.companyId },
       include: [{ model: bankAccount, as: "bankdetails" }],
     });
 
@@ -258,13 +256,11 @@ exports.view_customer = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "customer Not Found" });
     }
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "customer data fetch successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "customer data fetch successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -275,20 +271,20 @@ exports.view_customer = async (req, res) => {
 exports.get_all_customer = async (req, res) => {
   try {
     const data = await customer.findAll({
+      where: { companyId: req.user.companyId },
       include: [{ model: bankAccount, as: "bankdetails" }],
     });
+   
     if (!data) {
       return res
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Customer Data Fetch Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Customer Data Fetch Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -300,15 +296,23 @@ exports.get_all_customer = async (req, res) => {
 /*=============================================================================================================
                                            Typc C API
  ============================================================================================================ */
-exports.C_get_all_customer = async (req,res) => {
+exports.C_get_all_customer = async (req, res) => {
   try {
-    const data = await C_customer.findAll();
-    if(data) {
-      return res.status(200).json({ status:'true', message:'Customer Data Fetch Successfully', data:data});
+    const data = await C_customer.findAll({
+      where: { companyId: req.user.companyId },
+    });
+    if (data) {
+      return res
+        .status(200)
+        .json({
+          status: "true",
+          message: "Customer Data Fetch Successfully",
+          data: data,
+        });
     } else {
       return res
-      .status(404)
-      .json({ status: "false", message: "Customer Not Found" });
+        .status(404)
+        .json({ status: "false", message: "Customer Not Found" });
     }
   } catch (error) {
     console.log(error);
@@ -316,4 +320,4 @@ exports.C_get_all_customer = async (req,res) => {
       .status(500)
       .json({ status: "false", message: "Internal Server Error" });
   }
-}
+};

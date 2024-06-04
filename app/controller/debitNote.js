@@ -41,6 +41,10 @@ exports.create_debitNote = async (req, res) => {
     //     message: "Total MRP Not Match",
     //   });
     // }
+    const invoiceData = await purchaseInvoice.findByPk(invoiceId);
+    if(!invoiceData) {
+      return res.status(404).json({status:'false', message:'Purchae Invoice Not Found'});
+    }
     if (existingCredit) {
       return res
         .status(400)
@@ -236,6 +240,7 @@ exports.update_debitNote = async (req, res) => {
 exports.get_all_debitNote = async (req, res) => {
   try {
     const data = await debitNote.findAll({
+      companyId:req.user.companyId,
       include: [
         {
           model: debitNoteItem,
@@ -269,7 +274,7 @@ exports.view_single_debitNote = async (req, res) => {
     const { id } = req.params;
 
     const data = await debitNote.findOne({
-      where: { id },
+      where: { id:id, companyId: req.user.companyId },
       include: [
         {
           model: debitNoteItem,
@@ -302,7 +307,7 @@ exports.delete_debitNote = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await debitNote.destroy({ where: { id } });
+    const data = await debitNote.destroy({ where: { id:id, companyId: req.user.companyId } });
     if (data) {
       return res
         .status(200)

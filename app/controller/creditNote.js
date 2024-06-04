@@ -47,12 +47,10 @@ exports.create_creditNote = async (req, res) => {
       where: { creditnoteNo: creditnoteNo },
     });
     if (numberOf) {
-      return res
-        .status(400)
-        .json({
-          status: "false",
-          message: "Credit Note Number Already Exists",
-        });
+      return res.status(400).json({
+        status: "false",
+        message: "Credit Note Number Already Exists",
+      });
     }
 
     const customerData = await customer.findByPk(customerId);
@@ -102,13 +100,11 @@ exports.create_creditNote = async (req, res) => {
       where: { id: creditData.id },
       include: [{ model: creditNoteItem, as: "items" }],
     });
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Credit Note Create Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Credit Note Create Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -175,7 +171,7 @@ exports.update_creditNote = async (req, res) => {
         totalMrp,
         totalQty,
         mainTotal,
-        companyId:req.user.companyId,
+        companyId: req.user.companyId,
       },
       { where: { id } }
     );
@@ -250,6 +246,7 @@ exports.update_creditNote = async (req, res) => {
 exports.get_all_creditNote = async (req, res) => {
   try {
     const data = await creditNote.findAll({
+      where: { companyId: req.user.companyId },
       include: [
         {
           model: creditNoteItem,
@@ -283,7 +280,7 @@ exports.view_single_creditNote = async (req, res) => {
     const { id } = req.params;
 
     const data = await creditNote.findOne({
-      where: { id },
+      where: { id: id, companyId: req.user.companyId },
       include: [
         {
           model: creditNoteItem,
@@ -297,12 +294,13 @@ exports.view_single_creditNote = async (req, res) => {
       return res
         .status(404)
         .json({ status: "false", message: "Credit Note Not Found" });
+    } else {
+      return res.status(200).json({
+        status: "true",
+        message: "Credit Note Data fetch successfully",
+        data: data,
+      });
     }
-    return res.status(200).json({
-      status: "true",
-      message: "Credit Note Data fetch successfully",
-      data: data,
-    });
   } catch (error) {
     console.log(error.message);
     return res
@@ -314,7 +312,9 @@ exports.view_single_creditNote = async (req, res) => {
 exports.delete_creditNote = async (req, res) => {
   try {
     const { id } = req.params;
-    const data = await creditNote.destroy({ where: { id } });
+    const data = await creditNote.destroy({
+      where: { id: id, companyId: req.user.companyId },
+    });
 
     if (data) {
       return res

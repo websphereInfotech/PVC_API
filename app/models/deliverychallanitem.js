@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const deliverychallan = require("./deliverychallan");
 const product = require("./product");
+const company = require("./company");
 
 const deliverychallanitem = sequelize.define("P_deliverychallanItem", {
   qty: {
@@ -11,9 +12,12 @@ const deliverychallanitem = sequelize.define("P_deliverychallanItem", {
   productId: {
     type: DataTypes.INTEGER,
     allowNull: false,
-  }
+  },
+  companyId: {type: DataTypes.INTEGER}
 });
 
+company.hasMany(deliverychallan,{foreignKey:'companyId',onDelete:'CASCADE'});
+deliverychallan.belongsTo(company,{foreignKey:'companyId',onDelete:'CASCADE'});
 
 product.hasMany(deliverychallanitem,{foreignKey:'productId',onDelete:'CASCADE', as:'DeliveryProduct'});
 deliverychallanitem.belongsTo(product,{ foreignKey:'productId', onDelete:'CASCADE', as:'DeliveryProduct'});

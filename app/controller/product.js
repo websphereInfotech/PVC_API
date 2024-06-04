@@ -1,8 +1,8 @@
 const C_product = require("../models/C_product");
-const itemcategory = require("../models/itemcategory");
-const itemgroup = require("../models/itemgroup");
+// const itemcategory = require("../models/itemcategory");
+// const itemgroup = require("../models/itemgroup");
 const product = require("../models/product");
-const unit = require("../models/unit");
+// const unit = require("../models/unit");
 
 /*=============================================================================================================
                                           Widhout Typc C API
@@ -28,8 +28,7 @@ exports.create_product = async (req, res) => {
       HSNcode,
       cess,
     } = req.body;
-    
- 
+
     const data = await product.create({
       itemtype,
       productname,
@@ -49,15 +48,16 @@ exports.create_product = async (req, res) => {
       cess,
       companyId: req.user.companyId,
     });
-    await C_product.create({ productname: productname,companyId: req.user.companyId });
+    await C_product.create({
+      productname: productname,
+      companyId: req.user.companyId,
+    });
 
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Product created successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Product created successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -110,23 +110,21 @@ exports.update_product = async (req, res) => {
         itemselected: itemselected,
         salesprice: salesprice,
         purchaseprice: purchaseprice,
-        gstrate:gstrate,
-        HSNcode:HSNcode,
+        gstrate: gstrate,
+        HSNcode: HSNcode,
         cess: cess,
-        companyId:req.user.companyId
+        companyId: req.user.companyId,
       },
       {
         where: { id: id },
       }
     );
     const data = await product.findByPk(id);
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Product Updated Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Product Updated Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log("ERROR", error);
     return res
@@ -161,8 +159,7 @@ exports.view_product = async (req, res) => {
     const { id } = req.params;
 
     const data = await product.findOne({
-      where: { id },
-      include: [{ model: itemgroup }, { model: itemcategory }, { model: unit }],
+      where: { id: id, companyId: req.user.companyId },
     });
 
     if (!data) {
@@ -170,13 +167,11 @@ exports.view_product = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Product Not Found" });
     }
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Product data fetch successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Product data fetch successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -187,20 +182,18 @@ exports.view_product = async (req, res) => {
 exports.get_all_product = async (req, res) => {
   try {
     const data = await product.findAll({
-      include: [{ model: itemgroup }, { model: itemcategory }, { model: unit }],
+      where: { companyId: req.user.companyId },
     });
     if (!data) {
       return res
         .status(404)
         .json({ status: "false", message: "Product Not Found" });
     }
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Product Data Fetch Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Product Data Fetch Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -213,25 +206,25 @@ exports.get_all_product = async (req, res) => {
                                             Typc C API
  ============================================================================================================ */
 
- exports.C_get_all_product = async(req,res) => {
+exports.C_get_all_product = async (req, res) => {
   try {
-    const data = await C_product.findAll();
+    const data = await C_product.findAll({
+      where: { companyId: req.user.companyId },
+    });
     if (!data) {
       return res
         .status(404)
         .json({ status: "false", message: "Product Not Found" });
     }
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Product Data Fetch Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Product Data Fetch Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
       .status(500)
       .json({ status: "false", message: "Internal Server Error" });
   }
- }
+};

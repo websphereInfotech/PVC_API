@@ -5,7 +5,7 @@ const product = require("../models/product");
 
 exports.create_deliverychallan = async (req, res) => {
   try {
-    const { date, challanno, customerId,totalQty, items } = req.body;
+    const { date, challanno, customerId, totalQty, items } = req.body;
     const numberOf = await deliverychallan.findOne({
       where: { challanno: challanno },
     });
@@ -15,18 +15,22 @@ exports.create_deliverychallan = async (req, res) => {
         .json({ status: "false", message: "Challan Number Already Exists" });
     }
     const customerData = await customer.findByPk(customerId);
-    if(!customerData) {
-      return res.status(404).json({status:'false', message:'Customer Not Found'});
+    if (!customerData) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Customer Not Found" });
     }
     if (!items || items.length === 0) {
       return res
         .status(400)
         .json({ status: "false", message: "Required Field oF items" });
     }
-    for(const item of items) {
-      const productname = await product.findByPk(item.productId)
-      if(!productname) {
-        return res.status(404).json({ status:'false', message:'Product Not Found'});
+    for (const item of items) {
+      const productname = await product.findByPk(item.productId);
+      if (!productname) {
+        return res
+          .status(404)
+          .json({ status: "false", message: "Product Not Found" });
       }
     }
     const data = await deliverychallan.create({
@@ -62,7 +66,7 @@ exports.create_deliverychallan = async (req, res) => {
 exports.update_deliverychallan = async (req, res) => {
   try {
     const { id } = req.params;
-    const { date, challanno, customerId,totalQty, items } = req.body;
+    const { date, challanno, customerId, totalQty, items } = req.body;
 
     const updatechallan = await deliverychallan.findByPk(id);
 
@@ -72,14 +76,18 @@ exports.update_deliverychallan = async (req, res) => {
         .json({ status: "false", message: "Delivery challan Not Found" });
     }
     const customerData = await customer.findByPk(customerId);
-    if(!customerData) {
-      return res.status(404).json({status:'false', message:'Customer Not Found'});
+    if (!customerData) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Customer Not Found" });
     }
-    for(const item of items) {
+    for (const item of items) {
       const productname = await product.findByPk(item.productId);
-    
-      if(!productname) {
-        return res.status(404).json({ status:'false', message:'Product Not Found'});
+
+      if (!productname) {
+        return res
+          .status(404)
+          .json({ status: "false", message: "Product Not Found" });
       }
     }
     await deliverychallan.update(
@@ -102,8 +110,10 @@ exports.update_deliverychallan = async (req, res) => {
     const mergedItems = [];
 
     items.forEach((item) => {
-      let existingItem = mergedItems.find((i) => i.productId === item.productId);
-      if(existingItem) {
+      let existingItem = mergedItems.find(
+        (i) => i.productId === item.productId
+      );
+      if (existingItem) {
         existingItem.qty += item.qty;
       } else {
         mergedItems.push(item);
@@ -115,13 +125,12 @@ exports.update_deliverychallan = async (req, res) => {
       );
 
       if (existingItems) {
-        existingItems.qty = item.qty,
-        await existingItems.save();
+        (existingItems.qty = item.qty), await existingItems.save();
       } else {
         await deliverychallanitem.create({
           deliverychallanId: id,
           productId: item.productId,
-          qty:item.qty,
+          qty: item.qty,
         });
       }
     }
@@ -133,8 +142,6 @@ exports.update_deliverychallan = async (req, res) => {
     for (const item of itemsToDelete) {
       await item.destroy();
     }
-
-  
 
     const data = await deliverychallan.findOne({
       where: { id },
@@ -156,7 +163,9 @@ exports.delete_deliverychallan = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await deliverychallan.destroy({ where: { id: id } });
+    const data = await deliverychallan.destroy({
+      where: { id: id, companyId: req.user.companyId },
+    });
 
     if (!data) {
       return res
@@ -178,18 +187,27 @@ exports.delete_deliverychallan = async (req, res) => {
 exports.get_all_deliverychallan = async (req, res) => {
   try {
     const data = await deliverychallan.findAll({
-      include: [{ model: deliverychallanitem, as: "items",include:[{model:product, as:'DeliveryProduct'}] },{model:customer, as:'DeliveryCustomer'}],
+      where: { companyId: req.user.companyId },
+      include: [
+        {
+          model: deliverychallanitem,
+          as: "items",
+          include: [{ model: product, as: "DeliveryProduct" }],
+        },
+        { model: customer, as: "DeliveryCustomer" },
+      ],
     });
     if (!data) {
       return res
         .status(404)
         .json({ status: "false", message: "Delivery Challan Not Found" });
+    } else {
+      return res.status(200).json({
+        status: "true",
+        message: "Delivery Challan Data Fetch Successfully",
+        data: data,
+      });
     }
-    return res.status(200).json({
-      status: "true",
-      message: "Delivery Challan Data Fetch Successfully",
-      data: data,
-    });
   } catch (error) {
     console.log(error);
     return res
@@ -202,22 +220,31 @@ exports.view_deliverychallan = async (req, res) => {
     const { id } = req.params;
 
     const data = await deliverychallan.findOne({
-      where: { id },
-      include: [{ model: deliverychallanitem, as: "items",include:[{model:product, as:'DeliveryProduct'}] },{
-        model:customer,as:'DeliveryCustomer'
-      }],
+      where: { id: id, companyId: req.user.companyId },
+      include: [
+        {
+          model: deliverychallanitem,
+          as: "items",
+          include: [{ model: product, as: "DeliveryProduct" }],
+        },
+        {
+          model: customer,
+          as: "DeliveryCustomer",
+        },
+      ],
     });
 
     if (!data) {
       return res
         .status(404)
         .json({ status: "false", message: "Delivery Challan Not Found" });
+    } else {
+      return res.status(200).json({
+        status: "true",
+        message: "Fetch delivery Challan data successfully",
+        data: data,
+      });
     }
-    return res.status(200).json({
-      status: "true",
-      message: "Fetch delivery Challan data successfully",
-      data: data,
-    });
   } catch (error) {
     console.log(error);
     return res

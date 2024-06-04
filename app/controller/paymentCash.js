@@ -34,15 +34,16 @@ exports.C_create_paymentCash = async (req, res) => {
       amount,
       description,
       date,
-      createdBy:user,
-      updatedBy:user,
-      companyId: req.user.companyId
+      createdBy: user,
+      updatedBy: user,
+      companyId: req.user.companyId,
     });
 
     await C_vendorLedger.create({
       vendorId,
       debitId: data.id,
       date,
+      companyId: req.user.companyId,
     });
     return res.status(200).json({
       status: "true",
@@ -60,7 +61,12 @@ exports.C_create_paymentCash = async (req, res) => {
 exports.C_get_all_paymentCash = async (req, res) => {
   try {
     const data = await C_PaymentCash.findAll({
-      include: [{ model: C_vendor, as: "PaymentVendor" },{model:User, as:'paymentCreate',attributes:['username']}, {model:User,as:'paymentUpdate',attributes:['username']}],
+      where: { companyId: req.user.companyId },
+      include: [
+        { model: C_vendor, as: "PaymentVendor" },
+        { model: User, as: "paymentCreate", attributes: ["username"] },
+        { model: User, as: "paymentUpdate", attributes: ["username"] },
+      ],
       order: [["createdAt", "DESC"]],
     });
     if (data) {
@@ -86,7 +92,7 @@ exports.C_view_paymentCash = async (req, res) => {
   try {
     const { id } = req.params;
     const data = await C_PaymentCash.findOne({
-      where: { id: id },
+      where: { id: id, companyId: req.user.companyId },
       include: [{ model: C_vendor, as: "PaymentVendor" }],
     });
     if (data) {
@@ -115,8 +121,10 @@ exports.C_update_paymentCash = async (req, res) => {
     const { vendorId, amount, description, date } = req.body;
 
     const vendorData = await vendor.findByPk(vendorId);
-    if(!vendorData) {
-      return res.status(404).json({ status:'false', message:'Vendor Not Found'});
+    if (!vendorData) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Vendor Not Found" });
     }
     const paymentId = await C_PaymentCash.findByPk(id);
     if (!paymentId) {
@@ -131,9 +139,9 @@ exports.C_update_paymentCash = async (req, res) => {
         amount,
         description,
         date,
-        createdBy:paymentId.createdBy,
-        updatedBy:user,
-        companyId: req.user.companyId
+        createdBy: paymentId.createdBy,
+        updatedBy: user,
+        companyId: req.user.companyId,
       },
       { where: { id: id } }
     );
@@ -165,7 +173,7 @@ exports.C_delete_paymentCash = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await C_PaymentCash.destroy({ where: { id } });
+    const data = await C_PaymentCash.destroy({ where: { id: id, companyId:req.user.companyId } });
     if (data) {
       return res
         .status(200)
@@ -228,7 +236,7 @@ exports.create_payment_bank = async (req, res) => {
       amount,
       createdBy: user,
       updatedBy: user,
-      companyId: req.user.companyId
+      companyId: req.user.companyId,
     });
 
     await vendorLedger.create({
@@ -293,7 +301,7 @@ exports.update_payment_bank = async (req, res) => {
         amount,
         createdBy: paymentdata.createdBy,
         updatedBy: user,
-        companyId: req.user.companyId
+        companyId: req.user.companyId,
       },
       { where: { id } }
     );
@@ -323,7 +331,9 @@ exports.delete_payment_bank = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await paymentBank.destroy({ where: { id } });
+    const data = await paymentBank.destroy({
+      where: { id: id, companyId: req.user.companyId },
+    });
     if (data) {
       return res
         .status(200)
@@ -344,7 +354,7 @@ exports.view_payment_bank = async (req, res) => {
   try {
     const { id } = req.params;
     const data = await paymentBank.findOne({
-      where: { id },
+      where: { id: id, companyId: req.user.companyId },
       include: [
         { model: vendor, as: "paymentData" },
         { model: companyBankDetails, as: "paymentBank" },
@@ -372,6 +382,7 @@ exports.view_payment_bank = async (req, res) => {
 exports.view_all_payment_bank = async (req, res) => {
   try {
     const data = await paymentBank.findAll({
+      where: { companyId: req.user.companyId },
       include: [
         { model: vendor, as: "paymentData" },
         { model: companyBankDetails, as: "paymentBank" },

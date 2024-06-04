@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
+const company = require("./company");
 
 const vendor = sequelize.define("P_vendor", {
   accountname: {
@@ -58,5 +59,8 @@ const vendor = sequelize.define("P_vendor", {
   },
   companyId: {type: DataTypes.INTEGER}
 });
+
+company.hasMany(vendor, {foreignKey:'companyId',onDelete:'CASCADE'});
+vendor.belongsTo(company, {foreignKey:'companyId',onDelete:'CASCADE'});
 
 module.exports = vendor;

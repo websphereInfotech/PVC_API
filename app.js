@@ -20,9 +20,9 @@ const {
     stockRoute,
     customerRoute,
     productRoute,
-    itemgroupRoute,
-    itemcategoryRoute,
-    unitRoute,
+    // itemgroupRoute,
+    // itemcategoryRoute,
+    // unitRoute,
     purchaseInvoice,
     receiptRoute,
     permissionRoute,
@@ -47,9 +47,9 @@ app.use("/admin", paymentRoute);
 app.use("/admin", stockRoute);
 app.use("/admin", customerRoute);
 app.use("/admin", productRoute);
-app.use("/admin", itemgroupRoute);
-app.use("/admin", itemcategoryRoute);
-app.use("/admin", unitRoute);
+// app.use("/admin", itemgroupRoute);
+// app.use("/admin", itemcategoryRoute);
+// app.use("/admin", unitRoute);
 app.use("/admin", purchaseInvoice);
 app.use("/admin", receiptRoute);
 // app.use("/admin", bankAccount);

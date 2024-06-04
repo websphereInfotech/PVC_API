@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const customer = require("./customer");
 const purchaseInvoice = require("./purchaseInvoice");
+const company = require("./company");
 
 const debitNote = sequelize.define("P_debitNote", {
   customerId: {
@@ -39,6 +40,9 @@ const debitNote = sequelize.define("P_debitNote", {
   },
   companyId: {type: DataTypes.INTEGER}
 });
+
+company.hasMany(debitNote, {foreignKey:'companyId',onDelete:'CASCADE'});
+debitNote.belongsTo(company, {foreignKey:'companyId',onDelete:'CASCADE'});
 
 customer.hasMany(debitNote, {foreignKey:'customerId', onDelete:'CASCADE', as:'DebitCustomer'});
 debitNote.belongsTo(customer, {foreignKey:'customerId', onDelete:'CASCADE', as:'DebitCustomer'});

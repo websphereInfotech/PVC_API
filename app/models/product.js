@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
+const company = require("./company");
 
 const product = sequelize.define("P_product", {
   itemtype: {
@@ -37,18 +38,20 @@ const product = sequelize.define("P_product", {
   salesprice: {
     type: DataTypes.INTEGER,
   },
-  gstrate : {
-    type: DataTypes.INTEGER
+  gstrate: {
+    type: DataTypes.INTEGER,
   },
   HSNcode: {
-    type:DataTypes.INTEGER
+    type: DataTypes.INTEGER,
   },
   cess: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
-  companyId: {type: DataTypes.INTEGER}
+  companyId: { type: DataTypes.INTEGER },
 });
 
+company.hasMany(product, { foreignKey: "companyId", onDelete: "CASCADE" });
+product.belongsTo(company, { foreignKey: "companyId", onDelete: "CASCADE" });
 
 module.exports = product;

@@ -9,9 +9,9 @@ const paymentRoute = require("./paymentRoute");
 const stockRoute = require("./stockRoute");
 const customerRoute = require("./customer");
 const productRoute = require("./product");
-const itemgroupRoute = require("./itemgroup");
-const itemcategoryRoute = require("./itemcategory");
-const unitRoute = require("./unit");
+// const itemgroupRoute = require("./itemgroup");
+// const itemcategoryRoute = require("./itemcategory");
+// const unitRoute = require("./unit");
 const receiptRoute = require("./receipt");
 const permissionRoute = require("./permissions");
 const userRoute = require("./user");
@@ -35,9 +35,9 @@ module.exports = {
   stockRoute,
   customerRoute,
   productRoute,
-  itemgroupRoute,
-  itemcategoryRoute,
-  unitRoute,
+  // itemgroupRoute,
+  // itemcategoryRoute,
+  // unitRoute,
   receiptRoute,
   permissionRoute,
   userRoute,
