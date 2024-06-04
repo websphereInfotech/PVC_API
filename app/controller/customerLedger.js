@@ -20,6 +20,10 @@ exports.C_get_customerLedger = async (req, res) => {
 
     const quaryData = { customerId: id };
 
+    const companyId = req.user.companyId;
+    if (companyId) {
+      quaryData.companyId = companyId;
+    }
     if (formDate && toDate) {
       quaryData.date = {
         [Sequelize.Op.between]: [formDate, toDate],
@@ -127,7 +131,10 @@ exports.get_customerLedger = async (req, res) => {
     const { formDate, toDate } = req.query;
 
     const queryData = { customerId: id };
-
+    const companyId = req.user.companyId;
+    if (companyId) {
+      queryData.companyId = companyId;
+    }
     if (formDate && toDate) {
       queryData.date = {
         [Sequelize.Op.between]: [formDate, toDate],

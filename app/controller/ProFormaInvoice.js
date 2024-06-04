@@ -7,6 +7,7 @@ const User = require("../models/user");
 exports.create_ProFormaInvoice = async (req, res) => {
   try {
     const user = req.user.userId;
+    const companyId = req.user.companyId
     const {
       ProFormaInvoice_no,
       date,
@@ -92,6 +93,7 @@ exports.create_ProFormaInvoice = async (req, res) => {
       totalMrp,
       mainTotal,
       totalQty,
+      companyId,
       createdBy: user,
       updatedBy: user,
     });
@@ -247,6 +249,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
         totalMrp,
         mainTotal,
         totalQty,
+        companyId:req.user.companyId,
         createdBy: existingInvoice.createdBy,
         updatedBy: user,
       },

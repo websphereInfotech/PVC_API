@@ -19,6 +19,11 @@ exports.C_get_vendorLedger = async (req, res) => {
     const { formDate, toDate } = req.query;
 
     const quaryData = { vendorId: id };
+    const companyId = req.user.companyId;
+
+    if (companyId) {
+      quaryData.companyId = companyId;
+    }
 
     if (formDate && toDate) {
       quaryData.date = {
@@ -119,6 +124,11 @@ exports.get_vendorLedger = async (req, res) => {
     const { formDate, toDate } = req.query;
 
     const quaryData = { vendorId: id };
+    const companyId = req.user.companyId;
+
+    if (companyId) {
+      quaryData.companyId = companyId;
+    }
 
     if (formDate && toDate) {
       quaryData.date = {

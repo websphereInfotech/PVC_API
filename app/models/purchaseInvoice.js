@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const vendor = require("./vendor");
 const User = require("./user");
+const company = require("./company");
 
 const purchaseInvoice = sequelize.define("P_purchaseInvoice", {
   vendorId: {
@@ -31,8 +32,12 @@ const purchaseInvoice = sequelize.define("P_purchaseInvoice", {
     defaultValue:0
   },
   createdBy: { type: DataTypes.INTEGER},
-  updatedBy:{type: DataTypes.INTEGER}
+  updatedBy:{type: DataTypes.INTEGER},
+  companyId: {type: DataTypes.INTEGER}
 });
+
+company.hasMany(purchaseInvoice,{foreignKey:'companyId',as:'purchaseinv'});
+purchaseInvoice.belongsTo(company,{foreignKey:'companyId',as:'purchaseinv'});
 
 User.hasMany(purchaseInvoice,{foreignKey:'createdBy', as:'salesCreateUser'});
 purchaseInvoice.belongsTo(User,{foreignKey:'createdBy', as:'salesCreateUser'});
