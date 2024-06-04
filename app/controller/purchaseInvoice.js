@@ -17,6 +17,7 @@ const vendorLedger = require("../models/vendorLedger");
 exports.create_purchaseInvoice = async (req, res) => {
   try {
     const user = req.user.userId;
+    const companyId = req.user.companyId;
     const {
       vendorId,
       duedate,
@@ -60,6 +61,7 @@ exports.create_purchaseInvoice = async (req, res) => {
       totalMrp,
       totalQty,
       mainTotal,
+      companyId,
       createdBy: user,
       updatedBy: user,
     });
@@ -141,6 +143,7 @@ exports.update_purchaseInvoice = async (req, res) => {
         totalMrp,
         totalQty,
         mainTotal,
+        companyId: req.user.companyId,
         createdBy: existingPurchase.createdBy,
         updatedBy: user,
       },
@@ -341,12 +344,14 @@ exports.C_create_purchaseCash = async (req, res) => {
       vendorId,
       date,
       totalMrp,
+      companyId:req.user.companyId,
       createdBy: user,
       updatedBy: user,
     });
 
     await C_vendorLedger.create({
       vendorId,
+      companyId:req.user.companyId,
       creditId: purchseData.id,
       date,
     });
@@ -408,6 +413,7 @@ exports.C_update_purchaseCash = async (req, res) => {
         vendorId,
         date,
         totalMrp,
+        companyId:req.user.companyId,
         createdBy: existingPurchase.createdBy,
         updatedBy: user,
       },

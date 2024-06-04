@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const customer = require("./customer");
 const User = require("./user");
+const Company = require("./company")
 // const moment = require('moment');
 const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
   ProFormaInvoice_no: {
@@ -51,7 +52,11 @@ const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
   },
   createdBy: { type: DataTypes.INTEGER },
   updatedBy: { type: DataTypes.INTEGER },
+  companyId: {type: DataTypes.INTEGER}
 });
+
+Company.hasMany(ProFormaInvoice,{foreignKey:"companyId", as:"ComapnyProformainv"});
+ProFormaInvoice.belongsTo(Company,{foreignKey:"companyId",as:"CompanyProformainv"})
 
 User.hasMany(ProFormaInvoice, { foreignKey: "createdBy", as: "proCreateUser" });
 ProFormaInvoice.belongsTo(User, {

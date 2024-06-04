@@ -3,6 +3,7 @@ const sequelize = require("../config/index");
 const customer = require("./customer");
 const ProFormaInvoice = require("./ProFormaInvoice");
 const User = require("./user");
+const company = require("./company");
 
 const salesInvoice = sequelize.define("P_salesInvoice", {
   dispatchno: {
@@ -38,7 +39,11 @@ const salesInvoice = sequelize.define("P_salesInvoice", {
     type: DataTypes.INTEGER,
   },
   updatedBy: { type: DataTypes.INTEGER },
+  companyId: {type: DataTypes.INTEGER}
 });
+
+company.hasMany(salesInvoice,{foreignKey:"companyId", as:'companysalesinv'});
+salesInvoice.belongsTo(company,{foreignKey:"companyId", as:'companysalesinv'});
 
 User.hasMany(salesInvoice, { foreignKey: "createdBy", as: "createUser" });
 salesInvoice.belongsTo(User, { foreignKey: "createdBy", as: "createUser" });

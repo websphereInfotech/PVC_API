@@ -2,6 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 const C_customer = require('./C_customer');
 const User = require('./user');
+const company = require('./company');
 
 const C_salesinvoice = sequelize.define('P_C_salesInvoice', {
     customerId: { type : DataTypes.INTEGER},
@@ -11,8 +12,12 @@ const C_salesinvoice = sequelize.define('P_C_salesInvoice', {
         defaultValue:0
     },
     createdBy:{type: DataTypes.INTEGER},
-    updatedBy:{type:DataTypes.INTEGER}
+    updatedBy:{type:DataTypes.INTEGER},
+    companyId:{type:DataTypes.INTEGER}
 });
+
+company.hasMany(C_salesinvoice,{foreignKey:'companyId',as:'companysalesinvcash'});
+C_salesinvoice.belongsTo(company,{foreignKey:'companyId',as:'companysalesinvcash'});
 
 User.hasMany(C_salesinvoice,{foreignKey:'createdBy', as:'salesInvoiceCreate'});
 C_salesinvoice.belongsTo(User,{foreignKey:'createdBy', as:'salesInvoiceCreate'});

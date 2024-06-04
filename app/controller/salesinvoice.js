@@ -17,7 +17,7 @@ const User = require("../models/user");
 exports.create_salesInvoice = async (req, res) => {
   try {
     const userID = req.user.userId;
-
+    const companyId = req.user.companyId;
     const {
       customerId,
       invoiceno,
@@ -117,11 +117,13 @@ exports.create_salesInvoice = async (req, res) => {
       totalMrp,
       mainTotal,
       totalQty,
+      companyId,
       createdBy: userID,
       updatedBy: userID,
     });
     await customerLedger.create({
       customerId,
+      companyId:req.user.companyId,
       creditId: data.id,
       date: invoicedate,
     });
@@ -286,6 +288,7 @@ exports.update_salesInvoice = async (req, res) => {
         totalMrp,
         mainTotal,
         totalQty,
+        companyId:req.user.companyId,
         createdBy: salesId.createdBy,
         updatedBy: userID,
       },
@@ -433,12 +436,14 @@ exports.C_create_salesinvoice = async (req, res) => {
       customerId,
       date,
       totalMrp,
+      companyId:req.user.companyId,
       createdBy:user,
       updatedBy:user
     });
 
     await C_customerLedger.create({
       customerId,
+      companyId:req.user.companyId,
       creditId: salesInvoiceData.id,
       date,
     });
@@ -501,6 +506,7 @@ exports.C_update_salesinvoice = async (req, res) => {
         customerId,
         date,
         totalMrp,
+        companyId:req.user.companyId,
         createdBy:existingInvoice.createdBy,
         updatedBy:user
       },
