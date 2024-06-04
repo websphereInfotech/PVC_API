@@ -89,6 +89,7 @@ exports.create_creditNote = async (req, res) => {
       totalMrp,
       totalQty,
       mainTotal,
+      companyId: req.user.companyId,
     });
 
     const addToProduct = items.map((item) => ({
@@ -174,6 +175,7 @@ exports.update_creditNote = async (req, res) => {
         totalMrp,
         totalQty,
         mainTotal,
+        companyId:req.user.companyId,
       },
       { where: { id } }
     );

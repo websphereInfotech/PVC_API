@@ -17,7 +17,8 @@ const deliverychallan = sequelize.define("P_deliverychallan", {
    totalQty: {
     type: DataTypes.INTEGER,
     defaultValue:0
-  }
+  },
+  companyId: {type: DataTypes.INTEGER}
 });
 
 customer.hasMany(deliverychallan,{ foreignKey:'customerId', onDelete:'CASCADE',as:'DeliveryCustomer'});

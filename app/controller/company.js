@@ -42,6 +42,7 @@ exports.create_company = async (req, res) => {
     });
 
     await data.addUser(userId);
+    
     permissionAdd(data.id);
     return res.status(200).json({
       status: "true",

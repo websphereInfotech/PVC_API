@@ -55,7 +55,8 @@ const vendor = sequelize.define("P_vendor", {
   totalcreadit : {
     type : DataTypes.BIGINT,
     defaultValue:0
-  }
+  },
+  companyId: {type: DataTypes.INTEGER}
 });
 
 module.exports = vendor;

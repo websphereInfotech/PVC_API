@@ -33,7 +33,8 @@ exports.create_deliverychallan = async (req, res) => {
       date,
       challanno,
       customerId,
-      totalQty
+      totalQty,
+      companyId: req.user.companyId,
     });
     const addToItem = items.map((item) => ({
       deliverychallanId: data.id,
@@ -86,7 +87,8 @@ exports.update_deliverychallan = async (req, res) => {
         challanno,
         date,
         customerId,
-        totalQty
+        totalQty,
+        companyId: req.user.companyId,
       },
       {
         where: { id: id },

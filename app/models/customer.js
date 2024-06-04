@@ -53,7 +53,8 @@ const customer = sequelize.define("P_customer", {
   totalcreadit : {
     type : DataTypes.BIGINT,
     defaultValue:0
-  }
+  },
+  companyId: {type: DataTypes.INTEGER}
 });
 
 module.exports = customer;

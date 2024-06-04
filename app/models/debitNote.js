@@ -37,6 +37,7 @@ const debitNote = sequelize.define("P_debitNote", {
     type: DataTypes.INTEGER,
     defaultValue:0
   },
+  companyId: {type: DataTypes.INTEGER}
 });
 
 customer.hasMany(debitNote, {foreignKey:'customerId', onDelete:'CASCADE', as:'DebitCustomer'});

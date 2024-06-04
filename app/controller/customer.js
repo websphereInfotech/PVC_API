@@ -77,6 +77,7 @@ exports.create_customer = async (req, res) => {
       creditlimit,
       balance,
       gstnumber,
+      companyId: req.user.companyId,
     };
 
     if (creditlimit === true) {
@@ -98,7 +99,7 @@ exports.create_customer = async (req, res) => {
       where: { id: data.id },
       include: [{ model: bankAccount, as: "bankdetails" }],
     });
-  await C_customer.create({ customername:contactpersonname })
+  await C_customer.create({ customername:contactpersonname,companyId:req.user.companyId })
     return res
       .status(200)
       .json({
@@ -165,6 +166,7 @@ exports.update_customer = async (req, res) => {
       creditlimit,
       balance,
       gstnumber,
+      companyId: req.user.companyId,
     };
     if (creditlimit === true) {
       customerUpdate.totalcreadit = totalcreadit;

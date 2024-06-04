@@ -51,4 +51,5 @@ router.get(
   adminAuth("Login:view_all_userTOComapny"),
   view_all_userTOComapny
 );
+
 module.exports = router;

@@ -3,6 +3,7 @@ const C_claimLedger = require("../models/C_claimLedger");
 const C_customer = require("../models/C_customer");
 const C_customerLedger = require("../models/C_customerLedger");
 const C_receiveCash = require("../models/C_receiveCash");
+const C_userBalance = require("../models/C_userBalance");
 const companyBankDetails = require("../models/companyBankDetails");
 const customer = require("../models/customer");
 const customerLedger = require("../models/customerLedger");
@@ -51,6 +52,23 @@ exports.C_create_receiveCash = async (req, res) => {
       userId:user,
       date
     });
+
+    let userBalance = await C_userBalance.findOne({
+      where: { userId: user, companyId: req.user.companyId },
+    });
+
+    if (userBalance) {
+      userBalance.balance += amount;
+      await userBalance.save();
+    } else {
+    
+      userBalance = await C_userBalance.create({
+        userId: user,
+        companyId: req.user.companyId,
+        balance: amount,
+      });
+    }
+
     return res.status(200).json({
       status: "true",
       message: "Receive Cash Create Successfully",
@@ -154,6 +172,12 @@ exports.C_update_receiveCash = async (req, res) => {
     await C_claimLedger.update({
       date
     },{where:{receiveId:id}});
+
+    await C_userBalance.update({
+      userId:user,
+      companyId:req.user.companyId,
+      balance: amount,
+    })
     const data = await C_receiveCash.findByPk(id);
 
     return res.status(200).json({
@@ -235,6 +259,7 @@ exports.create_receive_bank = async (req, res) => {
       amount,
       createdBy: user,
       updatedBy: user,
+      companyId:req.user.companyId
     });
 
     await customerLedger.create({
@@ -242,6 +267,7 @@ exports.create_receive_bank = async (req, res) => {
       debitId: data.id,
       date: paymentdate,
     });
+
     return res.status(200).json({
       status: "true",
       message: "Receive Bank Create Successfully",

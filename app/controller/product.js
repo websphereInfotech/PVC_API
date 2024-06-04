@@ -47,8 +47,9 @@ exports.create_product = async (req, res) => {
       gstrate,
       HSNcode,
       cess,
+      companyId: req.user.companyId,
     });
-    await C_product.create({ productname: productname });
+    await C_product.create({ productname: productname,companyId: req.user.companyId });
 
     return res
       .status(200)
@@ -112,6 +113,7 @@ exports.update_product = async (req, res) => {
         gstrate:gstrate,
         HSNcode:HSNcode,
         cess: cess,
+        companyId:req.user.companyId
       },
       {
         where: { id: id },

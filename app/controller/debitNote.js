@@ -77,6 +77,7 @@ exports.create_debitNote = async (req, res) => {
       totalSgst,
       totalMrp,
       mainTotal,
+      companyId: req.user.companyId,
     });
     const addToProduct = items.map((item) => ({
       DebitId: debitNoteData.id,
@@ -155,6 +156,7 @@ exports.update_debitNote = async (req, res) => {
         totalSgst,
         totalMrp,
         mainTotal,
+        companyId: req.user.companyId,
       },
       { where: { id } }
     );

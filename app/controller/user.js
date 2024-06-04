@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const admintoken = require("../models/admintoken");
 const companyUser = require("../models/companyUser");
 const company = require("../models/company");
+const C_userBalance = require("../models/C_userBalance");
 
 exports.create_user = async (req, res) => {
   try {
@@ -59,7 +60,14 @@ exports.create_user = async (req, res) => {
       salary: salary,
     });
 
-    await user.addCompany(req.user.companyId);
+    // await user.addCompany(req.user.companyId);
+    await companyUser.create(
+      {
+          userId: user.id,
+          companyId: req.user.companyId,
+          setDefault: true
+      }
+    );
 
     return res
       .status(200)
@@ -394,7 +402,7 @@ exports.view_all_userTOComapny =  async (req,res) => {
 
     const data = await User.findByPk(userId, {
       attributes: { exclude: ["password"] },
-      include: [{ model: company, as: 'companies', through: { attributes: [] } }]
+      include: [{ model: company, as: 'companies', through:{attributes:['setDefault']}}]
     });
     if(data) {
       return res.status(200).json({ status:'true', message:'User To Comapny Fetch Successfully',data:data});

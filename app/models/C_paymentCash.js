@@ -13,7 +13,8 @@ const C_PaymentCash = sequelize.define('P_C_paymentCash', {
     },
     date: {type: DataTypes.DATEONLY},
     createdBy:{type: DataTypes.INTEGER},
-    updatedBy:{type:DataTypes.INTEGER}
+    updatedBy:{type:DataTypes.INTEGER},
+    companyId: {type: DataTypes.INTEGER}
 });
 
 User.hasMany(C_PaymentCash,{foreignKey:'createdBy', as:'paymentCreate'});
