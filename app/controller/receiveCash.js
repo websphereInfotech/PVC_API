@@ -48,6 +48,7 @@ exports.C_create_receiveCash = async (req, res) => {
     });
 
     await C_claimLedger.create({
+      companyId: req.user.companyId,
       receiveId:data.id,
       userId:user,
       date

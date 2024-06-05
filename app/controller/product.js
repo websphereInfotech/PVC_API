@@ -136,7 +136,9 @@ exports.delete_product = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await product.destroy({ where: { id: id } });
+    const data = await product.destroy({
+      where: { id: id, companyId: req.user.companyId },
+    });
 
     if (!data) {
       return res

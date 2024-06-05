@@ -123,7 +123,7 @@ exports.create_salesInvoice = async (req, res) => {
     });
     await customerLedger.create({
       customerId,
-      companyId:req.user.companyId,
+      companyId: req.user.companyId,
       creditId: data.id,
       date: invoicedate,
     });
@@ -288,7 +288,7 @@ exports.update_salesInvoice = async (req, res) => {
         totalMrp,
         mainTotal,
         totalQty,
-        companyId:req.user.companyId,
+        companyId: req.user.companyId,
         createdBy: salesId.createdBy,
         updatedBy: userID,
       },
@@ -413,7 +413,10 @@ exports.C_create_salesinvoice = async (req, res) => {
     const user = req.user.userId;
     const { customerId, date, totalMrp, items } = req.body;
 
-    const customerData = await C_customer.findByPk(customerId);
+    const customerData = await C_customer.findOne({
+      where: { id: customerId, companyId: req.user.companyId },
+    });
+
     if (!customerData) {
       return res
         .status(404)
@@ -425,7 +428,9 @@ exports.C_create_salesinvoice = async (req, res) => {
         .json({ status: "false", message: "Required Field of items" });
     }
     for (const item of items) {
-      const productData = await C_product.findByPk(item.productId);
+      const productData = await C_product.findOne({
+        where: { id: item.productId, companyId: req.user.companyId },
+      });
       if (!productData) {
         return res
           .status(404)
@@ -436,14 +441,14 @@ exports.C_create_salesinvoice = async (req, res) => {
       customerId,
       date,
       totalMrp,
-      companyId:req.user.companyId,
-      createdBy:user,
-      updatedBy:user
+      companyId: req.user.companyId,
+      createdBy: user,
+      updatedBy: user,
     });
 
     await C_customerLedger.create({
       customerId,
-      companyId:req.user.companyId,
+      companyId: req.user.companyId,
       creditId: salesInvoiceData.id,
       date,
     });
@@ -458,13 +463,11 @@ exports.C_create_salesinvoice = async (req, res) => {
       where: { id: salesInvoiceData.id },
       include: [{ model: C_salesinvoiceItem, as: "items" }],
     });
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Sales Invoice Created Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Sales Invoice Created Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -475,7 +478,7 @@ exports.C_create_salesinvoice = async (req, res) => {
 exports.C_update_salesinvoice = async (req, res) => {
   try {
     const user = req.user.userId;
-    
+
     const { id } = req.params;
     const { customerId, date, totalMrp, items } = req.body;
 
@@ -486,7 +489,9 @@ exports.C_update_salesinvoice = async (req, res) => {
         message: "Sales Invoice Not Found",
       });
     }
-    const customerData = await C_customer.findByPk(customerId);
+    const customerData = await C_customer.findOne({
+      where: {id:customerId, companyId: req.user.companyId },
+    });
 
     if (!customerData) {
       return res
@@ -506,9 +511,9 @@ exports.C_update_salesinvoice = async (req, res) => {
         customerId,
         date,
         totalMrp,
-        companyId:req.user.companyId,
-        createdBy:existingInvoice.createdBy,
-        updatedBy:user
+        companyId: req.user.companyId,
+        createdBy: existingInvoice.createdBy,
+        updatedBy: user,
       },
       { where: { id } }
     );
@@ -599,8 +604,8 @@ exports.C_get_all_salesInvoice = async (req, res) => {
           include: [{ model: C_product, as: "CashProduct" }],
         },
         { model: C_customer, as: "CashCustomer" },
-        {model:User,as:'salesInvoiceCreate', attributes:['username']},
-        {model:User,as:'salesInvoiceUpdate',attributes:['username']}
+        { model: User, as: "salesInvoiceCreate", attributes: ["username"] },
+        { model: User, as: "salesInvoiceUpdate", attributes: ["username"] },
       ],
     });
     if (!data) {

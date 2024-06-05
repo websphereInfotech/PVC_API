@@ -4,6 +4,7 @@ const User = require("../models/user");
 const C_claimLedger = require("../models/C_claimLedger");
 const C_receiveCash = require("../models/C_receiveCash");
 const C_userBalance = require("../models/C_userBalance");
+const companyUser = require("../models/companyUser");
 
 exports.create_claim = async (req, res) => {
   try {
@@ -15,9 +16,11 @@ exports.create_claim = async (req, res) => {
         .status(400)
         .json({ status: "true", message: "Required Field : toUserId" });
     }
-    const userData = await User.findOne({where:{id:toUserId}});
-    if(!userData) {
-      return res.status(404).json({ status:'false', message:'User Not Found'});
+    const userData = await User.findOne({ where: { id: toUserId } });
+    if (!userData) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "User Not Found" });
     }
     const data = await C_claim.create({
       toUserId,
@@ -25,6 +28,7 @@ exports.create_claim = async (req, res) => {
       description,
       fromUserId,
       purpose,
+      companyId: req.user.companyId,
     });
     // const claim =  await C_claimBalance.create({
     //   receiveId:data.fromUserId,
@@ -64,6 +68,7 @@ exports.update_claim = async (req, res) => {
           amount,
           description,
           purpose,
+          companyId: req.user.companyId,
         },
         { where: { id } }
       );
@@ -87,7 +92,9 @@ exports.delete_claim = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await C_claim.findByPk(id);
+    const data = await C_claim.findOne({
+      where: { id: id, companyId: req.user.companyId },
+    });
     if (!data) {
       return res
         .status(404)
@@ -113,7 +120,7 @@ exports.view_myclaim = async (req, res) => {
     const id = req.user.userId;
 
     const data = await C_claim.findAll({
-      where: { fromUserId: id },
+      where: { fromUserId: id, companyId: req.user.companyId },
       include: [
         { model: User, as: "fromUser" },
         { model: User, as: "toUser" },
@@ -143,7 +150,7 @@ exports.view_reciveclaim = async (req, res) => {
   try {
     const id = req.user.userId;
     const data = await C_claim.findAll({
-      where: { toUserId: id },
+      where: { toUserId: id, companyId: req.user.companyId },
       include: [
         { model: User, as: "toUser" },
         { model: User, as: "fromUser" },
@@ -173,7 +180,11 @@ exports.isapproved_claim = async (req, res) => {
     const { isApproved } = req.body;
 
     const data = await C_claim.findOne({
-      where: { id: id, toUserId: req.user.userId },
+      where: {
+        id: id,
+        toUserId: req.user.userId,
+        companyId: req.user.companyId,
+      },
     });
 
     if (!data) {
@@ -196,16 +207,17 @@ exports.isapproved_claim = async (req, res) => {
       claimId: data.id,
       userId: req.user.userId,
       date: new Date(),
+      companyId: req.user.companyId
     });
 
     await C_claimLedger.create({
       claimId: data.id,
       userId: data.fromUserId,
       date: new Date(),
+      companyId: req.user.companyId
     });
 
     if (isApproved === true) {
-      
       const fromUserBalance = await C_userBalance.findOne({
         where: { userId: data.fromUserId, companyId: req.user.companyId },
       });
@@ -220,7 +232,7 @@ exports.isapproved_claim = async (req, res) => {
       await fromUserBalance.save();
       await toUserBalance.save();
     }
-    
+
     return res.status(200).json({
       status: "true",
       message: `Claim ${isApproved ? "Approved" : "Rejected"}`,
@@ -237,15 +249,16 @@ exports.get_all_ClaimUser = async (req, res) => {
   try {
     const userID = req.user.userId;
 
-    const data = await User.findAll({
+    const data = await companyUser.findAll({
       where: {
-        id: {
-          [Sequelize.Op.ne]: userID, 
+        companyId: req.user.companyId,
+        userID: {
+          [Sequelize.Op.ne]: userID,
         },
       },
       attributes: { exclude: ["password"] },
     });
-    if (data) {
+    if (data.length > 0) {
       return res.status(200).json({
         status: "true",
         message: "User Data Show Successfully",
@@ -267,7 +280,7 @@ exports.view_single_claim = async (req, res) => {
   try {
     const { id } = req.params;
     const data = await C_claim.findOne({
-      where: { id },
+      where: { id: id, companyId: req.user.companyId },
       include: [
         { model: User, as: "fromUser" },
         { model: User, as: "toUser" },
@@ -292,14 +305,15 @@ exports.view_single_claim = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-
 exports.view_claim_ledger = async (req, res) => {
   try {
     const userId = req.user.userId;
     const { fromDate, toDate } = req.query;
-
+    const companyId = req.user.companyId;
+    
     let whereCondition = {
       [Op.or]: [{ fromUserId: userId }, { toUserId: userId }],
+      companyId: companyId,
     };
 
     if (fromDate && toDate) {
@@ -313,25 +327,13 @@ exports.view_claim_ledger = async (req, res) => {
         "fromUserId",
         "toUserId",
         "updatedAt",
-        //       [Sequelize.literal(`
-        //   CASE
-        //     WHEN fromUserId = :userId THEN ''
-        //     ELSE (SELECT username FROM P_users WHERE id = P_C_claim.fromUserId)
-        //   END
-        // `), "fromUsername"],
-        // [Sequelize.literal(`
-        //   CASE
-        //     WHEN toUserId = :userId THEN ''
-        //     ELSE (SELECT username FROM P_users WHERE id = P_C_claim.toUserId)
-        //   END
-        // `), "toUsername"],
         [
           Sequelize.literal(`
-    CASE 
-      WHEN fromUserId = :userId THEN (SELECT username FROM P_users WHERE id = P_C_claim.toUserId)
-      ELSE (SELECT username FROM P_users WHERE id = P_C_claim.fromUserId)
-    END
-  `),
+            CASE 
+              WHEN fromUserId = :userId THEN (SELECT username FROM P_users WHERE id = P_C_claim.toUserId)
+              ELSE (SELECT username FROM P_users WHERE id = P_C_claim.fromUserId)
+            END
+          `),
           "username",
         ],
         [
@@ -354,6 +356,7 @@ exports.view_claim_ledger = async (req, res) => {
                 FROM P_C_claims AS cl2
                 WHERE cl2.updatedAt < P_C_claim.updatedAt
                 AND (cl2.fromUserId = :userId OR cl2.toUserId = :userId)
+                AND cl2.companyId = :companyId
               ), 0) AS CHAR
             )
           `),
@@ -374,7 +377,7 @@ exports.view_claim_ledger = async (req, res) => {
       where: whereCondition,
       group: ["fromUserId", "toUserId", "updatedAt", "amount"],
       order: [["updatedAt", "ASC"]],
-      replacements: { userId: userId },
+      replacements: { userId: userId, companyId: companyId },
       raw: true,
     });
 
@@ -399,9 +402,8 @@ exports.view_claim_ledger = async (req, res) => {
 exports.view_claimBalance_ledger = async (req, res) => {
   try {
     const userId = req.user.userId;
-
     const { fromDate, toDate } = req.query;
-    const whereClause = { userId: userId };
+    const whereClause = { userId: userId, companyId: req.user.companyId };
 
     if (fromDate && toDate) {
       whereClause.date = { [Sequelize.Op.between]: [fromDate, toDate] };
@@ -430,13 +432,33 @@ exports.view_claimBalance_ledger = async (req, res) => {
         { model: C_receiveCash, as: "claimLedger", attributes: [] },
         { model: C_claim, as: "claimData", attributes: [] },
       ],
-      where: { userId: userId },
+      where: whereClause,
       group: ["id"],
       order: [["date", "ASC"]],
       raw: true,
     });
 
     let openingBalance = 0;
+
+    if (fromDate || toDate) {
+      const previousData = await C_claimLedger.findOne({
+        attributes: [
+          [Sequelize.literal(`SUM(CASE 
+            WHEN \`claimLedger\`.\`amount\` IS NOT NULL THEN \`claimLedger\`.\`amount\`
+            ELSE CASE WHEN \`claimData\`.\`fromUserId\` = ${userId} THEN \`claimData\`.\`amount\` ELSE 0 END
+          END)`), "openingBalance"],
+        ],
+        include: [
+          { model: C_receiveCash, as: "claimLedger", attributes: [] },
+          { model: C_claim, as: "claimData", attributes: [] },
+        ],
+        where: { userId: userId, companyId: req.user.companyId, date: { [Sequelize.Op.lt]: fromDate } },
+        raw: true,
+      });
+    
+     openingBalance = previousData && previousData.openingBalance !== null ? parseFloat(previousData.openingBalance) : 0;
+
+    }
     const enrichedData = allData.map((item) => {
       const credit = parseFloat(item.creditAmount);
       const debit = parseFloat(item.debitAmount);
@@ -450,10 +472,10 @@ exports.view_claimBalance_ledger = async (req, res) => {
       return enrichedItem;
     });
 
-    const filteredData = enrichedData.filter(item => {
+    const filteredData = enrichedData.filter((item) => {
       return !fromDate || item.date >= fromDate;
     });
-
+   
     if (filteredData.length > 0) {
       return res.status(200).json({
         status: "true",
@@ -461,20 +483,9 @@ exports.view_claimBalance_ledger = async (req, res) => {
         data: filteredData,
       });
     } else {
-      return res.status(404).json({ status: "false", message: "Claim Not Found" });
-    }
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ status: "false", message: "Internal Server Error" });
-  }
-};
-exports.view_user_balance = async (req,res) => {
-  try {
-    const data = await C_userBalance.findOne({where:{userId:req.user.userId, companyId:req.user.companyId}});
-    if(data) {
-      return res.status(200).json({ status:'true', message:'User Balance Show Successfully',data:data});
-    } else {
-      return res.status(404).json({ status:'false', message:'User Balance Not Found'});
+      return res
+        .status(404)
+        .json({ status: "false", message: "Claim Not Found" });
     }
   } catch (error) {
     console.log(error);
@@ -482,6 +493,104 @@ exports.view_user_balance = async (req,res) => {
       .status(500)
       .json({ status: "false", message: "Internal Server Error" });
   }
-}
+};
 
+// exports.view_claimBalance_ledger = async (req, res) => {
+//   try {
+//     const userId = req.user.userId;
+//     const { fromDate, toDate } = req.query;
+//     const whereClause = { userId: userId,companyId:req.user.companyId };
 
+//     if (fromDate && toDate) {
+//       whereClause.date = { [Sequelize.Op.between]: [fromDate, toDate] };
+//     }
+
+//     const allData = await C_claimLedger.findAll({
+//       attributes: [
+//         "id",
+//         "userId",
+//         "date",
+//         [
+//           Sequelize.literal(`SUM(CASE 
+//             WHEN \`claimLedger\`.\`amount\` IS NOT NULL THEN \`claimLedger\`.\`amount\`
+//             ELSE CASE WHEN \`claimData\`.\`fromUserId\` = ${userId} THEN \`claimData\`.\`amount\` ELSE 0 END
+//           END)`),
+//           "creditAmount",
+//         ],
+//         [
+//           Sequelize.literal(
+//             `SUM(CASE WHEN \`claimData\`.\`toUserId\` = ${userId} THEN \`claimData\`.\`amount\` ELSE 0 END)`
+//           ),
+//           "debitAmount",
+//         ],
+//       ],
+//       include: [
+//         { model: C_receiveCash, as: "claimLedger", attributes: [] },
+//         { model: C_claim, as: "claimData", attributes: [] },
+//       ],
+//       where:whereClause,
+//       group: ["id"],
+//       order: [["date", "ASC"]],
+//       raw: true,
+//     });
+
+//     let openingBalance = 0;
+//     const enrichedData = allData.map((item) => {
+//       const credit = parseFloat(item.creditAmount);
+//       const debit = parseFloat(item.debitAmount);
+//       const remainingBalance = openingBalance + credit - debit;
+//       const enrichedItem = {
+//         ...item,
+//         openingBalance: openingBalance,
+//         remainingBalance: remainingBalance,
+//       };
+//       openingBalance = remainingBalance;
+//       return enrichedItem;
+//     });
+
+//     const filteredData = enrichedData.filter((item) => {
+//       return !fromDate || item.date >= fromDate;
+//     });
+// console.log("filteredData>>>>>>>",filteredData);
+//     if (filteredData.length > 0) {
+//       return res.status(200).json({
+//         status: "true",
+//         message: "Claim Ledger Show Successfully",
+//         data: filteredData,
+//       });
+//     } else {
+//       return res
+//         .status(404)
+//         .json({ status: "false", message: "Claim Not Found" });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     return res
+//       .status(500)
+//       .json({ status: "false", message: "Internal Server Error" });
+//   }
+// }; 
+
+exports.view_user_balance = async (req, res) => {
+  try {
+    const data = await C_userBalance.findOne({
+      where: { userId: req.user.userId, companyId: req.user.companyId },
+    });
+    if (data) {
+      return res.status(200).json({
+        status: "true",
+        message: "User Balance Show Successfully",
+        data: data,
+      });
+    } else {
+      return res
+        .status(404)
+        .json({ status: "false", message: "User Balance Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
