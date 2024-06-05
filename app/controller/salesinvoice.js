@@ -39,7 +39,9 @@ exports.create_salesInvoice = async (req, res) => {
       items,
     } = req.body;
 
-    const proformaData = await ProFormaInvoice.findByPk(proFormaId);
+    const proformaData = await ProFormaInvoice.findOne({
+      where: { id: proFormaId, companyId: req.user.companyId },
+    });
     if (!proformaData) {
       return res
         .status(404)
@@ -70,7 +72,7 @@ exports.create_salesInvoice = async (req, res) => {
     //   });
     // }
     const numberOf = await salesInvoice.findOne({
-      where: { invoiceno: invoiceno },
+      where: { invoiceno: invoiceno, companyId: req.user.companyId },
     });
 
     if (numberOf) {
@@ -78,7 +80,9 @@ exports.create_salesInvoice = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Invoice Number Already Exists" });
     }
-    const customerData = await customer.findByPk(customerId);
+    const customerData = await customer.findOne({
+      where: { id: customerId, companyId: req.user.companyId },
+    });
     if (!customerData) {
       return res
         .status(404)
@@ -91,7 +95,9 @@ exports.create_salesInvoice = async (req, res) => {
         .json({ status: "false", message: "Required Field Of Items" });
     }
     for (const item of items) {
-      const productname = await product.findByPk(item.productId);
+      const productname = await product.findOne({
+        where: { id: item.productId, companyId: req.user.companyId },
+      });
       if (!productname) {
         return res
           .status(404)
@@ -135,7 +141,7 @@ exports.create_salesInvoice = async (req, res) => {
     await salesInvoiceItem.bulkCreate(addToItem);
 
     const salesInvoiceData = await salesInvoice.findOne({
-      where: { id: data.id },
+      where: { id: data.id, companyId: req.user.companyId },
       include: [{ model: salesInvoiceItem, as: "items" }],
     });
 
@@ -154,6 +160,7 @@ exports.create_salesInvoice = async (req, res) => {
 exports.get_all_salesInvoice = async (req, res) => {
   try {
     const data = await salesInvoice.findAll({
+      where: { companyId: req.user.companyId },
       include: [
         {
           model: salesInvoiceItem,
@@ -187,7 +194,7 @@ exports.view_salesInvoice = async (req, res) => {
     const { id } = req.params;
 
     const data = await salesInvoice.findOne({
-      where: { id },
+      where: { id, companyId: req.user.companyId },
       include: [
         {
           model: salesInvoiceItem,
@@ -242,27 +249,35 @@ exports.update_salesInvoice = async (req, res) => {
       items,
     } = req.body;
 
-    const salesId = await salesInvoice.findByPk(id);
+    const salesId = await salesInvoice.findOne({
+      where: { id, companyId: req.user.companyId },
+    });
 
     if (!salesId) {
       return res
         .status(404)
         .json({ status: "false", message: "Sales Invoice Not Found" });
     }
-    const customerData = await customer.findByPk(customerId);
+    const customerData = await customer.findOne({
+      where: { id: customerId, companyId: req.user.companyId },
+    });
     if (!customerData) {
       return res
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
-    const proFormaItem = await ProFormaInvoice.findByPk(proFormaId);
+    const proFormaItem = await ProFormaInvoice.findOne({
+      where: { id: proFormaId, companyId: req.user.companyId },
+    });
     if (!proFormaItem) {
       return res
         .status(404)
         .json({ status: "false", message: "proForma Invoice Not Found" });
     }
     for (const item of items) {
-      const productname = await product.findByPk(item.productId);
+      const productname = await product.findOne({
+        where: { id: item.productId, companyId: req.user.companyId },
+      });
       if (!productname) {
         return res
           .status(404)
@@ -300,6 +315,7 @@ exports.update_salesInvoice = async (req, res) => {
     await customerLedger.update(
       {
         customerId,
+        companyId: req.user.companyId,
         date: invoicedate,
       },
       { where: { creditId: id } }
@@ -355,7 +371,7 @@ exports.update_salesInvoice = async (req, res) => {
     }
 
     const data = await salesInvoice.findOne({
-      where: { id },
+      where: { id, companyId: req.user.companyId },
       include: [{ model: salesInvoiceItem, as: "items" }],
     });
     return res.status(200).json({
@@ -373,7 +389,9 @@ exports.update_salesInvoice = async (req, res) => {
 exports.delete_salesInvoice = async (req, res) => {
   try {
     const { id } = req.params;
-    const data = await salesInvoice.destroy({ where: { id: id } });
+    const data = await salesInvoice.destroy({
+      where: { id: id, companyId: req.user.companyId },
+    });
     if (!data) {
       return res
         .status(404)

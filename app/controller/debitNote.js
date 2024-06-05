@@ -20,7 +20,7 @@ exports.create_debitNote = async (req, res) => {
       mainTotal,
     } = req.body;
     const existingCredit = await debitNote.findOne({
-      where: { debitnoteno: debitnoteno },
+      where: { debitnoteno: debitnoteno, companyId: req.user.companyId },
     });
     // for (const item of items) {
     //   const mrp = item.qty * item.rate;
@@ -41,16 +41,20 @@ exports.create_debitNote = async (req, res) => {
     //     message: "Total MRP Not Match",
     //   });
     // }
-    const invoiceData = await purchaseInvoice.findByPk(invoiceId);
-    if(!invoiceData) {
-      return res.status(404).json({status:'false', message:'Purchae Invoice Not Found'});
+    const invoiceData = await purchaseInvoice.findOne({
+      where: { id: invoiceId, companyId: req.user.companyId },
+    });
+    if (!invoiceData) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Purchae Invoice Not Found" });
     }
     if (existingCredit) {
       return res
         .status(400)
         .json({ status: "false", message: "Debit Note Number Already Exists" });
     }
-    const customerData = await customer.findByPk(customerId);
+    const customerData = await customer.findOne({where:{id:customerId,companyId: req.user.companyId}});
     if (!customerData) {
       return res
         .status(404)
@@ -63,7 +67,7 @@ exports.create_debitNote = async (req, res) => {
     }
 
     for (const item of items) {
-      const productname = await product.findByPk(item.productId);
+      const productname = await product.findOne({where:{id:item.productId,companyId: req.user.companyId}});
       if (!productname) {
         return res
           .status(404)
@@ -91,7 +95,7 @@ exports.create_debitNote = async (req, res) => {
     await debitNoteItem.bulkCreate(addToProduct);
 
     const data = await debitNote.findOne({
-      where: { id: debitNoteData.id },
+      where: { id: debitNoteData.id ,companyId: req.user.companyId},
       include: [{ model: debitNoteItem, as: "items" }],
     });
 
@@ -107,7 +111,6 @@ exports.create_debitNote = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-
 exports.update_debitNote = async (req, res) => {
   try {
     const { id } = req.params;
@@ -126,7 +129,7 @@ exports.update_debitNote = async (req, res) => {
       mainTotal,
     } = req.body;
 
-    const existingDebit = await debitNote.findByPk(id);
+    const existingDebit = await debitNote.findOne({where:{id:id,companyId: req.user.companyId}});
 
     if (!existingDebit) {
       return res
@@ -134,14 +137,14 @@ exports.update_debitNote = async (req, res) => {
         .json({ status: "false", message: "Debit Note Not Found" });
     }
 
-    const customerData = await customer.findByPk(customerId);
+    const customerData = await customer.findOne({where:{id:customerId,companyId: req.user.companyId}});
     if (!customerData) {
       return res
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
     for (const item of items) {
-      const productname = await product.findByPk(item.productId);
+      const productname = await product.findOne({where:{id:item.productId,companyId: req.user.companyId}});
       if (!productname) {
         return res
           .status(404)
@@ -220,7 +223,7 @@ exports.update_debitNote = async (req, res) => {
     }
 
     const data = await debitNote.findOne({
-      where: { id },
+      where: { id:id,companyId: req.user.companyId },
       include: [{ model: debitNoteItem, as: "items" }],
     });
 
@@ -240,7 +243,7 @@ exports.update_debitNote = async (req, res) => {
 exports.get_all_debitNote = async (req, res) => {
   try {
     const data = await debitNote.findAll({
-      companyId:req.user.companyId,
+    where: { companyId: req.user.companyId},
       include: [
         {
           model: debitNoteItem,
@@ -274,7 +277,7 @@ exports.view_single_debitNote = async (req, res) => {
     const { id } = req.params;
 
     const data = await debitNote.findOne({
-      where: { id:id, companyId: req.user.companyId },
+      where: { id: id, companyId: req.user.companyId },
       include: [
         {
           model: debitNoteItem,
@@ -283,7 +286,7 @@ exports.view_single_debitNote = async (req, res) => {
         },
         { model: customer, as: "DebitCustomer" },
         { model: purchaseInvoice, as: "purchaseData" },
-      ]
+      ],
     });
     if (data) {
       return res.status(200).json({
@@ -307,7 +310,9 @@ exports.delete_debitNote = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await debitNote.destroy({ where: { id:id, companyId: req.user.companyId } });
+    const data = await debitNote.destroy({
+      where: { id: id, companyId: req.user.companyId },
+    });
     if (data) {
       return res
         .status(200)
