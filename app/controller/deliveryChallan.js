@@ -7,14 +7,16 @@ exports.create_deliverychallan = async (req, res) => {
   try {
     const { date, challanno, customerId, totalQty, items } = req.body;
     const numberOf = await deliverychallan.findOne({
-      where: { challanno: challanno },
+      where: { challanno: challanno, companyId: req.user.companyId },
     });
     if (numberOf) {
       return res
         .status(400)
         .json({ status: "false", message: "Challan Number Already Exists" });
     }
-    const customerData = await customer.findByPk(customerId);
+    const customerData = await customer.findOne({
+      where: { id: customerId, companyId: req.user.companyId },
+    });
     if (!customerData) {
       return res
         .status(404)
@@ -26,7 +28,9 @@ exports.create_deliverychallan = async (req, res) => {
         .json({ status: "false", message: "Required Field oF items" });
     }
     for (const item of items) {
-      const productname = await product.findByPk(item.productId);
+      const productname = await product.findOne({
+        where: { id: item.productId, companyId: req.user.companyId },
+      });
       if (!productname) {
         return res
           .status(404)
@@ -48,7 +52,7 @@ exports.create_deliverychallan = async (req, res) => {
     await deliverychallanitem.bulkCreate(addToItem);
 
     const deliveryChallan = await deliverychallan.findOne({
-      where: { id: data.id },
+      where: { id: data.id, companyId: req.user.companyId },
       include: [{ model: deliverychallanitem, as: "items" }],
     });
     return res.status(200).json({
@@ -75,14 +79,18 @@ exports.update_deliverychallan = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Delivery challan Not Found" });
     }
-    const customerData = await customer.findByPk(customerId);
+    const customerData = await customer.findOne({
+      where: { id: customerId, companyId: req.user.companyId },
+    });
     if (!customerData) {
       return res
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
     for (const item of items) {
-      const productname = await product.findByPk(item.productId);
+      const productname = await product.findOne({
+        where: { id: item.productId, companyId: req.user.companyId },
+      });
 
       if (!productname) {
         return res
@@ -144,7 +152,7 @@ exports.update_deliverychallan = async (req, res) => {
     }
 
     const data = await deliverychallan.findOne({
-      where: { id },
+      where: { id, companyId: req.user.companyId },
       include: [{ model: deliverychallanitem, as: "items" }],
     });
     return res.status(200).json({

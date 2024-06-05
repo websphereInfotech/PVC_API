@@ -31,7 +31,9 @@ exports.create_purchaseInvoice = async (req, res) => {
       items,
     } = req.body;
 
-    const vendorData = await vendor.findByPk(vendorId);
+    const vendorData = await vendor.findOne({
+      where: { id: vendorId},
+    });
     if (!vendorData) {
       return res
         .status(404)
@@ -44,7 +46,9 @@ exports.create_purchaseInvoice = async (req, res) => {
     }
 
     for (const item of items) {
-      const productData = await product.findByPk(item.productId);
+      const productData = await product.findOne({
+        where: { id: item.productId, companyId: req.user.companyId },
+      });
       if (!productData) {
         return res
           .status(404)
@@ -69,6 +73,7 @@ exports.create_purchaseInvoice = async (req, res) => {
     await vendorLedger.create({
       vendorId,
       creditId: purchseData.id,
+      companyId: req.user.companyId,
       date: invoicedate,
     });
     const addToItem = items.map((item) => ({
@@ -79,7 +84,7 @@ exports.create_purchaseInvoice = async (req, res) => {
     await purchaseInvoiceItem.bulkCreate(addToItem);
 
     const data = await purchaseInvoice.findOne({
-      where: { id: purchseData.id },
+      where: { id: purchseData.id, companyId: req.user.companyId },
       include: [{ model: purchaseInvoiceItem, as: "items" }],
     });
     return res.status(200).json({
@@ -111,21 +116,25 @@ exports.update_purchaseInvoice = async (req, res) => {
       items,
     } = req.body;
 
-    const existingPurchase = await purchaseInvoice.findByPk(id);
+    const existingPurchase = await purchaseInvoice.findOne({
+      where: { id: id, companyId: req.user.companyId },
+    });
     if (!existingPurchase) {
       return res.status(404).json({
         status: "false",
         message: "Purchase Invoice Not Found",
       });
     }
-    const vendorData = await vendor.findByPk(vendorId);
+    const vendorData = await vendor.findOne(vendorId);
     if (!vendorData) {
       return res
         .status(404)
         .json({ status: "false", message: "Vendor Not Found" });
     }
     for (const item of items) {
-      const productData = await product.findByPk(item.productId);
+      const productData = await product.findOne({
+        where: { id: item.productId, companyId: req.user.companyId },
+      });
       if (!productData) {
         return res
           .status(404)
@@ -154,6 +163,7 @@ exports.update_purchaseInvoice = async (req, res) => {
       {
         vendorId,
         date: invoicedate,
+        companyId: req.user.companyId,
       },
       { where: { creditId: id } }
     );
@@ -209,7 +219,7 @@ exports.update_purchaseInvoice = async (req, res) => {
       await item.destroy();
     }
     const data = await purchaseInvoice.findOne({
-      where: { id },
+      where: { id: id, companyId: req.user.companyId },
       include: [{ model: purchaseInvoiceItem, as: "items" }],
     });
     return res.status(200).json({
@@ -227,7 +237,9 @@ exports.update_purchaseInvoice = async (req, res) => {
 exports.delete_purchaseInvoice = async (req, res) => {
   try {
     const { id } = req.params;
-    const billId = await purchaseInvoice.destroy({ where: { id: id } });
+    const billId = await purchaseInvoice.destroy({
+      where: { id: id, companyId: req.user.companyId },
+    });
 
     if (billId) {
       return res.status(200).json({
@@ -249,6 +261,7 @@ exports.delete_purchaseInvoice = async (req, res) => {
 exports.get_all_purchaseInvoice = async (req, res) => {
   try {
     const data = await purchaseInvoice.findAll({
+      where: { companyId: req.user.companyId },
       include: [
         {
           model: purchaseInvoiceItem,
@@ -282,7 +295,7 @@ exports.view_purchaseInvoice = async (req, res) => {
   try {
     const { id } = req.params;
     const data = await purchaseInvoice.findOne({
-      where: { id },
+      where: { id: id, companyId: req.user.companyId },
       include: [
         {
           model: purchaseInvoiceItem,
@@ -344,14 +357,14 @@ exports.C_create_purchaseCash = async (req, res) => {
       vendorId,
       date,
       totalMrp,
-      companyId:req.user.companyId,
+      companyId: req.user.companyId,
       createdBy: user,
       updatedBy: user,
     });
 
     await C_vendorLedger.create({
       vendorId,
-      companyId:req.user.companyId,
+      companyId: req.user.companyId,
       creditId: purchseData.id,
       date,
     });
@@ -413,7 +426,7 @@ exports.C_update_purchaseCash = async (req, res) => {
         vendorId,
         date,
         totalMrp,
-        companyId:req.user.companyId,
+        companyId: req.user.companyId,
         createdBy: existingPurchase.createdBy,
         updatedBy: user,
       },

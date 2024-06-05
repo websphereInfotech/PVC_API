@@ -44,7 +44,7 @@ exports.create_creditNote = async (req, res) => {
     //     });
     //   }
     const numberOf = await creditNote.findOne({
-      where: { creditnoteNo: creditnoteNo },
+      where: { creditnoteNo: creditnoteNo, companyId: req.user.companyId },
     });
     if (numberOf) {
       return res.status(400).json({
@@ -53,7 +53,9 @@ exports.create_creditNote = async (req, res) => {
       });
     }
 
-    const customerData = await customer.findByPk(customerId);
+    const customerData = await customer.findOne({
+      where: { id: customerId, companyId: req.user.companyId },
+    });
     if (!customerData) {
       return res
         .status(404)
@@ -65,7 +67,9 @@ exports.create_creditNote = async (req, res) => {
         .json({ status: "false", message: "Required Field oF items" });
     }
     for (const item of items) {
-      const productname = await product.findByPk(item.productId);
+      const productname = await product.findOne({
+        where: { id: item.productId, companyId: req.user.companyId },
+      });
       if (!productname) {
         return res
           .status(404)
@@ -97,7 +101,7 @@ exports.create_creditNote = async (req, res) => {
     await creditNoteItem.bulkCreate(addToProduct);
 
     const data = await creditNote.findOne({
-      where: { id: creditData.id },
+      where: { id: creditData.id, companyId: req.user.companyId },
       include: [{ model: creditNoteItem, as: "items" }],
     });
     return res.status(200).json({
@@ -134,21 +138,27 @@ exports.update_creditNote = async (req, res) => {
       items,
     } = req.body;
 
-    const existingCredit = await creditNote.findByPk(id);
+    const existingCredit = await creditNote.findOne({
+      where: { id: id, companyId: req.user.companyId },
+    });
 
     if (!existingCredit) {
       return res
         .status(404)
         .json({ status: "false", message: "Credit Note Not Found" });
     }
-    const customerData = await customer.findByPk(customerId);
+    const customerData = await customer.findOne({
+      where: { id: customerId, companyId: req.user.companyId },
+    });
     if (!customerData) {
       return res
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
     for (const item of items) {
-      const productname = await product.findByPk(item.productId);
+      const productname = await product.findOne({
+        where: { id: item.productId, companyId: req.user.companyId },
+      });
       if (!productname) {
         return res
           .status(404)
@@ -227,13 +237,13 @@ exports.update_creditNote = async (req, res) => {
       await item.destroy();
     }
     const data = await creditNote.findOne({
-      where: { id },
+      where: { id: id, companyId: req.user.companyId },
       include: [{ model: creditNoteItem, as: "items" }],
     });
 
     return res.status(200).json({
       status: "true",
-      message: "Debit Note Update Successfully",
+      message: "Credit Note Update Successfully",
       data: data,
     });
   } catch (error) {
