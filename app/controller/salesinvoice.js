@@ -94,7 +94,7 @@ exports.create_salesInvoice = async (req, res) => {
         .json({ status: "false", message: "Required Field Of Items" });
     }
     for (const item of items) {
-      const productname = await product.findByPk({
+      const productname = await product.findOne({
         id: item.productId,
         companyId: req.user.companyId,
       });
@@ -123,7 +123,6 @@ exports.create_salesInvoice = async (req, res) => {
       totalMrp,
       mainTotal,
       totalQty,
-      companyId,
       createdBy: userID,
       updatedBy: userID,
       companyId: req.user.companyId,

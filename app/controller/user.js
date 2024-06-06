@@ -109,12 +109,13 @@ exports.get_all_user = async (req, res) => {
 };
 exports.view_user = async (req, res) => {
   try {
-    const companyId = req.user.userId;
+    const companyId = req.user.companyId;
 
     const { id } = req.params;
-    const data = await User.findByPk(id, {
-      attributes: { exclude: ["password"] },
-      include: [{ model: companyUser, where: { companyId: companyId } }],
+ 
+    const data = await User.findOne({
+      where: { id: id },
+      include: [{ model: company, as: "companies", where: { id: companyId }, attributes: [] }],
     });
     if (data) {
       return res.status(200).json({
@@ -398,9 +399,9 @@ exports.view_all_userTOComapny = async (req, res) => {
   try {
     const userId = req.user.userId;
 
-    const data = await User.findByPk(userId, {
-      attributes: { exclude: ["password"] },
-      include: [{ model: company, as: "users" }],
+    const data = await companyUser.findAll({
+      where:{userId:userId},
+      include: [{ model: company, as: "companies" }],
     });
     if (data) {
       return res

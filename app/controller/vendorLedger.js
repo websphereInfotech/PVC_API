@@ -52,6 +52,7 @@ exports.C_get_vendorLedger = async (req, res) => {
                       LEFT OUTER JOIN \`P_C_paymentCashes\` AS paymentLedger ON cl2.debitId = paymentLedger.id
                     WHERE
                       cl2.vendorId = \`P_C_vendorLedger\`.\`vendorId\`
+                      AND cl2.companyId = :companyId
                       AND (cl2.date < \`P_C_vendorLedger\`.\`date\` OR (cl2.date = \`P_C_vendorLedger\`.\`date\` AND cl2.id < \`P_C_vendorLedger\`.\`id\`))
                   )
                 `),
@@ -68,6 +69,7 @@ exports.C_get_vendorLedger = async (req, res) => {
                 LEFT OUTER JOIN \`P_C_paymentCashes\` AS paymentLedger ON cl2.debitId = paymentLedger.id
               WHERE
                 cl2.vendorId = \`P_C_vendorLedger\`.\`vendorId\`
+                AND cl2.companyId = :companyId
                 AND (cl2.date < \`P_C_vendorLedger\`.\`date\` OR (cl2.date = \`P_C_vendorLedger\`.\`date\` AND cl2.id < \`P_C_vendorLedger\`.\`id\`))
             ) + IFNULL(invoiceLedger.totalMrp, 0) - IFNULL(paymentLedger.amount, 0)
           `),
@@ -93,6 +95,7 @@ exports.C_get_vendorLedger = async (req, res) => {
         ["date", "ASC"],
         ["id", "ASC"],
       ],
+      replacements: { companyId },
     });
 
     if (data) {
@@ -113,11 +116,10 @@ exports.C_get_vendorLedger = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-
 /*=============================================================================================================
                                           without Typc C API
  ============================================================================================================ */
- exports.get_vendorLedger = async (req, res) => {
+exports.get_vendorLedger = async (req, res) => {
   try {
     const { id } = req.params;
     const { formDate, toDate } = req.query;
@@ -192,14 +194,13 @@ exports.C_get_vendorLedger = async (req, res) => {
           as: "vendorData",
         },
       ],
-      where: queryData, // Use queryData object directly
+      where: queryData,
       order: [
         ["date", "ASC"],
         ["id", "ASC"],
       ],
-      replacements: { companyId }, // Pass companyId as replacements
+      replacements: { companyId },
     });
-    
 
     if (data) {
       return res.status(200).json({
@@ -219,8 +220,6 @@ exports.C_get_vendorLedger = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-
-
 
 // exports.get_vendorLedger = async (req, res) => {
 //   try {

@@ -185,11 +185,12 @@ exports.C_update_receiveCash = async (req, res) => {
       { where: { receiveId: id } }
     );
 
-    await C_userBalance.update({
-      userId: user,
-      companyId: req.user.companyId,
-      balance: amount,
-    });
+    await C_userBalance.update(
+      {
+        balance: amount,
+      },
+      { where: { userId: user, companyId: req.user.companyId } }
+    );
     const data = await C_receiveCash.findOne({
       where: { id: id, companyId: req.user.companyId },
     });
@@ -254,8 +255,10 @@ exports.create_receive_bank = async (req, res) => {
         .json({ status: "false", message: "Required field : Customer" });
     }
     const customerData = await customer.findOne({
-      id: customerId,
-      companyId: req.user.companyId,
+      where: {
+        id: customerId,
+        companyId: req.user.companyId,
+      },
     });
     if (!customerData) {
       return res
@@ -263,9 +266,11 @@ exports.create_receive_bank = async (req, res) => {
         .json({ status: "false", message: "Customer Not Found" });
     }
     const accountData = await companyBankDetails.findOne({
+      where :{ 
       id: accountId,
       companyId: req.user.companyId,
-    });
+  }});
+    console.log("account",accountData);
     if (!accountData) {
       return res
         .status(404)

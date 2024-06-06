@@ -12,6 +12,7 @@ const companyUser = sequelize.define("P_companyUser", {
 });
 
 companyUser.belongsTo(User, { foreignKey: 'userId', as: 'users' });
+companyUser.belongsTo(company, { foreignKey: 'companyId', as: 'companies' });
 
 User.belongsToMany(company, { through: "P_companyUser", foreignKey: 'userId', as: "companies" });
 company.belongsToMany(User, { through: "P_companyUser", foreignKey: 'companyId', as: "users" });
