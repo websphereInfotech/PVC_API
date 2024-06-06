@@ -95,8 +95,10 @@ exports.create_salesInvoice = async (req, res) => {
     }
     for (const item of items) {
       const productname = await product.findOne({
+       where: {
         id: item.productId,
         companyId: req.user.companyId,
+       }
       });
       if (!productname) {
         return res
@@ -478,7 +480,7 @@ exports.C_create_salesinvoice = async (req, res) => {
     await C_salesinvoiceItem.bulkCreate(addToProduct);
 
     const data = await C_salesinvoice.findOne({
-      where: { id: salesInvoiceData.id },
+      where: { id: salesInvoiceData.id,companyId: req.user.companyId },
       include: [{ model: C_salesinvoiceItem, as: "items" }],
     });
     return res.status(200).json({

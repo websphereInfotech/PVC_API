@@ -667,42 +667,48 @@ exports.permissions = {
             "update_company_bankDetails":true,
             "delete_company_bankDetails":true,
             "view_company_bankDetails":true,
-            "view_all_company_bankDetails":true
+            "view_all_company_bankDetails":true,
+            "view_company_bankLedger":true
         },
         "Admin" :{
             "create_company_bankDetails":true,
             "update_company_bankDetails":true,
             "delete_company_bankDetails":true,
             "view_company_bankDetails":true,
-            "view_all_company_bankDetails":true
+            "view_all_company_bankDetails":true,
+            "view_company_bankLedger":true
         },
         "Account" :{
             "create_company_bankDetails":true,
             "update_company_bankDetails":true,
             "delete_company_bankDetails":true,
             "view_company_bankDetails":true,
-            "view_all_company_bankDetails":true
+            "view_all_company_bankDetails":true,
+            "view_company_bankLedger":true
         },
         "Employee" :{
             "create_company_bankDetails":true,
             "update_company_bankDetails":true,
             "delete_company_bankDetails":true,
             "view_company_bankDetails":true,
-            "view_all_company_bankDetails":true
+            "view_all_company_bankDetails":true,
+            "view_company_bankLedger":true
         },
         "Workers" :{
             "create_company_bankDetails":true,
             "update_company_bankDetails":true,
             "delete_company_bankDetails":true,
             "view_company_bankDetails":true,
-            "view_all_company_bankDetails":true
+            "view_all_company_bankDetails":true,
+            "view_company_bankLedger":true
         },
         "Other" :{
             "create_company_bankDetails":true,
             "update_company_bankDetails":true,
             "delete_company_bankDetails":true,
             "view_company_bankDetails":true,
-            "view_all_company_bankDetails":true
+            "view_all_company_bankDetails":true,
+            "view_company_bankLedger":true
         },
     },
     "Receive Bank" : {

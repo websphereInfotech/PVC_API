@@ -4,6 +4,7 @@ const C_customerLedger = require("../models/C_customerLedger");
 const C_receiveCash = require("../models/C_receiveCash");
 const C_userBalance = require("../models/C_userBalance");
 const companyBankDetails = require("../models/companyBankDetails");
+const companyBankLedger = require("../models/companyBankLedger");
 const customer = require("../models/customer");
 const customerLedger = require("../models/customerLedger");
 const receiveBank = require("../models/receiveBank");
@@ -64,13 +65,7 @@ exports.C_create_receiveCash = async (req, res) => {
     if (userBalance) {
       userBalance.balance += amount;
       await userBalance.save();
-    } else {
-      userBalance = await C_userBalance.create({
-        userId: user,
-        companyId: req.user.companyId,
-        balance: amount,
-      });
-    }
+    } 
 
     return res.status(200).json({
       status: "true",
@@ -266,11 +261,12 @@ exports.create_receive_bank = async (req, res) => {
         .json({ status: "false", message: "Customer Not Found" });
     }
     const accountData = await companyBankDetails.findOne({
-      where :{ 
-      id: accountId,
-      companyId: req.user.companyId,
-  }});
-    console.log("account",accountData);
+      where: {
+        id: accountId,
+        companyId: req.user.companyId,
+      },
+    });
+
     if (!accountData) {
       return res
         .status(404)
@@ -293,6 +289,12 @@ exports.create_receive_bank = async (req, res) => {
       companyId: req.user.companyId,
       customerId,
       debitId: data.id,
+      date: paymentdate,
+    });
+
+    await companyBankLedger.create({
+      companyId: req.user.companyId,
+      creditId: data.id,
       date: paymentdate,
     });
 
@@ -324,8 +326,10 @@ exports.update_receive_bank = async (req, res) => {
     } = req.body;
 
     const receiveBankId = await receiveBank.findOne({
-      id: id,
-      companyId: req.user.companyId,
+      where: {
+        id: id,
+        companyId: req.user.companyId,
+      },
     });
     if (!receiveBankId) {
       return res
@@ -333,8 +337,10 @@ exports.update_receive_bank = async (req, res) => {
         .json({ status: "false", message: "Receive Bank Not Found" });
     }
     const customerData = await customer.findOne({
-      id: customerId,
-      companyId: req.user.companyId,
+      where: {
+        id: customerId,
+        companyId: req.user.companyId,
+      },
     });
     if (!customerData) {
       return res
@@ -342,8 +348,10 @@ exports.update_receive_bank = async (req, res) => {
         .json({ status: "false", message: "Customer Not Found" });
     }
     const accountData = await companyBankDetails.findOne({
-      id: accountId,
-      companyId: req.user.companyId,
+      where: {
+        id: accountId,
+        companyId: req.user.companyId,
+      },
     });
     if (!accountData) {
       return res
@@ -375,6 +383,15 @@ exports.update_receive_bank = async (req, res) => {
       },
       { where: { debitId: id } }
     );
+    
+    await companyBankLedger.update(
+      {
+        companyId: req.user.companyId,
+        date: paymentdate,
+      },
+      { where: { creditId: id } }
+    );
+
     const data = await receiveBank.findOne({
       where: { id: id, companyId: req.user.companyId },
     });

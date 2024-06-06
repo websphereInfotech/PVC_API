@@ -66,7 +66,11 @@ exports.create_user = async (req, res) => {
       companyId: req.user.companyId,
       setDefault: true,
     });
-
+     await C_userBalance.create({
+      userId: user.id,
+      companyId: req.user.companyId,
+      balance: 0,
+    });
     return res
       .status(200)
       .json({ status: "true", message: "User created successfully", user });

@@ -94,7 +94,7 @@ exports.create_customer = async (req, res) => {
     }
 
     const customerData = await customer.findOne({
-      where: { id: data.id },
+      where: { id: data.id,companyId:req.user.companyId },
       include: [{ model: bankAccount, as: "bankdetails" }],
     });
     await C_customer.create({
@@ -138,7 +138,7 @@ exports.update_customer = async (req, res) => {
     } = req.body;
 
     const updateData = await customer.findOne({
-      where: { id: id },
+      where: { id: id,companyId: req.user.companyId },
       include: [{ model: bankAccount, as: "bankdetails" }],
     });
 
@@ -200,7 +200,7 @@ exports.update_customer = async (req, res) => {
       }
     }
     const data = await customer.findOne({
-      where: { id: id },
+      where: { id: id,companyId: req.user.companyId },
       include: [{ model: bankAccount, as: "bankdetails" }],
     });
 

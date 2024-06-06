@@ -52,5 +52,10 @@ module.exports = {
       { companyname: "Shree Krishna Industry" },
       {}
     );
+    await queryInterface.bulkDelete(
+      "P_companyUsers",
+      { companyname: 1 },
+      {}
+    );
   },
 };

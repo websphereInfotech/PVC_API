@@ -7,7 +7,6 @@ const User = require("../models/user");
 exports.create_ProFormaInvoice = async (req, res) => {
   try {
     const user = req.user.userId;
-    const companyId = req.user.companyId;
     const {
       ProFormaInvoice_no,
       date,
@@ -47,8 +46,10 @@ exports.create_ProFormaInvoice = async (req, res) => {
     //   });
     // }
     const numberOf = await ProFormaInvoice.findOne({
-      where: { ProFormaInvoice_no: ProFormaInvoice_no,companyId:companyId },
-
+      where: {
+        ProFormaInvoice_no: ProFormaInvoice_no,
+        companyId: req.user.companyId,
+      },
     });
     if (numberOf) {
       return res.status(400).json({
@@ -56,7 +57,9 @@ exports.create_ProFormaInvoice = async (req, res) => {
         message: "ProForma Invoice Number Already Exists",
       });
     }
-    const customerData = await customer.findOne({where:{id:customerId, companyId: req.user.companyId}});
+    const customerData = await customer.findOne({
+      where: { id: customerId, companyId: req.user.companyId },
+    });
     if (!customerData) {
       return res
         .status(404)
@@ -70,7 +73,9 @@ exports.create_ProFormaInvoice = async (req, res) => {
     }
 
     for (const item of items) {
-      const productname = await product.findOne({where:{id:item.productId,companyId: req.user.companyId}});
+      const productname = await product.findOne({
+        where: { id: item.productId, companyId: req.user.companyId },
+      });
       if (!productname) {
         return res
           .status(404)
@@ -94,10 +99,9 @@ exports.create_ProFormaInvoice = async (req, res) => {
       totalMrp,
       mainTotal,
       totalQty,
-      companyId,
       createdBy: user,
       updatedBy: user,
-      companyId: req.user.companyId
+      companyId: req.user.companyId,
     });
 
     const addToProduct = items.map((item) => ({
@@ -161,7 +165,7 @@ exports.view_ProFormaInvoice = async (req, res) => {
     const { id } = req.params;
 
     const data = await ProFormaInvoice.findOne({
-      where: { id,companyId: req.user.companyId },
+      where: { id, companyId: req.user.companyId },
       include: [
         {
           model: ProFormaInvoiceItem,
@@ -213,7 +217,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
     } = req.body;
 
     const existingInvoice = await ProFormaInvoice.findOne({
-           where: {id:id, companyId: req.user.companyId },
+      where: { id: id, companyId: req.user.companyId },
     });
 
     if (!existingInvoice) {
@@ -223,7 +227,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
       });
     }
     const customerData = await customer.findOne({
-      where: {id:customerId,companyId:req.user.companyId},
+      where: { id: customerId, companyId: req.user.companyId },
     });
     if (!customerData) {
       return res
@@ -232,7 +236,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
     }
     for (const item of items) {
       const productname = await product.findOne({
-        where: {id:item.productId,companyId:req.user.companyId},
+        where: { id: item.productId, companyId: req.user.companyId },
       });
       if (!productname) {
         return res
@@ -266,7 +270,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
     );
 
     const existingItems = await ProFormaInvoiceItem.findAll({
-      where: { InvoiceId: id }
+      where: { InvoiceId: id },
     });
 
     const mergedItems = [];
@@ -317,7 +321,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
       await item.destroy();
     }
     const updatedInvoice = await ProFormaInvoice.findOne({
-      where: { id , companyId: req.user.companyId },
+      where: { id, companyId: req.user.companyId },
       include: [{ model: ProFormaInvoiceItem, as: "items" }],
     });
     return res.status(200).json({
@@ -338,7 +342,9 @@ exports.delete_ProFormaInvoice = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await ProFormaInvoice.destroy({ where: { id: id ,companyId:req.user.companyId} });
+    const data = await ProFormaInvoice.destroy({
+      where: { id: id, companyId: req.user.companyId },
+    });
 
     if (!data) {
       return res

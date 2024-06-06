@@ -5,6 +5,7 @@ const {
   create_company_bankDetails,
   view_company_bankDetails,
   view_all_company_bankDetails,
+  view_company_bankLedger,
 } = require("../controller/companyBankDetails");
 const { validation } = require("../constant/validate");
 const adminToken = require("../middleware/adminAuth");
@@ -38,4 +39,5 @@ router.get(
   view_all_company_bankDetails
 );
 
+router.get('/view_company_bankLedger',adminToken("Company Bank Details:view_company_bankLedger"),view_company_bankLedger);
 module.exports = router;

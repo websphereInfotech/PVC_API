@@ -54,7 +54,7 @@ exports.update_claim = async (req, res) => {
     const { id } = req.params;
     const { toUserId, amount, description, purpose } = req.body;
 
-    const userData = await C_claim.findByPk(id);
+    const userData = await C_claim.findOne({where:{id:id,companyId: req.user.companyId}});
 
     if (!userData) {
       return res
@@ -72,7 +72,7 @@ exports.update_claim = async (req, res) => {
         },
         { where: { id } }
       );
-      const data = await C_claim.findByPk(id);
+      const data = await C_claim.findOne({where:{id:id,companyId:req.user.companyId}});
       return res.status(200).json({
         status: "true",
         message: "Claim Updated successfully",
@@ -306,100 +306,100 @@ exports.view_single_claim = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-exports.view_claim_ledger = async (req, res) => {
-  try {
-    const userId = req.user.userId;
-    const { fromDate, toDate } = req.query;
-    const companyId = req.user.companyId;
+// exports.view_claim_ledger = async (req, res) => {
+//   try {
+//     const userId = req.user.userId;
+//     const { fromDate, toDate } = req.query;
+//     const companyId = req.user.companyId;
     
-    let whereCondition = {
-      [Op.or]: [{ fromUserId: userId }, { toUserId: userId }],
-      companyId: companyId,
-    };
+//     let whereCondition = {
+//       [Op.or]: [{ fromUserId: userId }, { toUserId: userId }],
+//       companyId: companyId,
+//     };
 
-    if (fromDate && toDate) {
-      whereCondition.updatedAt = {
-        [Op.between]: [new Date(fromDate), new Date(toDate)],
-      };
-    }
+//     if (fromDate && toDate) {
+//       whereCondition.updatedAt = {
+//         [Op.between]: [new Date(fromDate), new Date(toDate)],
+//       };
+//     }
 
-    const data = await C_claim.findAll({
-      attributes: [
-        "fromUserId",
-        "toUserId",
-        "updatedAt",
-        [
-          Sequelize.literal(`
-            CASE 
-              WHEN fromUserId = :userId THEN (SELECT username FROM P_users WHERE id = P_C_claim.toUserId)
-              ELSE (SELECT username FROM P_users WHERE id = P_C_claim.fromUserId)
-            END
-          `),
-          "username",
-        ],
-        [
-          Sequelize.literal(
-            "CASE WHEN fromUserId = :userId THEN amount ELSE 0 END"
-          ),
-          "debitAmount",
-        ],
-        [
-          Sequelize.literal(
-            "CASE WHEN toUserId = :userId THEN amount ELSE 0 END"
-          ),
-          "creditAmount",
-        ],
-        [
-          Sequelize.literal(`
-            CAST(
-              COALESCE((
-                SELECT SUM(CASE WHEN cl2.fromUserId = :userId THEN cl2.amount ELSE 0 END - CASE WHEN cl2.toUserId = :userId THEN cl2.amount ELSE 0 END)
-                FROM P_C_claims AS cl2
-                WHERE cl2.updatedAt < P_C_claim.updatedAt
-                AND (cl2.fromUserId = :userId OR cl2.toUserId = :userId)
-                AND cl2.companyId = :companyId
-              ), 0) AS CHAR
-            )
-          `),
-          "openingBalance",
-        ],
-        [
-          Sequelize.literal(`
-            CAST(
-              (
-                SUM(CASE WHEN fromUserId = :userId THEN amount ELSE 0 END - CASE WHEN toUserId = :userId THEN amount ELSE 0 END)
-                OVER (PARTITION BY NULL ORDER BY updatedAt ASC)
-              ) AS CHAR
-            )
-          `),
-          "remainingBalance",
-        ],
-      ],
-      where: whereCondition,
-      group: ["fromUserId", "toUserId", "updatedAt", "amount"],
-      order: [["updatedAt", "ASC"]],
-      replacements: { userId: userId, companyId: companyId },
-      raw: true,
-    });
+//     const data = await C_claim.findAll({
+//       attributes: [
+//         "fromUserId",
+//         "toUserId",
+//         "updatedAt",
+//         [
+//           Sequelize.literal(`
+//             CASE 
+//               WHEN fromUserId = :userId THEN (SELECT username FROM P_users WHERE id = P_C_claim.toUserId)
+//               ELSE (SELECT username FROM P_users WHERE id = P_C_claim.fromUserId)
+//             END
+//           `),
+//           "username",
+//         ],
+//         [
+//           Sequelize.literal(
+//             "CASE WHEN fromUserId = :userId THEN amount ELSE 0 END"
+//           ),
+//           "debitAmount",
+//         ],
+//         [
+//           Sequelize.literal(
+//             "CASE WHEN toUserId = :userId THEN amount ELSE 0 END"
+//           ),
+//           "creditAmount",
+//         ],
+//         [
+//           Sequelize.literal(`
+//             CAST(
+//               COALESCE((
+//                 SELECT SUM(CASE WHEN cl2.fromUserId = :userId THEN cl2.amount ELSE 0 END - CASE WHEN cl2.toUserId = :userId THEN cl2.amount ELSE 0 END)
+//                 FROM P_C_claims AS cl2
+//                 WHERE cl2.updatedAt < P_C_claim.updatedAt
+//                 AND (cl2.fromUserId = :userId OR cl2.toUserId = :userId)
+//                 AND cl2.companyId = :companyId
+//               ), 0) AS CHAR
+//             )
+//           `),
+//           "openingBalance",
+//         ],
+//         [
+//           Sequelize.literal(`
+//             CAST(
+//               (
+//                 SUM(CASE WHEN fromUserId = :userId THEN amount ELSE 0 END - CASE WHEN toUserId = :userId THEN amount ELSE 0 END)
+//                 OVER (PARTITION BY NULL ORDER BY updatedAt ASC)
+//               ) AS CHAR
+//             )
+//           `),
+//           "remainingBalance",
+//         ],
+//       ],
+//       where: whereCondition,
+//       group: ["fromUserId", "toUserId", "updatedAt", "amount"],
+//       order: [["updatedAt", "ASC"]],
+//       replacements: { userId: userId, companyId: companyId },
+//       raw: true,
+//     });
 
-    if (data) {
-      return res.status(200).json({
-        status: "true",
-        message: "Claim Ledger Show Successfully",
-        data: data,
-      });
-    } else {
-      return res
-        .status(404)
-        .json({ status: "false", message: "Claim Ledger Not Found" });
-    }
-  } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ status: "false", message: "Internal Server Error" });
-  }
-};
+//     if (data) {
+//       return res.status(200).json({
+//         status: "true",
+//         message: "Claim Ledger Show Successfully",
+//         data: data,
+//       });
+//     } else {
+//       return res
+//         .status(404)
+//         .json({ status: "false", message: "Claim Ledger Not Found" });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     return res
+//       .status(500)
+//       .json({ status: "false", message: "Internal Server Error" });
+//   }
+// };
 exports.view_claimBalance_ledger = async (req, res) => {
   try {
     const userId = req.user.userId;
