@@ -3,16 +3,26 @@ const companyBankDetails = require("../models/companyBankDetails");
 
 exports.create_company_bankDetails = async (req, res) => {
   try {
-    const { companyId,accountname, bankname, accountnumber, ifsccode, branch,nickname } = req.body;
+    const {
+      companyId,
+      accountname,
+      bankname,
+      accountnumber,
+      ifsccode,
+      branch,
+      nickname,
+    } = req.body;
 
     if (companyId === "" || companyId === undefined || companyId === null) {
       return res
         .status(400)
         .json({ status: "false", message: "Required Feild:Comapny" });
     }
-    const companyData = await company.findByPk(companyId); 
-    if(!companyData) {
-      return res.status(404).json({ status:'false', message:'Company Not Found'});
+    const companyData = await company.findByPk(companyId);
+    if (!companyData) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Company Not Found" });
     }
     const existingAccount = await companyBankDetails.findOne({
       where: { accountnumber: accountnumber },
@@ -37,15 +47,13 @@ exports.create_company_bankDetails = async (req, res) => {
       accountnumber,
       ifsccode,
       branch,
-      nickname
+      nickname,
     });
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Bank Details Create Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Bank Details Create Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -57,7 +65,15 @@ exports.update_company_bankDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { companyId,accountname, bankname, accountnumber, ifsccode, branch,nickname } = req.body;
+    const {
+      companyId,
+      accountname,
+      bankname,
+      accountnumber,
+      ifsccode,
+      branch,
+      nickname,
+    } = req.body;
     const bankData = await companyBankDetails.findByPk(id);
     if (!bankData) {
       return res
@@ -78,19 +94,17 @@ exports.update_company_bankDetails = async (req, res) => {
         accountnumber,
         ifsccode,
         branch,
-        nickname
+        nickname,
       },
       { where: { id } }
     );
 
     const data = await companyBankDetails.findByPk(id);
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "Bank Details Updated Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Bank Details Updated Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -130,13 +144,11 @@ exports.view_company_bankDetails = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Bank Details Not Found" });
     } else {
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "Bank Details Show Successfully",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "Bank Details Show Successfully",
+        data: data,
+      });
     }
   } catch (error) {
     console.log(error);
@@ -149,13 +161,11 @@ exports.view_all_company_bankDetails = async (req, res) => {
   try {
     const data = await companyBankDetails.findAll();
     if (data.length > 0) {
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "Bank Details Show successfully",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "Bank Details Show successfully",
+        data: data,
+      });
     } else {
       return res
         .status(404)
@@ -170,8 +180,8 @@ exports.view_all_company_bankDetails = async (req, res) => {
 };
 // exports.view_compant_bankLedger = async (req,res) => {
 //   try {
-    
+
 //   } catch (error) {
-    
+
 //   }
 // }

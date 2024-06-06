@@ -11,17 +11,9 @@ const companyUser = sequelize.define("P_companyUser", {
   },
 });
 
-// User.hasMany(companyUser,{foreignKey:'userId',onDelete:'CASCADE'});
-// companyUser.belongsTo(User,{foreignKey:'userId', onDelete:'CASCADE'});
-
-// company.hasMany(companyUser, { foreignKey: "companyId", onDelete: "CASCADE" });
-// companyUser.belongsTo(company, {
-//   foreignKey: "companyId",
-//   onDelete: "CASCADE",
-// });
+companyUser.belongsTo(User, { foreignKey: 'userId', as: 'users' });
 
 User.belongsToMany(company, { through: "P_companyUser", foreignKey: 'userId', as: "companies" });
 company.belongsToMany(User, { through: "P_companyUser", foreignKey: 'companyId', as: "users" });
-
 
 module.exports = companyUser;

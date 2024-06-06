@@ -72,7 +72,9 @@ exports.update_deliverychallan = async (req, res) => {
     const { id } = req.params;
     const { date, challanno, customerId, totalQty, items } = req.body;
 
-    const updatechallan = await deliverychallan.findByPk(id);
+    const updatechallan = await deliverychallan.findOne({
+      where: { id: id, companyId: req.user.companyId },
+    });
 
     if (!updatechallan) {
       return res

@@ -18,7 +18,7 @@ const router = express.Router();
 
 router.post(
   "/create_vendor",
-  // adminAuth("Vendor:create_vendor"),
+  adminAuth("Vendor:create_vendor"),
   validation("create_vendor"),
   create_vendor
 );
@@ -30,7 +30,7 @@ router.put(
 );
 router.delete(
   "/delete_vandor/:id",
-  // adminAuth("Vendor:delete_vandor"),
+  adminAuth("Vendor:delete_vandor"),
   delete_vandor
 );
 router.get(

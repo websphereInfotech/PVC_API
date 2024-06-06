@@ -256,7 +256,8 @@ exports.get_all_ClaimUser = async (req, res) => {
           [Sequelize.Op.ne]: userID,
         },
       },
-      attributes: { exclude: ["password"] },
+      include:[{model:User,as:"users",attributes:{ exclude: ["password"] }}],
+      // attributes: { exclude: ["password"] },
     });
     if (data.length > 0) {
       return res.status(200).json({
@@ -494,82 +495,6 @@ exports.view_claimBalance_ledger = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-
-// exports.view_claimBalance_ledger = async (req, res) => {
-//   try {
-//     const userId = req.user.userId;
-//     const { fromDate, toDate } = req.query;
-//     const whereClause = { userId: userId,companyId:req.user.companyId };
-
-//     if (fromDate && toDate) {
-//       whereClause.date = { [Sequelize.Op.between]: [fromDate, toDate] };
-//     }
-
-//     const allData = await C_claimLedger.findAll({
-//       attributes: [
-//         "id",
-//         "userId",
-//         "date",
-//         [
-//           Sequelize.literal(`SUM(CASE 
-//             WHEN \`claimLedger\`.\`amount\` IS NOT NULL THEN \`claimLedger\`.\`amount\`
-//             ELSE CASE WHEN \`claimData\`.\`fromUserId\` = ${userId} THEN \`claimData\`.\`amount\` ELSE 0 END
-//           END)`),
-//           "creditAmount",
-//         ],
-//         [
-//           Sequelize.literal(
-//             `SUM(CASE WHEN \`claimData\`.\`toUserId\` = ${userId} THEN \`claimData\`.\`amount\` ELSE 0 END)`
-//           ),
-//           "debitAmount",
-//         ],
-//       ],
-//       include: [
-//         { model: C_receiveCash, as: "claimLedger", attributes: [] },
-//         { model: C_claim, as: "claimData", attributes: [] },
-//       ],
-//       where:whereClause,
-//       group: ["id"],
-//       order: [["date", "ASC"]],
-//       raw: true,
-//     });
-
-//     let openingBalance = 0;
-//     const enrichedData = allData.map((item) => {
-//       const credit = parseFloat(item.creditAmount);
-//       const debit = parseFloat(item.debitAmount);
-//       const remainingBalance = openingBalance + credit - debit;
-//       const enrichedItem = {
-//         ...item,
-//         openingBalance: openingBalance,
-//         remainingBalance: remainingBalance,
-//       };
-//       openingBalance = remainingBalance;
-//       return enrichedItem;
-//     });
-
-//     const filteredData = enrichedData.filter((item) => {
-//       return !fromDate || item.date >= fromDate;
-//     });
-// console.log("filteredData>>>>>>>",filteredData);
-//     if (filteredData.length > 0) {
-//       return res.status(200).json({
-//         status: "true",
-//         message: "Claim Ledger Show Successfully",
-//         data: filteredData,
-//       });
-//     } else {
-//       return res
-//         .status(404)
-//         .json({ status: "false", message: "Claim Not Found" });
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     return res
-//       .status(500)
-//       .json({ status: "false", message: "Internal Server Error" });
-//   }
-// }; 
 
 exports.view_user_balance = async (req, res) => {
   try {

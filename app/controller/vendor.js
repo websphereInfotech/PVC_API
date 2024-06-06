@@ -91,7 +91,7 @@ exports.create_vendor = async (req, res) => {
       await bankAccount.create(bankdata);
     }
     const vendordata = await vendor.findOne({
-      where: { id: data.id },
+      where: { id: data.id,companyId:req.user.companyId },
       include: [{ model: bankAccount, as: "v_bankdetails" }],
     });
     await C_vendor.create({
@@ -136,7 +136,7 @@ exports.update_vendor = async (req, res) => {
     } = req.body;
 
     const vendorId = await vendor.findOne({
-      where: { id: id },
+      where: { id: id,companyId:req.user.companyId },
       include: [{ model: bankAccount, as: "v_bankdetails" }],
     });
     if (!vendorId) {
@@ -199,7 +199,7 @@ exports.update_vendor = async (req, res) => {
       }
     }
     const data = await vendor.findOne({
-      where: { id: id },
+      where: { id: id,companyId: req.user.companyId },
       include: [{ model: bankAccount, as: "v_bankdetails" }],
     });
     return res.status(200).json({
@@ -244,7 +244,7 @@ exports.get_all_vandor = async (req, res) => {
       where: { companyId: req.user.companyId },
       include: [{ model: bankAccount, as: "v_bankdetails" }],
     });
-    if (data.length > 0) {
+    if (data) {
       return res.status(200).json({
         status: "true",
         message: "Vendor Show Successfully",
@@ -299,7 +299,7 @@ exports.C_get_all_vandor = async (req, res) => {
     const data = await C_vendor.findAll({
       where: { companyId: req.user.companyId },
     });
-    if (data.length > 0) {
+    if (data) {
       return res.status(200).json({
         status: "true",
         message: "Vendor Show Successfully",

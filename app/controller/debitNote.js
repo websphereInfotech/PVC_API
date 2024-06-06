@@ -54,7 +54,9 @@ exports.create_debitNote = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Debit Note Number Already Exists" });
     }
-    const customerData = await customer.findOne({where:{id:customerId,companyId: req.user.companyId}});
+    const customerData = await customer.findOne({
+      where: { id: customerId, companyId: req.user.companyId },
+    });
     if (!customerData) {
       return res
         .status(404)
@@ -67,7 +69,9 @@ exports.create_debitNote = async (req, res) => {
     }
 
     for (const item of items) {
-      const productname = await product.findOne({where:{id:item.productId,companyId: req.user.companyId}});
+      const productname = await product.findOne({
+        where: { id: item.productId, companyId: req.user.companyId },
+      });
       if (!productname) {
         return res
           .status(404)
@@ -95,7 +99,7 @@ exports.create_debitNote = async (req, res) => {
     await debitNoteItem.bulkCreate(addToProduct);
 
     const data = await debitNote.findOne({
-      where: { id: debitNoteData.id ,companyId: req.user.companyId},
+      where: { id: debitNoteData.id, companyId: req.user.companyId },
       include: [{ model: debitNoteItem, as: "items" }],
     });
 
@@ -129,7 +133,9 @@ exports.update_debitNote = async (req, res) => {
       mainTotal,
     } = req.body;
 
-    const existingDebit = await debitNote.findOne({where:{id:id,companyId: req.user.companyId}});
+    const existingDebit = await debitNote.findOne({
+      where: { id: id, companyId: req.user.companyId },
+    });
 
     if (!existingDebit) {
       return res
@@ -137,14 +143,18 @@ exports.update_debitNote = async (req, res) => {
         .json({ status: "false", message: "Debit Note Not Found" });
     }
 
-    const customerData = await customer.findOne({where:{id:customerId,companyId: req.user.companyId}});
+    const customerData = await customer.findOne({
+      where: { id: customerId, companyId: req.user.companyId },
+    });
     if (!customerData) {
       return res
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
     for (const item of items) {
-      const productname = await product.findOne({where:{id:item.productId,companyId: req.user.companyId}});
+      const productname = await product.findOne({
+        where: { id: item.productId, companyId: req.user.companyId },
+      });
       if (!productname) {
         return res
           .status(404)
@@ -223,7 +233,7 @@ exports.update_debitNote = async (req, res) => {
     }
 
     const data = await debitNote.findOne({
-      where: { id:id,companyId: req.user.companyId },
+      where: { id: id, companyId: req.user.companyId },
       include: [{ model: debitNoteItem, as: "items" }],
     });
 
@@ -243,7 +253,7 @@ exports.update_debitNote = async (req, res) => {
 exports.get_all_debitNote = async (req, res) => {
   try {
     const data = await debitNote.findAll({
-    where: { companyId: req.user.companyId},
+      where: { companyId: req.user.companyId },
       include: [
         {
           model: debitNoteItem,

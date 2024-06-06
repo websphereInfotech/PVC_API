@@ -274,7 +274,7 @@ exports.get_all_customer = async (req, res) => {
       where: { companyId: req.user.companyId },
       include: [{ model: bankAccount, as: "bankdetails" }],
     });
-   
+
     if (!data) {
       return res
         .status(404)
@@ -302,13 +302,11 @@ exports.C_get_all_customer = async (req, res) => {
       where: { companyId: req.user.companyId },
     });
     if (data) {
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "Customer Data Fetch Successfully",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "Customer Data Fetch Successfully",
+        data: data,
+      });
     } else {
       return res
         .status(404)

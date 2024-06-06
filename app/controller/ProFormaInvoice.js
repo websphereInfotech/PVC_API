@@ -56,7 +56,7 @@ exports.create_ProFormaInvoice = async (req, res) => {
         message: "ProForma Invoice Number Already Exists",
       });
     }
-    const customerData = await customer.findByPk(customerId);
+    const customerData = await customer.findOne({where:{id:customerId, companyId: req.user.companyId}});
     if (!customerData) {
       return res
         .status(404)
@@ -70,7 +70,7 @@ exports.create_ProFormaInvoice = async (req, res) => {
     }
 
     for (const item of items) {
-      const productname = await product.findByPk(item.productId);
+      const productname = await product.findOne({where:{id:item.productId,companyId: req.user.companyId}});
       if (!productname) {
         return res
           .status(404)
@@ -97,6 +97,7 @@ exports.create_ProFormaInvoice = async (req, res) => {
       companyId,
       createdBy: user,
       updatedBy: user,
+      companyId: req.user.companyId
     });
 
     const addToProduct = items.map((item) => ({
@@ -212,7 +213,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
     } = req.body;
 
     const existingInvoice = await ProFormaInvoice.findOne({
-           where: {id, companyId: req.user.companyId },
+           where: {id:id, companyId: req.user.companyId },
     });
 
     if (!existingInvoice) {

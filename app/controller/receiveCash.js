@@ -1,4 +1,3 @@
-
 const C_claimLedger = require("../models/C_claimLedger");
 const C_customer = require("../models/C_customer");
 const C_customerLedger = require("../models/C_customerLedger");
@@ -19,7 +18,9 @@ exports.C_create_receiveCash = async (req, res) => {
     const user = req.user.userId;
     const { customerId, amount, description, date } = req.body;
 
-    const customerData = await C_customer.findByPk(customerId);
+    const customerData = await C_customer.findOne({
+      where: { id: customerId, companyId: req.user.companyId },
+    });
     if (!customerData) {
       return res
         .status(404)
@@ -39,19 +40,21 @@ exports.C_create_receiveCash = async (req, res) => {
       date,
       createdBy: user,
       updatedBy: user,
+      companyId: req.user.companyId,
     });
 
     await C_customerLedger.create({
-      customerId,
+      companyId: req.user.companyId,
       debitId: data.id,
+      customerId,
       date,
     });
 
     await C_claimLedger.create({
       companyId: req.user.companyId,
-      receiveId:data.id,
-      userId:user,
-      date
+      receiveId: data.id,
+      userId: user,
+      date,
     });
 
     let userBalance = await C_userBalance.findOne({
@@ -62,7 +65,6 @@ exports.C_create_receiveCash = async (req, res) => {
       userBalance.balance += amount;
       await userBalance.save();
     } else {
-    
       userBalance = await C_userBalance.create({
         userId: user,
         companyId: req.user.companyId,
@@ -86,6 +88,7 @@ exports.C_create_receiveCash = async (req, res) => {
 exports.C_get_all_receiveCash = async (req, res) => {
   try {
     const data = await C_receiveCash.findAll({
+      where: { companyId: req.user.companyId },
       include: [
         { model: C_customer, as: "ReceiveCustomer" },
         { model: User, as: "receiveCreate", attributes: ["username"] },
@@ -116,7 +119,7 @@ exports.C_view_receiveCash = async (req, res) => {
   try {
     const { id } = req.params;
     const data = await C_receiveCash.findOne({
-      where: { id: id },
+      where: { id: id, companyId: req.user.companyId },
       include: [{ model: C_customer, as: "ReceiveCustomer" }],
     });
     if (data) {
@@ -144,7 +147,9 @@ exports.C_update_receiveCash = async (req, res) => {
     const { id } = req.params;
     const { customerId, amount, description, date } = req.body;
 
-    const receiveId = await C_receiveCash.findByPk(id);
+    const receiveId = await C_receiveCash.findOne({
+      where: { id: id, companyId: req.user.companyId },
+    });
     if (!receiveId) {
       return res
         .status(404)
@@ -157,29 +162,37 @@ exports.C_update_receiveCash = async (req, res) => {
         amount,
         description,
         date,
-        createdBy:receiveId.createdBy,
-        updatedBy:user
+        createdBy: receiveId.createdBy,
+        updatedBy: user,
+        companyId: req.user.companyId,
       },
       { where: { id: id } }
     );
 
     await C_customerLedger.update(
       {
+        companyId: req.user.companyId,
         customerId,
         date,
       },
       { where: { debitId: id } }
     );
-    await C_claimLedger.update({
-      date
-    },{where:{receiveId:id}});
+    await C_claimLedger.update(
+      {
+        companyId: req.user.companyId,
+        date,
+      },
+      { where: { receiveId: id } }
+    );
 
     await C_userBalance.update({
-      userId:user,
-      companyId:req.user.companyId,
+      userId: user,
+      companyId: req.user.companyId,
       balance: amount,
-    })
-    const data = await C_receiveCash.findByPk(id);
+    });
+    const data = await C_receiveCash.findOne({
+      where: { id: id, companyId: req.user.companyId },
+    });
 
     return res.status(200).json({
       status: "true",
@@ -198,7 +211,9 @@ exports.C_delete_receiveCash = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await C_receiveCash.destroy({ where: { id } });
+    const data = await C_receiveCash.destroy({
+      where: { id: id, companyId: req.user.companyId },
+    });
     if (data) {
       return res
         .status(200)
@@ -238,13 +253,19 @@ exports.create_receive_bank = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Required field : Customer" });
     }
-    const customerData = await customer.findByPk(customerId);
+    const customerData = await customer.findOne({
+      id: customerId,
+      companyId: req.user.companyId,
+    });
     if (!customerData) {
       return res
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
-    const accountData = await companyBankDetails.findByPk(accountId);
+    const accountData = await companyBankDetails.findOne({
+      id: accountId,
+      companyId: req.user.companyId,
+    });
     if (!accountData) {
       return res
         .status(404)
@@ -260,10 +281,11 @@ exports.create_receive_bank = async (req, res) => {
       amount,
       createdBy: user,
       updatedBy: user,
-      companyId:req.user.companyId
+      companyId: req.user.companyId,
     });
 
     await customerLedger.create({
+      companyId: req.user.companyId,
       customerId,
       debitId: data.id,
       date: paymentdate,
@@ -296,19 +318,28 @@ exports.update_receive_bank = async (req, res) => {
       amount,
     } = req.body;
 
-    const receiveBankId = await receiveBank.findByPk(id);
+    const receiveBankId = await receiveBank.findOne({
+      id: id,
+      companyId: req.user.companyId,
+    });
     if (!receiveBankId) {
       return res
         .status(404)
         .json({ status: "false", message: "Receive Bank Not Found" });
     }
-    const customerData = await customer.findByPk(customerId);
+    const customerData = await customer.findOne({
+      id: customerId,
+      companyId: req.user.companyId,
+    });
     if (!customerData) {
       return res
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
-    const accountData = await companyBankDetails.findByPk(accountId);
+    const accountData = await companyBankDetails.findOne({
+      id: accountId,
+      companyId: req.user.companyId,
+    });
     if (!accountData) {
       return res
         .status(404)
@@ -326,6 +357,7 @@ exports.update_receive_bank = async (req, res) => {
         amount,
         createdBy: receiveBankId.createdBy,
         updatedBy: user,
+        companyId: req.user.companyId,
       },
       { where: { id } }
     );
@@ -334,10 +366,13 @@ exports.update_receive_bank = async (req, res) => {
       {
         customerId,
         date: paymentdate,
+        companyId: req.user.companyId,
       },
       { where: { debitId: id } }
     );
-    const data = await receiveBank.findByPk(id);
+    const data = await receiveBank.findOne({
+      where: { id: id, companyId: req.user.companyId },
+    });
 
     return res.status(200).json({
       status: "true",
@@ -355,7 +390,9 @@ exports.delete_receive_bank = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await receiveBank.destroy({ where: { id } });
+    const data = await receiveBank.destroy({
+      where: { id: id, companyId: req.user.companyId },
+    });
 
     if (data) {
       return res
@@ -378,7 +415,7 @@ exports.view_receive_bank = async (req, res) => {
     const { id } = req.params;
 
     const data = await receiveBank.findOne({
-      where: { id },
+      where: { id: id, companyId: req.user.companyId },
       include: [
         { model: customer, as: "customerBank" },
         { model: companyBankDetails, as: "receiveBank" },
@@ -405,6 +442,7 @@ exports.view_receive_bank = async (req, res) => {
 exports.get_all_receive_bank = async (req, res) => {
   try {
     const data = await receiveBank.findAll({
+      where: { companyId: req.user.companyId },
       include: [
         { model: customer, as: "customerBank" },
         { model: companyBankDetails, as: "receiveBank" },

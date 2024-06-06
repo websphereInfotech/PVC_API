@@ -2,6 +2,7 @@ const {DataTypes} = require('sequelize');
 const sequelize = require('../config/index');
 const C_customer = require('./C_customer');
 const User = require('./user');
+const company = require('./company');
 
 const C_receiveCash = sequelize.define('P_C_receiveCash', {
     customerId:{ type: DataTypes.INTEGER},
@@ -13,8 +14,12 @@ const C_receiveCash = sequelize.define('P_C_receiveCash', {
     },
     date: {type: DataTypes.DATEONLY},
     createdBy:{type: DataTypes.INTEGER},
-    updatedBy:{type:DataTypes.INTEGER}
+    updatedBy:{type:DataTypes.INTEGER},
+    companyId: {type: DataTypes.INTEGER}
 });
+
+company.hasMany(C_receiveCash,{foreignKey:'companyId',onDelete:'CASCADE'});
+C_receiveCash.belongsTo(company,{foreignKey:'companyId',onDelete:'CASCADE'});
 
 User.hasMany(C_receiveCash,{foreignKey:'createdBy', as:'receiveCreate'});
 C_receiveCash.belongsTo(User,{foreignKey:'createdBy', as:'receiveCreate'});

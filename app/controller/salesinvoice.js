@@ -17,7 +17,6 @@ const User = require("../models/user");
 exports.create_salesInvoice = async (req, res) => {
   try {
     const userID = req.user.userId;
-    const companyId = req.user.companyId;
     const {
       customerId,
       invoiceno,
@@ -95,8 +94,9 @@ exports.create_salesInvoice = async (req, res) => {
         .json({ status: "false", message: "Required Field Of Items" });
     }
     for (const item of items) {
-      const productname = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId },
+      const productname = await product.findByPk({
+        id: item.productId,
+        companyId: req.user.companyId,
       });
       if (!productname) {
         return res
@@ -126,6 +126,7 @@ exports.create_salesInvoice = async (req, res) => {
       companyId,
       createdBy: userID,
       updatedBy: userID,
+      companyId: req.user.companyId,
     });
     await customerLedger.create({
       customerId,
@@ -194,7 +195,7 @@ exports.view_salesInvoice = async (req, res) => {
     const { id } = req.params;
 
     const data = await salesInvoice.findOne({
-      where: { id, companyId: req.user.companyId },
+      where: { id: id, companyId: req.user.companyId },
       include: [
         {
           model: salesInvoiceItem,
@@ -500,7 +501,9 @@ exports.C_update_salesinvoice = async (req, res) => {
     const { id } = req.params;
     const { customerId, date, totalMrp, items } = req.body;
 
-    const existingInvoice = await C_salesinvoice.findByPk(id);
+    const existingInvoice = await C_salesinvoice.findOne({
+      where: { id: id, companyId: req.user.companyId },
+    });
     if (!existingInvoice) {
       return res.status(404).json({
         status: "false",
@@ -508,7 +511,7 @@ exports.C_update_salesinvoice = async (req, res) => {
       });
     }
     const customerData = await C_customer.findOne({
-      where: {id:customerId, companyId: req.user.companyId },
+      where: { id: customerId, companyId: req.user.companyId },
     });
 
     if (!customerData) {
@@ -517,7 +520,9 @@ exports.C_update_salesinvoice = async (req, res) => {
         .json({ status: "false", message: "Cusomer Not Found" });
     }
     for (const item of items) {
-      const productData = await C_product.findByPk(item.productId);
+      const productData = await C_product.findOne({
+        where: { id: item.productId, companyId: req.user.companyId },
+      });
       if (!productData) {
         return res
           .status(404)
@@ -544,6 +549,7 @@ exports.C_update_salesinvoice = async (req, res) => {
 
     await C_customerLedger.update(
       {
+        companyId: req.user.companyId,
         customerId,
         date,
       },
@@ -596,7 +602,7 @@ exports.C_update_salesinvoice = async (req, res) => {
       await item.destroy();
     }
     const updatedInvoice = await C_salesinvoice.findOne({
-      where: { id },
+      where: { id: id, companyId: req.user.companyId },
       include: [{ model: C_salesinvoiceItem, as: "items" }],
     });
 
@@ -615,6 +621,7 @@ exports.C_update_salesinvoice = async (req, res) => {
 exports.C_get_all_salesInvoice = async (req, res) => {
   try {
     const data = await C_salesinvoice.findAll({
+      where: { companyId: req.user.companyId },
       include: [
         {
           model: C_salesinvoiceItem,
@@ -648,7 +655,7 @@ exports.C_view_salesInvoice = async (req, res) => {
     const { id } = req.params;
 
     const data = await C_salesinvoice.findOne({
-      where: { id },
+      where: { id: id, companyId: req.user.companyId },
       include: [
         {
           model: C_salesinvoiceItem,
@@ -679,7 +686,9 @@ exports.C_view_salesInvoice = async (req, res) => {
 exports.C_delete_salesInvoice = async (req, res) => {
   try {
     const { id } = req.params;
-    const data = await C_salesinvoice.destroy({ where: { id: id } });
+    const data = await C_salesinvoice.destroy({
+      where: { id: id, companyId: req.user.companyId },
+    });
     if (!data) {
       return res
         .status(404)

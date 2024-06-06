@@ -87,7 +87,9 @@ exports.update_product = async (req, res) => {
       cess,
     } = req.body;
 
-    const updatepayment = await product.findByPk(id);
+    const updatepayment = await product.findOne({
+      where: { id: id, companyId: req.user.companyId },
+    });
 
     if (!updatepayment) {
       return res
@@ -119,7 +121,9 @@ exports.update_product = async (req, res) => {
         where: { id: id },
       }
     );
-    const data = await product.findByPk(id);
+    const data = await product.findOne({
+      where: { id: id, companyId: req.user.companyId },
+    });
     return res.status(200).json({
       status: "true",
       message: "Product Updated Successfully",

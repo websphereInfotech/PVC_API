@@ -61,13 +61,11 @@ exports.create_user = async (req, res) => {
     });
 
     // await user.addCompany(req.user.companyId);
-    await companyUser.create(
-      {
-          userId: user.id,
-          companyId: req.user.companyId,
-          setDefault: true
-      }
-    );
+    await companyUser.create({
+      userId: user.id,
+      companyId: req.user.companyId,
+      setDefault: true,
+    });
 
     return res
       .status(200)
@@ -352,13 +350,11 @@ exports.check_user = async (req, res) => {
       attributes: { exclude: ["password"] },
     });
 
-    return res
-      .status(200)
-      .json({
-        status: "true",
-        message: "User Data Fetch Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "User Data Fetch Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -372,8 +368,10 @@ exports.add_user = async (req, res) => {
     const companyId = req.user.companyId;
 
     const user = await User.findByPk(id);
-    if(!user) {
-      return res.status(404).json({ status:'false', message:'User Not Found'});
+    if (!user) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "User Not Found" });
     }
     const data = await companyUser.findOne({
       where: { companyId: companyId, userId: id },
@@ -396,18 +394,26 @@ exports.add_user = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-exports.view_all_userTOComapny =  async (req,res) => {
+exports.view_all_userTOComapny = async (req, res) => {
   try {
     const userId = req.user.userId;
 
     const data = await User.findByPk(userId, {
       attributes: { exclude: ["password"] },
-      include: [{ model: company, as: 'companies', through:{attributes:['setDefault']}}]
+      include: [{ model: company, as: "users" }],
     });
-    if(data) {
-      return res.status(200).json({ status:'true', message:'User To Comapny Fetch Successfully',data:data});
+    if (data) {
+      return res
+        .status(200)
+        .json({
+          status: "true",
+          message: "User To Comapny Fetch Successfully",
+          data: data,
+        });
     } else {
-      return res.status(404).json({ status:'false', message:'User conneted Company Not Found'});
+      return res
+        .status(404)
+        .json({ status: "false", message: "User conneted Company Not Found" });
     }
   } catch (error) {
     console.log(error);
@@ -415,4 +421,4 @@ exports.view_all_userTOComapny =  async (req,res) => {
       .status(500)
       .json({ status: "false", message: "Internal Server Error" });
   }
-}
+};

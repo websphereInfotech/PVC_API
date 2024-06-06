@@ -117,21 +117,20 @@ exports.C_get_vendorLedger = async (req, res) => {
 /*=============================================================================================================
                                           without Typc C API
  ============================================================================================================ */
-
-exports.get_vendorLedger = async (req, res) => {
+ exports.get_vendorLedger = async (req, res) => {
   try {
     const { id } = req.params;
     const { formDate, toDate } = req.query;
 
-    const quaryData = { vendorId: id };
+    const queryData = { vendorId: id };
     const companyId = req.user.companyId;
 
     if (companyId) {
-      quaryData.companyId = companyId;
+      queryData.companyId = companyId;
     }
 
     if (formDate && toDate) {
-      quaryData.date = {
+      queryData.date = {
         [Sequelize.Op.between]: [formDate, toDate],
       };
     }
@@ -156,7 +155,7 @@ exports.get_vendorLedger = async (req, res) => {
                     LEFT OUTER JOIN \`P_purchaseInvoices\` AS invoiceVendor ON cl2.creditId = invoiceVendor.id
                     LEFT OUTER JOIN \`P_paymentBanks\` AS paymentVendor ON cl2.debitId = paymentVendor.id
                   WHERE
-                    cl2.vendorId = \`P_vendorLedger\`.\`vendorId\`
+                    cl2.companyId = :companyId
                     AND (cl2.date < \`P_vendorLedger\`.\`date\` OR (cl2.date = \`P_vendorLedger\`.\`date\` AND cl2.id < \`P_vendorLedger\`.\`id\`))
                 )
               `),
@@ -164,18 +163,18 @@ exports.get_vendorLedger = async (req, res) => {
         ],
         [
           Sequelize.literal(`
-          (
-            SELECT
-              IFNULL(SUM(IFNULL(invoiceVendor.totalMrp, 0) - IFNULL(paymentVendor.amount, 0)), 0)
-            FROM
-              \`P_vendorLedgers\` AS cl2
-              LEFT OUTER JOIN \`P_purchaseInvoices\` AS invoiceVendor ON cl2.creditId = invoiceVendor.id
-              LEFT OUTER JOIN \`P_paymentBanks\` AS paymentVendor ON cl2.debitId = paymentVendor.id
-            WHERE
-              cl2.vendorId = \`P_vendorLedger\`.\`vendorId\`
-              AND (cl2.date < \`P_vendorLedger\`.\`date\` OR (cl2.date = \`P_vendorLedger\`.\`date\` AND cl2.id < \`P_vendorLedger\`.\`id\`))
-          ) + IFNULL(invoiceVendor.totalMrp, 0) - IFNULL(paymentVendor.amount, 0)
-        `),
+              (
+                SELECT
+                  IFNULL(SUM(IFNULL(invoiceVendor.totalMrp, 0) - IFNULL(paymentVendor.amount, 0)), 0)
+                FROM
+                  \`P_vendorLedgers\` AS cl2
+                  LEFT OUTER JOIN \`P_purchaseInvoices\` AS invoiceVendor ON cl2.creditId = invoiceVendor.id
+                  LEFT OUTER JOIN \`P_paymentBanks\` AS paymentVendor ON cl2.debitId = paymentVendor.id
+                WHERE
+                  cl2.companyId = :companyId
+                  AND (cl2.date < \`P_vendorLedger\`.\`date\` OR (cl2.date = \`P_vendorLedger\`.\`date\` AND cl2.id < \`P_vendorLedger\`.\`id\`))
+              ) + IFNULL(invoiceVendor.totalMrp, 0) - IFNULL(paymentVendor.amount, 0)
+            `),
           "remainingBalance",
         ],
       ],
@@ -193,12 +192,14 @@ exports.get_vendorLedger = async (req, res) => {
           as: "vendorData",
         },
       ],
-      where: quaryData,
+      where: queryData, // Use queryData object directly
       order: [
         ["date", "ASC"],
         ["id", "ASC"],
       ],
+      replacements: { companyId }, // Pass companyId as replacements
     });
+    
 
     if (data) {
       return res.status(200).json({
@@ -218,3 +219,106 @@ exports.get_vendorLedger = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
+
+
+// exports.get_vendorLedger = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { formDate, toDate } = req.query;
+
+//     const quaryData = { vendorId: id };
+//     const companyId = req.user.companyId;
+
+//     if (companyId) {
+//       quaryData.companyId = companyId;
+//     }
+
+//     if (formDate && toDate) {
+//       quaryData.date = {
+//         [Sequelize.Op.between]: [formDate, toDate],
+//       };
+//     }
+
+//     const data = await vendorLedger.findAll({
+//       attributes: [
+//         "vendorId",
+//         "date",
+//         "id",
+//         [Sequelize.literal("IFNULL(paymentVendor.amount, 0)"), "debitAmount"],
+//         [
+//           Sequelize.literal("IFNULL(invoiceVendor.totalMrp, 0)"),
+//           "creditAmount",
+//         ],
+//         [
+//           Sequelize.literal(`
+//                 (
+//                   SELECT
+//                     IFNULL(SUM(IFNULL(invoiceVendor.totalMrp, 0) - IFNULL(paymentVendor.amount, 0)), 0)
+//                   FROM
+//                     \`P_vendorLedgers\` AS cl2
+//                     LEFT OUTER JOIN \`P_purchaseInvoices\` AS invoiceVendor ON cl2.creditId = invoiceVendor.id
+//                     LEFT OUTER JOIN \`P_paymentBanks\` AS paymentVendor ON cl2.debitId = paymentVendor.id
+//                   WHERE
+//                     cl2.vendorId = \`P_vendorLedger\`.\`vendorId\`
+//                     AND (cl2.date < \`P_vendorLedger\`.\`date\` OR (cl2.date = \`P_vendorLedger\`.\`date\` AND cl2.id < \`P_vendorLedger\`.\`id\`))
+//                 )
+//               `),
+//           "openingBalance",
+//         ],
+//         [
+//           Sequelize.literal(`
+//           (
+//             SELECT
+//               IFNULL(SUM(IFNULL(invoiceVendor.totalMrp, 0) - IFNULL(paymentVendor.amount, 0)), 0)
+//             FROM
+//               \`P_vendorLedgers\` AS cl2
+//               LEFT OUTER JOIN \`P_purchaseInvoices\` AS invoiceVendor ON cl2.creditId = invoiceVendor.id
+//               LEFT OUTER JOIN \`P_paymentBanks\` AS paymentVendor ON cl2.debitId = paymentVendor.id
+//             WHERE
+//               cl2.vendorId = \`P_vendorLedger\`.\`vendorId\`
+//               AND (cl2.date < \`P_vendorLedger\`.\`date\` OR (cl2.date = \`P_vendorLedger\`.\`date\` AND cl2.id < \`P_vendorLedger\`.\`id\`))
+//           ) + IFNULL(invoiceVendor.totalMrp, 0) - IFNULL(paymentVendor.amount, 0)
+//         `),
+//           "remainingBalance",
+//         ],
+//       ],
+//       include: [
+//         {
+//           model: purchaseInvoice,
+//           as: "invoiceVendor",
+//         },
+//         {
+//           model: paymentBank,
+//           as: "paymentVendor",
+//         },
+//         {
+//           model: vendor,
+//           as: "vendorData",
+//         },
+//       ],
+//       where: quaryData,
+//       order: [
+//         ["date", "ASC"],
+//         ["id", "ASC"],
+//       ],
+//     });
+
+//     if (data) {
+//       return res.status(200).json({
+//         status: "true",
+//         message: "Vendor Ledger Data Fetch Successfully",
+//         data: data,
+//       });
+//     } else {
+//       return res
+//         .status(404)
+//         .json({ status: "false", message: "Vendor Ledger Not Found" });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     return res
+//       .status(500)
+//       .json({ status: "false", message: "Internal Server Error" });
+//   }
+// };
