@@ -94,9 +94,9 @@ module.exports = {
     const companyId = 1; 
 
     const existingPermissions = await queryInterface.sequelize.query(
-      "SELECT * FROM P_permissions WHERE companyId = :companyId AND permission = :permission",
+      "SELECT * FROM P_permissions WHERE companyId = :companyId",
       {
-        replacements: { companyId: companyId, permission: 'permission' }, 
+        replacements: { companyId: companyId },
         type: Sequelize.QueryTypes.SELECT,
       }
     );
@@ -117,14 +117,15 @@ module.exports = {
         for (const permissionKey in permissionsForRole) {
           const permissionValue = permissionsForRole[permissionKey];
           const permissionIdentifier = `${role}-${resource}-${permissionKey}`;
-          const type = resource.includes("Cash");
+
           if (!existingPermissionSet.has(permissionIdentifier)) {
+            const type = resource.includes("Cash") ? true : false;
             promises.push({
               role: role,
               resource: resource,
               permission: permissionKey,
               permissionValue: permissionValue,
-              type: type,
+              type:type,
               companyId: companyId,
               createdAt: new Date(),
               updatedAt: new Date(),
@@ -142,3 +143,4 @@ module.exports = {
     return queryInterface.bulkDelete("P_permissions", null, {});
   },
 };
+

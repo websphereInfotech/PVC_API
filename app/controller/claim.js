@@ -432,6 +432,7 @@ exports.view_claimBalance_ledger = async (req, res) => {
       include: [
         { model: C_receiveCash, as: "claimLedger", attributes: [] },
         { model: C_claim, as: "claimData", attributes: [] },
+        { model: User, as:'claimUser', attributes:['username'] }
       ],
       where: whereClause,
       group: ["id"],
@@ -453,7 +454,7 @@ exports.view_claimBalance_ledger = async (req, res) => {
           { model: C_receiveCash, as: "claimLedger", attributes: [] },
           { model: C_claim, as: "claimData", attributes: [] },
         ],
-        where: { userId: userId, companyId: req.user.companyId, date: { [Sequelize.Op.lt]: fromDate } },
+        where: { userId: userId, companyId: req.user.companyId, date: { [Sequelize.Op.lt]: fromDate }},
         raw: true,
       });
     
