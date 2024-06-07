@@ -9,7 +9,7 @@ const existingData = async () => {
     let existingUser = await User.findOne({
       where: { username: "Vipul Ghelani" },
     });
-    console.log("existingUser>>>>>>>>>>>>>", existingUser);
+ 
     if (!existingUser) {
       existingUser = await User.create({
         username: "Vipul Ghelani",
@@ -25,7 +25,7 @@ const existingData = async () => {
     let existingCompany = await company.findOne({
       where: { companyname: "Shree Krishna Industry" },
     });
-    console.log("existingCompany>>>>>>>>>>>>>", existingCompany);
+
     if (!existingCompany) {
       existingCompany = await company.create({
         companyname: "Shree Krishna Industry",
@@ -68,17 +68,10 @@ const existingPermission = async () => {
           const permissionsForRole = rolePermissions[role];
 
           for (const permissionKey in permissionsForRole) {
-            console.log(permissionsForRole, permissionKey,"Permission Key")
+           
             const permissionValue = permissionsForRole[permissionKey];
             const type = resource.includes("Cash") ? true : false;
-            console.log({
-              role,
-              resource,
-              companyId: comapy.id,
-              type,
-              permissionKey,
-              permissionValue,
-            });
+    
             const isPermissionExist = await Permissions.findOne({
               where: {
                 role: role,

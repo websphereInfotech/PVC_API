@@ -60,7 +60,6 @@ exports.create_user = async (req, res) => {
       salary: salary,
     });
 
-    // await user.addCompany(req.user.companyId);
     await companyUser.create({
       userId: user.id,
       companyId: req.user.companyId,
