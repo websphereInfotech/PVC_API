@@ -1,9 +1,16 @@
+const C_companyBalance = require("../models/C_companyBalance");
 const admintoken = require("../models/admintoken");
 const company = require("../models/company");
+const companyBalance = require("../models/companyBalance");
+const companyBankBalance = require("../models/companyBankBalance");
 const companyBankDetails = require("../models/companyBankDetails");
 const companyUser = require("../models/companyUser");
 const permissionAdd = require("../util/permissions");
 const jwt = require("jsonwebtoken");
+
+/*=============================================================================================================
+                                        Without Typc C API
+ ============================================================================================================ */
 
 exports.create_company = async (req, res) => {
   try {
@@ -46,6 +53,12 @@ exports.create_company = async (req, res) => {
     await data.addUser(userId);
 
     permissionAdd(data.id);
+
+    await companyUser.create({
+      companyId: req.user.companyId,
+      balance: 0,
+    });
+    
     return res.status(200).json({
       status: "true",
       message: "Company Create Successfully",
@@ -229,6 +242,84 @@ exports.set_default_comapny = async (req, res) => {
         data: data,
         token,
       });
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+exports.view_company_balance = async (req, res) => {
+  try {
+    const data = await companyBalance.findOne({
+      where: { companyId: req.user.companyId },
+    });
+
+    if (data) {
+      return res.status(200).json({
+        status: "true",
+        message: "Company Balance Show Successfully",
+        data: data,
+      });
+    } else {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Company Balance Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+exports.view_single_company_balance = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await companyBankBalance.findOne({
+      where: {
+        companyId: req.user.companyId,
+        accountId: id,
+      },
+    });
+    if (data) {
+      return res.status(200).json({
+        status: "true",
+        message: "Company Balance Show Successfully",
+        data: data,
+      });
+    } else {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Company Balance Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+/*=============================================================================================================
+                                             Typc C API
+ ============================================================================================================ */
+
+exports.view_company_cash_balance = async (req, res) => {
+  try {
+    const data = await C_companyBalance.findOne({
+      where: { companyId: req.user.companyId },
+    });
+    if (data) {
+      return res.status(200).json({
+        status: "true",
+        message: "Company Cash Balance Show Successfuly",
+        data: data,
+      });
+    } else {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Company Cash Balance Not Found" });
     }
   } catch (error) {
     console.log(error);

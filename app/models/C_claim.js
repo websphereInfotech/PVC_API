@@ -13,6 +13,7 @@ const C_claim = sequelize.define("P_C_claim", {
     type: DataTypes.ENUM("Salary", "Advance", "Expense"),
   },
   companyId: { type: DataTypes.INTEGER },
+  date: {type: DataTypes.DATEONLY}
 });
 company.hasMany(C_claim, { foreignKey: "companyId", onDelete: "CASCADE" });
 C_claim.belongsTo(company, { foreignKey: "companyId", onDelete: "CASCADE" });

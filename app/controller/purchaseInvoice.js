@@ -30,6 +30,12 @@ exports.create_purchaseInvoice = async (req, res) => {
       items,
     } = req.body;
 
+    if (!vendorId || vendorId === "" || vendorId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Vendor" });
+    }
+
     const vendorData = await vendor.findOne({
       where: { id: vendorId, companyId: req.user.companyId },
     });
@@ -123,6 +129,11 @@ exports.update_purchaseInvoice = async (req, res) => {
         status: "false",
         message: "Purchase Invoice Not Found",
       });
+    }
+    if (!vendorId || vendorId === "" || vendorId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Vendor" });
     }
     const vendorData = await vendor.findOne({
       where: { id: vendorId, companyId: req.user.companyId },
@@ -337,6 +348,12 @@ exports.C_create_purchaseCash = async (req, res) => {
     const vendorData = await C_vendor.findOne({
       where: { id: vendorId, companyId: req.user.companyId },
     });
+
+    if (!vendorId || vendorId === "" || vendorId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Vendor" });
+    }
     if (!vendorData) {
       return res
         .status(404)
@@ -413,6 +430,11 @@ exports.C_update_purchaseCash = async (req, res) => {
         status: "false",
         message: "Purchase Invoice Not Found",
       });
+    }
+    if (!vendorId || vendorId === "" || vendorId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Vendor" });
     }
     const vendorData = await C_vendor.findOne({
       where: { id: vendorId, companyId: req.user.companyId },

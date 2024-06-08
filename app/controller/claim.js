@@ -201,7 +201,8 @@ exports.isapproved_claim = async (req, res) => {
       });
     }
     data.isApproved = isApproved;
-
+    data.date = new Date();
+    
     await data.save();
 
     await C_claimLedger.create({
@@ -336,21 +337,22 @@ exports.view_claimBalance_ledger = async (req, res) => {
           ),
           "debitAmount",
         ],
+        [
+          Sequelize.literal("COALESCE(`claimLedger->ReceiveCustomer`.`customername`, `claimData->toUser`.`username`, 'Unknown')"), 
+          "name"
+        ]
       ],
-      // include: [
-      //   { model: C_receiveCash, as: "claimLedger",attributes:[]},
-      //   { model: C_claim, as: "claimData",attributes:[]},
-      //   { model: User, as:'claimUser', attributes:['username'] }
-      // ],
       include: [
-        { model: C_receiveCash, as: "claimLedger",attributes:[],include: [{ model: C_customer, as: "ReceiveCustomer", attributes: ["customername"] }] },
-        { model: C_claim, as: "claimData", attributes: [], include: [{ model: User, as: 'toUser', attributes: ['username'] }] },
+        { model: C_receiveCash, as: "claimLedger",attributes:[],include: [{ model: C_customer, as: "ReceiveCustomer", attributes: [] }] },
+        { model: C_claim, as: "claimData", attributes: [], include: [{ model: User, as: 'toUser', attributes: [] }] },
       ],
       where: whereClause,
       group: ["id"],
       order: [["date", "ASC"]],
-      raw: true,
+      raw: true
     });
+    
+    
 
     let openingBalance = 0;
 

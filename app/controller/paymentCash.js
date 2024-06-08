@@ -1,6 +1,9 @@
+const C_companyBalance = require("../models/C_companyBalance");
 const C_PaymentCash = require("../models/C_paymentCash");
 const C_vendor = require("../models/C_vendor");
 const C_vendorLedger = require("../models/C_vendorLedger");
+const companyBalance = require("../models/companyBalance");
+const companyBankBalance = require("../models/companyBankBalance");
 const companyBankDetails = require("../models/companyBankDetails");
 const companyBankLedger = require("../models/companyBankLedger");
 const paymentBank = require("../models/paymentBank");
@@ -17,6 +20,11 @@ exports.C_create_paymentCash = async (req, res) => {
     const user = req.user.userId;
     const { vendorId, amount, description, date } = req.body;
 
+    if (!vendorId || vendorId === "" || vendorId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Vendor" });
+    }
     const vendorData = await C_vendor.findOne({
       where: { id: vendorId, companyId: req.user.companyId },
     });
@@ -48,6 +56,14 @@ exports.C_create_paymentCash = async (req, res) => {
       date,
       companyId: req.user.companyId,
     });
+
+    const existingBalance = await C_companyBalance.findOne({
+      where: { companyId: req.user.companyId },
+    });
+    if (existingBalance) {
+      existingBalance.balance -= amount;
+      await existingBalance.save();
+    }
     return res.status(200).json({
       status: "true",
       message: "Payment Cash Create Successfully",
@@ -123,6 +139,11 @@ exports.C_update_paymentCash = async (req, res) => {
     const { id } = req.params;
     const { vendorId, amount, description, date } = req.body;
 
+    if (!vendorId || vendorId === "" || vendorId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Vendor" });
+    }
     const vendorData = await C_vendor.findOne({
       where: { id: vendorId, companyId: req.user.companyId },
     });
@@ -161,6 +182,19 @@ exports.C_update_paymentCash = async (req, res) => {
       { where: { debitId: id } }
     );
 
+    const existingBalance = await C_companyBalance.findOne({
+      where: { companyId: req.user.companyId },
+    });
+
+    const balanceChange = amount - paymentId.amount;
+    const newBalance = existingBalance.balance - balanceChange;
+
+    await C_companyBalance.update(
+      {
+        balance: newBalance,
+      },
+      { where: { companyId: req.user.companyId } }
+    );
     const data = await C_PaymentCash.findOne({
       where: { id: id, companyId: req.user.companyId },
     });
@@ -266,6 +300,23 @@ exports.create_payment_bank = async (req, res) => {
       debitId: data.id,
       date: paymentdate,
     });
+
+    const existsingBalance = await companyBalance.findOne({
+      where: { companyId: req.user.companyId },
+    });
+    if (existsingBalance) {
+      existsingBalance.balance -= amount;
+      await existsingBalance.save();
+    }
+
+    const balanceExists = await companyBankBalance.findOne({
+      where: { companyId: req.user.companyId, accountId: accountId },
+    });
+    if (balanceExists) {
+      balanceExists.balance -= amount;
+      await balanceExists.save();
+    }
+
     return res.status(200).json({
       status: "true",
       message: "Bank Payment Create Successfully",
@@ -300,7 +351,11 @@ exports.update_payment_bank = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Bank Payment Not Found" });
     }
-
+    if (!vendorId || vendorId === "" || vendorId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Vendor" });
+    }
     const vendordata = await vendor.findOne({
       where: { id: vendorId, companyId: req.user.companyId },
     });
@@ -349,7 +404,33 @@ exports.update_payment_bank = async (req, res) => {
       },
       { where: { debitId: id } }
     );
+    const existingBalance = await companyBalance.findOne({
+      where: { companyId: req.user.companyId },
+    });
 
+    const balanceChange = amount - paymentdata.amount;
+    const newBalance = existingBalance.balance - balanceChange;
+
+    await companyBalance.update(
+      {
+        balance: newBalance,
+      },
+      { where: { companyId: req.user.companyId } }
+    );
+
+    const balanceExists = await companyBankBalance.findOne({
+      where: { accountId: accountId, companyId: req.user.companyId },
+    });
+
+    const changeBalance = amount - paymentdata.amount;
+    const balanceNew = balanceExists.balance - changeBalance;
+
+    await companyBankBalance.update(
+      {
+        balance: balanceNew,
+      },
+      { where: { companyId: req.user.companyId, accountId: accountId } }
+    );
     const data = await paymentBank.findOne({
       where: { id: id, companyId: req.user.companyId },
     });

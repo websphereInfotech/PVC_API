@@ -79,6 +79,11 @@ exports.create_salesInvoice = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Invoice Number Already Exists" });
     }
+    if (!customerId || customerId === "" || customerId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Customer" });
+    }
     const customerData = await customer.findOne({
       where: { id: customerId, companyId: req.user.companyId },
     });
@@ -95,10 +100,10 @@ exports.create_salesInvoice = async (req, res) => {
     }
     for (const item of items) {
       const productname = await product.findOne({
-       where: {
-        id: item.productId,
-        companyId: req.user.companyId,
-       }
+        where: {
+          id: item.productId,
+          companyId: req.user.companyId,
+        },
       });
       if (!productname) {
         return res
@@ -259,6 +264,11 @@ exports.update_salesInvoice = async (req, res) => {
       return res
         .status(404)
         .json({ status: "false", message: "Sales Invoice Not Found" });
+    }
+    if (!customerId || customerId === "" || customerId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Customer" });
     }
     const customerData = await customer.findOne({
       where: { id: customerId, companyId: req.user.companyId },
@@ -433,6 +443,11 @@ exports.C_create_salesinvoice = async (req, res) => {
     const user = req.user.userId;
     const { customerId, date, totalMrp, items } = req.body;
 
+    if (!customerId || customerId === "" || customerId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Customer" });
+    }
     const customerData = await C_customer.findOne({
       where: { id: customerId, companyId: req.user.companyId },
     });
@@ -480,7 +495,7 @@ exports.C_create_salesinvoice = async (req, res) => {
     await C_salesinvoiceItem.bulkCreate(addToProduct);
 
     const data = await C_salesinvoice.findOne({
-      where: { id: salesInvoiceData.id,companyId: req.user.companyId },
+      where: { id: salesInvoiceData.id, companyId: req.user.companyId },
       include: [{ model: C_salesinvoiceItem, as: "items" }],
     });
     return res.status(200).json({
@@ -502,6 +517,11 @@ exports.C_update_salesinvoice = async (req, res) => {
     const { id } = req.params;
     const { customerId, date, totalMrp, items } = req.body;
 
+    if (!customerId || customerId === "" || customerId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Customer" });
+    }
     const existingInvoice = await C_salesinvoice.findOne({
       where: { id: id, companyId: req.user.companyId },
     });

@@ -22,6 +22,13 @@ exports.create_debitNote = async (req, res) => {
     const existingCredit = await debitNote.findOne({
       where: { debitnoteno: debitnoteno, companyId: req.user.companyId },
     });
+
+    if (existingCredit) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Debit Note Number Already Exists" });
+    }
+
     // for (const item of items) {
     //   const mrp = item.qty * item.rate;
     //   if (item.mrp !== mrp) {
@@ -49,10 +56,10 @@ exports.create_debitNote = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Purchae Invoice Not Found" });
     }
-    if (existingCredit) {
+    if (!customerId || customerId === "" || customerId === null) {
       return res
         .status(400)
-        .json({ status: "false", message: "Debit Note Number Already Exists" });
+        .json({ status: "false", message: "Required filed :Customer" });
     }
     const customerData = await customer.findOne({
       where: { id: customerId, companyId: req.user.companyId },
@@ -142,7 +149,11 @@ exports.update_debitNote = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Debit Note Not Found" });
     }
-
+    if (!customerId || customerId === "" || customerId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Customer" });
+    }
     const customerData = await customer.findOne({
       where: { id: customerId, companyId: req.user.companyId },
     });

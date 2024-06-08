@@ -4,11 +4,13 @@ const companyBankDetails = require("../models/companyBankDetails");
 const companyBankLedger = require("../models/companyBankLedger");
 const paymentBank = require("../models/paymentBank");
 const receiveBank = require("../models/receiveBank");
+const companyBankBalance = require("../models/companyBankBalance");
 
 exports.create_company_bankDetails = async (req, res) => {
   try {
+   const companyId  = req.user.companyId;
     const {
-      companyId,
+      // companyId,
       accountname,
       bankname,
       accountnumber,
@@ -17,11 +19,11 @@ exports.create_company_bankDetails = async (req, res) => {
       nickname,
     } = req.body;
 
-    if (companyId === "" || companyId === undefined || companyId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required Feild:Comapny" });
-    }
+    // if (companyId === "" || companyId === undefined || companyId === null) {
+    //   return res
+    //     .status(400)
+    //     .json({ status: "false", message: "Required Feild:Comapny" });
+    // }
     const companyData = await company.findByPk(companyId);
     if (!companyData) {
       return res
@@ -52,6 +54,12 @@ exports.create_company_bankDetails = async (req, res) => {
       ifsccode,
       branch,
       nickname,
+    });
+
+    await companyBankBalance.create({
+      companyId: req.user.companyId,
+      accountId:data.id,
+      balance:0
     });
     return res.status(200).json({
       status: "true",
@@ -182,74 +190,6 @@ exports.view_all_company_bankDetails = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-// exports.view_company_bankLedger = async (req, res) => {
-//   try {
-//     const data = await companyBankLedger.findAll({
-//       where: { companyId: req.user.companyId },
-//       include: [
-//         {
-//           model: receiveBank,
-//           as: 'receiveData',
-//           attributes: []
-//         },
-//         {
-//           model: paymentBank,
-//           as: 'paymentdata',
-//           attributes: []
-//         }
-//       ],
-//       attributes: {
-//         include: [
-//           [Sequelize.literal("IFNULL(paymentdata.amount, 0)"), "debitAmount"],
-//           [Sequelize.literal("IFNULL(receiveData.amount, 0)"), "creditAmount"],
-//          [
-//             Sequelize.literal(`(
-//               SELECT IFNULL(SUM(r.amount) - SUM(p.amount), 0)
-//               FROM P_companyBankLedgers AS cbl
-//               LEFT JOIN P_receiveBanks AS r ON cbl.creditId = r.id
-//               LEFT JOIN P_paymentBanks AS p ON cbl.debitId = p.id
-//               WHERE cbl.companyId = P_companyBankLedger.companyId
-//               AND (cbl.date < P_companyBankLedger.date OR (cbl.date = P_companyBankLedger.date AND cbl.id < P_companyBankLedger.id))
-//             )`), 
-//             "openingBalance"
-//           ],
-//           [
-//             Sequelize.literal(`
-//               IFNULL(
-//                 (
-//                   SELECT IFNULL(MAX(remainingBalance), 0) 
-//                   FROM (
-//                     SELECT 
-//                       IFNULL(SUM(r.amount) - SUM(p.amount), 0) + IFNULL(receiveData.amount, 0) - IFNULL(paymentdata.amount, 0) AS remainingBalance
-//                     FROM P_companyBankLedgers AS cbl
-//                     LEFT JOIN P_receiveBanks AS r ON cbl.creditId = r.id
-//                     LEFT JOIN P_paymentBanks AS p ON cbl.debitId = p.id
-//                     WHERE cbl.companyId = P_companyBankLedger.companyId
-//                     AND (cbl.date < P_companyBankLedger.date OR (cbl.date = P_companyBankLedger.date AND cbl.id <= P_companyBankLedger.id))
-//                   ) AS subquery
-//                   WHERE subquery.id < P_companyBankLedger.id
-//                 ), 
-//                 0
-//               )
-//             `),
-//             "remainingBalance"
-//           ],
-                             
-//         ]
-//       },
-//       order: [['date', 'ASC'], ['id', 'ASC']]
-//     });
-//     if (data) {
-//       return res.status(200).json({ status: 'true', message: 'Bank Data Show Successfully', data: data });
-//     } else {
-//       return res.status(404).json({ status: 'false', message: 'Bank Data Not Found' });
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(500).json({ status: 'false', message: 'Internal Server Error' });
-//   }
-// };
-
 exports.view_company_bankLedger = async (req, res) => {
   try {
     const {fromDate , toDate } = req.query;
@@ -317,4 +257,3 @@ exports.view_company_bankLedger = async (req, res) => {
     return res.status(500).json({ status: 'false', message: 'Internal Server Error' });
   }
 };
-

@@ -2,14 +2,16 @@ const company = require("../models/company");
 const User = require("../models/user");
 const CompanyUser = require("../models/companyUser");
 const Permissions = require("../models/permission");
-const { permissions } = require('../middleware/permissions');
+const { permissions } = require("../middleware/permissions");
+const companyBalance = require("../models/companyBalance");
+const C_userBalance = require("../models/C_userBalance");
 
 const existingData = async () => {
   try {
     let existingUser = await User.findOne({
       where: { username: "Vipul Ghelani" },
     });
- 
+
     if (!existingUser) {
       existingUser = await User.create({
         username: "Vipul Ghelani",
@@ -50,6 +52,26 @@ const existingData = async () => {
         setDefault: true,
       });
     }
+    const existingBalance = await C_userBalance.findOne({
+      where: { userId: existingUser.id, companyId: existingCompany.id },
+    });
+    if(!existingBalance) {
+      await C_userBalance.create({
+        userId: existingUser.id, 
+        companyId: existingCompany.id,
+        balance:0 
+      });
+    }
+
+    const balanceExists = await companyBalance.findOne({
+      where:{companyId: existingCompany.id},   
+    });
+    if(!balanceExists) {
+      await companyBalance.create({
+        companyId: existingCompany.id,
+        balance:0
+      });
+    }
   } catch (error) {
     console.log(error);
   }
@@ -68,10 +90,9 @@ const existingPermission = async () => {
           const permissionsForRole = rolePermissions[role];
 
           for (const permissionKey in permissionsForRole) {
-           
             const permissionValue = permissionsForRole[permissionKey];
             const type = resource.includes("Cash") ? true : false;
-    
+
             const isPermissionExist = await Permissions.findOne({
               where: {
                 role: role,

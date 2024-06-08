@@ -10,23 +10,23 @@ module.exports.validation = function (method) {
         case "update_user":
             return [email, mobileno]
         case "create_deliverychallan":
-            return [challanno, date, customerId,qty, productId]
+            return [challanno, date, qty, productId]
         case "create_expense":
-            return [mobileno, customerId, voucherno, date, mobileno, email, billno, billdate, payment, expensse, description, taxable, mrp]
+            return [mobileno,  voucherno, date, mobileno, email, billno, billdate, payment, expensse, description, taxable, mrp]
         case "create_payment":
             return [voucherno, account, email, paymentdate, mode, paidfrom, refno, billno, amount]
         case "create_purchase":
-            return [ProFormaInvoice_no, date, email, mobileno, quotationref, pono, customerId]
+            return [ProFormaInvoice_no, date, email, mobileno, quotationref, pono ]
         case "create_purchaseitem":
             return [ rate, qty, productId, discount, mrp]
         case "create_ProFormaInvoice":
-            return [ProFormaInvoice_no, date, validtill, customerId, rate, qty, productId]
+            return [ProFormaInvoice_no,terms, date, validtill,  rate, qty, productId]
         case "create_salesinvoice":
-            return [customerId, invoiceno, invoicedate, productId, rate, qty]
+            return [ invoiceno,terms, invoicedate, productId, rate, qty]
         case "create_debitNote":
-            return [customerId, debitnoteno,debitdate,invoicedate, productId, qty,mrp,rate]
+            return [ debitnoteno,debitdate,invoicedate, productId, qty,mrp,rate]
         case "create_creditNote":
-            return [customerId,creditnoteNo,creditdate,org_invoiceno,org_invoicedate, productId,rate,qty]
+            return [creditnoteNo,creditdate,org_invoiceno,org_invoicedate, productId,rate,qty]
         case "create_stoke":
             return [itemname, unit, email,]
         case "create_customer":

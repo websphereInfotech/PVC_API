@@ -29,6 +29,7 @@ exports.create_product = async (req, res) => {
       cess,
     } = req.body;
 
+    
     const data = await product.create({
       itemtype,
       productname,

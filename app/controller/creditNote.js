@@ -23,7 +23,11 @@ exports.create_creditNote = async (req, res) => {
       totalQty,
       items,
     } = req.body;
-
+    if (!customerId || customerId === "" || customerId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Customer" });
+    }
     // for (const item of items) {
     //     const mrp = item.qty * item.rate;
     //     if (item.mrp !== mrp) {
@@ -146,6 +150,11 @@ exports.update_creditNote = async (req, res) => {
       return res
         .status(404)
         .json({ status: "false", message: "Credit Note Not Found" });
+    }
+    if (!customerId || customerId === "" || customerId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Customer" });
     }
     const customerData = await customer.findOne({
       where: { id: customerId, companyId: req.user.companyId },

@@ -162,7 +162,7 @@ exports.update_user = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { username, email, role, mobileno, salary, companyId } = req.body;
+    const { username, email, role, mobileno, salary } = req.body;
 
     const FindID = await User.findByPk(id);
     if (!FindID) {
@@ -170,12 +170,11 @@ exports.update_user = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "User Not Found" });
     }
-    const company = req.user.companyId;
     const companyData = await companyUser.findOne({
-      where: { companyId: companyId },
+      where: { companyId: req.user.companyId },
     });
 
-    if (company !== companyData?.companyId) {
+    if (!companyData) {
       return res
         .status(404)
         .json({ status: "false", message: "Company Not Found" });

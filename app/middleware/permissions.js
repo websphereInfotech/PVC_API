@@ -6,32 +6,44 @@ exports.permissions = {
             "delete_company":true,
             "view_all_company":true,
             "view_single_company":true,
-            "set_default_comapny":true
+            "set_default_comapny":true,
+            "view_company_balance":true,
+            "view_single_company_balance":true
         },
         "Admin" :{
             "view_all_company":true,
             "view_single_company":true,
-            "set_default_comapny":true
+            "set_default_comapny":true,
+            "view_company_balance":true,
+            "view_single_company_balance":true
         },
         "Account" :{
             "view_all_company":true,
             "view_single_company":true,
-            "set_default_comapny":true
+            "set_default_comapny":true,
+            "view_company_balance":true,
+            "view_single_company_balance":true
         },
         "Employee" :{
             "view_all_company":true,
             "view_single_company":true,
-            "set_default_comapny":true
+            "set_default_comapny":true,
+            "view_company_balance":true,
+            "view_single_company_balance":true
         },
         "Workers" :{
             "view_all_company":true,
             "view_single_company":true,
-            "set_default_comapny":true
+            "set_default_comapny":true,
+            "view_company_balance":true,
+            "view_single_company_balance":true
         },
         "Other" :{
             "view_all_company":true,
             "view_single_company":true,
-            "set_default_comapny":true
+            "set_default_comapny":true,
+            "view_company_balance":true,
+            "view_single_company_balance":true
         },
     },
     "Login" : {
@@ -1075,6 +1087,26 @@ exports.permissions = {
         },
         "Other" :{
             "View_Cash_vendor_Ledger":true,
+        },
+    },
+    "Company Cash" : {
+        "Super Admin" :{
+            "view_company_cash_balance":true,
+        },
+        "Admin" :{
+            "view_company_cash_balance":true,
+        },
+        "Account" :{
+            "view_company_cash_balance":true,
+        },
+        "Employee" :{
+            "view_company_cash_balance":true,
+        },
+        "Workers" :{
+            "view_company_cash_balance":true,
+        },
+        "Other" :{
+            "view_company_cash_balance":true,
         },
     },
     "Claim Cash" : {

@@ -963,16 +963,14 @@ exports.unitname = function (req, res, next) {
 };
 exports.terms = function (req, res, next) {
   const { terms } = req.body;
-  const termsSchema = Joi.number()
+  const termsSchema = Joi.string()
 
     .required()
     .messages({
-      "number.base": "terms must be a number",
       "any.required": "Required Field : terms",
-      "number.empty": "terms Cannot Be Empty",
+      "string.empty": "terms Cannot Be Empty",
     });
-    const valueToValidate = terms === '' ? undefined: terms;
-  const { error } = termsSchema.validate(valueToValidate);
+   const {error} = termsSchema.validate(terms);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }

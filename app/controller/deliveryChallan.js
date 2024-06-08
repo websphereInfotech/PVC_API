@@ -14,6 +14,11 @@ exports.create_deliverychallan = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Challan Number Already Exists" });
     }
+    if (!customerId || customerId === "" || customerId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Customer" });
+    }
     const customerData = await customer.findOne({
       where: { id: customerId, companyId: req.user.companyId },
     });
@@ -80,6 +85,11 @@ exports.update_deliverychallan = async (req, res) => {
       return res
         .status(404)
         .json({ status: "false", message: "Delivery challan Not Found" });
+    }
+    if (!customerId || customerId === "" || customerId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Customer" });
     }
     const customerData = await customer.findOne({
       where: { id: customerId, companyId: req.user.companyId },
