@@ -19,7 +19,7 @@ const customer = sequelize.define("P_customer", {
     type: DataTypes.BIGINT,
   },
   panno: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
   },
   creditperiod: {
     type: DataTypes.INTEGER,

@@ -55,6 +55,12 @@ exports.create_vendor = async (req, res) => {
         });
       }
     }
+    const existingEmail = await vendor.findOne({ where: { email: email } });
+    if (existingEmail) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Email Already Exists" });
+    }
     const vendorData = {
       accountname,
       shortname,
@@ -76,6 +82,7 @@ exports.create_vendor = async (req, res) => {
     if (panno === "") {
       panno = null;
     }
+
     if (creditlimit === true) {
       vendorData.totalcreadit = totalcreadit;
     }
@@ -91,7 +98,7 @@ exports.create_vendor = async (req, res) => {
       await bankAccount.create(bankdata);
     }
     const vendordata = await vendor.findOne({
-      where: { id: data.id,companyId:req.user.companyId },
+      where: { id: data.id, companyId: req.user.companyId },
       include: [{ model: bankAccount, as: "v_bankdetails" }],
     });
     await C_vendor.create({
@@ -134,9 +141,14 @@ exports.update_vendor = async (req, res) => {
       bankdetails,
       totalcreadit,
     } = req.body;
-
+    const existingEmail = await vendor.findOne({ where: { email: email } });
+    if (existingEmail) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Email Already Exists" });
+    }
     const vendorId = await vendor.findOne({
-      where: { id: id,companyId:req.user.companyId },
+      where: { id: id, companyId: req.user.companyId },
       include: [{ model: bankAccount, as: "v_bankdetails" }],
     });
     if (!vendorId) {
@@ -199,7 +211,7 @@ exports.update_vendor = async (req, res) => {
       }
     }
     const data = await vendor.findOne({
-      where: { id: id,companyId: req.user.companyId },
+      where: { id: id, companyId: req.user.companyId },
       include: [{ model: bankAccount, as: "v_bankdetails" }],
     });
     return res.status(200).json({

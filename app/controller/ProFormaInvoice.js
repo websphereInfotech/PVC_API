@@ -1,3 +1,4 @@
+const { Sequelize } = require("sequelize");
 const ProFormaInvoice = require("../models/ProFormaInvoice");
 const ProFormaInvoiceItem = require("../models/ProFormaInvoiceItem");
 const customer = require("../models/customer");
@@ -231,6 +232,19 @@ exports.update_ProFormaInvoice = async (req, res) => {
         message: "ProForma Invoice Not Found",
       });
     }
+    const numberOf = await ProFormaInvoice.findOne({
+      where: {
+        ProFormaInvoice_no: ProFormaInvoice_no,
+        companyId: req.user.companyId,
+        id: { [Sequelize.Op.ne]: id }
+      },
+    });
+    if (numberOf) {
+      return res.status(400).json({
+        status: "false",
+        message: "ProForma Invoice Number Already Exists",
+      });
+    }
     if (!customerId || customerId === "" || customerId === null) {
       return res
         .status(400)
@@ -278,7 +292,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
       },
       { where: { id } }
     );
-
+    
     const existingItems = await ProFormaInvoiceItem.findAll({
       where: { InvoiceId: id },
     });

@@ -2,8 +2,8 @@ const C_companyBalance = require("../models/C_companyBalance");
 const admintoken = require("../models/admintoken");
 const company = require("../models/company");
 const companyBalance = require("../models/companyBalance");
-const companyBankBalance = require("../models/companyBankBalance");
 const companyBankDetails = require("../models/companyBankDetails");
+const companySingleBank = require("../models/companySingleBank");
 const companyUser = require("../models/companyUser");
 const permissionAdd = require("../util/permissions");
 const jwt = require("jsonwebtoken");
@@ -36,7 +36,20 @@ exports.create_company = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Company Already Exists" });
     }
-
+    const existingEmail = await company.findOne({ where: { email: email } });
+    if (existingEmail) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Email Already Exists" });
+    }
+    const existingMobile = await company.findOne({
+      where: { mobileno: mobileno },
+    });
+    if (existingMobile) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Mobile Number Already Exists" });
+    }
     const data = await company.create({
       companyname,
       gstnumber,
@@ -55,10 +68,15 @@ exports.create_company = async (req, res) => {
     permissionAdd(data.id);
 
     await companyUser.create({
+      userId: userId,
       companyId: req.user.companyId,
       balance: 0,
     });
-    
+
+    await C_companyBalance.create({
+      companyId: req.user.companyId,
+      balance: 0,
+    });
     return res.status(200).json({
       status: "true",
       message: "Company Create Successfully",
@@ -250,6 +268,7 @@ exports.set_default_comapny = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+//sinlgle company balance
 exports.view_company_balance = async (req, res) => {
   try {
     const data = await companyBalance.findOne({
@@ -274,10 +293,11 @@ exports.view_company_balance = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-exports.view_single_company_balance = async (req, res) => {
+//single bank balance
+exports.view_single_bank_balance = async (req, res) => {
   try {
     const { id } = req.params;
-    const data = await companyBankBalance.findOne({
+    const data = await companySingleBank.findOne({
       where: {
         companyId: req.user.companyId,
         accountId: id,
@@ -303,8 +323,8 @@ exports.view_single_company_balance = async (req, res) => {
 };
 /*=============================================================================================================
                                              Typc C API
- ============================================================================================================ */
-
+ =========================================================================================================== */
+//single comapny balance cash
 exports.view_company_cash_balance = async (req, res) => {
   try {
     const data = await C_companyBalance.findOne({

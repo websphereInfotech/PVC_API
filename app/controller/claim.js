@@ -410,7 +410,7 @@ exports.view_claimBalance_ledger = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-
+//user balance
 exports.view_user_balance = async (req, res) => {
   try {
     const data = await C_userBalance.findOne({

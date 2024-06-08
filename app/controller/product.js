@@ -22,13 +22,16 @@ exports.create_product = async (req, res) => {
       nagativeqty,
       lowstock,
       itemselected,
-      purchaseprice,
       salesprice,
       gstrate,
       HSNcode,
       cess,
     } = req.body;
-
+    
+    let purchaseprice = req.body.panno;
+    if (purchaseprice === "") {
+      purchaseprice = null;
+    }
     
     const data = await product.create({
       itemtype,

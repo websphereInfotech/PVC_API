@@ -1,3 +1,4 @@
+const { Sequelize } = require("sequelize");
 const C_product = require("../models/C_product");
 const C_purchaseCash = require("../models/C_purchaseCash");
 const C_purchaseCashItem = require("../models/C_purchseCashItem");
@@ -30,6 +31,14 @@ exports.create_purchaseInvoice = async (req, res) => {
       items,
     } = req.body;
 
+    const numberOf = await purchaseInvoice.findOne({
+      where: { invoiceno: invoiceno, companyId: req.user.companyId },
+    });
+    if (numberOf) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Invoice Number Already Exists" });
+    }
     if (!vendorId || vendorId === "" || vendorId === null) {
       return res
         .status(400)
@@ -129,6 +138,18 @@ exports.update_purchaseInvoice = async (req, res) => {
         status: "false",
         message: "Purchase Invoice Not Found",
       });
+    }
+    const numberOf = await purchaseInvoice.findOne({
+      where: {
+        invoiceno: invoiceno,
+        companyId: req.user.companyId,
+        id: { [Sequelize.Op.ne]: id },
+      },
+    });
+    if (numberOf) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Invoice Number Already Exists" });
     }
     if (!vendorId || vendorId === "" || vendorId === null) {
       return res

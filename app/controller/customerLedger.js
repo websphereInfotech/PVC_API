@@ -38,14 +38,14 @@ exports.C_get_customerLedger = async (req, res) => {
         "id",
         [Sequelize.literal("IFNULL(receiceLedger.amount, 0)"), "debitAmount"],
         [
-          Sequelize.literal("IFNULL(invoiceLedger.totalMrp, 0)"),
+          Sequelize.literal("IFNULL(invoiceLedger.mainTotal, 0)"),
           "creditAmount",
         ],
         [
           Sequelize.literal(`
             (
               SELECT
-                IFNULL(SUM(IFNULL(invoiceLedger.totalMrp, 0) - IFNULL(receiceLedger.amount, 0)), 0)
+                IFNULL(SUM(IFNULL(invoiceLedger.mainTotal, 0) - IFNULL(receiceLedger.amount, 0)), 0)
               FROM
                 \`P_C_customerLedgers\` AS cl2
                 LEFT OUTER JOIN \`P_C_salesInvoices\` AS invoiceLedger ON cl2.creditId = invoiceLedger.id
@@ -63,7 +63,7 @@ exports.C_get_customerLedger = async (req, res) => {
             (
               (
                 SELECT
-                  IFNULL(SUM(IFNULL(invoiceLedger.totalMrp, 0) - IFNULL(receiceLedger.amount, 0)), 0)
+                  IFNULL(SUM(IFNULL(invoiceLedger.mainTotal, 0) - IFNULL(receiceLedger.amount, 0)), 0)
                 FROM
                   \`P_C_customerLedgers\` AS cl2
                   LEFT OUTER JOIN \`P_C_salesInvoices\` AS invoiceLedger ON cl2.creditId = invoiceLedger.id
@@ -72,7 +72,7 @@ exports.C_get_customerLedger = async (req, res) => {
                   cl2.customerId = \`P_C_customerLedger\`.\`customerId\`
                   AND cl2.companyId = :companyId
                   AND (cl2.date < \`P_C_customerLedger\`.\`date\` OR (cl2.date = \`P_C_customerLedger\`.\`date\` AND cl2.id < \`P_C_customerLedger\`.\`id\`))
-              ) + IFNULL(invoiceLedger.totalMrp, 0) - IFNULL(receiceLedger.amount, 0)
+              ) + IFNULL(invoiceLedger.mainTotal, 0) - IFNULL(receiceLedger.amount, 0)
             )
           `),
           "remainingBalance",
@@ -146,14 +146,14 @@ exports.get_customerLedger = async (req, res) => {
         "id",
         [Sequelize.literal("IFNULL(receiveCustomer.amount, 0)"), "debitAmount"],
         [
-          Sequelize.literal("IFNULL(invoiceCustomer.totalMrp, 0)"),
+          Sequelize.literal("IFNULL(invoiceCustomer.mainTotal, 0)"),
           "creditAmount",
         ],
         [
           Sequelize.literal(`
             (
               SELECT
-                IFNULL(SUM(IFNULL(invoiceCustomer.totalMrp, 0) - IFNULL(receiveCustomer.amount, 0)), 0)
+                IFNULL(SUM(IFNULL(invoiceCustomer.mainTotal, 0) - IFNULL(receiveCustomer.amount, 0)), 0)
               FROM
                 \`P_customerLedgers\` AS cl2
                 LEFT OUTER JOIN \`P_salesInvoices\` AS invoiceCustomer ON cl2.creditId = invoiceCustomer.id
@@ -171,7 +171,7 @@ exports.get_customerLedger = async (req, res) => {
             (
               (
                 SELECT
-                  IFNULL(SUM(IFNULL(invoiceCustomer.totalMrp, 0) - IFNULL(receiveCustomer.amount, 0)), 0)
+                  IFNULL(SUM(IFNULL(invoiceCustomer.mainTotal, 0) - IFNULL(receiveCustomer.amount, 0)), 0)
                 FROM
                   \`P_customerLedgers\` AS cl2
                   LEFT OUTER JOIN \`P_salesInvoices\` AS invoiceCustomer ON cl2.creditId = invoiceCustomer.id
@@ -180,7 +180,7 @@ exports.get_customerLedger = async (req, res) => {
                   cl2.companyId = :companyId
                   AND cl2.customerId = \`P_customerLedger\`.\`customerId\`
                   AND (cl2.date < \`P_customerLedger\`.\`date\` OR (cl2.date = \`P_customerLedger\`.\`date\` AND cl2.id < \`P_customerLedger\`.\`id\`))
-              ) + IFNULL(invoiceCustomer.totalMrp, 0) - IFNULL(receiveCustomer.amount, 0)
+              ) + IFNULL(invoiceCustomer.mainTotal, 0) - IFNULL(receiveCustomer.amount, 0)
             )
           `),
           "remainingBalance",

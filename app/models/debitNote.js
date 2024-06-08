@@ -38,7 +38,9 @@ const debitNote = sequelize.define("P_debitNote", {
     type: DataTypes.INTEGER,
     defaultValue:0
   },
-  companyId: {type: DataTypes.INTEGER}
+  companyId: {type: DataTypes.INTEGER},
+  createdBy: { type: DataTypes.INTEGER },
+  updatedBy: { type: DataTypes.INTEGER },
 });
 
 company.hasMany(debitNote, {foreignKey:'companyId',onDelete:'CASCADE'});

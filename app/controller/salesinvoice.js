@@ -1,3 +1,4 @@
+const { Sequelize } = require("sequelize");
 const C_customer = require("../models/C_customer");
 const C_customerLedger = require("../models/C_customerLedger");
 const C_product = require("../models/C_product");
@@ -264,6 +265,19 @@ exports.update_salesInvoice = async (req, res) => {
       return res
         .status(404)
         .json({ status: "false", message: "Sales Invoice Not Found" });
+    }
+    const numberOf = await salesInvoice.findOne({
+      where: {
+        invoiceno: invoiceno,
+        companyId: req.user.companyId,
+        id: { [Sequelize.Op.ne]: id },
+      },
+    });
+
+    if (numberOf) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Invoice Number Already Exists" });
     }
     if (!customerId || customerId === "" || customerId === null) {
       return res

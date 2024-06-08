@@ -1,7 +1,7 @@
+const { Sequelize } = require("sequelize");
 const creditNote = require("../models/creditNote");
 const creditNoteItem = require("../models/creditNoteItem");
 const customer = require("../models/customer");
-const customerLedger = require("../models/customerLedger");
 const product = require("../models/product");
 
 exports.create_creditNote = async (req, res) => {
@@ -96,6 +96,8 @@ exports.create_creditNote = async (req, res) => {
       totalQty,
       mainTotal,
       companyId: req.user.companyId,
+      createdBy:req.user.userId,
+      updatedBy:req.user.userId
     });
 
     const addToProduct = items.map((item) => ({
@@ -151,6 +153,20 @@ exports.update_creditNote = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Credit Note Not Found" });
     }
+    const numberOf = await creditNote.findOne({
+      where: {
+        creditnoteNo: creditnoteNo,
+        companyId: req.user.companyId,
+        id: { [Sequelize.Op.ne]: id },
+      },
+    });
+    if (numberOf) {
+      return res.status(400).json({
+        status: "false",
+        message: "Credit Note Number Already Exists",
+      });
+    }
+
     if (!customerId || customerId === "" || customerId === null) {
       return res
         .status(400)
@@ -191,6 +207,8 @@ exports.update_creditNote = async (req, res) => {
         totalQty,
         mainTotal,
         companyId: req.user.companyId,
+        createdBy:existingCredit.id,
+        updatedBy:req.user.userId,
       },
       { where: { id } }
     );

@@ -1,3 +1,4 @@
+const { Sequelize } = require("sequelize");
 const customer = require("../models/customer");
 const debitNote = require("../models/debitNote");
 const debitNoteItem = require("../models/debitNoteItem");
@@ -29,25 +30,6 @@ exports.create_debitNote = async (req, res) => {
         .json({ status: "false", message: "Debit Note Number Already Exists" });
     }
 
-    // for (const item of items) {
-    //   const mrp = item.qty * item.rate;
-    //   if (item.mrp !== mrp) {
-    //     return res.status(400).json({
-    //       status: "false",
-    //       message: `MRP for item ${item.productId} does not match the calculated value`,
-    //     });
-    //   }
-    // }
-    // const totalMrpFromItems = items.reduce((total, item) => {
-    //   return total + (item.qty * item.rate);
-    // }, 0);
-
-    // if (totalMrp !== totalMrpFromItems) {
-    //   return res.status(400).json({
-    //     status: "false",
-    //     message: "Total MRP Not Match",
-    //   });
-    // }
     const invoiceData = await purchaseInvoice.findOne({
       where: { id: invoiceId, companyId: req.user.companyId },
     });
@@ -57,6 +39,11 @@ exports.create_debitNote = async (req, res) => {
         .json({ status: "false", message: "Purchae Invoice Not Found" });
     }
     if (!customerId || customerId === "" || customerId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Customer" });
+    }
+    if (!invoiceId || invoiceId === "" || invoiceId === null) {
       return res
         .status(400)
         .json({ status: "false", message: "Required filed :Customer" });
@@ -97,7 +84,10 @@ exports.create_debitNote = async (req, res) => {
       totalMrp,
       mainTotal,
       companyId: req.user.companyId,
+      createdBy: req.user.userId,
+      updatedBy: req.user.userId
     });
+
     const addToProduct = items.map((item) => ({
       DebitId: debitNoteData.id,
       ...item,
@@ -149,6 +139,19 @@ exports.update_debitNote = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Debit Note Not Found" });
     }
+    const existingDebitNo = await debitNote.findOne({
+      where: {
+        debitnoteno: debitnoteno,
+        companyId: req.user.companyId,
+        id: { [Sequelize.Op.ne]: id },
+      },
+    });
+
+    if (existingDebitNo) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Debit Note Number Already Exists" });
+    }
     if (!customerId || customerId === "" || customerId === null) {
       return res
         .status(400)
@@ -185,6 +188,8 @@ exports.update_debitNote = async (req, res) => {
         totalMrp,
         mainTotal,
         companyId: req.user.companyId,
+        createdBy:existingDebit.id,
+        updatedBy:req.user.userId
       },
       { where: { id } }
     );

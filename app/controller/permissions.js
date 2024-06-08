@@ -7,13 +7,13 @@ exports.get_all_permissions = async (req, res) => {
 
     let data;
     if (userRole === "Super Admin" && isType === "C") {
-      data = await Permission.findAll();
+      data = await Permission.findAll({where:{companyId: req.user.companyId}});
     } else if (isType === "") {
       data = await Permission.findAll({
-        where: { role: userRole, type: false },
+        where: { role: userRole, type: false,companyId: req.user.companyId },
       });
     } else {
-      data = await Permission.findAll({ where: { role: userRole } });
+      data = await Permission.findAll({ where: { role: userRole,companyId:req.user.companyId } });
     }
 
     if (data.length > 0) {

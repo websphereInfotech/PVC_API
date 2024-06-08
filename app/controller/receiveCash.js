@@ -5,9 +5,9 @@ const C_customerLedger = require("../models/C_customerLedger");
 const C_receiveCash = require("../models/C_receiveCash");
 const C_userBalance = require("../models/C_userBalance");
 const companyBalance = require("../models/companyBalance");
-const companyBankBalance = require("../models/companyBankBalance");
 const companyBankDetails = require("../models/companyBankDetails");
 const companyBankLedger = require("../models/companyBankLedger");
+const companySingleBank = require("../models/companySingleBank");
 const customer = require("../models/customer");
 const customerLedger = require("../models/customerLedger");
 const receiveBank = require("../models/receiveBank");
@@ -348,7 +348,7 @@ exports.create_receive_bank = async (req, res) => {
       await existsingBalance.save();
     }
 
-    const balanceExists = await companyBankBalance.findOne({
+    const balanceExists = await companySingleBank.findOne({
       where: { accountId: accountId, companyId: req.user.companyId },
     });
     if (balanceExists) {
@@ -467,14 +467,14 @@ exports.update_receive_bank = async (req, res) => {
       },
       { where: { companyId: req.user.companyId } }
     );
-    const balanceExists = await companyBankBalance.findOne({
+    const balanceExists = await companySingleBank.findOne({
       where: { accountId: accountId, companyId: req.user.companyId },
     });
 
     const changeBalance = amount - receiveBankId.amount;
     const balanceNew = balanceExists.balance + changeBalance;
 
-    await companyBankBalance.update(
+    await companySingleBank.update(
       {
         balance: balanceNew,
       },

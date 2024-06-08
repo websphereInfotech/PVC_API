@@ -4,13 +4,12 @@ const companyBankDetails = require("../models/companyBankDetails");
 const companyBankLedger = require("../models/companyBankLedger");
 const paymentBank = require("../models/paymentBank");
 const receiveBank = require("../models/receiveBank");
-const companyBankBalance = require("../models/companyBankBalance");
+const companySingleBank = require("../models/companySingleBank");
 
 exports.create_company_bankDetails = async (req, res) => {
   try {
-   const companyId  = req.user.companyId;
     const {
-      // companyId,
+      companyId,
       accountname,
       bankname,
       accountnumber,
@@ -19,11 +18,11 @@ exports.create_company_bankDetails = async (req, res) => {
       nickname,
     } = req.body;
 
-    // if (companyId === "" || companyId === undefined || companyId === null) {
-    //   return res
-    //     .status(400)
-    //     .json({ status: "false", message: "Required Feild:Comapny" });
-    // }
+    if (companyId === "" || companyId === undefined || companyId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required Feild:Comapny" });
+    }
     const companyData = await company.findByPk(companyId);
     if (!companyData) {
       return res
@@ -56,10 +55,10 @@ exports.create_company_bankDetails = async (req, res) => {
       nickname,
     });
 
-    await companyBankBalance.create({
-      companyId: req.user.companyId,
-      accountId:data.id,
-      balance:0
+    await companySingleBank.create({
+      companyId: companyId,
+      accountId: data.id,
+      balance: 0,
     });
     return res.status(200).json({
       status: "true",
@@ -128,7 +127,7 @@ exports.delete_company_bankDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await companyBankDetails.destroy({ where: { id } });
+    const data = await companyBankDetails.destroy({ where: { id:id,companyId:req.user.companyId } });
 
     if (!data) {
       return res
@@ -150,7 +149,7 @@ exports.view_company_bankDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await companyBankDetails.findOne({ where: { id } });
+    const data = await companyBankDetails.findOne({ where: { id:id,companyId:req.user.companyId } });
     if (!data) {
       return res
         .status(404)
@@ -171,7 +170,9 @@ exports.view_company_bankDetails = async (req, res) => {
 };
 exports.view_all_company_bankDetails = async (req, res) => {
   try {
-    const data = await companyBankDetails.findAll();
+    const data = await companyBankDetails.findAll({
+      where: { companyId: req.user.companyId },
+    });
     if (data.length > 0) {
       return res.status(200).json({
         status: "true",
@@ -192,15 +193,15 @@ exports.view_all_company_bankDetails = async (req, res) => {
 };
 exports.view_company_bankLedger = async (req, res) => {
   try {
-    const {fromDate , toDate } = req.query;
+    const { fromDate, toDate } = req.query;
 
     let whereData = {
-      companyId: req.user.companyId
+      companyId: req.user.companyId,
     };
 
     if (fromDate && toDate) {
       whereData.date = {
-        [Sequelize.Op.between]: [fromDate, toDate]
+        [Sequelize.Op.between]: [fromDate, toDate],
       };
     }
     const data = await companyBankLedger.findAll({
@@ -208,14 +209,14 @@ exports.view_company_bankLedger = async (req, res) => {
       include: [
         {
           model: receiveBank,
-          as: 'receiveData',
-          attributes: []
+          as: "receiveData",
+          attributes: [],
         },
         {
           model: paymentBank,
-          as: 'paymentdata',
-          attributes: []
-        }
+          as: "paymentdata",
+          attributes: [],
+        },
       ],
       attributes: {
         include: [
@@ -230,7 +231,7 @@ exports.view_company_bankLedger = async (req, res) => {
               WHERE cbl.companyId = P_companyBankLedger.companyId
               AND (cbl.date < P_companyBankLedger.date OR (cbl.date = P_companyBankLedger.date AND cbl.id < P_companyBankLedger.id))
             )`),
-            "openingBalance"
+            "openingBalance",
           ],
           [
             Sequelize.literal(`(
@@ -240,20 +241,33 @@ exports.view_company_bankLedger = async (req, res) => {
               LEFT JOIN P_paymentBanks AS p ON cbl.debitId = p.id
               WHERE cbl.companyId = P_companyBankLedger.companyId
               AND (cbl.date < P_companyBankLedger.date OR (cbl.date = P_companyBankLedger.date AND cbl.id <= P_companyBankLedger.id))
-            )`), 
-            "remainingBalance"
+            )`),
+            "remainingBalance",
           ],
-        ]
+        ],
       },
-      order: [['date', 'ASC'], ['id', 'ASC']]
+      order: [
+        ["date", "ASC"],
+        ["id", "ASC"],
+      ],
     });
     if (data) {
-      return res.status(200).json({ status: 'true', message: 'Bank Data Show Successfully', data: data });
+      return res
+        .status(200)
+        .json({
+          status: "true",
+          message: "Bank Data Show Successfully",
+          data: data,
+        });
     } else {
-      return res.status(404).json({ status: 'false', message: 'Bank Data Not Found' });
+      return res
+        .status(404)
+        .json({ status: "false", message: "Bank Data Not Found" });
     }
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ status: 'false', message: 'Internal Server Error' });
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
   }
 };

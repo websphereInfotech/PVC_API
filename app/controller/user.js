@@ -18,11 +18,19 @@ exports.create_user = async (req, res) => {
       salary,
     } = req.body;
 
-    const existingUser = await User.findOne({ where: { email: email } });
-    if (existingUser) {
+    const existingEmail = await User.findOne({ where: { email: email } });
+  
+    if (existingEmail) {
       return res
         .status(400)
-        .json({ status: "false", message: "User already exists" });
+        .json({ status: "false", message: "Email Already Exists" });
+    }
+    const existingMobile = await User.findOne({ where: { mobileno: mobileno } });
+  
+    if (existingMobile) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Mobile Number Already Exists" });
     }
 
     if (!confirmpassword) {
@@ -164,6 +172,20 @@ exports.update_user = async (req, res) => {
 
     const { username, email, role, mobileno, salary } = req.body;
 
+    const existingEmail = await User.findOne({ where: { email: email } });
+  
+    if (existingEmail) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Email Already Exists" });
+    }
+    const existingMobile = await User.findOne({ where: { mobileno: mobileno } });
+  
+    if (existingMobile) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Mobile Number Already Exists" });
+    }
     const FindID = await User.findByPk(id);
     if (!FindID) {
       return res
@@ -295,7 +317,7 @@ exports.user_login = async (req, res) => {
         companyId: data.companyId,
       },
       process.env.SECRET_KEY,
-      { expiresIn: "8h" }
+      { expiresIn: "10h" }
     );
 
     const existingToken = await admintoken.findOne({
@@ -352,12 +374,18 @@ exports.check_user = async (req, res) => {
       where: { email: email, mobileno: mobileno, username: username },
       attributes: { exclude: ["password"] },
     });
-
-    return res.status(200).json({
-      status: "true",
-      message: "User Data Fetch Successfully",
-      data: data,
-    });
+if(data) {
+  return res.status(200).json({
+    status: "true",
+    message: "User Data Fetch Successfully",
+    data: data,
+  });
+} else {
+  return res.status(404).json({
+    status: "false",
+    message: "User Not Found",
+  });
+}
   } catch (error) {
     console.log(error);
     return res

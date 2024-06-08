@@ -48,7 +48,7 @@ router.post("/check_user", adminAuth("Login:check_user"), check_user);
 router.get("/add_user/:id", adminAuth("Login:add_user"), add_user);
 router.get(
   "/view_all_userTOComapny",
-  adminAuth("Login:view_all_userTOComapny"),
+  adminAuth("Login:view_all_JoinComapny"),
   view_all_userTOComapny
 );
 
