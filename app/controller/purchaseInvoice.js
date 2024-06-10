@@ -45,6 +45,11 @@ exports.create_purchaseInvoice = async (req, res) => {
         .json({ status: "false", message: "Required filed :Vendor" });
     }
 
+    if (!items || items.length === 0) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required Field Of Items" });
+    }
     const vendorData = await vendor.findOne({
       where: { id: vendorId, companyId: req.user.companyId },
     });
@@ -53,17 +58,17 @@ exports.create_purchaseInvoice = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Vendor Not Found" });
     }
-    if (!items || items.length === 0) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required Field Of Items" });
-    }
 
     for (const item of items) {
       if (!item.productId || item.productId === "") {
         return res
           .status(400)
           .json({ status: "false", message: "Required filed :Product" });
+      }
+      if (item.qty === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Qty Value Invalid" });
       }
       const productData = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
@@ -91,7 +96,7 @@ exports.create_purchaseInvoice = async (req, res) => {
 
     await vendorLedger.create({
       vendorId,
-      creditId: purchseData.id,
+      debitId: purchseData.id,
       companyId: req.user.companyId,
       date: invoicedate,
     });
@@ -169,11 +174,21 @@ exports.update_purchaseInvoice = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Vendor Not Found" });
     }
+    if (!items || items.length === 0) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required Field oF items" });
+    }
     for (const item of items) {
       if (!item.productId || item.productId === "") {
         return res
           .status(400)
           .json({ status: "false", message: "Required filed :Product" });
+      }
+      if (item.qty === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Qty Value Invalid" });
       }
       const productData = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
@@ -397,6 +412,16 @@ exports.C_create_purchaseCash = async (req, res) => {
     }
 
     for (const item of items) {
+      if (!item.productId || item.productId === "") {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Required filed :Product" });
+      }
+      if (item.qty === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Qty Value Invalid" });
+      }
       const productData = await C_product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
       });
@@ -475,7 +500,22 @@ exports.C_update_purchaseCash = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Vendor Not Found" });
     }
+    if (!items || items.length === 0) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required Field oF items" });
+    }
     for (const item of items) {
+      if (!item.productId || item.productId === "") {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Required filed :Product" });
+      }
+      if (item.qty === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Qty Value Invalid" });
+      }
       const productData = await C_product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
       });

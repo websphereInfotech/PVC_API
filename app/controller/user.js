@@ -367,10 +367,10 @@ exports.user_logout = async (req, res) => {
 };
 exports.check_user = async (req, res) => {
   try {
-    const { email, mobileno } = req.body;
+    const { email, mobileNo } = req.body;
 
     const data = await User.findOne({
-      where: { email: email, mobileno: mobileno },
+      where: { email: email, mobileno: mobileNo },
       attributes: { exclude: ["password"] },
     });
 if(data) {

@@ -31,6 +31,16 @@ exports.create_debitNote = async (req, res) => {
         .json({ status: "false", message: "Debit Note Number Already Exists" });
     }
 
+    if (!invoiceId || invoiceId === "" || invoiceId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Invoice Number" });
+    }
+    if (!customerId || customerId === "" || customerId === null) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required filed :Customer" });
+    }
     const invoiceData = await purchaseInvoice.findOne({
       where: { id: invoiceId, companyId: req.user.companyId },
     });
@@ -38,16 +48,6 @@ exports.create_debitNote = async (req, res) => {
       return res
         .status(404)
         .json({ status: "false", message: "Purchae Invoice Not Found" });
-    }
-    if (!customerId || customerId === "" || customerId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required filed :Customer" });
-    }
-    if (!invoiceId || invoiceId === "" || invoiceId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required filed :Invoice Number" });
     }
     const customerData = await customer.findOne({
       where: { id: customerId, companyId: req.user.companyId },
@@ -68,6 +68,11 @@ exports.create_debitNote = async (req, res) => {
         return res
           .status(400)
           .json({ status: "false", message: "Required filed :Product" });
+      }
+      if (item.qty === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Qty Value Invalid" });
       }
       const productname = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
@@ -91,7 +96,7 @@ exports.create_debitNote = async (req, res) => {
       mainTotal,
       companyId: req.user.companyId,
       createdBy: req.user.userId,
-      updatedBy: req.user.userId
+      updatedBy: req.user.userId,
     });
 
     const addToProduct = items.map((item) => ({
@@ -176,11 +181,21 @@ exports.update_debitNote = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
+    if (!items || items.length === 0) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required Field oF items" });
+    }
     for (const item of items) {
       if (!item.productId || item.productId === "") {
         return res
           .status(400)
           .json({ status: "false", message: "Required filed :Product" });
+      }
+      if (item.qty === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Qty Value Invalid" });
       }
       const productname = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
@@ -204,8 +219,8 @@ exports.update_debitNote = async (req, res) => {
         totalMrp,
         mainTotal,
         companyId: req.user.companyId,
-        createdBy:existingDebit.id,
-        updatedBy:req.user.userId
+        createdBy: existingDebit.id,
+        updatedBy: req.user.userId,
       },
       { where: { id } }
     );

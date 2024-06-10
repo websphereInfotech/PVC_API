@@ -269,6 +269,7 @@ exports.create_payment_bank = async (req, res) => {
     const accountData = await companyBankDetails.findOne({
       where: { id: accountId, companyId: req.user.companyId },
     });
+
     if (!accountData) {
       return res
         .status(404)
@@ -290,7 +291,7 @@ exports.create_payment_bank = async (req, res) => {
 
     await vendorLedger.create({
       vendorId,
-      debitId: data.id,
+      creditId: data.id,
       date: paymentdate,
       companyId: req.user.companyId,
     });

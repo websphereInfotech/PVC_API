@@ -12,6 +12,7 @@ const {
   C_delete_salesInvoice,
   C_view_salesInvoice,
   C_get_all_salesInvoice,
+  count_salesInvoice,
 } = require("../controller/salesinvoice");
 
 const router = express.Router();
@@ -48,6 +49,7 @@ router.get(
   adminAuth("Sales Invoice:view_all_salesInvoice"),
   get_all_salesInvoice
 );
+
 
 /*=============================================================================================================
                                            Typc C API

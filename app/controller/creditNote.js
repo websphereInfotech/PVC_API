@@ -58,6 +58,11 @@ exports.create_creditNote = async (req, res) => {
       });
     }
 
+    if (!items || items.length === 0) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required Field oF items" });
+    }
     const customerData = await customer.findOne({
       where: { id: customerId, companyId: req.user.companyId },
     });
@@ -66,16 +71,16 @@ exports.create_creditNote = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
-    if (!items || items.length === 0) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required Field oF items" });
-    }
     for (const item of items) {
       if (!item.productId || item.productId === "") {
         return res
           .status(400)
           .json({ status: "false", message: "Required filed :Product" });
+      }
+      if (item.qty === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Qty Value Invalid" });
       }
       const productname = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
@@ -186,11 +191,21 @@ exports.update_creditNote = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
+    if (!items || items.length === 0) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required Field oF items" });
+    }
     for (const item of items) {
       if (!item.productId || item.productId === "") {
         return res
           .status(400)
           .json({ status: "false", message: "Required filed :Product" });
+      }
+      if (item.qty === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Qty Value Invalid" });
       }
       const productname = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },

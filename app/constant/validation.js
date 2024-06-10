@@ -480,9 +480,15 @@ exports.pono = function (req, res, next) {
 };
 exports.ProFormaInvoice_no = function (req, res, next) {
   const { ProFormaInvoice_no } = req.body;
-  const ProFormaInvoice_noSchema = Joi.string().required().messages({
+  const pattern = /^Q-\d+$/;
+
+  const ProFormaInvoice_noSchema = Joi.string()
+  .required()
+  .pattern(pattern)
+  .messages({
     "any.required": "Required Field : ProForma Invoice Number",
     "string.empty": "ProForma Invoice_No Cannot Be Empty",
+    "string.pattern.base": "ProForma Invoice Number must start with 'Q' followed by a dash and then a number"
   });
   const { error } = ProFormaInvoice_noSchema.validate(ProFormaInvoice_no);
   if (error) {

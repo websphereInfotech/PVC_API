@@ -100,6 +100,16 @@ exports.create_salesInvoice = async (req, res) => {
         .json({ status: "false", message: "Required Field Of Items" });
     }
     for (const item of items) {
+      if (!item.productId || item.productId === "") {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Required filed :Product" });
+      }
+      if (item.qty === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Qty Value Invalid" });
+      }
       const productname = await product.findOne({
         where: {
           id: item.productId,
@@ -300,11 +310,21 @@ exports.update_salesInvoice = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "proForma Invoice Not Found" });
     }
+    if (!items || items.length === 0) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required Field oF items" });
+    }
     for (const item of items) {
       if (!item.productId || item.productId === "") {
         return res
           .status(400)
           .json({ status: "false", message: "Required filed :Product" });
+      }
+      if (item.qty === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Qty Value Invalid" });
       }
       const productname = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
@@ -440,18 +460,6 @@ exports.delete_salesInvoice = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-// exports.pdf_file = async (req,res) => {
-//   try {
-//       const {id} = req.params;
-
-//       const data = await salesInvoice.findByPk(id);
-//       console.log("data",data);
-//       return res.status(200).json({ status:'true', message:'message'})
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(500).json({ status:'false', message:'Internal Server Error'});
-//   }
-// }
 
 /*=============================================================================================================
                                            Typc C API
@@ -482,6 +490,16 @@ exports.C_create_salesinvoice = async (req, res) => {
         .json({ status: "false", message: "Required Field of items" });
     }
     for (const item of items) {
+      if (!item.productId || item.productId === "") {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Required filed :Product" });
+      }
+      if (item.qty === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Qty Value Invalid" });
+      }
       const productData = await C_product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
       });
@@ -559,7 +577,22 @@ exports.C_update_salesinvoice = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Cusomer Not Found" });
     }
+    if (!items || items.length === 0) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Required Field oF items" });
+    }
     for (const item of items) {
+      if (!item.productId || item.productId === "") {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Required filed :Product" });
+      }
+      if (item.qty === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Qty Value Invalid" });
+      }
       const productData = await C_product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
       });
