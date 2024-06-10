@@ -87,6 +87,7 @@ exports.date = function (req, res, next) {
   const dateSchema = Joi.string().required().messages({
     "string.empty": "Date Cannot Be Empty",
     "any.required": "Required Filed : Date",
+    "string.base": "Date Must Be A String"
   });
   const { error } = dateSchema.validate(date);
   if (error) {

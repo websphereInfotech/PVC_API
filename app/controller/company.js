@@ -63,19 +63,23 @@ exports.create_company = async (req, res) => {
       country,
     });
 
-    await data.addUser(userId);
 
     permissionAdd(data.id);
 
     await companyUser.create({
       userId: userId,
-      companyId: req.user.companyId,
+      companyId: data.id,
       balance: 0,
     });
 
     await C_companyBalance.create({
       companyId: req.user.companyId,
       balance: 0,
+    });
+    
+    await companyBalance.create({
+      companyId:req.user.companyId,
+      balance:0
     });
     return res.status(200).json({
       status: "true",
