@@ -3,6 +3,7 @@ const sequelize = require("../config/index");
 const customer = require("./customer");
 const purchaseInvoice = require("./purchaseInvoice");
 const company = require("./company");
+const User = require("./user");
 
 const debitNote = sequelize.define("P_debitNote", {
   customerId: {
@@ -43,6 +44,17 @@ const debitNote = sequelize.define("P_debitNote", {
   updatedBy: { type: DataTypes.INTEGER },
 });
 
+User.hasMany(debitNote, { foreignKey: "createdBy", as: "debitCreateUser" });
+debitNote.belongsTo(User, {
+  foreignKey: "createdBy",
+  as: "debitCreateUser",
+});
+
+User.hasMany(debitNote, { foreignKey: "updatedBy", as: "debitUpdateUser" });
+debitNote.belongsTo(User, {
+  foreignKey: "updatedBy",
+  as: "debitUpdateUser",
+});
 company.hasMany(debitNote, {foreignKey:'companyId',onDelete:'CASCADE'});
 debitNote.belongsTo(company, {foreignKey:'companyId',onDelete:'CASCADE'});
 

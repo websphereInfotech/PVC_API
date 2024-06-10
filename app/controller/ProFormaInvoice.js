@@ -79,6 +79,11 @@ exports.create_ProFormaInvoice = async (req, res) => {
     }
 
     for (const item of items) {
+      if (!item.productId || item.productId === "") {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Required filed :Product" });
+      }
       const productname = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
       });
@@ -259,6 +264,11 @@ exports.update_ProFormaInvoice = async (req, res) => {
         .json({ status: "false", message: "Customer Not Found" });
     }
     for (const item of items) {
+      if (!item.productId || item.productId === "") {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Required filed :Product" });
+      }
       const productname = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
       });

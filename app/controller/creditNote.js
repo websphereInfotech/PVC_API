@@ -3,6 +3,7 @@ const creditNote = require("../models/creditNote");
 const creditNoteItem = require("../models/creditNoteItem");
 const customer = require("../models/customer");
 const product = require("../models/product");
+const User = require("../models/user");
 
 exports.create_creditNote = async (req, res) => {
   try {
@@ -71,6 +72,11 @@ exports.create_creditNote = async (req, res) => {
         .json({ status: "false", message: "Required Field oF items" });
     }
     for (const item of items) {
+      if (!item.productId || item.productId === "") {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Required filed :Product" });
+      }
       const productname = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
       });
@@ -96,8 +102,8 @@ exports.create_creditNote = async (req, res) => {
       totalQty,
       mainTotal,
       companyId: req.user.companyId,
-      createdBy:req.user.userId,
-      updatedBy:req.user.userId
+      createdBy: req.user.userId,
+      updatedBy: req.user.userId,
     });
 
     const addToProduct = items.map((item) => ({
@@ -181,6 +187,11 @@ exports.update_creditNote = async (req, res) => {
         .json({ status: "false", message: "Customer Not Found" });
     }
     for (const item of items) {
+      if (!item.productId || item.productId === "") {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Required filed :Product" });
+      }
       const productname = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
       });
@@ -207,8 +218,8 @@ exports.update_creditNote = async (req, res) => {
         totalQty,
         mainTotal,
         companyId: req.user.companyId,
-        createdBy:existingCredit.id,
-        updatedBy:req.user.userId,
+        createdBy: existingCredit.id,
+        updatedBy: req.user.userId,
       },
       { where: { id } }
     );
@@ -291,6 +302,8 @@ exports.get_all_creditNote = async (req, res) => {
           include: [{ model: product, as: "CreditProduct" }],
         },
         { model: customer, as: "CreditCustomer" },
+        { model: User, as: "creditCreateUser", attributes: ["username"] },
+        { model: User, as: "creditUpdateUser", attributes: ["username"] },
       ],
     });
     if (data) {

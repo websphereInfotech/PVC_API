@@ -314,6 +314,7 @@ exports.create_receive_bank = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Bank Acccount Not Found" });
     }
+  
     const data = await receiveBank.create({
       voucherno,
       customerId,

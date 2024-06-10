@@ -20,6 +20,7 @@ router.post(
 router.put(
   "/update_deliverychallan/:id",
   adminAuth("Delivery Challan:update_deliverychallan"),
+  validation("update_deliverychallan"),
   update_deliverychallan
 );
 router.delete(

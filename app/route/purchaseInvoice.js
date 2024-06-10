@@ -28,6 +28,7 @@ router.post(
 router.put(
   "/update_purchaseInvoice/:id",
   adminAuth("Purchase Invoice:update_purchase_Invoice"),
+  validation("update_purchaseInvoice"),
   update_purchaseInvoice
 );
 router.delete(
@@ -59,6 +60,7 @@ router.post(
 router.put(
   "/C_update_purchaseCash/:id",
   adminAuth("Purchase Cash:update_purchase_cash"),
+  validation("C_update_purchase_Cash"),
   C_update_purchaseCash
 );
 router.delete(

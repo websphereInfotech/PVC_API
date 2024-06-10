@@ -61,6 +61,12 @@ exports.create_vendor = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Email Already Exists" });
     }
+    const existingMobile = await vendor.findOne({ where: { mobileno: mobileno } });
+    if (existingMobile) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Mobile Number Already Exists" });
+    }
     const vendorData = {
       accountname,
       shortname,
@@ -134,6 +140,7 @@ exports.update_vendor = async (req, res) => {
       pincode,
       state,
       city,
+      mode,
       bankdetail,
       creditlimit,
       balance,
@@ -141,12 +148,6 @@ exports.update_vendor = async (req, res) => {
       bankdetails,
       totalcreadit,
     } = req.body;
-    const existingEmail = await vendor.findOne({ where: { email: email } });
-    if (existingEmail) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Email Already Exists" });
-    }
     const vendorId = await vendor.findOne({
       where: { id: id, companyId: req.user.companyId },
       include: [{ model: bankAccount, as: "v_bankdetails" }],
@@ -157,6 +158,20 @@ exports.update_vendor = async (req, res) => {
         .json({ status: "false", message: "Vendor Not Found" });
     }
 
+    if (vendorId.email !== email) {
+      const existingEmail = await vendor.findOne({ where: { email: email } });
+      if (existingEmail) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Email Already Exists" });
+      }
+      const existingMobile = await vendor.findOne({ where: { mobileno: mobileno } });
+      if (existingMobile) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Mobile Number Already Exists" });
+      }
+    }
     const vendorData = {
       accountname,
       shortname,

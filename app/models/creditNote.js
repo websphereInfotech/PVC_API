@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const customer = require("./customer");
+const User = require("./user");
 
 const creditNote = sequelize.define("P_creditNote", {
   customerId: {
@@ -50,6 +51,18 @@ const creditNote = sequelize.define("P_creditNote", {
   companyId: { type: DataTypes.INTEGER },
   createdBy: { type: DataTypes.INTEGER },
   updatedBy: { type: DataTypes.INTEGER },
+});
+
+User.hasMany(creditNote, { foreignKey: "createdBy", as: "creditCreateUser" });
+creditNote.belongsTo(User, {
+  foreignKey: "createdBy",
+  as: "creditCreateUser",
+});
+
+User.hasMany(creditNote, { foreignKey: "updatedBy", as: "creditUpdateUser" });
+creditNote.belongsTo(User, {
+  foreignKey: "updatedBy",
+  as: "creditUpdateUser",
 });
 
 customer.hasMany(creditNote, {

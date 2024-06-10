@@ -60,6 +60,11 @@ exports.create_purchaseInvoice = async (req, res) => {
     }
 
     for (const item of items) {
+      if (!item.productId || item.productId === "") {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Required filed :Product" });
+      }
       const productData = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
       });
@@ -165,6 +170,11 @@ exports.update_purchaseInvoice = async (req, res) => {
         .json({ status: "false", message: "Vendor Not Found" });
     }
     for (const item of items) {
+      if (!item.productId || item.productId === "") {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Required filed :Product" });
+      }
       const productData = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
       });

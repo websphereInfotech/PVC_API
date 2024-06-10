@@ -100,7 +100,6 @@ const existingPermission = async () => {
                 companyId: comapy.id,
                 type: type,
                 permission: permissionKey,
-                permissionValue: permissionValue,
               },
             });
             if (!isPermissionExist) {

@@ -24,6 +24,7 @@ router.post(
 router.put(
   "/update_company/:id",
   adminAuth("Company:update_company"),
+  validation("update_company"),
   update_company
 );
 router.delete(

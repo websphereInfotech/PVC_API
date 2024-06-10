@@ -25,6 +25,7 @@ router.post(
 router.put(
   "/update_product/:id",
   adminAuth("Product:update_product"),
+  validation("update_product"),
   update_product
 );
 router.delete(

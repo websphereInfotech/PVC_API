@@ -419,9 +419,13 @@ exports.refno = function (req, res, next) {
 };
 exports.amount = function (req, res, next) {
   const { amount } = req.body;
-  const amountSchema = Joi.number().required().messages({
+  const amountSchema = Joi.number()
+  .min(1)
+  .required()
+  .messages({
     "any.required": "Required Field : Amount",
-    "string.empty": "Amount Cannot Be Empty",
+    "number.empty": "Amount Cannot Be Empty",
+    "number.min": "Please Enter Valid Amount"
   });
   const valueToValidate = amount === '' ? undefined :amount;
   const { error } = amountSchema.validate(valueToValidate);

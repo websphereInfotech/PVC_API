@@ -171,14 +171,17 @@ exports.update_user = async (req, res) => {
     const { id } = req.params;
 
     const { username, email, role, mobileno, salary } = req.body;
-
-    const existingEmail = await User.findOne({ where: { email: email } });
-  
-    if (existingEmail) {
+    const FindID = await User.findByPk(id);
+    if (!FindID) {
       return res
-        .status(400)
-        .json({ status: "false", message: "Email Already Exists" });
+        .status(404)
+        .json({ status: "false", message: "User Not Found" });
     }
+    if (FindID.email !== email) {
+      const existingEmail = await User.findOne({ where: { email: email } });
+      if (existingEmail) {
+        return res.status(400).json({ status: "false", message: "Email Already Exists" });
+      }
     const existingMobile = await User.findOne({ where: { mobileno: mobileno } });
   
     if (existingMobile) {
@@ -186,12 +189,8 @@ exports.update_user = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Mobile Number Already Exists" });
     }
-    const FindID = await User.findByPk(id);
-    if (!FindID) {
-      return res
-        .status(404)
-        .json({ status: "false", message: "User Not Found" });
     }
+
     const companyData = await companyUser.findOne({
       where: { companyId: req.user.companyId },
     });
@@ -368,10 +367,10 @@ exports.user_logout = async (req, res) => {
 };
 exports.check_user = async (req, res) => {
   try {
-    const { email, mobileno, username } = req.body;
+    const { email, mobileno } = req.body;
 
     const data = await User.findOne({
-      where: { email: email, mobileno: mobileno, username: username },
+      where: { email: email, mobileno: mobileno },
       attributes: { exclude: ["password"] },
     });
 if(data) {

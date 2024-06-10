@@ -304,6 +304,7 @@ exports.create_payment_bank = async (req, res) => {
     const existsingBalance = await companyBalance.findOne({
       where: { companyId: req.user.companyId },
     });
+  
     if (existsingBalance) {
       existsingBalance.balance -= amount;
       await existsingBalance.save();
@@ -312,6 +313,7 @@ exports.create_payment_bank = async (req, res) => {
     const balanceExists = await companySingleBank.findOne({
       where: { companyId: req.user.companyId, accountId: accountId },
     });
+ 
     if (balanceExists) {
       balanceExists.balance -= amount;
       await balanceExists.save();
@@ -407,6 +409,7 @@ exports.update_payment_bank = async (req, res) => {
     const existingBalance = await companyBalance.findOne({
       where: { companyId: req.user.companyId },
     });
+
 
     const balanceChange = amount - paymentdata.amount;
     const newBalance = existingBalance.balance - balanceChange;

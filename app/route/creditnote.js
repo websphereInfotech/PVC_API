@@ -19,6 +19,7 @@ router.post(
 router.put(
   "/update_creditNote/:id",
   adminAuth("Credit Note:update_creditNote"),
+  validation("update_creditNote"),
   update_creditNote
 );
 router.get(

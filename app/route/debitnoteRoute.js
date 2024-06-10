@@ -20,6 +20,7 @@ router.post(
 router.put(
   "/update_debitNote/:id",
   adminAuth("Debit Note:update_debitNote"),
+  validation("update_debitNote"),
   update_debitNote
 );
 router.get(

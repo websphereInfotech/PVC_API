@@ -30,6 +30,7 @@ router.post(
 router.put(
   "/update_salesInvoice/:id",
   adminAuth("Sales Invoice:update_salesInvoice"),
+  validation("update_salesinvoice"),
   update_salesInvoice
 );
 router.delete(
@@ -60,6 +61,7 @@ router.post(
 router.put(
   "/C_update_salesinvoice/:id",
   adminAuth("Sales Cash:update_sales_cash"),
+  validation("C_update_salesinvoice"),
   C_update_salesinvoice
 );
 router.delete(

@@ -35,6 +35,10 @@ exports.create_customer = async (req, res) => {
     if(existingEmail) {
       return res.status(400).json({ status:'false', message:'Email Already Exists'});
     }
+    const existingMobile = await customer.findOne({where:{ mobileno:mobileno}});
+    if(existingMobile) {
+      return res.status(400).json({ status:'false', message:'Mobile Number Already Exists'});
+    }
     if (bankdetail === true) {
       if (!bankdetails || bankdetails.length === 0) {
         return res
@@ -151,9 +155,20 @@ exports.update_customer = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
-    const existingEmail = await customer.findOne({where:{ email:email}});
-    if(existingEmail) {
-      return res.status(400).json({ status:'false', message:'Email Already Exists'});
+   
+    if (updateData.email !== email) {
+      const existingEmail = await customer.findOne({ where: { email: email } });
+      if (existingEmail) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Email Already Exists" });
+      }
+      const existingMobile = await customer.findOne({ where: { mobileno: mobileno } });
+      if (existingMobile) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Mobile Number Already Exists" });
+      }
     }
     const customerUpdate = {
       accountname,

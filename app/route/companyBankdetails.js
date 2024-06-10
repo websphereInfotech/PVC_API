@@ -21,6 +21,7 @@ router.post(
 router.put(
   "/update_company_bankDetails/:id",
   adminToken("Company Bank Details:update_company_bankDetails"),
+  validation("update_company_bankDetails"),
   update_company_bankDetails
 );
 router.delete(

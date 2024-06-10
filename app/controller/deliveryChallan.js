@@ -33,6 +33,11 @@ exports.create_deliverychallan = async (req, res) => {
         .json({ status: "false", message: "Required Field oF items" });
     }
     for (const item of items) {
+      if (!item.productId || item.productId === "" || item.productId === null) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Required filed :Product" });
+      }
       const productname = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
       });

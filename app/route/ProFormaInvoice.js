@@ -15,6 +15,7 @@ router.post(
 router.put(
   "/update_ProFormaInvoice/:id",
   adminAuth("ProFormaInvoice:update_ProFormaInvoice"),
+  validation("update_ProFormaInvoice"),
   update_ProFormaInvoice
 );
 router.delete(

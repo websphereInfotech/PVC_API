@@ -29,6 +29,7 @@ router.post(
 router.put(
   "/C_update_paymentCash/:id",
   adminAuth("Payment Cash:update_payment_Cash"),
+  validation("update_paymentCash"),
   C_update_paymentCash
 );
 router.delete(
@@ -60,6 +61,7 @@ router.post(
 router.put(
   "/update_payment_bank/:id",
   adminAuth("Payment Bank:update_payment_bank"),
+  validation("update_payment_bank"),
   update_payment_bank
 );
 router.delete(

@@ -25,6 +25,7 @@ router.post(
 router.put(
   "/update_claim/:id",
   adminToken("Claim Cash:update_claim"),
+  validation("update_claim"),
   update_claim
 );
 router.delete(
