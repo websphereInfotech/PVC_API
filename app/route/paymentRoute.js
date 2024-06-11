@@ -22,8 +22,8 @@ const router = express.Router();
 
 router.post(
   "/C_create_paymentCash",
-  validation("create_paymentCash"),
   adminAuth("Payment Cash:create_payment_Cash"),
+  validation("create_paymentCash"),
   C_create_paymentCash
 );
 router.put(

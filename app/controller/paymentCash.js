@@ -6,6 +6,7 @@ const companyBalance = require("../models/companyBalance");
 const companyBankDetails = require("../models/companyBankDetails");
 const companyBankLedger = require("../models/companyBankLedger");
 const companySingleBank = require("../models/companySingleBank");
+const companySingleBankLedger = require("../models/companySingleBankLedger");
 const paymentBank = require("../models/paymentBank");
 const User = require("../models/user");
 const vendor = require("../models/vendor");
@@ -302,10 +303,17 @@ exports.create_payment_bank = async (req, res) => {
       date: paymentdate,
     });
 
+    await companySingleBankLedger.create({
+      companyId: req.user.companyId,
+      debitId: data.id,
+      date: paymentdate,
+      accountId: accountId,
+    });
+
     const existsingBalance = await companyBalance.findOne({
       where: { companyId: req.user.companyId },
     });
-  
+
     if (existsingBalance) {
       existsingBalance.balance -= amount;
       await existsingBalance.save();
@@ -314,7 +322,7 @@ exports.create_payment_bank = async (req, res) => {
     const balanceExists = await companySingleBank.findOne({
       where: { companyId: req.user.companyId, accountId: accountId },
     });
- 
+
     if (balanceExists) {
       balanceExists.balance -= amount;
       await balanceExists.save();
@@ -407,21 +415,28 @@ exports.update_payment_bank = async (req, res) => {
       },
       { where: { debitId: id } }
     );
-    const existingBalance = await companyBalance.findOne({
-      where: { companyId: req.user.companyId },
-    });
-
-
-    const balanceChange = amount - paymentdata.amount;
-    const newBalance = existingBalance.balance - balanceChange;
-
-    await companyBalance.update(
+    
+    await companySingleBankLedger.update(
       {
-        balance: newBalance,
-      },
-      { where: { companyId: req.user.companyId } }
-    );
-
+        companyId: req.user.companyId,
+        accountId: accountId,
+        date: paymentdate,
+        },
+        { where: { debitId: id } }
+        );
+        const existingBalance = await companyBalance.findOne({
+          where: { companyId: req.user.companyId },
+          });
+          
+          const balanceChange = amount - paymentdata.amount;
+          const newBalance = existingBalance.balance - balanceChange;
+          
+          await companyBalance.update(
+            {
+              balance: newBalance,
+            },
+            { where: { companyId: req.user.companyId } }
+          );
     const balanceExists = await companySingleBank.findOne({
       where: { accountId: accountId, companyId: req.user.companyId },
     });

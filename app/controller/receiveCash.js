@@ -8,6 +8,7 @@ const companyBalance = require("../models/companyBalance");
 const companyBankDetails = require("../models/companyBankDetails");
 const companyBankLedger = require("../models/companyBankLedger");
 const companySingleBank = require("../models/companySingleBank");
+const companySingleBankLedger = require("../models/companySingleBankLedger");
 const customer = require("../models/customer");
 const customerLedger = require("../models/customerLedger");
 const receiveBank = require("../models/receiveBank");
@@ -314,7 +315,7 @@ exports.create_receive_bank = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Bank Acccount Not Found" });
     }
-  
+
     const data = await receiveBank.create({
       voucherno,
       customerId,
@@ -341,6 +342,12 @@ exports.create_receive_bank = async (req, res) => {
       date: paymentdate,
     });
 
+    await companySingleBankLedger.create({
+      companyId: req.user.companyId,
+      creditId: data.id,
+      accountId: accountId,
+      date: paymentdate,
+    });
     const existsingBalance = await companyBalance.findOne({
       where: { companyId: req.user.companyId },
     });
@@ -455,6 +462,14 @@ exports.update_receive_bank = async (req, res) => {
       { where: { creditId: id } }
     );
 
+    await companySingleBankLedger.update(
+      {
+        companyId: req.user.companyId,
+        date: paymentdate,
+        accountId: accountId,
+      },
+      { where: { creditId: id } }
+    );
     const existsingBalance = await companyBalance.findOne({
       where: { companyId: req.user.companyId },
     });

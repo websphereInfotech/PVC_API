@@ -540,6 +540,7 @@ exports.validtill = function (req, res, next) {
     .messages({
       "any.required": "Required Field : Validtill",
       "string.empty": "validtill Cannot Be Empty",
+      "string.base": "Validtill Date Must Be A String"
     });
   const { error } = validtillSchema.validate(validtill);
   if (error) {
@@ -1386,6 +1387,35 @@ exports.purpose = function (req, res, next) {
   const { error } = purposeSchema.validate(purpose);
   if (error) {
     return res.status(400).json({ status: 'false', message: error.message });
+  }
+  next();
+}
+exports.validateBankdetails = function(req,res,next) {
+  const {bankdetail,bankdetails} = req.body;
+  if(bankdetail === true) {
+      const bankdetailsSchema = Joi.object({
+        bankname: Joi.string().required().messages({
+          'any.required': 'Required field : Bank name',
+          'string.empty': 'Bank name cannot be empty'
+        }),
+        ifsccode: Joi.string().required().messages({
+          'any.required': 'Required field : IFSC code',
+          'string.empty': 'IFSC code cannot be empty'
+        }),
+        accounttype: Joi.string().required().messages({
+          'any.required': 'Required field : Account type',
+          'string.empty': 'Account type cannot be empty'
+        }),
+        accountnumber: Joi.string().required().messages({
+          'any.required': 'Required field : Account number',
+          'string.empty': 'Account number cannot be empty'
+        })
+      });
+
+      const {error} = bankdetailsSchema.validate(bankdetails);
+      if(error) {
+        return res.status(400).json({status:'false', message:error.details[0].message});
+      }
   }
   next();
 }

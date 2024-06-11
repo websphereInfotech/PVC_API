@@ -27,4 +27,5 @@ companySingleBank.belongsTo(companyBankDetails, {
   onDelete: "CASCADE",
 });
 
+
 module.exports = companySingleBank;

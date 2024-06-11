@@ -28,7 +28,6 @@ router.post(
 router.get(
   "/C_get_all_receiveCash",
   adminAuth("Receive Cash:view_all_receive_Cash"),
-  validation("update_receiveCash"),
   C_get_all_receiveCash
 );
 router.get(
@@ -39,6 +38,7 @@ router.get(
 router.put(
   "/C_update_receiveCash/:id",
   adminAuth("Receive Cash:update_receive_Cash"),
+  validation("update_receiveCash"),
   C_update_receiveCash
 );
 router.delete(

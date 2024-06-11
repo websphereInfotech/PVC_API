@@ -11,8 +11,7 @@ const {
   C_update_salesinvoice,
   C_delete_salesInvoice,
   C_view_salesInvoice,
-  C_get_all_salesInvoice,
-  count_salesInvoice,
+  C_get_all_salesInvoice
 } = require("../controller/salesinvoice");
 
 const router = express.Router();
