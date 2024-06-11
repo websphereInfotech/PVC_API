@@ -15,7 +15,7 @@ exports.create_claim = async (req, res) => {
     if (toUserId === "" || toUserId === undefined || !toUserId) {
       return res
         .status(400)
-        .json({ status: "true", message: "Required Field : toUserId" });
+        .json({ status: "true", message: "Required Field : User" });
     }
     const userData = await User.findOne({ where: { id: toUserId } });
     if (!userData) {

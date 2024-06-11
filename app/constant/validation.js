@@ -605,6 +605,7 @@ exports.invoicedate = function (req, res, next) {
     .messages({
       "any.required": "Required Field : Invoice Date",
       "string.empty": "Invoice Date Cannot Be Empty",
+      "string.base": "Invoice Date Must Be A String"
     });
   const { error } = invoicedateSchema.validate(invoicedate);
   if (error) {
@@ -996,6 +997,7 @@ exports.duedate = function (req, res, next) {
     .messages({
       "any.required": "Required Field : duedate",
       "string.empty": "duedate Cannot Be Empty",
+      "string.base": "Date Must Be A String"
     });
   const { error } = duedateSchema.validate(duedate);
   if (error) {

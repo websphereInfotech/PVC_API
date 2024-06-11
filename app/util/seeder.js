@@ -53,11 +53,20 @@ const existingData = async () => {
       });
     }
     const existingBalance = await C_userBalance.findOne({
-      where: { userId: existingUser.id, companyId: existingCompany.id },
+      where: {userId: existingUser.id, companyId: existingCompany.id },
     });
     if(!existingBalance) {
       await C_userBalance.create({
-        userId: existingUser.id, 
+        userId: existingUser.id,
+        companyId: existingCompany.id,
+        balance:0 
+      });
+    }
+    const existingComapnyBalance = await C_companyBalance.findOne({
+      where: {companyId: existingCompany.id },
+    });
+    if(!existingComapnyBalance) {
+      await C_companyBalance.create({
         companyId: existingCompany.id,
         balance:0 
       });
