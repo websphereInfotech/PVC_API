@@ -223,7 +223,7 @@ exports.update_purchaseInvoice = async (req, res) => {
         date: invoicedate,
         companyId: req.user.companyId,
       },
-      { where: { creditId: id } }
+      { where: { debitId: id } }
     );
     const existingItems = await purchaseInvoiceItem.findAll({
       where: { purchasebillId: id },
@@ -443,7 +443,7 @@ exports.C_create_purchaseCash = async (req, res) => {
     await C_vendorLedger.create({
       vendorId,
       companyId: req.user.companyId,
-      creditId: purchseData.id,
+      debitId: purchseData.id,
       date,
     });
 
@@ -540,7 +540,7 @@ exports.C_update_purchaseCash = async (req, res) => {
       where: { PurchaseId: id },
     });
 
-    const creditId = existingPurchase.id;
+
 
     await C_vendorLedger.update(
       {
@@ -548,7 +548,7 @@ exports.C_update_purchaseCash = async (req, res) => {
         vendorId,
         date,
       },
-      { where: { creditId } }
+      { where: { debitId:id } }
     );
     const mergedItems = [];
     items.forEach((item) => {

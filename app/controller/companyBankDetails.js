@@ -274,88 +274,6 @@ exports.view_company_bankLedger = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-// exports.view_single_bankLedger = async (req,res) => {
-//   try {
-//     const {id} = req.params;
-//     const { fromDate, toDate } = req.query;
-
-//     let whereData = {
-//       companyId: req.user.companyId,
-//       accountId:id
-//     };
-
-//     if (fromDate && toDate) {
-//       whereData.date = {
-//         [Sequelize.Op.between]: [fromDate, toDate],
-//       };
-//     }
-//     const data = await companyBankLedger.findAll({
-//       where: whereData,
-//       include: [
-//         {
-//           model: receiveBank,
-//           as: "receiveData",
-//           attributes: [],
-//         },
-//         {
-//           model: paymentBank,
-//           as: "paymentdata",
-//           attributes: [],
-//         },
-//       ],
-//       attributes: {
-//         include: [
-//           [Sequelize.literal("IFNULL(paymentdata.amount, 0)"), "debitAmount"],
-//           [Sequelize.literal("IFNULL(receiveData.amount, 0)"), "creditAmount"],
-//           [
-//             Sequelize.literal(`(
-//               SELECT IFNULL(SUM(IFNULL(r.amount, 0) - IFNULL(p.amount, 0)), 0)
-//               FROM P_companyBankLedgers AS cbl
-//               LEFT JOIN P_receiveBanks AS r ON cbl.creditId = r.id
-//               LEFT JOIN P_paymentBanks AS p ON cbl.debitId = p.id
-//               WHERE cbl.companyId = P_companyBankLedger.companyId
-//               AND (cbl.date < P_companyBankLedger.date OR (cbl.date = P_companyBankLedger.date AND cbl.id < P_companyBankLedger.id))
-//             )`),
-//             "openingBalance",
-//           ],
-//           [
-//             Sequelize.literal(`(
-//               SELECT SUM(IFNULL(r.amount, 0) - IFNULL(p.amount, 0))
-//               FROM P_companyBankLedgers AS cbl
-//               LEFT JOIN P_receiveBanks AS r ON cbl.creditId = r.id
-//               LEFT JOIN P_paymentBanks AS p ON cbl.debitId = p.id
-//               WHERE cbl.companyId = P_companyBankLedger.companyId
-//               AND (cbl.date < P_companyBankLedger.date OR (cbl.date = P_companyBankLedger.date AND cbl.id <= P_companyBankLedger.id))
-//             )`),
-//             "remainingBalance",
-//           ],
-//         ],
-//       },
-//       order: [
-//         ["date", "ASC"],
-//         ["id", "ASC"],
-//       ],
-//     });
-//     if (data) {
-//       return res
-//         .status(200)
-//         .json({
-//           status: "true",
-//           message: "Bank Data Show Successfully",
-//           data: data,
-//         });
-//     } else {
-//       return res
-//         .status(404)
-//         .json({ status: "false", message: "Bank Data Not Found" });
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     return res
-//       .status(500)
-//       .json({ status: "false", message: "Internal Server Error" });
-//   }
-// }
 exports.view_single_bankLedger = async (req, res) => {
   try {
     const { id } = req.params;
@@ -368,51 +286,6 @@ exports.view_single_bankLedger = async (req, res) => {
         },
       };
     }
-    // const data = await companySingleBankLedger.findAll({
-    //   where: {
-    //     companyId: req.user.companyId,
-    //     accountId: id,
-    //      ...dateFilter,
-    //   },
-    //   include: [
-    //     {
-    //       model: receiveBank,
-    //       as: "ReceiveData",
-    //       attributes: [],
-    //     },
-    //     {
-    //       model: paymentBank,
-    //       as: "PaymentData",
-    //       attributes: [],
-    //     },
-    //   ],
-    //   attributes: {
-    //     include: [
-    //       [Sequelize.literal("IFNULL(PaymentData.amount, 0)"), "debitAmount"],
-    //       [Sequelize.literal("IFNULL(ReceiveData.amount, 0)"), "creditAmount"],
-    //       [Sequelize.literal(`(
-    //         SELECT COALESCE(SUM(IFNULL(r.amount, 0) - IFNULL(p.amount, 0)), 0)
-    //         FROM P_companySingleBankLedgers AS cbl
-    //         LEFT JOIN P_receiveBanks AS r ON cbl.creditId = r.id
-    //         LEFT JOIN P_paymentBanks AS p ON cbl.debitId = p.id
-    //         WHERE cbl.accountId = ${id}
-    //         AND cbl.date < cbl.date
-    //       )`), "openingBalance"],
-    //       [Sequelize.literal(`(
-    //         SELECT COALESCE(SUM(IFNULL(r.amount, 0) - IFNULL(p.amount, 0)), 0)
-    //         FROM P_companySingleBankLedgers AS cbl
-    //         LEFT JOIN P_receiveBanks AS r ON cbl.creditId = r.id
-    //         LEFT JOIN P_paymentBanks AS p ON cbl.debitId = p.id
-    //         WHERE cbl.accountId = ${id}
-    //         AND cbl.date <= cbl.date
-    //       )`), "remainingBalance"],
-    //     ],
-    //   },
-    //   order: [
-    //     ["date", "ASC"],
-    //     ["id", "ASC"],
-    //   ],
-    // });
     const data = await companySingleBankLedger.findAll({
       where: {
           companyId: req.user.companyId,
@@ -437,29 +310,30 @@ exports.view_single_bankLedger = async (req, res) => {
           [Sequelize.literal("IFNULL(PaymentData.amount, 0)"), "debitAmount"],
           [Sequelize.literal("IFNULL(ReceiveData.amount, 0)"), "creditAmount"],
           [
-              Sequelize.literal(`(
-                  SELECT SUM(COALESCE(subquery.creditAmount, 0) - COALESCE(subquery.debitAmount, 0))
-                  FROM (
-                      SELECT 
-                          cbl.date, 
-                          r.amount AS creditAmount, 
-                          p.amount AS debitAmount
-                      FROM P_companySingleBankLedgers AS cbl
-                      LEFT JOIN P_receiveBanks AS r ON cbl.creditId = r.id
-                      LEFT JOIN P_paymentBanks AS p ON cbl.debitId = p.id
-                      WHERE 
-                          cbl.accountId = P_companySingleBankLedger.accountId
-                          AND cbl.companyId = P_companySingleBankLedgers.companyId
-                          AND cbl.date <= P_companySingleBankLedgers.date /* Changed from < to <= */
-                  ) AS subquery
-              )`),
-              "openingBalance"
+            Sequelize.literal(`
+              (
+                (
+                  SELECT
+                    IFNULL(SUM(IFNULL(ReceiveData.amount, 0) - IFNULL(PaymentData.amount, 0)), 0)
+                  FROM
+                    \`P_companySingleBankLedgers\` AS cl2
+                    LEFT OUTER JOIN \`P_receiveBanks\` AS ReceiveData ON cl2.creditId = ReceiveData.id
+                    LEFT OUTER JOIN \`P_paymentBanks\` AS PaymentData ON cl2.debitId = PaymentData.id
+                  WHERE
+                    cl2.companyId = :companyId
+                    AND cl2.accountId = \`P_companySingleBankLedger\`.\`accountId\`
+                    AND (cl2.date < \`P_companySingleBankLedger\`.\`date\` OR (cl2.date = \`P_companySingleBankLedger\`.\`date\` AND cl2.id < \`P_companySingleBankLedger\`.\`id\`))
+                ) + IFNULL(ReceiveData.amount, 0) - IFNULL(PaymentData.amount, 0)
+              )
+            `),
+            "remainingBalance",
           ],
       ],
       order: [
           ["date", "ASC"],
           ["id", "ASC"],
       ],
+      replacements: { companyId:req.user.companyId }
   });
   
   
@@ -477,89 +351,3 @@ exports.view_single_bankLedger = async (req, res) => {
     return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
 };
-
-
-// exports.view_single_bankLedger = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const { fromDate, toDate } = req.query;
-
-//     let whereData = {
-//       companyId: req.user.companyId,
-//       accountId: id,
-//     };
-
-//     if (fromDate && toDate) {
-//       whereData.date = {
-//         [Op.between]: [fromDate, toDate],
-//       };
-//     }
-//     const data = await companySingleBankLedger.findAll({
-//       where: whereData,
-//       include: [
-//         {
-//           model: receiveBank,
-//           as: "ReceiveData",
-//           attributes: [],
-//         },
-//         {
-//           model: paymentBank,
-//           as: "PaymentData",
-//           attributes: [],
-//         },
-//       ],
-//       attributes: {
-//         include: [
-//           [Sequelize.literal("IFNULL(PaymentData.amount, 0)"), "debitAmount"],
-//           [Sequelize.literal("IFNULL(ReceiveData.amount, 0)"), "creditAmount"],
-//           [
-//             Sequelize.literal(`(
-//               SELECT COALESCE(SUM(IFNULL(r.amount, 0) - IFNULL(p.amount, 0)), 0)
-//               FROM P_companySingleBankLedgers AS cbl
-//               LEFT JOIN P_receiveBanks AS r ON cbl.creditId = r.id
-//               LEFT JOIN P_paymentBanks AS p ON cbl.debitId = p.id
-//               WHERE cbl.accountId = :accountId
-//               AND cbl.date < P_companySingleBankLedger.date
-//           )`),
-//             "openingBalance",
-//           ],
-//           [
-//             Sequelize.literal(`(
-//               SELECT COALESCE(SUM(IFNULL(r.amount, 0) - IFNULL(p.amount, 0)), 0)
-//               FROM P_companySingleBankLedgers AS cbl
-//               LEFT JOIN P_receiveBanks AS r ON cbl.creditId = r.id
-//               LEFT JOIN P_paymentBanks AS p ON cbl.debitId = p.id
-//               WHERE cbl.accountId = :accountId
-//               AND cbl.date <= P_companySingleBankLedger.date
-//           )`),
-//             "remainingBalance",
-//           ],
-//         ],
-//       },
-//       replacements: {
-//         accountId: whereData.accountId,
-//       },
-//       order: [
-//         ["date", "ASC"],
-//         ["id", "ASC"],
-//       ],
-//     });
-    
-//     if (data && data.length > 0) {
-//       return res.status(200).json({
-//         status: "true",
-//         message: "Bank Data Show Successfully",
-//         data: data,
-//       });
-//     } else {
-//       return res
-//         .status(404)
-//         .json({ status: "false", message: "Bank Data Not Found" });
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     return res
-//       .status(500)
-//       .json({ status: "false", message: "Internal Server Error" });
-//   }
-// };

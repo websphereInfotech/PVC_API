@@ -16,11 +16,11 @@ const C_vendorLedger = sequelize.define("P_C_vendorLedger", {
 company.hasMany(C_vendorLedger,{foreignKey:'companyId',onDelete:'CASCADE',as:'companyvendorldcash'});
 C_vendorLedger.belongsTo(company,{foreignKey:'companyId',onDelete:'CASCADE',as:'companyvendorldcash'});
 
-C_purchaseCash.hasMany(C_vendorLedger, {foreignKey:'creditId', onDelete:'CASCADE', as:'invoiceLedger'});
-C_vendorLedger.belongsTo(C_purchaseCash, {foreignKey:'creditId', onDelete:'CASCADE', as:'invoiceLedger'});
+C_purchaseCash.hasMany(C_vendorLedger, {foreignKey:'debitId', onDelete:'CASCADE', as:'invoiceLedger'});
+C_vendorLedger.belongsTo(C_purchaseCash, {foreignKey:'debitId', onDelete:'CASCADE', as:'invoiceLedger'});
 
-C_PaymentCash.hasMany(C_vendorLedger, {foreignKey:'debitId', onDelete:'CASCADE', as:'paymentLedger'});
-C_vendorLedger.belongsTo(C_PaymentCash, {foreignKey:'debitId', onDelete:'CASCADE', as:'paymentLedger'});
+C_PaymentCash.hasMany(C_vendorLedger, {foreignKey:'creditId', onDelete:'CASCADE', as:'paymentLedger'});
+C_vendorLedger.belongsTo(C_PaymentCash, {foreignKey:'creditId', onDelete:'CASCADE', as:'paymentLedger'});
 
 C_vendor.hasMany(C_vendorLedger,{foreignKey:'vendorId', onDelete:'CASCADE', as:'vendorData'});
 C_vendorLedger.belongsTo(C_vendor, {foreignKey:'vendorId', onDelete:'CASCADE', as:'vendorData'});

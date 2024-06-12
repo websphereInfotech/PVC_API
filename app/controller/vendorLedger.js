@@ -36,43 +36,80 @@ exports.C_get_vendorLedger = async (req, res) => {
         "vendorId",
         "date",
         "id",
-        [Sequelize.literal("IFNULL(paymentLedger.amount, 0)"), "debitAmount"],
+        // [Sequelize.literal("IFNULL(invoiceLedger.totalMrp, 0)"), "debitAmount"],
+        // [
+        //   Sequelize.literal("IFNULL(paymentLedger.amount, 0)"),
+        //   "creditAmount",
+        // ],
+        // [
+        //   Sequelize.literal(`
+        //           (
+        //             SELECT
+        //               IFNULL(SUM(IFNULL(paymentLedger.amount, 0) - IFNULL(invoiceLedger.totalMrp, 0)), 0)
+        //             FROM
+        //               \`P_C_vendorLedgers\` AS cl2
+        //               LEFT OUTER JOIN \`P_C_purchaseCashes\` AS invoiceLedger ON cl2.debitId = invoiceLedger.id
+        //               LEFT OUTER JOIN \`P_C_paymentCashes\` AS paymentLedger ON cl2.creditId = paymentLedger.id
+        //             WHERE
+        //               cl2.vendorId = \`P_C_vendorLedger\`.\`vendorId\`
+        //               AND cl2.companyId = :companyId
+        //               AND (cl2.date < \`P_C_vendorLedger\`.\`date\` OR (cl2.date = \`P_C_vendorLedger\`.\`date\` AND cl2.id < \`P_C_vendorLedger\`.\`id\`))
+        //           )
+        //         `),
+        //   "openingBalance",
+        // ],
+        // [
+        //   Sequelize.literal(`
+        //     (
+        //       SELECT
+        //         IFNULL(SUM(IFNULL(paymentLedger.amount, 0) - IFNULL(invoiceLedger.totalMrp, 0)), 0)
+        //       FROM
+        //         \`P_C_vendorLedgers\` AS cl2
+        //         LEFT OUTER JOIN \`P_C_purchaseCashes\` AS invoiceLedger ON cl2.debitId = invoiceLedger.id
+        //         LEFT OUTER JOIN \`P_C_paymentCashes\` AS paymentLedger ON cl2.creditId = paymentLedger.id
+        //       WHERE
+        //         cl2.vendorId = \`P_C_vendorLedger\`.\`vendorId\`
+        //         AND cl2.companyId = :companyId
+        //         AND (cl2.date < \`P_C_vendorLedger\`.\`date\` OR (cl2.date = \`P_C_vendorLedger\`.\`date\` AND cl2.id < \`P_C_vendorLedger\`.\`id\`))
+        //     ) + IFNULL(invoiceLedger.totalMrp, 0) - IFNULL(paymentLedger.amount, 0)
+        //   `),
+        //   "remainingBalance",
+        // ],
+          [Sequelize.literal("IFNULL(invoiceLedger.totalMrp, 0)"), "creditAmount"],
         [
-          Sequelize.literal("IFNULL(invoiceLedger.totalMrp, 0)"),
-          "creditAmount",
+          Sequelize.literal("IFNULL(paymentLedger.amount, 0)"),
+          "debitAmount",
         ],
         [
           Sequelize.literal(`
-                  (
-                    SELECT
-                      IFNULL(SUM(IFNULL(invoiceLedger.totalMrp, 0) - IFNULL(paymentLedger.amount, 0)), 0)
-                    FROM
-                      \`P_C_vendorLedgers\` AS cl2
-                      LEFT OUTER JOIN \`P_C_purchaseCashes\` AS invoiceLedger ON cl2.creditId = invoiceLedger.id
-                      LEFT OUTER JOIN \`P_C_paymentCashes\` AS paymentLedger ON cl2.debitId = paymentLedger.id
-                    WHERE
-                      cl2.vendorId = \`P_C_vendorLedger\`.\`vendorId\`
-                      AND cl2.companyId = :companyId
-                      AND (cl2.date < \`P_C_vendorLedger\`.\`date\` OR (cl2.date = \`P_C_vendorLedger\`.\`date\` AND cl2.id < \`P_C_vendorLedger\`.\`id\`))
-                  )
-                `),
+                (
+                  SELECT
+                    IFNULL(SUM(IFNULL(invoiceLedger.totalMrp, 0) - IFNULL(paymentLedger.amount, 0)), 0)
+                  FROM
+                    \`P_C_vendorLedgers\` AS cl2
+                    LEFT OUTER JOIN \`P_C_purchaseCashes\` AS invoiceLedger ON cl2.debitId = invoiceLedger.id
+                    LEFT OUTER JOIN \`P_C_paymentCashes\` AS paymentLedger ON cl2.creditId = paymentLedger.id
+                  WHERE
+                    cl2.companyId = :companyId
+                    AND (cl2.date < \`P_C_vendorLedger\`.\`date\` OR (cl2.date = \`P_C_vendorLedger\`.\`date\` AND cl2.id < \`P_C_vendorLedger\`.\`id\`))
+                )
+              `),
           "openingBalance",
         ],
         [
           Sequelize.literal(`
-            (
-              SELECT
-                IFNULL(SUM(IFNULL(invoiceLedger.totalMrp, 0) - IFNULL(paymentLedger.amount, 0)), 0)
-              FROM
-                \`P_C_vendorLedgers\` AS cl2
-                LEFT OUTER JOIN \`P_C_purchaseCashes\` AS invoiceLedger ON cl2.creditId = invoiceLedger.id
-                LEFT OUTER JOIN \`P_C_paymentCashes\` AS paymentLedger ON cl2.debitId = paymentLedger.id
-              WHERE
-                cl2.vendorId = \`P_C_vendorLedger\`.\`vendorId\`
-                AND cl2.companyId = :companyId
-                AND (cl2.date < \`P_C_vendorLedger\`.\`date\` OR (cl2.date = \`P_C_vendorLedger\`.\`date\` AND cl2.id < \`P_C_vendorLedger\`.\`id\`))
-            ) + IFNULL(invoiceLedger.totalMrp, 0) - IFNULL(paymentLedger.amount, 0)
-          `),
+              (
+                SELECT
+                  IFNULL(SUM(IFNULL(invoiceLedger.totalMrp, 0) - IFNULL(paymentLedger.amount, 0)), 0)
+                FROM
+                  \`P_C_vendorLedgers\` AS cl2
+                  LEFT OUTER JOIN \`P_C_purchaseCashes\` AS invoiceLedger ON cl2.debitId = invoiceLedger.id
+                  LEFT OUTER JOIN \`P_C_paymentCashes\` AS paymentLedger ON cl2.creditId = paymentLedger.id
+                WHERE
+                  cl2.companyId = :companyId
+                  AND (cl2.date < \`P_C_vendorLedger\`.\`date\` OR (cl2.date = \`P_C_vendorLedger\`.\`date\` AND cl2.id < \`P_C_vendorLedger\`.\`id\`))
+              ) + IFNULL(invoiceLedger.totalMrp, 0) - IFNULL(paymentLedger.amount, 0)
+            `),
           "remainingBalance",
         ],
       ],
@@ -80,10 +117,12 @@ exports.C_get_vendorLedger = async (req, res) => {
         {
           model: C_purchaseCash,
           as: "invoiceLedger",
+          attributes:[],
         },
         {
           model: C_PaymentCash,
           as: "paymentLedger",
+          attributes:[],
         },
         {
           model: C_vendor,
@@ -157,20 +196,20 @@ exports.get_vendorLedger = async (req, res) => {
         "vendorId",
         "date",
         "id",
-        [Sequelize.literal("IFNULL(paymentVendor.mainTotal, 0)"), "debitAmount"],
+        [Sequelize.literal("IFNULL(invoiceVendor.mainTotal, 0)"), "creditAmount"],
         [
-          Sequelize.literal("IFNULL(invoiceVendor.amount, 0)"),
-          "creditAmount",
+          Sequelize.literal("IFNULL(paymentVendor.amount, 0)"),
+          "debitAmount",
         ],
         [
           Sequelize.literal(`
                 (
                   SELECT
-                    IFNULL(SUM(IFNULL(paymentVendor.mainTotal, 0) - IFNULL(invoiceVendor.amount, 0)), 0)
+                    IFNULL(SUM(IFNULL(invoiceVendor.mainTotal, 0) - IFNULL(paymentVendor.amount, 0)), 0)
                   FROM
                     \`P_vendorLedgers\` AS cl2
-                    LEFT OUTER JOIN \`P_purchaseInvoices\` AS paymentVendor ON cl2.debitId = paymentVendor.id
-                    LEFT OUTER JOIN \`P_paymentBanks\` AS invoiceVendor ON cl2.creditId = invoiceVendor.id
+                    LEFT OUTER JOIN \`P_purchaseInvoices\` AS invoiceVendor ON cl2.debitId = invoiceVendor.id
+                    LEFT OUTER JOIN \`P_paymentBanks\` AS paymentVendor ON cl2.creditId = paymentVendor.id
                   WHERE
                     cl2.companyId = :companyId
                     AND (cl2.date < \`P_vendorLedger\`.\`date\` OR (cl2.date = \`P_vendorLedger\`.\`date\` AND cl2.id < \`P_vendorLedger\`.\`id\`))
@@ -182,15 +221,15 @@ exports.get_vendorLedger = async (req, res) => {
           Sequelize.literal(`
               (
                 SELECT
-                  IFNULL(SUM(IFNULL(paymentVendor.mainTotal, 0) - IFNULL(invoiceVendor.amount, 0)), 0)
+                  IFNULL(SUM(IFNULL(invoiceVendor.mainTotal, 0) - IFNULL(paymentVendor.amount, 0)), 0)
                 FROM
                   \`P_vendorLedgers\` AS cl2
-                  LEFT OUTER JOIN \`P_purchaseInvoices\` AS paymentVendor ON cl2.debitId = paymentVendor.id
-                  LEFT OUTER JOIN \`P_paymentBanks\` AS invoiceVendor ON cl2.creditId = invoiceVendor.id
+                  LEFT OUTER JOIN \`P_purchaseInvoices\` AS invoiceVendor ON cl2.debitId = invoiceVendor.id
+                  LEFT OUTER JOIN \`P_paymentBanks\` AS paymentVendor ON cl2.creditId = paymentVendor.id
                 WHERE
                   cl2.companyId = :companyId
                   AND (cl2.date < \`P_vendorLedger\`.\`date\` OR (cl2.date = \`P_vendorLedger\`.\`date\` AND cl2.id < \`P_vendorLedger\`.\`id\`))
-              ) + IFNULL(paymentVendor.mainTotal, 0) - IFNULL(invoiceVendor.amount, 0)
+              ) + IFNULL(invoiceVendor.mainTotal, 0) - IFNULL(paymentVendor.amount, 0)
             `),
           "remainingBalance",
         ],
@@ -198,12 +237,12 @@ exports.get_vendorLedger = async (req, res) => {
       include: [
         {
           model: purchaseInvoice,
-          as: "paymentVendor",
+          as: "invoiceVendor",
           attributes:[]
         },
         {
           model: paymentBank,
-          as: "invoiceVendor",
+          as: "paymentVendor",
           attributes:[]
         },
         {

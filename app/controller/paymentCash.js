@@ -53,7 +53,7 @@ exports.C_create_paymentCash = async (req, res) => {
 
     await C_vendorLedger.create({
       vendorId,
-      debitId: data.id,
+      creditId: data.id,
       date,
       companyId: req.user.companyId,
     });
@@ -180,7 +180,7 @@ exports.C_update_paymentCash = async (req, res) => {
         vendorId,
         date,
       },
-      { where: { debitId: id } }
+      { where: { creditId: id } }
     );
 
     const existingBalance = await C_companyBalance.findOne({
@@ -405,7 +405,7 @@ exports.update_payment_bank = async (req, res) => {
         vendorId,
         date: paymentdate,
       },
-      { where: { debitId: id } }
+      { where: { creditId: id } }
     );
 
     await companyBankLedger.update(
