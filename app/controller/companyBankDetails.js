@@ -368,52 +368,101 @@ exports.view_single_bankLedger = async (req, res) => {
         },
       };
     }
+    // const data = await companySingleBankLedger.findAll({
+    //   where: {
+    //     companyId: req.user.companyId,
+    //     accountId: id,
+    //      ...dateFilter,
+    //   },
+    //   include: [
+    //     {
+    //       model: receiveBank,
+    //       as: "ReceiveData",
+    //       attributes: [],
+    //     },
+    //     {
+    //       model: paymentBank,
+    //       as: "PaymentData",
+    //       attributes: [],
+    //     },
+    //   ],
+    //   attributes: {
+    //     include: [
+    //       [Sequelize.literal("IFNULL(PaymentData.amount, 0)"), "debitAmount"],
+    //       [Sequelize.literal("IFNULL(ReceiveData.amount, 0)"), "creditAmount"],
+    //       [Sequelize.literal(`(
+    //         SELECT COALESCE(SUM(IFNULL(r.amount, 0) - IFNULL(p.amount, 0)), 0)
+    //         FROM P_companySingleBankLedgers AS cbl
+    //         LEFT JOIN P_receiveBanks AS r ON cbl.creditId = r.id
+    //         LEFT JOIN P_paymentBanks AS p ON cbl.debitId = p.id
+    //         WHERE cbl.accountId = ${id}
+    //         AND cbl.date < cbl.date
+    //       )`), "openingBalance"],
+    //       [Sequelize.literal(`(
+    //         SELECT COALESCE(SUM(IFNULL(r.amount, 0) - IFNULL(p.amount, 0)), 0)
+    //         FROM P_companySingleBankLedgers AS cbl
+    //         LEFT JOIN P_receiveBanks AS r ON cbl.creditId = r.id
+    //         LEFT JOIN P_paymentBanks AS p ON cbl.debitId = p.id
+    //         WHERE cbl.accountId = ${id}
+    //         AND cbl.date <= cbl.date
+    //       )`), "remainingBalance"],
+    //     ],
+    //   },
+    //   order: [
+    //     ["date", "ASC"],
+    //     ["id", "ASC"],
+    //   ],
+    // });
     const data = await companySingleBankLedger.findAll({
       where: {
-        companyId: req.user.companyId,
-        accountId: id,
-        ...dateFilter,
+          companyId: req.user.companyId,
+          accountId: id,
+          ...dateFilter,
       },
       include: [
-        {
-          model: receiveBank,
-          as: "ReceiveData",
-          attributes: [],
-        },
-        {
-          model: paymentBank,
-          as: "PaymentData",
-          attributes: [],
-        },
+          {
+              model: receiveBank,
+              as: "ReceiveData",
+              attributes: [],
+          },
+          {
+              model: paymentBank,
+              as: "PaymentData",
+              attributes: [],
+          },
       ],
-      attributes: {
-        include: [
+      attributes: [
+          "companyId",
+          "accountId",
           [Sequelize.literal("IFNULL(PaymentData.amount, 0)"), "debitAmount"],
           [Sequelize.literal("IFNULL(ReceiveData.amount, 0)"), "creditAmount"],
-          [Sequelize.literal(`(
-            SELECT COALESCE(SUM(IFNULL(r.amount, 0) - IFNULL(p.amount, 0)), 0)
-            FROM P_companySingleBankLedgers AS cbl
-            LEFT JOIN P_receiveBanks AS r ON cbl.creditId = r.id
-            LEFT JOIN P_paymentBanks AS p ON cbl.debitId = p.id
-            WHERE cbl.accountId = ${id}
-            AND cbl.date < cbl.date
-          )`), "openingBalance"],
-          [Sequelize.literal(`(
-            SELECT COALESCE(SUM(IFNULL(r.amount, 0) - IFNULL(p.amount, 0)), 0)
-            FROM P_companySingleBankLedgers AS cbl
-            LEFT JOIN P_receiveBanks AS r ON cbl.creditId = r.id
-            LEFT JOIN P_paymentBanks AS p ON cbl.debitId = p.id
-            WHERE cbl.accountId = ${id}
-            AND cbl.date <= cbl.date
-          )`), "remainingBalance"],
-        ],
-      },
-      order: [
-        ["date", "ASC"],
-        ["id", "ASC"],
+          [
+              Sequelize.literal(`(
+                  SELECT SUM(COALESCE(subquery.creditAmount, 0) - COALESCE(subquery.debitAmount, 0))
+                  FROM (
+                      SELECT 
+                          cbl.date, 
+                          r.amount AS creditAmount, 
+                          p.amount AS debitAmount
+                      FROM P_companySingleBankLedgers AS cbl
+                      LEFT JOIN P_receiveBanks AS r ON cbl.creditId = r.id
+                      LEFT JOIN P_paymentBanks AS p ON cbl.debitId = p.id
+                      WHERE 
+                          cbl.accountId = P_companySingleBankLedger.accountId
+                          AND cbl.companyId = P_companySingleBankLedgers.companyId
+                          AND cbl.date <= P_companySingleBankLedgers.date /* Changed from < to <= */
+                  ) AS subquery
+              )`),
+              "openingBalance"
+          ],
       ],
-    });
-
+      order: [
+          ["date", "ASC"],
+          ["id", "ASC"],
+      ],
+  });
+  
+  
     if (data && data.length > 0) {
       return res.status(200).json({
         status: "true",

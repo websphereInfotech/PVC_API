@@ -146,14 +146,14 @@ exports.get_customerLedger = async (req, res) => {
         "id",
         [Sequelize.literal("IFNULL(receiveCustomer.amount, 0)"), "debitAmount"],
         [
-          Sequelize.literal("IFNULL(invoiceCustomer.totalMrp, 0)"),
+          Sequelize.literal("IFNULL(invoiceCustomer.mainTotal, 0)"),
           "creditAmount",
         ],
         [
           Sequelize.literal(`
             (
               SELECT
-                IFNULL(SUM(IFNULL(invoiceCustomer.totalMrp, 0) - IFNULL(receiveCustomer.amount, 0)), 0)
+                IFNULL(SUM(IFNULL(invoiceCustomer.mainTotal, 0) - IFNULL(receiveCustomer.amount, 0)), 0)
               FROM
                 \`P_customerLedgers\` AS cl2
                 LEFT OUTER JOIN \`P_salesInvoices\` AS invoiceCustomer ON cl2.creditId = invoiceCustomer.id
@@ -171,7 +171,7 @@ exports.get_customerLedger = async (req, res) => {
             (
               (
                 SELECT
-                  IFNULL(SUM(IFNULL(invoiceCustomer.totalMrp, 0) - IFNULL(receiveCustomer.amount, 0)), 0)
+                  IFNULL(SUM(IFNULL(invoiceCustomer.mainTotal, 0) - IFNULL(receiveCustomer.amount, 0)), 0)
                 FROM
                   \`P_customerLedgers\` AS cl2
                   LEFT OUTER JOIN \`P_salesInvoices\` AS invoiceCustomer ON cl2.creditId = invoiceCustomer.id

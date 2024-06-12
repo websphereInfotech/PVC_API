@@ -47,7 +47,7 @@ exports.create_debitNote = async (req, res) => {
     if (!invoiceData) {
       return res
         .status(404)
-        .json({ status: "false", message: "Purchae Invoice Not Found" });
+        .json({ status: "false", message: "Purchase Invoice Not Found" });
     }
     const customerData = await customer.findOne({
       where: { id: customerId, companyId: req.user.companyId },
