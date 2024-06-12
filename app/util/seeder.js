@@ -5,6 +5,7 @@ const Permissions = require("../models/permission");
 const { permissions } = require("../middleware/permissions");
 const companyBalance = require("../models/companyBalance");
 const C_userBalance = require("../models/C_userBalance");
+const C_companyBalance = require("../models/C_companyBalance");
 
 const existingData = async () => {
   try {

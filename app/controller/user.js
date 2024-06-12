@@ -190,7 +190,15 @@ exports.update_user = async (req, res) => {
         .json({ status: "false", message: "Mobile Number Already Exists" });
     }
     }
-
+      
+    if (FindID.mobileno !== mobileno) {
+      const existingMobile = await User.findOne({ where: { mobileno: mobileno } });
+      if(existingMobile) {
+        return res
+      .status(400)
+    .json({ status: "false", message: "Mobile Number Already Exists" });
+  }
+  }
     const companyData = await companyUser.findOne({
       where: { companyId: req.user.companyId },
     });
@@ -212,23 +220,6 @@ exports.update_user = async (req, res) => {
       );
     }
 
-    // const userData = {
-    //   username: username,
-    //   email: email,
-    //   role: role,
-    //   mobileno: mobileno,
-    //   salary: salary,
-    // };
-    // if (dataRole !== "Super Admin") {
-    //   userData.password = password;
-    // } else {
-    //   if (password) {
-    //     return res.status(400).json({
-    //       status: "false",
-    //       message: "Password update is not allowed for Super Admin.",
-    //     });
-    //   }
-    // }
     const data = await User.findByPk(id);
     return res.status(200).json({
       status: "true",
