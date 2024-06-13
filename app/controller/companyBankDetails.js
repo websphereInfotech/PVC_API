@@ -307,6 +307,7 @@ exports.view_single_bankLedger = async (req, res) => {
       attributes: [
           "companyId",
           "accountId",
+          "date",
           [Sequelize.literal("IFNULL(PaymentData.amount, 0)"), "debitAmount"],
           [Sequelize.literal("IFNULL(ReceiveData.amount, 0)"), "creditAmount"],
           [

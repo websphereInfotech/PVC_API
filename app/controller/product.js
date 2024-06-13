@@ -28,11 +28,15 @@ exports.create_product = async (req, res) => {
       cess,
     } = req.body;
     
-    let purchaseprice = req.body.panno;
+    let purchaseprice = req.body.purchaseprice;
     if (purchaseprice === "") {
       purchaseprice = null;
     }
     
+    const existingHSNcode = await product.findOne({ where:{HSNcode:HSNcode}});
+    if(existingHSNcode) {
+      return res.status(400).json({ status:'false', message:'HSN Code Already Exists'});
+    }
     const data = await product.create({
       itemtype,
       productname,
@@ -91,16 +95,23 @@ exports.update_product = async (req, res) => {
       cess,
     } = req.body;
 
-    const updatepayment = await product.findOne({
+    const existingProduct = await product.findOne({
       where: { id: id, companyId: req.user.companyId },
     });
 
-    if (!updatepayment) {
+    if (!existingProduct) {
       return res
         .status(404)
         .json({ status: "false", message: "Product Not Found" });
     }
-
+       
+    if (existingProduct.HSNcode !== HSNcode) {
+      const existingHSNcode = await product.findOne({ where: { HSNcode: HSNcode } });
+      if(existingHSNcode) {
+        return res
+      .status(400)
+    .json({ status: "false", message: "HSN Code Already Exists" });
+  }}
     await product.update(
       {
         itemtype: itemtype,

@@ -276,14 +276,16 @@ exports.voucherno = function (req, res, next) {
 };
 exports.gstrate = function (req, res, next) {
   const { gstrate } = req.body;
-  const gstrateSchema = Joi.string().required().messages({
+  const gstrateSchema = Joi.number().required().messages({
     "any.required": "Required Filed : GST Rate",
-    "string.empty": "GST Rate Cannot Be Empty",
+    "number.empty": "GST Rate Cannot Be Empty",
   });
-  const { error } = gstrateSchema.validate(gstrate);
+  const valueToValidate = gstrate === '' ? undefined : gstrate;
+  const { error } = gstrateSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
+  
   next();
 };
 exports.billno = function (req, res, next) {
@@ -636,6 +638,7 @@ exports.unit = function (req, res, next) {
     .messages({
       "any.required": "Required Field : Unit",
       "string.empty": "Unit Cannot Be Empty",
+      "string.base":" Unit Value Must be String"
     });
   const { error } = unitSchema.validate(unit);
   if (error) {

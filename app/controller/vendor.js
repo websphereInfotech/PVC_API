@@ -61,11 +61,21 @@ exports.create_vendor = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Email Already Exists" });
     }
-    const existingMobile = await vendor.findOne({ where: { mobileno: mobileno } });
+    const existingMobile = await vendor.findOne({
+      where: { mobileno: mobileno },
+    });
     if (existingMobile) {
       return res
         .status(400)
         .json({ status: "false", message: "Mobile Number Already Exists" });
+    }
+    const existingGstNumber = await vendor.findOne({
+      where: { gstnumber: gstnumber },
+    });
+    if (existingGstNumber) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "GST Number Already Exists" });
     }
     const vendorData = {
       accountname,
@@ -165,11 +175,25 @@ exports.update_vendor = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Email Already Exists" });
       }
-      const existingMobile = await vendor.findOne({ where: { mobileno: mobileno } });
+    }
+    if (vendorId.mobileno !== mobileno) {
+      const existingMobile = await vendor.findOne({
+        where: { mobileno: mobileno },
+      });
       if (existingMobile) {
         return res
           .status(400)
           .json({ status: "false", message: "Mobile Number Already Exists" });
+      }
+    }
+    if (vendorId.gstnumber !== gstnumber) {
+      const existingGstNumber = await vendor.findOne({
+        where: { gstnumber: gstnumber },
+      });
+      if (existingGstNumber) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "GST Number Already Exists" });
       }
     }
     const vendorData = {

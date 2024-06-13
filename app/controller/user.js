@@ -182,13 +182,6 @@ exports.update_user = async (req, res) => {
       if (existingEmail) {
         return res.status(400).json({ status: "false", message: "Email Already Exists" });
       }
-    const existingMobile = await User.findOne({ where: { mobileno: mobileno } });
-  
-    if (existingMobile) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Mobile Number Already Exists" });
-    }
     }
       
     if (FindID.mobileno !== mobileno) {

@@ -50,6 +50,12 @@ exports.create_company = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Mobile Number Already Exists" });
     }
+    const existingGstNumber = await company.findOne({
+      where:{gstnumber:gstnumber}
+    });
+    if(existingGstNumber) {
+      return res.status(400).json({ status:'false', message:'GST Number Already Exists'});
+    }
     const data = await company.create({
       companyname,
       gstnumber,
@@ -115,7 +121,28 @@ exports.update_company = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Company Not Found" });
     }
-
+    if (companyId.email !== email) {
+      const existingEmail = await company.findOne({ where: { email: email } });
+      if (existingEmail) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Email Already Exists" });
+      }}
+   
+    if (companyId.mobileno !== mobileno) {
+      const existingMobile = await company.findOne({ where: { mobileno: mobileno } });
+      if (existingMobile) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Mobile Number Already Exists" });
+      }}
+    if (companyId.gstnumber !== gstnumber) {
+      const existingGstNumber = await company.findOne({ where: { gstnumber: gstnumber } });
+      if(existingGstNumber) {
+        return res
+      .status(400)
+    .json({ status: "false", message: "GST Number Already Exists" });
+  }}
     await company.update(
       {
         companyname,

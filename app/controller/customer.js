@@ -66,6 +66,12 @@ exports.create_customer = async (req, res) => {
         });
       }
     }
+    const existingGstNumber = await customer.findOne({
+      where:{gstnumber:gstnumber}
+    });
+    if(existingGstNumber) {
+      return res.status(400).json({ status:'false', message:'GST Number Already Exists'});
+    }
     const customerdata = {
       accountname,
       shortname,
@@ -162,14 +168,23 @@ exports.update_customer = async (req, res) => {
         return res
           .status(400)
           .json({ status: "false", message: "Email Already Exists" });
-      }
+      }}
+   
+    if (updateData.mobileno !== mobileno) {
       const existingMobile = await customer.findOne({ where: { mobileno: mobileno } });
       if (existingMobile) {
         return res
           .status(400)
           .json({ status: "false", message: "Mobile Number Already Exists" });
-      }
-    }
+      }}
+    
+      if (updateData.gstnumber !== gstnumber) {
+        const existingGstNumber = await customer.findOne({ where: { gstnumber: gstnumber } });
+        if(existingGstNumber) {
+          return res
+        .status(400)
+      .json({ status: "false", message: "GST Number Already Exists" });
+    }}
     const customerUpdate = {
       accountname,
       shortname,
