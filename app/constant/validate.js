@@ -91,12 +91,16 @@ const {
   purpose,
   referance,
   validateBankdetails,
+  validateCredit,
+  LoginPassword,
 } = require("./validation");
 
 module.exports.validation = function (method) {
   switch (method) {
     case "userLogin":
-      return [mobileno, password];
+      return [mobileno, LoginPassword];
+    case "check_user":
+      return [email, mobileno];
     case "create_user":
       return [username, email, mobileno, password, salary, role];
     case "update_user":
@@ -123,14 +127,14 @@ module.exports.validation = function (method) {
       return [ creditnoteNo, creditdate, org_invoiceno, org_invoicedate, rate, qty ];
     case "create_customer":
       return [ accountname, email, mobileno, contactpersonname, creditperiod, address1, pincode, state,
-               city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails ];
+               city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails,validateCredit ];
     case "update_customer":
       return [ accountname, email, mobileno, contactpersonname, creditperiod, address1, pincode, state,
-               city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails ];
+               city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails,validateCredit ];
     case "create_product":
-      return [ itemtype, productname, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode ];
+      return [ itemtype, productname, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice ];
     case "update_product":
-      return [ itemtype, productname, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode ];
+      return [ itemtype, productname, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice ];
     case "create_purchaseInvoice":
       return [duedate, invoiceno, invoicedate, qty, rate];
     case "update_purchaseInvoice":
@@ -141,10 +145,10 @@ module.exports.validation = function (method) {
       return [ companyname, gstnumber, email, mobileno, address1, pincode, state, city ];
     case "create_vendor":
       return [ accountname, email, contactpersonname, mobileno, creditperiod, address1, pincode, state,
-               city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails ];
+               city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails,validateCredit ];
     case "update_vendor":
       return [ accountname, email, contactpersonname, mobileno, creditperiod, address1, pincode, state,
-               city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails ];
+               city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails,validateCredit ];
     case "C_create_salesinvoice":
       return [date, qty, rate];
     case "C_update_salesinvoice":

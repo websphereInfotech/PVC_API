@@ -44,7 +44,7 @@ router.post(
   reset_password
 );
 router.post("/user_logout", adminAuth("Login:user_logout"), user_logout);
-router.post("/check_user", adminAuth("Login:check_user"), check_user);
+router.post("/check_user", adminAuth("Login:check_user"),validation("check_user"), check_user);
 router.get("/add_user/:id", adminAuth("Login:add_user"), add_user);
 router.get(
   "/view_all_userTOComapny",

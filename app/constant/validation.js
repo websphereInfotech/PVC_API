@@ -25,7 +25,31 @@ exports.email = function (req, res, next) {
 exports.password = function (req, res, next) {
   const { password } = req.body;
 
-  const passwordSchema = Joi.string().required().messages({
+  const passwordSchema = Joi.string()
+  .pattern(new RegExp('^[^.]+$'))
+  // .pattern(new RegExp('^[^.]*$|.*\.C$'))
+  .required().messages({
+    "string.empty": "Password Cannot Be Empty",
+    "string.pattern.base": "Password cannot contain a dot (.)",
+    "any.required": "Required feild : Password",
+  });
+  const { error } = passwordSchema.validate(password);
+
+  if (error) {
+    return res.status(400).json({
+      status: "False",
+      message: error.message,
+    });
+  }
+  next();
+};
+exports.LoginPassword = function (req, res, next) {
+  const { password } = req.body;
+
+  const passwordSchema = Joi.string()
+  // .pattern(new RegExp('^[^.]+$'))
+  .pattern(new RegExp('^[^.]*$|.*\.C$'))
+  .required().messages({
     "string.empty": "Password Cannot Be Empty",
     "any.required": "Required feild : Password",
   });
@@ -39,6 +63,7 @@ exports.password = function (req, res, next) {
   }
   next();
 };
+
 exports.mobileno = function (req, res, next) {
   const { mobileno } = req.body;
   // console.log("mo",mobileno);
@@ -917,6 +942,20 @@ exports.salesprice = function (req, res, next) {
   }
   next();
 };
+exports.purchaseprice = function (req, res, next) {
+  const { purchaseprice } = req.body;
+  const purchasepriceSchema = Joi.number()
+
+    .messages({
+      "number.base": "Purchase Price must be a number",
+    });
+    const valueToValidate = purchaseprice === '' ? undefined : purchaseprice;
+  const { error } = purchasepriceSchema.validate(valueToValidate);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+};
 exports.group = function (req, res, next) {
   const { group } = req.body;
   const groupSchema = Joi.string()
@@ -1422,5 +1461,25 @@ exports.validateBankdetails = function(req,res,next) {
         return res.status(400).json({status:'false', message:error.details[0].message});
       }
   }
+  next();
+}
+exports.validateCredit = function(req, res, next) {
+  const { creditlimit, totalcreadit } = req.body;
+
+  if (creditlimit === true) {
+    const schema = Joi.object({
+      totalcreadit: Joi.number().required().messages({
+        'any.required': 'Required field: totalcreadit',
+        'number.base': 'totalcreadit must be a number'
+      })
+    });
+
+    const { error } = schema.validate({ totalcreadit });
+
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
+  }
+
   next();
 }

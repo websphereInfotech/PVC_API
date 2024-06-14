@@ -14,7 +14,6 @@ exports.create_vendor = async (req, res) => {
       email,
       contactpersonname,
       mobileno,
-      panno,
       creditperiod,
       address1,
       address2,
@@ -28,6 +27,10 @@ exports.create_vendor = async (req, res) => {
       bankdetails,
       totalcreadit,
     } = req.body;
+    let panno = req.body.panno;
+    if (panno === "") {
+      panno = null;
+    }
     if (bankdetail === true) {
       if (!bankdetails || bankdetails.length === 0) {
         return res
@@ -87,6 +90,7 @@ exports.create_vendor = async (req, res) => {
       address1,
       address2,
       pincode,
+      panno,
       state,
       city,
       bankdetail,
@@ -95,9 +99,6 @@ exports.create_vendor = async (req, res) => {
       gstnumber,
       companyId: req.user.companyId,
     };
-    if (panno === "") {
-      panno = null;
-    }
 
     if (creditlimit === true) {
       vendorData.totalcreadit = totalcreadit;

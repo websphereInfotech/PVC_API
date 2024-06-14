@@ -145,10 +145,7 @@ exports.get_customerLedger = async (req, res) => {
         "date",
         "id",
         [Sequelize.literal("IFNULL(receiveCustomer.amount, 0)"), "debitAmount"],
-        [
-          Sequelize.literal("IFNULL(invoiceCustomer.mainTotal, 0)"),
-          "creditAmount",
-        ],
+        [Sequelize.literal("IFNULL(invoiceCustomer.mainTotal, 0)"), "creditAmount"],
         [
           Sequelize.literal(`
             (
@@ -159,7 +156,7 @@ exports.get_customerLedger = async (req, res) => {
                 LEFT OUTER JOIN \`P_salesInvoices\` AS invoiceCustomer ON cl2.creditId = invoiceCustomer.id
                 LEFT OUTER JOIN \`P_receiveBanks\` AS receiveCustomer ON cl2.debitId = receiveCustomer.id
               WHERE
-                cl2.companyId = :companyId
+                cl2.companyId = ${companyId}
                 AND cl2.customerId = \`P_customerLedger\`.\`customerId\`
                 AND (cl2.date < \`P_customerLedger\`.\`date\` OR (cl2.date = \`P_customerLedger\`.\`date\` AND cl2.id < \`P_customerLedger\`.\`id\`))
             )
@@ -177,10 +174,10 @@ exports.get_customerLedger = async (req, res) => {
                   LEFT OUTER JOIN \`P_salesInvoices\` AS invoiceCustomer ON cl2.creditId = invoiceCustomer.id
                   LEFT OUTER JOIN \`P_receiveBanks\` AS receiveCustomer ON cl2.debitId = receiveCustomer.id
                 WHERE
-                  cl2.companyId = :companyId
+                  cl2.companyId = ${companyId}
                   AND cl2.customerId = \`P_customerLedger\`.\`customerId\`
                   AND (cl2.date < \`P_customerLedger\`.\`date\` OR (cl2.date = \`P_customerLedger\`.\`date\` AND cl2.id < \`P_customerLedger\`.\`id\`))
-              ) + IFNULL(invoiceCustomer.totalMrp, 0) - IFNULL(receiveCustomer.amount, 0)
+              ) + IFNULL(invoiceCustomer.mainTotal, 0) - IFNULL(receiveCustomer.amount, 0)
             )
           `),
           "remainingBalance",
@@ -190,10 +187,12 @@ exports.get_customerLedger = async (req, res) => {
         {
           model: salesInvoice,
           as: "invoiceCustomer",
+          attributes:[],
         },
         {
           model: receiveBank,
           as: "receiveCustomer",
+          attributes:[],
         },
         {
           model: customer,
@@ -205,24 +204,19 @@ exports.get_customerLedger = async (req, res) => {
         ["date", "ASC"],
         ["id", "ASC"],
       ],
-      replacements: { companyId },
     });
 
-    if (data) {
+    if (data.length) {
       return res.status(200).json({
         status: "true",
         message: "Customer Ledger Data Fetch Successfully",
         data: data,
       });
     } else {
-      return res
-        .status(404)
-        .json({ status: "false", message: "Customer Ledger Not Found" });
+      return res.status(404).json({ status: "false", message: "Customer Ledger Not Found" });
     }
   } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ status: "false", message: "Internal Server Error" });
+    console.error(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
 };
