@@ -93,6 +93,7 @@ const {
   validateBankdetails,
   validateCredit,
   LoginPassword,
+  purchaseinvoicedate,
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -118,9 +119,9 @@ module.exports.validation = function (method) {
     case "update_salesinvoice":
       return [invoiceno, terms, invoicedate, rate, qty];
     case "create_debitNote":
-      return [debitnoteno, debitdate, qty, mrp, rate];
+      return [debitnoteno, purchaseinvoicedate, debitdate, qty, mrp, rate];
     case "update_debitNote":
-      return [debitnoteno, debitdate, qty, mrp, rate];
+      return [debitnoteno, purchaseinvoicedate, debitdate, qty, mrp, rate];
     case "create_creditNote":
       return [ creditnoteNo, creditdate, org_invoiceno, org_invoicedate, rate, qty ];
     case "update_creditNote":

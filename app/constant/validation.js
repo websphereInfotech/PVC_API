@@ -115,11 +115,15 @@ exports.date = function (req, res, next) {
     "string.base": "Date Must Be A String"
   });
   const { error } = dateSchema.validate(date);
+  if (date === null) {
+    return res.status(400).json({ status: "False", message: "Date Cannot Be Empty" });
+  }
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
   next();
 };
+
 exports.customerId = function (req, res, next) {
   const { customerId } = req.body;
 
@@ -410,6 +414,9 @@ exports.paymentdate = function (req, res, next) {
     "string.empty": "Payment Date Cannot Be Empty",
   });
   const { error } = paymentdateSchema.validate(paymentdate);
+  if (paymentdate === null) {
+    return res.status(400).json({ status: "False", message: "Payment Date Cannot Be Empty" });
+  }
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -602,6 +609,9 @@ exports.creditdate = function (req, res, next) {
       "string.empty": "Credit Date Cannot Be Empty",
     });
   const { error } = creditdateSchema.validate(creditdate);
+  if (creditdate === null) {
+    return res.status(400).json({ status: "False", message: "Creadit Date Cannot Be Empty" });
+  }
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -635,6 +645,28 @@ exports.invoicedate = function (req, res, next) {
       "string.base": "Invoice Date Must Be A String"
     });
   const { error } = invoicedateSchema.validate(invoicedate);
+  if (invoicedate === null) {
+    return res.status(400).json({ status: "False", message: "Invoice Date Cannot Be Empty" });
+  }
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+};
+exports.purchaseinvoicedate = function (req, res, next) {
+  const { invoicedate } = req.body;
+  const invoicedateSchema = Joi.string()
+
+    .required()
+    .messages({
+      "any.required": "Required Field :Purchase Invoice Date",
+      "string.empty": "Purchase Invoice Date Cannot Be Empty",
+      "string.base": "Purchase Invoice Date Must Be A String"
+    });
+  const { error } = invoicedateSchema.validate(invoicedate);
+  if (invoicedate === null) {
+    return res.status(400).json({ status: "False", message: "Purchase Invoice Cannot Be Empty" });
+  }
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -1038,10 +1070,13 @@ exports.duedate = function (req, res, next) {
     .required()
     .messages({
       "any.required": "Required Field : duedate",
-      "string.empty": "duedate Cannot Be Empty",
-      "string.base": "Date Must Be A String"
+      "string.empty": "Duedate Cannot Be Empty",
+      "string.base": "Date Must Be A String",
     });
   const { error } = duedateSchema.validate(duedate);
+  if (duedate === null) {
+    return res.status(400).json({ status: "False", message: "Duedate Cannot Be Empty" });
+  }
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -1083,6 +1118,9 @@ exports.debitdate = function (req, res, next) {
     "string.empty": "Debit Date Cannot Be Empty",
   });
   const { error } = debitdateSchema.validate(debitdate);
+  if (debitdate === null) {
+    return res.status(400).json({ status: "False", message: "Debit Date Cannot Be Empty" });
+  }
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -1397,6 +1435,9 @@ exports.org_invoicedate = function (req, res, next) {
     "any.required": "Required Filed : Org. Invoice Date",
   });
   const { error } = org_invoicedateSchema.validate(org_invoicedate);
+  if (org_invoicedate === null) {
+    return res.status(400).json({ status: "False", message: "Org Invoice Date Cannot Be Empty" });
+  }
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }

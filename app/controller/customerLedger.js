@@ -145,7 +145,10 @@ exports.get_customerLedger = async (req, res) => {
         "date",
         "id",
         [Sequelize.literal("IFNULL(receiveCustomer.amount, 0)"), "debitAmount"],
-        [Sequelize.literal("IFNULL(invoiceCustomer.mainTotal, 0)"), "creditAmount"],
+        [
+          Sequelize.literal("IFNULL(invoiceCustomer.mainTotal, 0)"),
+          "creditAmount",
+        ],
         [
           Sequelize.literal(`
             (
@@ -156,8 +159,8 @@ exports.get_customerLedger = async (req, res) => {
                 LEFT OUTER JOIN \`P_salesInvoices\` AS invoiceCustomer ON cl2.creditId = invoiceCustomer.id
                 LEFT OUTER JOIN \`P_receiveBanks\` AS receiveCustomer ON cl2.debitId = receiveCustomer.id
               WHERE
-                cl2.companyId = ${companyId}
-                AND cl2.customerId = \`P_customerLedger\`.\`customerId\`
+                cl2.customerId = \`P_customerLedger\`.\`customerId\`
+                AND cl2.companyId = ${companyId}
                 AND (cl2.date < \`P_customerLedger\`.\`date\` OR (cl2.date = \`P_customerLedger\`.\`date\` AND cl2.id < \`P_customerLedger\`.\`id\`))
             )
           `),
@@ -174,8 +177,8 @@ exports.get_customerLedger = async (req, res) => {
                   LEFT OUTER JOIN \`P_salesInvoices\` AS invoiceCustomer ON cl2.creditId = invoiceCustomer.id
                   LEFT OUTER JOIN \`P_receiveBanks\` AS receiveCustomer ON cl2.debitId = receiveCustomer.id
                 WHERE
-                  cl2.companyId = ${companyId}
-                  AND cl2.customerId = \`P_customerLedger\`.\`customerId\`
+                  cl2.customerId = \`P_customerLedger\`.\`customerId\`
+                  AND cl2.companyId = ${companyId}
                   AND (cl2.date < \`P_customerLedger\`.\`date\` OR (cl2.date = \`P_customerLedger\`.\`date\` AND cl2.id < \`P_customerLedger\`.\`id\`))
               ) + IFNULL(invoiceCustomer.mainTotal, 0) - IFNULL(receiveCustomer.amount, 0)
             )
@@ -187,12 +190,12 @@ exports.get_customerLedger = async (req, res) => {
         {
           model: salesInvoice,
           as: "invoiceCustomer",
-          attributes:[],
+          attributes: [],
         },
         {
           model: receiveBank,
           as: "receiveCustomer",
-          attributes:[],
+          attributes: [],
         },
         {
           model: customer,
@@ -213,10 +216,14 @@ exports.get_customerLedger = async (req, res) => {
         data: data,
       });
     } else {
-      return res.status(404).json({ status: "false", message: "Customer Ledger Not Found" });
+      return res
+        .status(404)
+        .json({ status: "false", message: "Customer Ledger Not Found" });
     }
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
   }
 };
