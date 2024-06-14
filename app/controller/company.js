@@ -1,4 +1,5 @@
 const C_companyBalance = require("../models/C_companyBalance");
+const C_userBalance = require("../models/C_userBalance");
 const admintoken = require("../models/admintoken");
 const company = require("../models/company");
 const companyBalance = require("../models/companyBalance");
@@ -78,6 +79,11 @@ exports.create_company = async (req, res) => {
       balance: 0,
     });
 
+    await C_userBalance.create({
+      userId: userId,
+      companyId: data.id,
+      balance: 0,
+    });
     await C_companyBalance.create({
       companyId: req.user.companyId,
       balance: 0,

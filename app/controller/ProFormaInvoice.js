@@ -50,6 +50,11 @@ exports.create_ProFormaInvoice = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Qty Value Invalid" });
       }
+      if (item.rate === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Rate Value Invalid" });
+      }
       // for (const item of items) {
       //   const mrp = item.qty * item.rate;
       //   if (item.mrp !== mrp) {
@@ -285,6 +290,11 @@ exports.update_ProFormaInvoice = async (req, res) => {
         return res
           .status(400)
           .json({ status: "false", message: "Qty Value Invalid" });
+      }
+      if (item.rate === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productname = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },

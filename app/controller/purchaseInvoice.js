@@ -70,6 +70,11 @@ exports.create_purchaseInvoice = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Qty Value Invalid" });
       }
+      if (item.rate === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Rate Value Invalid" });
+      }
       const productData = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
       });
@@ -189,6 +194,11 @@ exports.update_purchaseInvoice = async (req, res) => {
         return res
           .status(400)
           .json({ status: "false", message: "Qty Value Invalid" });
+      }
+      if (item.rate === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productData = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
@@ -422,6 +432,11 @@ exports.C_create_purchaseCash = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Qty Value Invalid" });
       }
+      if (item.rate === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Rate Value Invalid" });
+      }
       const productData = await C_product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
       });
@@ -515,6 +530,11 @@ exports.C_update_purchaseCash = async (req, res) => {
         return res
           .status(400)
           .json({ status: "false", message: "Qty Value Invalid" });
+      }
+      if (item.rate === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productData = await C_product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },

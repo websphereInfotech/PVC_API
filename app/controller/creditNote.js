@@ -80,7 +80,12 @@ exports.create_creditNote = async (req, res) => {
       if (item.qty === 0) {
         return res
           .status(400)
-          .json({ status: "false", message: "Qty Value Invalid" });
+          .json({ status: "false", message: "Qty And Rate Value Invalid" });
+      }
+      if (item.rate === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productname = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
@@ -206,6 +211,11 @@ exports.update_creditNote = async (req, res) => {
         return res
           .status(400)
           .json({ status: "false", message: "Qty Value Invalid" });
+      }
+      if (item.rate === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productname = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },

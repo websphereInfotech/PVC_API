@@ -391,6 +391,11 @@ exports.add_user = async (req, res) => {
       where: { companyId: companyId, userId: id },
     });
 
+    await C_userBalance.create({
+      userId: id,
+      companyId: req.user.companyId,
+      balance: 0,
+    })
     if (!data) {
       await companyUser.create({ companyId: companyId, userId: id });
       return res

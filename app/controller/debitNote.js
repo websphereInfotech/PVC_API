@@ -74,6 +74,11 @@ exports.create_debitNote = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Qty Value Invalid" });
       }
+      if (item.rate === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Rate Value Invalid" });
+      }
       const productname = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
       });
@@ -196,6 +201,11 @@ exports.update_debitNote = async (req, res) => {
         return res
           .status(400)
           .json({ status: "false", message: "Qty Value Invalid" });
+      }
+      if (item.rate === 0) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productname = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
