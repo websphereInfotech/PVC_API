@@ -1477,6 +1477,7 @@ exports.purpose = function (req, res, next) {
 }
 exports.validateBankdetails = function(req,res,next) {
   const {bankdetail,bankdetails} = req.body;
+
   if(bankdetail === true) {
       const bankdetailsSchema = Joi.object({
         bankname: Joi.string().required().messages({

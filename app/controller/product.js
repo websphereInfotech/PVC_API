@@ -27,15 +27,19 @@ exports.create_product = async (req, res) => {
       HSNcode,
       cess,
     } = req.body;
-    
+
     let purchaseprice = req.body.purchaseprice;
     if (purchaseprice === "") {
       purchaseprice = null;
     }
-    
-    const existingHSNcode = await product.findOne({ where:{HSNcode:HSNcode}});
-    if(existingHSNcode) {
-      return res.status(400).json({ status:'false', message:'HSN Code Already Exists'});
+
+    const existingHSNcode = await product.findOne({
+      where: { HSNcode: HSNcode, companyId: req.user.companyId },
+    });
+    if (existingHSNcode) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "HSN Code Already Exists" });
     }
     const data = await product.create({
       itemtype,
@@ -104,14 +108,17 @@ exports.update_product = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Product Not Found" });
     }
-       
+
     if (existingProduct.HSNcode !== HSNcode) {
-      const existingHSNcode = await product.findOne({ where: { HSNcode: HSNcode } });
-      if(existingHSNcode) {
+      const existingHSNcode = await product.findOne({
+        where: { HSNcode: HSNcode,companyId: req.user.companyId },
+      });
+      if (existingHSNcode) {
         return res
-      .status(400)
-    .json({ status: "false", message: "HSN Code Already Exists" });
-  }}
+          .status(400)
+          .json({ status: "false", message: "HSN Code Already Exists" });
+      }
+    }
     await product.update(
       {
         itemtype: itemtype,

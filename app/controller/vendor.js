@@ -58,14 +58,14 @@ exports.create_vendor = async (req, res) => {
         });
       }
     }
-    const existingEmail = await vendor.findOne({ where: { email: email } });
+    const existingEmail = await vendor.findOne({ where: { email: email,companyId: req.user.companyId } });
     if (existingEmail) {
       return res
         .status(400)
         .json({ status: "false", message: "Email Already Exists" });
     }
     const existingMobile = await vendor.findOne({
-      where: { mobileno: mobileno },
+      where: { mobileno: mobileno,companyId: req.user.companyId },
     });
     if (existingMobile) {
       return res
@@ -73,7 +73,7 @@ exports.create_vendor = async (req, res) => {
         .json({ status: "false", message: "Mobile Number Already Exists" });
     }
     const existingGstNumber = await vendor.findOne({
-      where: { gstnumber: gstnumber },
+      where: { gstnumber: gstnumber,companyId: req.user.companyId },
     });
     if (existingGstNumber) {
       return res
@@ -159,6 +159,7 @@ exports.update_vendor = async (req, res) => {
       bankdetails,
       totalcreadit,
     } = req.body;
+   
     const vendorId = await vendor.findOne({
       where: { id: id, companyId: req.user.companyId },
       include: [{ model: bankAccount, as: "v_bankdetails" }],
@@ -170,7 +171,7 @@ exports.update_vendor = async (req, res) => {
     }
 
     if (vendorId.email !== email) {
-      const existingEmail = await vendor.findOne({ where: { email: email } });
+      const existingEmail = await vendor.findOne({ where: { email: email,companyId: req.user.companyId } });
       if (existingEmail) {
         return res
           .status(400)
@@ -179,7 +180,7 @@ exports.update_vendor = async (req, res) => {
     }
     if (vendorId.mobileno !== mobileno) {
       const existingMobile = await vendor.findOne({
-        where: { mobileno: mobileno },
+        where: { mobileno: mobileno,companyId: req.user.companyId },
       });
       if (existingMobile) {
         return res
@@ -189,7 +190,7 @@ exports.update_vendor = async (req, res) => {
     }
     if (vendorId.gstnumber !== gstnumber) {
       const existingGstNumber = await vendor.findOne({
-        where: { gstnumber: gstnumber },
+        where: { gstnumber: gstnumber,companyId: req.user.companyId },
       });
       if (existingGstNumber) {
         return res
@@ -197,6 +198,14 @@ exports.update_vendor = async (req, res) => {
           .json({ status: "false", message: "GST Number Already Exists" });
       }
     }
+    let updatedTotalCreadit = null; 
+
+    if (creditlimit === true) {
+      updatedTotalCreadit = totalcreadit;
+    } else if (creditlimit === false) {
+      updatedTotalCreadit = null; 
+    }
+
     const vendorData = {
       accountname,
       shortname,
@@ -216,22 +225,23 @@ exports.update_vendor = async (req, res) => {
       balance,
       gstnumber,
       bankdetails,
-      totalcreadit,
+      totalcreadit:updatedTotalCreadit,
       companyId: req.user.companyId,
     };
-    if (creditlimit === true) {
-      vendorData.totalcreadit = totalcreadit;
-    }
+
     await vendor.update(vendorData, { where: { id } });
 
-    if (bankdetail === true && bankdetails) {
+    if (bankdetail === false) {
+      await bankAccount.destroy({ where: { vendorId: id } });
+    } else  if (bankdetail === true && bankdetails) {
       const existingItem = await bankAccount.findOne({
-        where: { vendorId: id, accountnumber: bankdetails.accountnumber },
+        where: { vendorId: id },
       });
 
       if (existingItem) {
-        await bankAccount.update(
+          await bankAccount.update(
           {
+            accountnumber: bankdetails.accountnumber,
             ifsccode: bankdetails.ifsccode,
             accounttype: bankdetails.accounttype,
             bankname: bankdetails.bankname,
@@ -239,7 +249,7 @@ exports.update_vendor = async (req, res) => {
           {
             where: { id: existingItem.id },
           }
-        );
+          );
       } else {
         await bankAccount.create({
           vendorId: id,

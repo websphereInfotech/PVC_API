@@ -31,13 +31,19 @@ exports.create_customer = async (req, res) => {
     if (panno === "") {
       panno = null;
     }
-    const existingEmail = await customer.findOne({where:{ email:email}});
-    if(existingEmail) {
-      return res.status(400).json({ status:'false', message:'Email Already Exists'});
+    const existingEmail = await customer.findOne({ where: { email: email,companyId: req.user.companyId } });
+    if (existingEmail) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Email Already Exists" });
     }
-    const existingMobile = await customer.findOne({where:{ mobileno:mobileno}});
-    if(existingMobile) {
-      return res.status(400).json({ status:'false', message:'Mobile Number Already Exists'});
+    const existingMobile = await customer.findOne({
+      where: { mobileno: mobileno, companyId: req.user.companyId },
+    });
+    if (existingMobile) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Mobile Number Already Exists" });
     }
     if (bankdetail === true) {
       if (!bankdetails || bankdetails.length === 0) {
@@ -67,10 +73,12 @@ exports.create_customer = async (req, res) => {
       }
     }
     const existingGstNumber = await customer.findOne({
-      where:{gstnumber:gstnumber}
+      where: { gstnumber: gstnumber,companyId: req.user.companyId },
     });
-    if(existingGstNumber) {
-      return res.status(400).json({ status:'false', message:'GST Number Already Exists'});
+    if (existingGstNumber) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "GST Number Already Exists" });
     }
     const customerdata = {
       accountname,
@@ -108,7 +116,7 @@ exports.create_customer = async (req, res) => {
     }
 
     const customerData = await customer.findOne({
-      where: { id: data.id,companyId:req.user.companyId },
+      where: { id: data.id, companyId: req.user.companyId },
       include: [{ model: bankAccount, as: "bankdetails" }],
     });
     await C_customer.create({
@@ -152,7 +160,7 @@ exports.update_customer = async (req, res) => {
     } = req.body;
 
     const updateData = await customer.findOne({
-      where: { id: id,companyId: req.user.companyId },
+      where: { id: id, companyId: req.user.companyId },
       include: [{ model: bankAccount, as: "bankdetails" }],
     });
 
@@ -161,30 +169,45 @@ exports.update_customer = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
-   
+
     if (updateData.email !== email) {
-      const existingEmail = await customer.findOne({ where: { email: email } });
+      const existingEmail = await customer.findOne({ where: { email: email, companyId: req.user.companyId } });
       if (existingEmail) {
         return res
           .status(400)
           .json({ status: "false", message: "Email Already Exists" });
-      }}
-   
+      }
+    }
+
     if (updateData.mobileno !== mobileno) {
-      const existingMobile = await customer.findOne({ where: { mobileno: mobileno } });
+      const existingMobile = await customer.findOne({
+        where: { mobileno: mobileno,companyId: req.user.companyId },
+      });
       if (existingMobile) {
         return res
           .status(400)
           .json({ status: "false", message: "Mobile Number Already Exists" });
-      }}
-    
-      if (updateData.gstnumber !== gstnumber) {
-        const existingGstNumber = await customer.findOne({ where: { gstnumber: gstnumber } });
-        if(existingGstNumber) {
-          return res
-        .status(400)
-      .json({ status: "false", message: "GST Number Already Exists" });
-    }}
+      }
+    }
+
+    if (updateData.gstnumber !== gstnumber) {
+      const existingGstNumber = await customer.findOne({
+        where: { gstnumber: gstnumber,companyId: req.user.companyId },
+      });
+      if (existingGstNumber) {
+        return res
+          .status(400)
+          .json({ status: "false", message: "GST Number Already Exists" });
+      }
+    }
+    let updatedTotalCreadit = null;
+
+    if (creditlimit === true) {
+      updatedTotalCreadit = totalcreadit;
+    } else if (creditlimit === false) {
+      updatedTotalCreadit = null;
+    }
+
     const customerUpdate = {
       accountname,
       shortname,
@@ -202,22 +225,22 @@ exports.update_customer = async (req, res) => {
       creditlimit,
       balance,
       gstnumber,
+      totalcreadit: updatedTotalCreadit,
       companyId: req.user.companyId,
     };
-    if (creditlimit === true) {
-      customerUpdate.totalcreadit = totalcreadit;
-    }
 
     await customer.update(customerUpdate, { where: { id } });
-
-    if (bankdetail === true && bankdetails) {
+    if (bankdetail === false) {
+      await bankAccount.destroy({ where: { customerId: id } });
+    } else if (bankdetail === true && bankdetails) {
       const existingItem = await bankAccount.findOne({
-        where: { customerId: id, accountnumber: bankdetails.accountnumber },
+        where: { customerId: id},
       });
 
       if (existingItem) {
         await bankAccount.update(
           {
+            accountnumber: bankdetails.accountnumber,
             ifsccode: bankdetails.ifsccode,
             accounttype: bankdetails.accounttype,
             bankname: bankdetails.bankname,
@@ -237,7 +260,7 @@ exports.update_customer = async (req, res) => {
       }
     }
     const data = await customer.findOne({
-      where: { id: id,companyId: req.user.companyId },
+      where: { id: id, companyId: req.user.companyId },
       include: [{ model: bankAccount, as: "bankdetails" }],
     });
 

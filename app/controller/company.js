@@ -84,6 +84,7 @@ exports.create_company = async (req, res) => {
       companyId: data.id,
       balance: 0,
     });
+    
     await C_companyBalance.create({
       companyId: req.user.companyId,
       balance: 0,

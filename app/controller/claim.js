@@ -55,7 +55,9 @@ exports.update_claim = async (req, res) => {
     const { id } = req.params;
     const { toUserId, amount, description, purpose } = req.body;
 
-    const userData = await C_claim.findOne({where:{id:id,companyId: req.user.companyId}});
+    const userData = await C_claim.findOne({
+      where: { id: id, companyId: req.user.companyId },
+    });
 
     if (!userData) {
       return res
@@ -73,7 +75,9 @@ exports.update_claim = async (req, res) => {
         },
         { where: { id } }
       );
-      const data = await C_claim.findOne({where:{id:id,companyId:req.user.companyId}});
+      const data = await C_claim.findOne({
+        where: { id: id, companyId: req.user.companyId },
+      });
       return res.status(200).json({
         status: "true",
         message: "Claim Updated successfully",
@@ -202,24 +206,24 @@ exports.isapproved_claim = async (req, res) => {
     }
     data.isApproved = isApproved;
     data.date = new Date();
-    
+
     await data.save();
 
-    await C_claimLedger.create({
-      claimId: data.id,
-      userId: req.user.userId,
-      date: new Date(),
-      companyId: req.user.companyId
-    });
-
-    await C_claimLedger.create({
-      claimId: data.id,
-      userId: data.fromUserId,
-      date: new Date(),
-      companyId: req.user.companyId
-    });
-
     if (isApproved === true) {
+      await C_claimLedger.create({
+        claimId: data.id,
+        userId: req.user.userId,
+        date: new Date(),
+        companyId: req.user.companyId,
+      });
+
+      await C_claimLedger.create({
+        claimId: data.id,
+        userId: data.fromUserId,
+        date: new Date(),
+        companyId: req.user.companyId,
+      });
+
       const fromUserBalance = await C_userBalance.findOne({
         where: { userId: data.fromUserId, companyId: req.user.companyId },
       });
@@ -258,7 +262,9 @@ exports.get_all_ClaimUser = async (req, res) => {
           [Sequelize.Op.ne]: userID,
         },
       },
-      include:[{model:User,as:"users",attributes:{ exclude: ["password"] }}],
+      include: [
+        { model: User, as: "users", attributes: { exclude: ["password"] } },
+      ],
       // attributes: { exclude: ["password"] },
     });
     if (data.length > 0) {
@@ -338,42 +344,69 @@ exports.view_claimBalance_ledger = async (req, res) => {
           "debitAmount",
         ],
         [
-          Sequelize.literal("COALESCE(`claimLedger->ReceiveCustomer`.`customername`, `claimData->toUser`.`username`, 'Unknown')"), 
-          "name"
+          Sequelize.literal(`COALESCE(
+        \`claimLedger->ReceiveCustomer\`.\`customername\`, 
+        CASE 
+          WHEN \`claimData\`.\`fromUserId\` = ${userId} THEN \`claimData->toUser\`.\`username\`
+          WHEN \`claimData\`.\`toUserId\` = ${userId} THEN \`claimData->fromUser\`.\`username\`
+          ELSE NULL 
+        END, 
+        'Unknown'
+      )`),
+          "name",
         ]
       ],
       include: [
-        { model: C_receiveCash, as: "claimLedger",attributes:[],include: [{ model: C_customer, as: "ReceiveCustomer", attributes: [] }] },
-        { model: C_claim, as: "claimData", attributes: [], include: [{ model: User, as: 'toUser', attributes: [] }] },
+        {
+          model: C_receiveCash,
+          as: "claimLedger",
+          attributes: [],
+          include: [
+            { model: C_customer, as: "ReceiveCustomer", attributes: [] },
+          ],
+        },
+        {
+          model: C_claim,
+          as: "claimData",
+          attributes: [],
+          include: [{ model: User, as: "toUser", attributes: [] }],
+        },
       ],
       where: whereClause,
       group: ["id"],
       order: [["date", "ASC"]],
-      raw: true
+      raw: true,
     });
-    
-    
 
     let openingBalance = 0;
 
     if (fromDate || toDate) {
       const previousData = await C_claimLedger.findOne({
         attributes: [
-          [Sequelize.literal(`SUM(CASE 
+          [
+            Sequelize.literal(`SUM(CASE 
             WHEN \`claimLedger\`.\`amount\` IS NOT NULL THEN \`claimLedger\`.\`amount\`
             ELSE CASE WHEN \`claimData\`.\`fromUserId\` = ${userId} THEN \`claimData\`.\`amount\` ELSE 0 END
-          END)`), "openingBalance"],
+          END)`),
+            "openingBalance",
+          ],
         ],
         include: [
           { model: C_receiveCash, as: "claimLedger", attributes: [] },
           { model: C_claim, as: "claimData", attributes: [] },
         ],
-        where: { userId: userId, companyId: req.user.companyId, date: { [Sequelize.Op.lt]: fromDate }},
+        where: {
+          userId: userId,
+          companyId: req.user.companyId,
+          date: { [Sequelize.Op.lt]: fromDate },
+        },
         raw: true,
       });
-    
-     openingBalance = previousData && previousData.openingBalance !== null ? parseFloat(previousData.openingBalance) : 0;
 
+      openingBalance =
+        previousData && previousData.openingBalance !== null
+          ? parseFloat(previousData.openingBalance)
+          : 0;
     }
     const enrichedData = allData.map((item) => {
       const credit = parseFloat(item.creditAmount);
@@ -391,7 +424,7 @@ exports.view_claimBalance_ledger = async (req, res) => {
     const filteredData = enrichedData.filter((item) => {
       return !fromDate || item.date >= fromDate;
     });
-   
+
     if (filteredData.length > 0) {
       return res.status(200).json({
         status: "true",
