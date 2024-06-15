@@ -215,6 +215,223 @@ exports.view_ProFormaInvoice = async (req, res) => {
       .json({ status: "false", error: "Internal Server Error" });
   }
 };
+// exports.update_ProFormaInvoice = async (req, res) => {
+//   try {
+//     const user = req.user.userId;
+//     const { id } = req.params;
+//     const {
+//       ProFormaInvoice_no,
+//       date,
+//       validtill,
+//       customerId,
+//       termsOfDelivery,
+//       dispatchThrough,
+//       destination,
+//       LL_RR_no,
+//       terms,
+//       motorVehicleNo,
+//       dispatchno,
+//       items,
+//       totalIgst,
+//       totalSgst,
+//       totalMrp,
+//       mainTotal,
+//       totalQty,
+//     } = req.body;
+
+//     const existingInvoice = await ProFormaInvoice.findOne({
+//       where: { id: id, companyId: req.user.companyId },
+//     });
+
+//     if (!existingInvoice) {
+//       return res.status(404).json({
+//         status: "false",
+//         message: "ProForma Invoice Not Found",
+//       });
+//     }
+
+//     if (!customerId || customerId === "" || customerId === null) {
+//       return res
+//         .status(400)
+//         .json({ status: "false", message: "Required field: Customer" });
+//     }
+
+//     const numberOf = await ProFormaInvoice.findOne({
+//       where: {
+//         ProFormaInvoice_no: ProFormaInvoice_no,
+//         companyId: req.user.companyId,
+//         id: { [Sequelize.Op.ne]: id },
+//       },
+//     });
+
+//     if (numberOf) {
+//       return res.status(400).json({
+//         status: "false",
+//         message: "ProForma Invoice Number Already Exists",
+//       });
+//     }
+
+//     const customerData = await customer.findOne({
+//       where: { id: customerId, companyId: req.user.companyId },
+//     });
+
+//     if (!customerData) {
+//       return res
+//         .status(404)
+//         .json({ status: "false", message: "Customer Not Found" });
+//     }
+
+//     if (!items || items.length === 0) {
+//       return res
+//         .status(400)
+//         .json({ status: "false", message: "Required Field of items" });
+//     }
+
+//     for (const item of items) {
+//       if (!item.productId || item.productId === "") {
+//         return res
+//           .status(400)
+//           .json({ status: "false", message: "Required field: Product" });
+//       }
+//       if (item.qty === 0) {
+//         return res
+//           .status(400)
+//           .json({ status: "false", message: "Qty Value Invalid" });
+//       }
+//       if (item.rate === 0) {
+//         return res
+//           .status(400)
+//           .json({ status: "false", message: "Rate Value Invalid" });
+//       }
+
+//       const productname = await product.findOne({
+//         where: { id: item.productId, companyId: req.user.companyId },
+//       });
+
+//       if (!productname) {
+//         return res
+//           .status(404)
+//           .json({ status: "false", message: "Product Not Found" });
+//       }
+//     }
+
+//     await ProFormaInvoice.update(
+//       {
+//         ProFormaInvoice_no,
+//         date,
+//         validtill,
+//         customerId,
+//         termsOfDelivery,
+//         dispatchThrough,
+//         destination,
+//         LL_RR_no,
+//         terms,
+//         motorVehicleNo,
+//         dispatchno,
+//         totalIgst,
+//         totalSgst,
+//         totalMrp,
+//         mainTotal,
+//         totalQty,
+//         companyId: req.user.companyId,
+//         updatedBy: user,
+//       },
+//       { where: { id } }
+//     );
+
+//     // Fetch existing items associated with the invoice
+//     const existingItems = await ProFormaInvoiceItem.findAll({
+//       where: { InvoiceId: id },
+//     });
+
+//     // Array to store updated or new items
+//     const mergedItems = [];
+
+//     // Merge and update existing items with new items from the request
+//     items.forEach((item) => {
+//       let existingItem = mergedItems.find(
+//         (i) =>
+//           i.productId === item.productId &&
+//           i.rate === item.rate &&
+//           i.mrp === item.mrp // Ensure to compare `mrp` as well
+//       );
+//       if (existingItem) {
+//         existingItem.qty += item.qty;
+//       } else {
+//         mergedItems.push({ ...item });
+//       }
+//     });
+
+//     // Update or create ProFormaInvoiceItem records
+//     for (const item of mergedItems) {
+//       const existingItem = existingItems.find(
+//         (ei) =>
+//           ei.productId === item.productId &&
+//           ei.rate === item.rate &&
+//           ei.mrp === item.mrp // Ensure to compare `mrp` as well
+//       );
+//       if (existingItem) {
+//         await ProFormaInvoiceItem.update(
+//           {
+//             qty: item.qty,
+//           },
+//           {
+//             where: { id: existingItem.id },
+//           }
+//         );
+//       } else {
+//         await ProFormaInvoiceItem.create({
+//           InvoiceId: id,
+//           productId: item.productId,
+//           qty: item.qty,
+//           rate: item.rate,
+//           mrp: item.mrp,
+//         });
+//       }
+//     }
+
+//     // Delete items that are no longer part of the updated invoice
+//     const updatedItemIds = mergedItems.map((item) => ({
+//       productId: item.productId,
+//       rate: item.rate,
+//       mrp: item.mrp,
+//     }));
+
+//     const itemsToDelete = existingItems.filter((item) => {
+//       return !updatedItemIds.some(
+//         (updatedItem) =>
+//           updatedItem.productId === item.productId &&
+//           updatedItem.rate === item.rate &&
+//           updatedItem.mrp === item.mrp // Ensure to compare `mrp` as well
+//       );
+//     });
+
+//     for (const item of itemsToDelete) {
+//       await ProFormaInvoiceItem.destroy({
+//         where: { id: item.id },
+//       });
+//     }
+
+//     // Fetch the updated invoice with its items
+//     const updatedInvoice = await ProFormaInvoice.findOne({
+//       where: { id, companyId: req.user.companyId },
+//       include: [{ model: ProFormaInvoiceItem, as: "items" }],
+//     });
+
+//     return res.status(200).json({
+//       status: "true",
+//       message: "ProForma Invoice Updated Successfully",
+//       data: updatedInvoice,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({
+//       status: "false",
+//       message: "Internal Server Error",
+//     });
+//   }
+// };
+
 exports.update_ProFormaInvoice = async (req, res) => {
   try {
     const user = req.user.userId;
@@ -249,11 +466,13 @@ exports.update_ProFormaInvoice = async (req, res) => {
         message: "ProForma Invoice Not Found",
       });
     }
+
     if (!customerId || customerId === "" || customerId === null) {
       return res
         .status(400)
         .json({ status: "false", message: "Required field: Customer" });
     }
+
     const numberOf = await ProFormaInvoice.findOne({
       where: {
         ProFormaInvoice_no: ProFormaInvoice_no,
@@ -261,25 +480,30 @@ exports.update_ProFormaInvoice = async (req, res) => {
         id: { [Sequelize.Op.ne]: id },
       },
     });
+
     if (numberOf) {
       return res.status(400).json({
         status: "false",
         message: "ProForma Invoice Number Already Exists",
       });
     }
+
     const customerData = await customer.findOne({
       where: { id: customerId, companyId: req.user.companyId },
     });
+
     if (!customerData) {
       return res
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
+
     if (!items || items.length === 0) {
       return res
         .status(400)
         .json({ status: "false", message: "Required Field of items" });
     }
+
     for (const item of items) {
       if (!item.productId || item.productId === "") {
         return res
@@ -305,6 +529,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
           .json({ status: "false", message: "Product Not Found" });
       }
     }
+
     await ProFormaInvoice.update(
       {
         ProFormaInvoice_no,
@@ -323,35 +548,62 @@ exports.update_ProFormaInvoice = async (req, res) => {
         totalMrp,
         mainTotal,
         totalQty,
+        companyId: req.user.companyId,
+        createdBy: existingInvoice.createdBy,
         updatedBy: user,
       },
       { where: { id } }
     );
 
-    const aggregatedItems = items.reduce((acc, item) => {
-      const key = `${item.productId}_${item.rate}`;
-      if (!acc[key]) {
-        acc[key] = { ...item };
-      } else {
-        acc[key].qty += item.qty;
-        acc[key].mrp += item.mrp;
-      }
-      return acc;
-    }, {});
-
     const existingItems = await ProFormaInvoiceItem.findAll({
       where: { InvoiceId: id },
     });
 
-    for (const key in aggregatedItems) {
-      const item = aggregatedItems[key];
-      const existingItem = existingItems.find(
-        (ei) => ei.productId === item.productId && ei.rate === item.rate
+    const mergedItems = [];
+    const mergedFromItems = [];
+
+    items.forEach((item) => {
+      const existingItem = mergedItems.find(
+        (mergedItem) =>
+          mergedItem.productId === item.productId &&
+          mergedItem.rate === item.rate
       );
       if (existingItem) {
-        existingItem.qty = item.qty;
-        existingItem.mrp = item.mrp;
-        await existingItem.save();
+        existingItem.qty += item.qty;
+        existingItem.mrp += item.mrp;
+        mergedFromItems.push({ ...item });
+      } else {
+        mergedItems.push({ ...item });
+      }
+    });
+
+    const itemsToDelete = existingItems.filter(
+      (existingItem) =>
+        !mergedItems.some(
+          (item) =>
+            item.productId === existingItem.productId &&
+            item.rate === existingItem.rate
+        )
+    );
+
+    for (const item of itemsToDelete) {
+      await ProFormaInvoiceItem.destroy({ where: { id: item.id } });
+    }
+
+    for (const item of mergedItems) {
+      const existingItem = existingItems.find(
+        (existingItem) =>
+          existingItem.productId === item.productId &&
+          existingItem.rate === item.rate
+      );
+      if (existingItem) {
+        await ProFormaInvoiceItem.update(
+          {
+            qty: item.qty,
+            mrp: item.mrp,
+          },
+          { where: { id: existingItem.id } }
+        );
       } else {
         await ProFormaInvoiceItem.create({
           InvoiceId: id,
@@ -363,22 +615,11 @@ exports.update_ProFormaInvoice = async (req, res) => {
       }
     }
 
-    const updatedProductRates = Object.values(aggregatedItems).map(
-      (item) => `${item.productId}_${item.rate}`
-    );
-    const itemsToDelete = existingItems.filter(
-      (item) =>
-        !updatedProductRates.includes(`${item.productId}_${item.rate}`)
-    );
-
-    for (const item of itemsToDelete) {
-      await item.destroy();
-    }
-
     const updatedInvoice = await ProFormaInvoice.findOne({
       where: { id, companyId: req.user.companyId },
       include: [{ model: ProFormaInvoiceItem, as: "items" }],
     });
+
     return res.status(200).json({
       status: "true",
       message: "ProForma Invoice Updated Successfully",
@@ -392,6 +633,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
     });
   }
 };
+
 
 // exports.update_ProFormaInvoice = async (req, res) => {
 //   try {
@@ -469,6 +711,11 @@ exports.update_ProFormaInvoice = async (req, res) => {
 //           .status(400)
 //           .json({ status: "false", message: "Qty Value Invalid" });
 //       }
+//       if (item.rate === 0) {
+//         return res
+//           .status(400)
+//           .json({ status: "false", message: "Rate Value Invalid" });
+//       }
 //       const productname = await product.findOne({
 //         where: { id: item.productId, companyId: req.user.companyId },
 //       });
@@ -517,7 +764,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
 //         existingItem.qty += item.qty;
 //         existingItem.mrp += item.mrp;
 //       } else {
-//         mergedItems.push(item);
+//         mergedItems.push({ ...item });
 //       }
 //     });
 
@@ -538,7 +785,193 @@ exports.update_ProFormaInvoice = async (req, res) => {
 //         });
 //       }
 //     }
-//     const updatedProducts = items.map((item) => ({
+
+//     const updatedProducts = mergedItems.map((item) => ({
+//       productId: item.productId,
+//       rate: item.rate,
+//     }));
+
+//     const itemsToDelete = existingItems.filter(
+//       (item) =>
+//         !updatedProducts.some(
+//           (updatedItem) =>
+//             updatedItem.productId === item.productId &&
+//             updatedItem.rate === item.rate
+//         )
+//     );
+
+//     for (const item of itemsToDelete) {
+//       await item.destroy();
+//     }
+//     const updatedInvoice = await ProFormaInvoice.findOne({
+//       where: { id, companyId: req.user.companyId },
+//       include: [{ model: ProFormaInvoiceItem, as: "items" }],
+//     });
+//     return res.status(200).json({
+//       status: "true",
+//       message: "ProForma Invoice Updated Successfully",
+//       data: updatedInvoice,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({
+//       status: "false",
+//       message: "Internal Server Error",
+//     });
+//   }
+// };
+
+// exports.update_ProFormaInvoice = async (req, res) => {
+//   try {
+//     const user = req.user.userId;
+//     const { id } = req.params;
+//     const {
+//       ProFormaInvoice_no,
+//       date,
+//       validtill,
+//       customerId,
+//       termsOfDelivery,
+//       dispatchThrough,
+//       destination,
+//       LL_RR_no,
+//       terms,
+//       motorVehicleNo,
+//       dispatchno,
+//       items,
+//       totalIgst,
+//       totalSgst,
+//       totalMrp,
+//       mainTotal,
+//       totalQty,
+//     } = req.body;
+
+//     const existingInvoice = await ProFormaInvoice.findOne({
+//       where: { id: id, companyId: req.user.companyId },
+//     });
+
+//     if (!existingInvoice) {
+//       return res.status(404).json({
+//         status: "false",
+//         message: "ProForma Invoice Not Found",
+//       });
+//     }
+//     if (!customerId || customerId === "" || customerId === null) {
+//       return res
+//         .status(400)
+//         .json({ status: "false", message: "Required filed :Customer" });
+//     }
+//     const numberOf = await ProFormaInvoice.findOne({
+//       where: {
+//         ProFormaInvoice_no: ProFormaInvoice_no,
+//         companyId: req.user.companyId,
+//         id: { [Sequelize.Op.ne]: id },
+//       },
+//     });
+//     if (numberOf) {
+//       return res.status(400).json({
+//         status: "false",
+//         message: "ProForma Invoice Number Already Exists",
+//       });
+//     }
+//     const customerData = await customer.findOne({
+//       where: { id: customerId, companyId: req.user.companyId },
+//     });
+//     if (!customerData) {
+//       return res
+//         .status(404)
+//         .json({ status: "false", message: "Customer Not Found" });
+//     }
+//     if (!items || items.length === 0) {
+//       return res
+//         .status(400)
+//         .json({ status: "false", message: "Required Field oF items" });
+//     }
+//     for (const item of items) {
+//       if (!item.productId || item.productId === "") {
+//         return res
+//           .status(400)
+//           .json({ status: "false", message: "Required filed :Product" });
+//       }
+//       if (item.qty === 0) {
+//         return res
+//           .status(400)
+//           .json({ status: "false", message: "Qty Value Invalid" });
+//       }
+//       if (item.rate === 0) {
+//         return res
+//           .status(400)
+//           .json({ status: "false", message: "Rate Value Invalid" });
+//       }
+//       const productname = await product.findOne({
+//         where: { id: item.productId, companyId: req.user.companyId },
+//       });
+//       if (!productname) {
+//         return res
+//           .status(404)
+//           .json({ status: "false", message: "Product Not Found" });
+//       }
+//     }
+//     await ProFormaInvoice.update(
+//       {
+//         ProFormaInvoice_no,
+//         date,
+//         validtill,
+//         customerId,
+//         termsOfDelivery,
+//         dispatchThrough,
+//         destination,
+//         LL_RR_no,
+//         terms,
+//         motorVehicleNo,
+//         dispatchno,
+//         totalIgst,
+//         totalSgst,
+//         totalMrp,
+//         mainTotal,
+//         totalQty,
+//         companyId: req.user.companyId,
+//         createdBy: existingInvoice.createdBy,
+//         updatedBy: user,
+//       },
+//       { where: { id } }
+//     );
+
+//     const existingItems = await ProFormaInvoiceItem.findAll({
+//       where: { InvoiceId: id },
+//     });
+
+//     const mergedItems = [];
+
+//     items.forEach((item) => {
+//       let existingItem = mergedItems.find(
+//         (i) => i.productId === item.productId && i.rate === item.rate
+//       );
+//       if (existingItem) {
+//         existingItem.qty += item.qty;
+//         existingItem.mrp += item.mrp;
+//       } else {
+//         mergedItems.push({...item});
+//       }
+//     });
+
+//     for (const item of mergedItems) {
+//       const existingItem = existingItems.find(
+//         (ei) => ei.productId === item.productId && ei.rate === item.rate
+//       );
+//       if (existingItem) {
+//         existingItem.qty = item.qty;
+//         await existingItem.save();
+//       } else {
+//         await ProFormaInvoiceItem.create({
+//           InvoiceId: id,
+//           productId: item.productId,
+//           qty: item.qty,
+//           rate: item.rate,
+//           mrp: item.mrp,
+//         });
+//       }
+//     }
+//     const updatedProducts = mergedItems.map((item) => ({
 //       productId: item.productId,
 //       rate: item.rate,
 //     }));
@@ -604,15 +1037,15 @@ exports.count_salesInvoice = async (req, res) => {
     const data = await salesInvoice.count({ where: { proFormaId: id } });
 
     if (data) {
-      return res
-        .status(200)
-        .json({
-          status: "true",
-          message: "Number of sales invoices connected to the proforma invoice",
-          data: data,
-        });
+      return res.status(200).json({
+        status: "true",
+        message: "Number of sales invoices connected to the proforma invoice",
+        data: data,
+      });
     } else {
-      return res.status(404).json({ status:'false', message:'Sales Invoice Data Not Found'});
+      return res
+        .status(404)
+        .json({ status: "false", message: "Sales Invoice Data Not Found" });
     }
   } catch (error) {
     console.log(error);

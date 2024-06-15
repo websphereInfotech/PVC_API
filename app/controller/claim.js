@@ -369,7 +369,7 @@ exports.view_claimBalance_ledger = async (req, res) => {
           model: C_claim,
           as: "claimData",
           attributes: [],
-          include: [{ model: User, as: "toUser", attributes: [] }],
+          include: [{ model: User, as: "toUser", attributes: [] }, { model: User, as: "fromUser", attributes: [] }],
         },
       ],
       where: whereClause,

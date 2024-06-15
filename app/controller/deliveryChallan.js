@@ -109,6 +109,14 @@ exports.update_deliverychallan = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
+    const numberOf = await deliverychallan.findOne({
+      where: { challanno: challanno, companyId: req.user.companyId },
+    });
+    if (numberOf) {
+      return res
+        .status(400)
+        .json({ status: "false", message: "Challan Number Already Exists" });
+    }
     if (!items || items.length === 0) {
       return res
         .status(400)
