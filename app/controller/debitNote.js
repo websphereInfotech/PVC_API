@@ -239,27 +239,18 @@ exports.update_debitNote = async (req, res) => {
       where: { DebitId: id },
     });
 
-    const mergedItems = [];
-
-    items.forEach((item) => {
-      let existingItem = mergedItems.find(
-        (i) => i.productId === item.productId && i.rate === item.rate
-      );
+    for (const item of items) {
+      const existingItem = existingItems.find((ei) => ei.id === item.id);
 
       if (existingItem) {
-        existingItem.qty += item.qty;
-      } else {
-        mergedItems.push(item);
-      }
-    });
-
-    for (const item of mergedItems) {
-      const existingItem = existingItems.find(
-        (ei) => ei.productId === item.productId && ei.rate === item.rate
-      );
-      if (existingItem) {
-        existingItem.qty = item.qty;
-        await existingItem.save();
+        await debitNoteItem.update(
+          {
+            qty: item.qty,
+            rate: item.rate,
+            mrp: item.mrp,
+          },
+          { where: { id: existingItem.id } }
+        );
       } else {
         await debitNoteItem.create({
           DebitId: id,
@@ -270,25 +261,15 @@ exports.update_debitNote = async (req, res) => {
         });
       }
     }
-
-    const updatedProducts = items.map((item) => ({
-      productId: item.productId,
-      rate: item.rate,
-    }));
+    const updatedProductIds = items.map((item) => item.id);
 
     const itemsToDelete = existingItems.filter(
-      (item) =>
-        !updatedProducts.some(
-          (updetedItem) =>
-            updetedItem.productId === item.productId &&
-            updetedItem.rate === item.rate
-        )
+      (item) => !updatedProductIds.includes(item.id)
     );
 
     for (const item of itemsToDelete) {
-      await item.destroy();
+      await debitNoteItem.destroy({ where: { id: item.id } });
     }
-
     const data = await debitNote.findOne({
       where: { id: id, companyId: req.user.companyId },
       include: [{ model: debitNoteItem, as: "items" }],

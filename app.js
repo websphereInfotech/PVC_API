@@ -38,31 +38,32 @@ const {
 } = require('./app/route/adminRoute');
 
 
-app.use("/admin", ProFormaInvoice);
-app.use("/admin", debitNoteRoute);
-app.use("/admin", expenseRoute);
-app.use("/admin", salesinvoiceRoute);
-app.use("/admin", deliverychallanRoute);
-app.use("/admin", paymentRoute);
+app.use("/admin", userRoute);
+app.use("/admin/profromainvoice", ProFormaInvoice);
+app.use("/admin/debitnote", debitNoteRoute);
+app.use("/admin/salesinvoice", salesinvoiceRoute);
+app.use("/admin/deliverychallan", deliverychallanRoute);
+app.use("/admin/payment", paymentRoute);
+app.use("/admin/customer", customerRoute);
+app.use("/admin/product", productRoute);
+app.use("/admin/purchaseinvoice", purchaseInvoice);
+app.use("/admin/permission", permissionRoute);
+app.use("/admin/vendor", vendorRoute);
+app.use("/admin/company", companyRoute);
+app.use("/admin/creditnote",creditNoteRoute);
+app.use("/admin/recivecash",receiveCash);
+app.use("/admin/customerledger",customerLedger);
+app.use("/admin/vendorledger",vendorLedger);
+app.use("/admin/claim",claimRoute);
+app.use("/admin/companybank",companyBankDetails);
+
+app.use("/admin", receiptRoute);
 app.use("/admin", stockRoute);
-app.use("/admin", customerRoute);
-app.use("/admin", productRoute);
+app.use("/admin", expenseRoute);
 // app.use("/admin", itemgroupRoute);
 // app.use("/admin", itemcategoryRoute);
 // app.use("/admin", unitRoute);
-app.use("/admin", purchaseInvoice);
-app.use("/admin", receiptRoute);
 // app.use("/admin", bankAccount);
-app.use("/admin", permissionRoute);
-app.use("/admin", userRoute);
-app.use("/admin", vendorRoute);
-app.use("/admin", companyRoute);
-app.use("/admin",creditNoteRoute);
-app.use("/admin",receiveCash);
-app.use("/admin",customerLedger);
-app.use("/admin",vendorLedger);
-app.use("/admin",claimRoute);
-app.use("/admin",companyBankDetails);
 
 app.get("/", (req, res) => res.send("Hello World!"));
 

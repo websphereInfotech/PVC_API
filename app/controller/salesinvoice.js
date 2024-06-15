@@ -381,29 +381,22 @@ exports.update_salesInvoice = async (req, res) => {
       },
       { where: { creditId: id } }
     );
-    const existingItem = await salesInvoiceItem.findAll({
+    const existingItems = await salesInvoiceItem.findAll({
       where: { salesInvoiceId: id },
     });
 
-    const mergedItems = [];
+    for (const item of items) {
+      const existingItem = existingItems.find((ei) => ei.id === item.id);
 
-    items.forEach((item) => {
-      let existingItem = mergedItems.find(
-        (i) => i.productId === item.productId && i.rate === item.rate
-      );
       if (existingItem) {
-        existingItem.qty += item.qty;
-      } else {
-        mergedItems.push(item);
-      }
-    });
-    for (const item of mergedItems) {
-      const existingItems = existingItem.find(
-        (ei) => ei.productId === item.productId && ei.rate === item.rate
-      );
-
-      if (existingItems) {
-        (existingItems.qty = item.qty), await existingItems.save();
+        await salesInvoiceItem.update(
+          {
+            qty: item.qty,
+            rate: item.rate,
+            mrp: item.mrp,
+          },
+          { where: { id: existingItem.id } }
+        );
       } else {
         await salesInvoiceItem.create({
           salesInvoiceId: id,
@@ -414,21 +407,14 @@ exports.update_salesInvoice = async (req, res) => {
         });
       }
     }
-    const updatedProducts = items.map((item) => ({
-      productId: item.productId,
-      rate: item.rate,
-    }));
-    const itemsToDelete = existingItem.filter(
-      (item) =>
-        !updatedProducts.some(
-          (updatedItem) =>
-            updatedItem.productId === item.productId &&
-            updatedItem.rate === item.rate
-        )
+    const updatedProductIds = items.map((item) => item.id);
+
+    const itemsToDelete = existingItems.filter(
+      (item) => !updatedProductIds.includes(item.id)
     );
 
     for (const item of itemsToDelete) {
-      await item.destroy();
+      await salesInvoiceItem.destroy({ where: { id: item.id } });
     }
 
     const data = await salesInvoice.findOne({
@@ -637,36 +623,18 @@ exports.C_update_salesinvoice = async (req, res) => {
     const existingItems = await C_salesinvoiceItem.findAll({
       where: { invoiceId: id },
     });
+    for (const item of items) {
+      const existingItem = existingItems.find((ei) => ei.id === item.id);
 
-    const creditId = existingInvoice.id;
-
-    await C_customerLedger.update(
-      {
-        companyId: req.user.companyId,
-        customerId,
-        date,
-      },
-      { where: { creditId } }
-    );
-    const mergedItems = [];
-
-    items.forEach((item) => {
-      let existingItem = mergedItems.find(
-        (i) => i.productId === item.productId && i.rate === item.rate
-      );
       if (existingItem) {
-        existingItem.qty += item.qty;
-      } else {
-        mergedItems.push(item);
-      }
-    });
-    for (const item of mergedItems) {
-      const existingItem = existingItems.find(
-        (ei) => ei.productId === item.productId && ei.rate === item.rate
-      );
-      if (existingItem) {
-        existingItem.qty = item.qty;
-        await existingItem.save();
+        await C_salesinvoiceItem.update(
+          {
+            qty: item.qty,
+            rate: item.rate,
+            mrp: item.mrp,
+          },
+          { where: { id: existingItem.id } }
+        );
       } else {
         await C_salesinvoiceItem.create({
           invoiceId: id,
@@ -677,23 +645,25 @@ exports.C_update_salesinvoice = async (req, res) => {
         });
       }
     }
-    const updatedProducts = items.map((item) => ({
-      productId: item.productId,
-      rate: item.rate,
-    }));
+    const updatedProductIds = items.map((item) => item.id);
 
     const itemsToDelete = existingItems.filter(
-      (item) =>
-        !updatedProducts.some(
-          (updatedItem) =>
-            updatedItem.productId === item.productId &&
-            updatedItem.rate === item.rate
-        )
+      (item) => !updatedProductIds.includes(item.id)
     );
 
     for (const item of itemsToDelete) {
-      await item.destroy();
+      await 
+      C_salesinvoiceItem.destroy({ where: { id: item.id } });
     }
+    await C_customerLedger.update(
+      {
+        companyId: req.user.companyId,
+        customerId,
+        date,
+      },
+      { where: { creditId:existingInvoice.id } }
+    );
+
     const updatedInvoice = await C_salesinvoice.findOne({
       where: { id: id, companyId: req.user.companyId },
       include: [{ model: C_salesinvoiceItem, as: "items" }],

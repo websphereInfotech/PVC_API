@@ -1,3 +1,4 @@
+const { Sequelize } = require("sequelize");
 const customer = require("../models/customer");
 const deliverychallan = require("../models/deliverychallan");
 const deliverychallanitem = require("../models/deliverychallanitem");
@@ -110,7 +111,7 @@ exports.update_deliverychallan = async (req, res) => {
         .json({ status: "false", message: "Customer Not Found" });
     }
     const numberOf = await deliverychallan.findOne({
-      where: { challanno: challanno, companyId: req.user.companyId },
+      where: { challanno: challanno, companyId: req.user.companyId, id: { [Sequelize.Op.ne]: id },},
     });
     if (numberOf) {
       return res
@@ -156,46 +157,37 @@ exports.update_deliverychallan = async (req, res) => {
       }
     );
 
-    const existingItem = await deliverychallanitem.findAll({
+    const existingItems = await deliverychallanitem.findAll({
       where: { deliverychallanId: id },
     });
 
-    const mergedItems = [];
+    for (const item of items) {
+      const existingItem = existingItems.find((ei) => ei.id === item.id);
 
-    items.forEach((item) => {
-      let existingItem = mergedItems.find(
-        (i) => i.productId === item.productId
-      );
       if (existingItem) {
-        existingItem.qty += item.qty;
-      } else {
-        mergedItems.push(item);
-      }
-    });
-    for (const item of mergedItems) {
-      const existingItems = existingItem.find(
-        (ei) => ei.productId === item.productId
-      );
-
-      if (existingItems) {
-        (existingItems.qty = item.qty), await existingItems.save();
+        await deliverychallanitem.update(
+          {
+            qty: item.qty
+          },
+          { where: { id: existingItem.id } }
+        );
       } else {
         await deliverychallanitem.create({
           deliverychallanId: id,
           productId: item.productId,
-          qty: item.qty,
+          qty: item.qty
         });
       }
     }
-    const updatedProducts = items.map((item) => item.productId);
-    const itemsToDelete = existingItem.filter(
-      (item) => !updatedProducts.includes(item.productId)
+    const updatedProductIds = items.map((item) => item.id);
+
+    const itemsToDelete = existingItems.filter(
+      (item) => !updatedProductIds.includes(item.id)
     );
 
     for (const item of itemsToDelete) {
-      await item.destroy();
+      await deliverychallanitem.destroy({ where: { id: item.id } });
     }
-
     const data = await deliverychallan.findOne({
       where: { id, companyId: req.user.companyId },
       include: [{ model: deliverychallanitem, as: "items" }],
