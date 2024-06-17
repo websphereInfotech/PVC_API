@@ -1564,9 +1564,6 @@ exports.create_bom = function(req, res, next) {
           wastage: Joi.number().messages({
             'number.base': 'The wastage must be a number.'
           }),
-          id: Joi.number().messages({
-            'number.base': 'The wastage must be a number.'
-          })
         })
     ).min(1).required().messages({
       'any.required': 'The items field is required.',
