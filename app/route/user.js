@@ -14,6 +14,8 @@ const {
 } = require("../controller/user");
 const adminAuth = require("../middleware/adminAuth");
 const { validation } = require("../constant/validate");
+const adminToken = require("../middleware/adminAuth");
+const {view_user_balance} = require("../controller/claim");
 const router = express.Router();
 
 router.post(
