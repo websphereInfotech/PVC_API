@@ -65,5 +65,4 @@ router.get(
   adminToken("Claim Cash:view_all_ClaimUser"),
   get_all_ClaimUser
 );
-router.get('/view_user_balance',adminToken("Claim Cash:view_user_balance"),view_user_balance);
 module.exports = router;

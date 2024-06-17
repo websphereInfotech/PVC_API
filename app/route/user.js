@@ -52,4 +52,6 @@ router.get(
   view_all_userTOComapny
 );
 
+router.get('/view_user_balance',adminToken("Claim Cash:view_user_balance"),view_user_balance);
+
 module.exports = router;
