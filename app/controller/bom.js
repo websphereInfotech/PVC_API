@@ -7,7 +7,7 @@ const {Sequelize} = require("sequelize");
 exports.create_bom = async (req, res) => {
     try {
         console.log(req.body,"Req.body")
-        const {bomNo, date, description, items, productId, qty, unit} = req.body;
+        const {bomNo, date, description, items, productId, qty} = req.body;
         const userId = req.user.userId;
         const companyId = req.user.companyId;
         const checkBomNo = await Bom.findOne({where: {bomNo: bomNo, companyId: companyId}});
@@ -48,7 +48,6 @@ exports.create_bom = async (req, res) => {
             description: description,
             productId,
             qty,
-            unit,
             createdBy: userId,
             updatedBy: userId,
             companyId
@@ -80,7 +79,7 @@ exports.update_bom = async (req, res) => {
         const companyId = req.user.companyId;
         const {bomId} = req.params;
         const userId = req.user.userId;
-        const {bomNo, date, description, items, productId, qty, unit} = req.body;
+        const {bomNo, date, description, items, productId, qty} = req.body;
 
         const bomExist = await Bom.findOne({where: {id: bomId, companyId: companyId}})
         if(!bomExist){
@@ -139,7 +138,6 @@ exports.update_bom = async (req, res) => {
         bomExist.description = description;
         bomExist.productId = productId;
         bomExist.qty = qty;
-        bomExist.unit = unit;
         await bomExist.save();
 
         for(const item of items){
@@ -151,7 +149,6 @@ exports.update_bom = async (req, res) => {
             })
             bomItem.productId = item.productId;
             bomItem.qty = item.qty;
-            bomItem.unit = item.unit;
             bomItem.wastage = item.wastage;
             await bomItem.save()
         }

@@ -1551,10 +1551,6 @@ exports.create_bom = function(req, res, next) {
       'any.required': 'The qty field is required.',
       'number.base': 'The qty must be a number.'
     }),
-    unit: Joi.string().required().messages({
-      'any.required': 'The unit field is required.',
-      'string.base': 'The unit must be a string.'
-    }),
     items: Joi.array().items(
         Joi.object({
           productId: Joi.number().required().messages({
@@ -1565,11 +1561,10 @@ exports.create_bom = function(req, res, next) {
             'any.required': 'The qty field is required.',
             'number.base': 'The qty must be a number.'
           }),
-          unit: Joi.string().required().messages({
-            'any.required': 'The unit field is required.',
-            'string.base': 'The unit must be a string.'
-          }),
           wastage: Joi.number().messages({
+            'number.base': 'The wastage must be a number.'
+          }),
+          id: Joi.number().messages({
             'number.base': 'The wastage must be a number.'
           })
         })
@@ -1615,10 +1610,6 @@ exports.update_bom = function(req, res, next) {
       'any.required': 'The qty field is required.',
       'number.base': 'The qty must be a number.'
     }),
-    unit: Joi.string().required().messages({
-      'any.required': 'The unit field is required.',
-      'string.base': 'The unit must be a string.'
-    }),
     items: Joi.array().items(
         Joi.object({
           productId: Joi.number().required().messages({
@@ -1628,10 +1619,6 @@ exports.update_bom = function(req, res, next) {
           qty: Joi.number().required().messages({
             'any.required': 'The qty field is required.',
             'number.base': 'The qty must be a number.'
-          }),
-          unit: Joi.string().required().messages({
-            'any.required': 'The unit field is required.',
-            'string.base': 'The unit must be a string.'
           }),
           wastage: Joi.number().messages({
             'number.base': 'The wastage must be a number.'
