@@ -2,6 +2,8 @@ const C_product = require("../models/C_product");
 // const itemcategory = require("../models/itemcategory");
 // const itemgroup = require("../models/itemgroup");
 const product = require("../models/product");
+const C_stock = require("../models/C_stock");
+const Stock = require("../models/stock");
 // const unit = require("../models/unit");
 
 /*=============================================================================================================
@@ -60,10 +62,18 @@ exports.create_product = async (req, res) => {
       cess,
       companyId: req.user.companyId,
     });
-    await C_product.create({
+    const cashProduct = await C_product.create({
       productname: productname,
       companyId: req.user.companyId,
     });
+
+    await C_stock.create({
+      productId: cashProduct.id
+    })
+
+    await Stock.create({
+      productId: data.id,
+    })
 
     return res.status(200).json({
       status: "true",

@@ -10,6 +10,8 @@ const purchaseInvoiceItem = require("../models/purchaseInvoiceItem");
 const User = require("../models/user");
 const vendor = require("../models/vendor");
 const vendorLedger = require("../models/vendorLedger");
+const Stock = require("../models/stock");
+const C_Stock = require("../models/C_stock");
 
 /*=============================================================================================================
                                           Without Typc C API
@@ -111,6 +113,17 @@ exports.create_purchaseInvoice = async (req, res) => {
     }));
 
     await purchaseInvoiceItem.bulkCreate(addToItem);
+
+    for(const item of items){
+        const productId = item.productId;
+        const qty = item.qty;
+        const productStock = await Stock.findOne({
+          productId
+        })
+      if(productStock){
+        await productStock.increment('qty',{by: qty})
+      }
+    }
 
     const data = await purchaseInvoice.findOne({
       where: { id: purchseData.id, companyId: req.user.companyId },
@@ -260,6 +273,16 @@ exports.update_purchaseInvoice = async (req, res) => {
           mrp: item.mrp,
         });
       }
+      const productId = item.productId;
+      const previousQty = existingItem?.qty ?? 0;
+      const newQty = item.qty;
+      const productStock = await Stock.findOne({
+        productId
+      })
+      if(productStock){
+        await productStock.decrement('qty',{by: previousQty})
+        await productStock.increment('qty',{by: newQty})
+      }
     }
     const updatedProductIds = items.map((item) => item.id);
 
@@ -268,6 +291,12 @@ exports.update_purchaseInvoice = async (req, res) => {
     );
 
     for (const item of itemsToDelete) {
+      const productId = item.productId;
+      const qty = item.qty;
+      const productStock = await Stock.findOne({
+        productId
+      })
+      await productStock.decrement('qty',{by: qty})
       await purchaseInvoiceItem.destroy({ where: { id: item.id } });
     }
     const data = await purchaseInvoice.findOne({
@@ -289,20 +318,32 @@ exports.update_purchaseInvoice = async (req, res) => {
 exports.delete_purchaseInvoice = async (req, res) => {
   try {
     const { id } = req.params;
-    const billId = await purchaseInvoice.destroy({
+    const billId = await purchaseInvoice.findOne({
       where: { id: id, companyId: req.user.companyId },
     });
 
-    if (billId) {
-      return res.status(200).json({
-        status: "true",
-        message: "Purchase Invoice Delete Successfully",
+    if (!billId) {
+      return res.status(404).json({
+        status: "false",
+        message: "Purchase Invoice Not Found",
       });
-    } else {
-      return res
-        .status(404)
-        .json({ status: "False", message: "Purchase Invoice Not Found" });
     }
+    const findItems = await purchaseInvoiceItem.findAll({
+      where: { purchasebillId: billId.id },
+    })
+    for(const item of findItems){
+      const productId = item.productId;
+      const qty = item.qty;
+      const productStock = await Stock.findOne({
+        productId
+      })
+      if(productStock) await productStock.decrement('qty',{by: qty})
+    }
+    await purchaseInvoiceItem.destroy({ where: { id: id } })
+    return res.status(200).json({
+      status: "true",
+      message: "Purchase Invoice Successfully delete"
+    })
   } catch (error) {
     console.log(error);
     return res
@@ -452,6 +493,16 @@ exports.C_create_purchaseCash = async (req, res) => {
     }));
 
     await C_purchaseCashItem.bulkCreate(addToItem);
+    for(const item of items){
+      const productId = item.productId;
+      const qty = item.qty;
+      const productCashStock = await C_Stock.findOne({
+        productId
+      })
+      if(productCashStock){
+        await productCashStock.increment('qty',{by: qty})
+      }
+    }
 
     const data = await C_purchaseCash.findOne({
       where: { id: purchseData.id },
@@ -545,7 +596,7 @@ exports.C_update_purchaseCash = async (req, res) => {
     });
     for (const item of items) {
       const existingItem = existingItems.find((ei) => ei.id === item.id);
-
+      console.log(existingItem,"Exsting Item")
       if (existingItem) {
         await C_purchaseCashItem.update(
           {
@@ -564,6 +615,16 @@ exports.C_update_purchaseCash = async (req, res) => {
           mrp: item.mrp,
         });
       }
+      const productId = item.productId;
+      const previousQty = existingItem?.qty ?? 0;
+      const newQty = item.qty;
+      const productCashStock = await C_Stock.findOne({
+        productId
+      })
+      if(productCashStock){
+        await productCashStock.decrement('qty',{by: previousQty})
+        await productCashStock.increment('qty',{by: newQty})
+      }
     }
     const updatedProductIds = items.map((item) => item.id);
 
@@ -572,6 +633,15 @@ exports.C_update_purchaseCash = async (req, res) => {
     );
 
     for (const item of itemsToDelete) {
+      const productId = item.productId;
+      const qty = item.qty;
+      console.log(item,"Item...........")
+      const productCashStock = await C_Stock.findOne({
+        productId
+      })
+      if(productCashStock){
+      await productCashStock.decrement('qty',{by: qty})
+      }
       await C_purchaseCashItem.destroy({ where: { id: item.id } });
     }
     await C_vendorLedger.update(
@@ -602,19 +672,36 @@ exports.C_update_purchaseCash = async (req, res) => {
 exports.C_delete_purchaseCash = async (req, res) => {
   try {
     const { id } = req.params;
-    const billId = await C_purchaseCash.destroy({
+
+    const billId = await C_purchaseCash.findOne({
       where: { id: id, companyId: req.user.companyId },
     });
 
-    if (billId) {
+    if (!billId) {
+      return res.status(404).json({
+        status: "false",
+        message: "Purchase Invoice Not Found",
+      });
+    }
+
+    const findItems = await C_purchaseCashItem.findAll({
+      where: { PurchaseId: billId.id },
+    })
+    for(const item of findItems){
+      const productId = item.productId;
+      const qty = item.qty;
+      const productCashStock = await C_Stock.findOne({
+        productId
+      })
+      if(productCashStock){
+        await productCashStock.decrement('qty',{by: qty})
+      }
+    }
+
+    await billId.destroy()
       return res
         .status(200)
         .json({ status: "true", message: "Purchase Cash Delete Successfully" });
-    } else {
-      return res
-        .status(404)
-        .json({ status: "False", message: "Purchase Cash Not Found" });
-    }
   } catch (error) {
     console.log(error);
     return res

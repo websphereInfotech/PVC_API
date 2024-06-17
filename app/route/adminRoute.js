@@ -6,7 +6,7 @@ const expenseRoute = require("./expenseRoute");
 const salesinvoiceRoute = require("./salesinvoiceRoute");
 const deliverychallanRoute = require("./DeliveryChallanRoute");
 const paymentRoute = require("./paymentRoute");
-const stockRoute = require("./stockRoute");
+const stock = require("./stock");
 const customerRoute = require("./customer");
 const productRoute = require("./product");
 // const itemgroupRoute = require("./itemgroup");
@@ -33,7 +33,7 @@ module.exports = {
   salesinvoiceRoute,
   deliverychallanRoute,
   paymentRoute,
-  stockRoute,
+  stock,
   customerRoute,
   productRoute,
   // itemgroupRoute,
