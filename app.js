@@ -51,7 +51,7 @@ app.use("/admin/permission", permissionRoute);
 app.use("/admin/vendor", vendorRoute);
 app.use("/admin/company", companyRoute);
 app.use("/admin/creditnote",creditNoteRoute);
-app.use("/admin/recivecash",receiveCash);
+app.use("/admin/receive",receiveCash);
 app.use("/admin/customerledger",customerLedger);
 app.use("/admin/vendorledger",vendorLedger);
 app.use("/admin/claim",claimRoute);
