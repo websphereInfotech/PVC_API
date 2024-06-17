@@ -193,7 +193,7 @@ module.exports.validation = function (method) {
     case "create_bom":
       return [create_bom];
     case "update_bom":
-      return [update_bom];
+      return [create_bom];
     default:
       throw new Error("Invalid validation method");
   }

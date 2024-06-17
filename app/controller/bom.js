@@ -120,17 +120,19 @@ exports.update_bom = async (req, res) => {
                     message: "Product Not Found.",
                 })
             }
-            const bomItemExist = await BomItem.findOne({
-                where: {
-                    id: item.id,
-                    bomId: bomId
-                }
-            })
-            if(!bomItemExist){
-                return res.status(404).json({
-                    status: "false",
-                    message: "Bom Item Not Found.",
+            if(item.id){
+                const bomItemExist = await BomItem.findOne({
+                    where: {
+                        id: item.id,
+                        bomId: bomId
+                    }
                 })
+                if(!bomItemExist){
+                    return res.status(404).json({
+                        status: "false",
+                        message: "Bom Item Not Found.",
+                    })
+                }
             }
         }
         bomExist.bomNo = bomNo;
@@ -141,16 +143,23 @@ exports.update_bom = async (req, res) => {
         await bomExist.save();
 
         for(const item of items){
-            const bomItem = await BomItem.findOne({
-                where: {
-                    id: item.id,
-                    bomId : bomExist.id
-                }
-            })
-            bomItem.productId = item.productId;
-            bomItem.qty = item.qty;
-            bomItem.wastage = item.wastage;
-            await bomItem.save()
+            if(item.id){
+                const bomItem = await BomItem.findOne({
+                    where: {
+                        id: item.id,
+                        bomId : bomExist.id
+                    }
+                })
+                bomItem.productId = item.productId;
+                bomItem.qty = item.qty;
+                bomItem.wastage = item.wastage;
+                await bomItem.save()
+            }else{
+                await BomItem.create({
+                    ...item,
+                    bomId: bomExist.id
+                })
+            }
         }
         return res.status(200).json({
             status: "true",

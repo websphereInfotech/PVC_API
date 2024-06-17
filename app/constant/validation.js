@@ -1564,65 +1564,8 @@ exports.create_bom = function(req, res, next) {
           wastage: Joi.number().messages({
             'number.base': 'The wastage must be a number.'
           }),
-        })
-    ).min(1).required().messages({
-      'any.required': 'The items field is required.',
-      'array.base': 'The items must be an array of objects.',
-      'array.min': 'The items array must contain at least one item.'
-    })
-  });
-
-  const { error, value } = schema.validate(payload);
-  if (error) {
-    return res.status(400).json({
-      status: "false",
-      message: error.message
-    })
-  } else {
-    next();
-  }
-}
-
-exports.update_bom = function(req, res, next) {
-  const payload = req.body;
-
-  const schema = Joi.object({
-    bomNo: Joi.number().required().messages({
-      'any.required': 'The bomNo field is required.',
-      'number.base': 'The bomNo must be a number.'
-    }),
-    date: Joi.date().required().messages({
-      'any.required': 'The date field is required.',
-      'date.base': 'The date must be a valid date.'
-    }),
-    description: Joi.string().required().messages({
-      'any.required': 'The description field is required.',
-      'string.base': 'The description must be a string.'
-    }),
-    productId: Joi.number().required().messages({
-      'any.required': 'The productId field is required.',
-      'number.base': 'The productId must be a number.'
-    }),
-    qty: Joi.number().required().messages({
-      'any.required': 'The qty field is required.',
-      'number.base': 'The qty must be a number.'
-    }),
-    items: Joi.array().items(
-        Joi.object({
-          productId: Joi.number().required().messages({
-            'any.required': 'The productId field is required.',
-            'number.base': 'The productId must be a number.'
-          }),
-          qty: Joi.number().required().messages({
-            'any.required': 'The qty field is required.',
-            'number.base': 'The qty must be a number.'
-          }),
-          wastage: Joi.number().messages({
-            'number.base': 'The wastage must be a number.'
-          }),
-          id: Joi.number().required().messages({
-            'any.required': 'The unit field is required.',
-            'number.base': 'The wastage must be a number.'
+          id: Joi.number().allow(null).messages({
+            'number.base': 'The id must be a number or null.'
           })
         })
     ).min(1).required().messages({
