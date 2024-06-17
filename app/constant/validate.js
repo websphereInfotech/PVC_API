@@ -94,6 +94,7 @@ const {
   validateCredit,
   LoginPassword,
   purchaseinvoicedate,
+  create_bom, update_bom
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -189,6 +190,10 @@ module.exports.validation = function (method) {
         return [itemname, unit, email];
     case "create_receipt":
         return [voucherno, account, email, mode, refno, depositto, receiptdate];
+    case "create_bom":
+      return [create_bom];
+    case "update_bom":
+      return [update_bom];
     default:
       throw new Error("Invalid validation method");
   }

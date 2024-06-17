@@ -9,7 +9,6 @@ const port = process.env.PORT;
 app.use(cors());
 
 app.use(express.json());
-
 const {
     ProFormaInvoice,
     debitNoteRoute,
@@ -34,7 +33,8 @@ const {
     customerLedger,
     vendorLedger,
     claimRoute,
-    companyBankDetails
+    companyBankDetails,
+    bom
 } = require('./app/route/adminRoute');
 
 
@@ -56,7 +56,7 @@ app.use("/admin/customerledger",customerLedger);
 app.use("/admin/vendorledger",vendorLedger);
 app.use("/admin/claim",claimRoute);
 app.use("/admin/companybank",companyBankDetails);
-
+app.use('/admin/bom', bom)
 app.use("/admin", receiptRoute);
 app.use("/admin", stockRoute);
 app.use("/admin", expenseRoute);

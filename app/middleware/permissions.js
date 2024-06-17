@@ -1195,6 +1195,51 @@ exports.permissions = {
             "view_user_balance":true
         },
     },
+
+    "Bom" : {
+        "Super Admin" :{
+            "create_bom":true,
+            "update_bom":true,
+            "view_all_bom":true,
+            "view_bom":true,
+            "delete_bom":true,
+        },
+        "Admin" :{
+            "create_bom":true,
+            "update_bom":true,
+            "view_all_bom":true,
+            "view_bom":true,
+            "delete_bom":true,
+        },
+        "Account" :{
+            "create_bom":true,
+            "update_bom":true,
+            "view_all_bom":true,
+            "view_bom":true,
+            "delete_bom":true,
+        },
+        "Employee" :{
+            "create_bom":true,
+            "update_bom":true,
+            "view_all_bom":true,
+            "view_bom":true,
+            "delete_bom":true,
+        },
+        "Workers" :{
+            "create_bom":true,
+            "update_bom":true,
+            "view_all_bom":true,
+            "view_bom":true,
+            "delete_bom":true,
+        },
+        "Other" :{
+            "create_bom":true,
+            "update_bom":true,
+            "view_all_bom":true,
+            "view_bom":true,
+            "delete_bom":true,
+        },
+    },
     // "Permission":{
     //     "Super Admin": {
     //         "view_all_permissions":true,
