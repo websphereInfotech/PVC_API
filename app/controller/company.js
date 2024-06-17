@@ -185,6 +185,7 @@ exports.delete_company = async (req, res) => {
     const { id } = req.params;
 
     const data = await company.destroy({ where: { id: id } });
+    await data.setUsers([]);
     if (data) {
       return res
         .status(200)
