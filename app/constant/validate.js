@@ -94,7 +94,7 @@ const {
   validateCredit,
   LoginPassword,
   purchaseinvoicedate,
-  create_bom, update_bom
+  create_bom
 } = require("./validation");
 
 module.exports.validation = function (method) {

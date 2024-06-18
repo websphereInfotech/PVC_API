@@ -393,32 +393,32 @@ exports.permissions = {
             "view_all_deliverychallan":true
         }
     },
-    // "Stock" : {
-    //     "Super Admin" :{
-    //         "create_stockitem":true,
-    //         "view_all_stock":true,
-    //     },
-    //     "Admin" :{
-    //         "create_stockitem":true,
-    //         "view_all_stock":true,
-    //     },
-    //     "Account" :{
-    //         "create_stockitem":true,
-    //         "view_all_stock":true,
-    //     },
-    //     "Employee" :{
-    //         "create_stockitem":true,
-    //         "view_all_stock":true,
-    //     },
-    //     "Workers" :{
-    //         "create_stockitem":true,
-    //         "view_all_stock":true,
-    //     },
-    //     "Other" :{
-    //         "create_stockitem":true,
-    //         "view_all_stock":true,
-    //     }
-    // },
+    "Stock" : {
+        "Super Admin" :{
+            "create_stockitem":true,
+            "view_product_stock":true,
+        },
+        "Admin" :{
+            "create_stockitem":true,
+            "view_product_stock":true,
+        },
+        "Account" :{
+            "create_stockitem":true,
+            "view_product_stock":true,
+        },
+        "Employee" :{
+            "create_stockitem":true,
+            "view_product_stock":true,
+        },
+        "Workers" :{
+            "create_stockitem":true,
+            "view_product_stock":true,
+        },
+        "Other" :{
+            "create_stockitem":true,
+            "view_product_stock":true,
+        }
+    },
     "Customer" : {
         "Super Admin" :{
             "create_customer":true,

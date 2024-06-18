@@ -13,6 +13,7 @@ const salesInvoiceItem = require("../models/salesInvoiceitem");
 const User = require("../models/user");
 const Stock = require("../models/stock");
 const C_Stock = require("../models/C_stock");
+const {lowStockWaring} = require("../constant/common");
 
 /*=============================================================================================================
                                           Without Typc C API
@@ -128,6 +129,10 @@ exports.create_salesInvoice = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Product Not Found" });
       }
+      const productStock = await Stock.findOne({where: {productId: item.productId}})
+      const totalProductQty = productStock?.qty ?? 0;
+      const isLawStock = await lowStockWaring(productname.id, item.qty, totalProductQty)
+      if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
 
     const data = await salesInvoice.create({
