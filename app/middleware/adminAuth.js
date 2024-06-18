@@ -76,6 +76,7 @@ const adminToken = (permissionString) => {
             role: verify.role,
             resource,
             permission,
+            companyId: verify.companyId,
           },
         });
       }else{
@@ -85,6 +86,7 @@ const adminToken = (permissionString) => {
             resource,
             permission,
             type: false,
+            companyId: verify.companyId,
           },
         });
       }

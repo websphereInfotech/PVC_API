@@ -1561,9 +1561,10 @@ exports.create_bom = function(req, res, next) {
       'any.required': 'The productId field is required.',
       'number.base': 'The productId must be a number.'
     }),
-    qty: Joi.number().required().messages({
+    qty: Joi.number().greater(0).required().messages({
       'any.required': 'The qty field is required.',
-      'number.base': 'The qty must be a number.'
+      'number.base': 'The qty must be a number.',
+      "number.greater": "Qty must be greater than 0.",
     }),
     items: Joi.array().items(
         Joi.object({
@@ -1571,8 +1572,9 @@ exports.create_bom = function(req, res, next) {
             'any.required': 'The productId field is required.',
             'number.base': 'The productId must be a number.'
           }),
-          qty: Joi.number().required().messages({
+          qty: Joi.number().greater(0).required().messages({
             'any.required': 'The qty field is required.',
+            "number.greater": "Qty must be greater than 0.",
             'number.base': 'The qty must be a number.'
           }),
           wastage: Joi.number().messages({
