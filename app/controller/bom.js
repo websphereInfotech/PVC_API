@@ -56,10 +56,10 @@ exports.create_bom = async (req, res) => {
             companyId
         })
         const productStock = await Stock.findOne({
-            productId
+            where: {productId}
         })
         const productCashStock = await C_Stock.findOne({
-            productId
+            where: {productId}
         })
         console.log(splitQuantity(qty), "Split Qty")
         const {cashQty, productQty} = splitQuantity(qty)
@@ -78,18 +78,18 @@ exports.create_bom = async (req, res) => {
             })
 
             const productStock = await Stock.findOne({
-                productId: item.productId,
+                where: {productId: item.productId},
             })
             const productCashStock = await C_Stock.findOne({
-                productId: item.productId,
+                where: {productId: item.productId},
             })
             console.log(splitQuantity(qty), "Split Qty")
             const {cashQty, productQty} = splitQuantity(qty)
             if(productStock){
-                await productStock.increment('qty',{by: productQty})
+                await productStock.decrement('qty',{by: productQty})
             }
             if(productCashStock){
-                await productCashStock.increment('qty',{by: cashQty})
+                await productCashStock.decrement('qty',{by: cashQty})
             }
         }
 
@@ -170,12 +170,6 @@ exports.update_bom = async (req, res) => {
                 }
             }
         }
-        // bomExist.bomNo = bomNo;
-        // bomExist.date = date;
-        // bomExist.description = description;
-        // bomExist.productId = productId;
-        // bomExist.qty = qty;
-        // await bomExist.save();
 
         await  Bom.update(
             {
@@ -183,7 +177,8 @@ exports.update_bom = async (req, res) => {
                 date,
                 description,
                 productId,
-                qty
+                qty,
+                updatedBy: req.user.userId
             },
             {
                 where: {
@@ -192,12 +187,11 @@ exports.update_bom = async (req, res) => {
             }
         );
 
-
         const productStock = await Stock.findOne({
-            productId: productId,
+            where: {productId: productId},
         })
         const productCashStock = await C_Stock.findOne({
-            productId: productId,
+            where: {productId: productId},
         })
         const {cashQty:newCashQty, productQty:newProductQty} = splitQuantity(qty)
         const {cashQty:previousCashQty, productQty:previousProductQty} = splitQuantity(bomExist?.qty ?? 0)
@@ -213,10 +207,6 @@ exports.update_bom = async (req, res) => {
         for(const item of items){
             const existingItem = existingItems.find((ei) => ei.id === item.id);
             if(existingItem){
-                // existingItem.productId = item.productId;
-                // existingItem.qty = item.qty;
-                // existingItem.wastage = item.wastage;
-                // await existingItem.save()
                 BomItem.update(
                     {
                         wastage: item.wastage,
@@ -238,22 +228,22 @@ exports.update_bom = async (req, res) => {
                 })
             }
             const productStock = await Stock.findOne({
-                productId: item.productId,
+                where: {productId: item.productId},
             })
             const productCashStock = await C_Stock.findOne({
-                productId: item.productId,
+                where: {productId: item.productId},
             })
             console.log(item.qty,"Item QTY")
             const {cashQty:newCashQty, productQty:newProductQty} = splitQuantity(item.qty)
             const {cashQty:previousCashQty, productQty:previousProductQty} = splitQuantity(existingItem?.qty ?? 0)
             console.log(previousCashQty, "Previous", newCashQty,"New Cash")
             if(productStock){
-                await productStock.decrement('qty',{by: previousProductQty})
-                await productStock.increment('qty',{by: newProductQty})
+                await productStock.increment('qty',{by: previousProductQty})
+                await productStock.decrement('qty',{by: newProductQty})
             }
             if(productCashStock){
-                await productCashStock.decrement('qty',{by: previousCashQty})
-                await productCashStock.increment('qty',{by: newCashQty})
+                await productCashStock.increment('qty',{by: previousCashQty})
+                await productCashStock.decrement('qty',{by: newCashQty})
             }
         }
 
@@ -263,17 +253,17 @@ exports.update_bom = async (req, res) => {
         );
         for (const item of itemsToDelete) {
             const productStock = await Stock.findOne({
-                productId: item.productId,
+                where: {productId: item.productId},
             })
             const productCashStock = await C_Stock.findOne({
-                productId: item.productId,
+                where: {productId: item.productId},
             })
             const {cashQty:previousCashQty, productQty:previousProductQty} = splitQuantity(item?.qty ?? 0)
             if(productStock){
-                await productStock.decrement('qty',{by: previousProductQty})
+                await productStock.increment('qty',{by: previousProductQty})
             }
             if(productCashStock){
-                await productCashStock.decrement('qty',{by: previousCashQty})
+                await productCashStock.increment('qty',{by: previousCashQty})
             }
             await BomItem.destroy({ where: { id: item.id } });
         }
@@ -401,6 +391,37 @@ exports.delete_bom = async (req,res)=>{
                 status: "false",
                 message: "Bom Not Found."
             })
+        }
+        const existingItems = await BomItem.findAll({
+            where: { bomId: bomExist.id },
+        });
+        for(const item of existingItems){
+            const productStock = await Stock.findOne({
+                where: {productId: item.productId},
+            })
+            const productCashStock = await C_Stock.findOne({
+                where: {productId: item.productId},
+            })
+            const {cashQty:previousCashQty, productQty:previousProductQty} = splitQuantity(item?.qty ?? 0)
+            if(productStock){
+                await productStock.increment('qty',{by: previousProductQty})
+            }
+            if(productCashStock){
+                await productCashStock.increment('qty',{by: previousCashQty})
+            }
+        }
+        const productStock = await Stock.findOne({
+            where: {productId: bomExist.productId},
+        })
+        const productCashStock = await C_Stock.findOne({
+            where: {productId: bomExist.productId},
+        })
+        const {cashQty:previousCashQty, productQty:previousProductQty} = splitQuantity(bomExist?.qty ?? 0)
+        if(productStock){
+            await productStock.decrement('qty',{by: previousProductQty})
+        }
+        if(productCashStock){
+            await productCashStock.decrement('qty',{by: previousCashQty})
         }
         await bomExist.destroy()
         return res.status(200).json({

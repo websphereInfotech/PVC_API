@@ -11,6 +11,8 @@ const product = require("../models/product");
 const salesInvoice = require("../models/salesInvoice");
 const salesInvoiceItem = require("../models/salesInvoiceitem");
 const User = require("../models/user");
+const Stock = require("../models/stock");
+const C_Stock = require("../models/C_stock");
 
 /*=============================================================================================================
                                           Without Typc C API
@@ -162,6 +164,17 @@ exports.create_salesInvoice = async (req, res) => {
     }));
 
     await salesInvoiceItem.bulkCreate(addToItem);
+
+    for(const item of items){
+      const productId = item.productId;
+      const qty = item.qty;
+      const productStock = await Stock.findOne({
+        where: {productId}
+      })
+      if(productStock){
+        await productStock.decrement('qty',{by: qty})
+      }
+    }
 
     const salesInvoiceData = await salesInvoice.findOne({
       where: { id: data.id, companyId: req.user.companyId },
@@ -406,6 +419,16 @@ exports.update_salesInvoice = async (req, res) => {
           mrp: item.mrp,
         });
       }
+      const productId = item.productId;
+      const previousQty = existingItem?.qty ?? 0;
+      const newQty = item.qty;
+      const productStock = await Stock.findOne({
+        where: {productId}
+      })
+      if(productStock){
+        await productStock.increment('qty',{by: previousQty})
+        await productStock.decrement('qty',{by: newQty})
+      }
     }
     const updatedProductIds = items.map((item) => item.id);
 
@@ -414,6 +437,12 @@ exports.update_salesInvoice = async (req, res) => {
     );
 
     for (const item of itemsToDelete) {
+      const productId = item.productId;
+      const qty = item.qty;
+      const productStock = await Stock.findOne({
+        where: {productId}
+      })
+      if(productStock) await productStock.increment('qty',{by: qty})
       await salesInvoiceItem.destroy({ where: { id: item.id } });
     }
 
@@ -436,19 +465,31 @@ exports.update_salesInvoice = async (req, res) => {
 exports.delete_salesInvoice = async (req, res) => {
   try {
     const { id } = req.params;
-    const data = await salesInvoice.destroy({
+    const data = await salesInvoice.findOne({
       where: { id: id, companyId: req.user.companyId },
     });
+
     if (!data) {
       return res
         .status(404)
         .json({ status: "false", message: "Sales Invoice Not Found" });
-    } else {
-      return res.status(200).json({
-        status: "true",
-        message: "Sales Invoice Deleted Successfully",
-      });
     }
+    const findItems = await salesInvoiceItem.findAll({
+      where: { salesInvoiceId: id },
+    })
+    for(const item of findItems){
+      const productId = item.productId;
+      const qty = item.qty;
+      const productStock = await Stock.findOne({
+        where: {productId}
+      })
+      if(productStock) await productStock.increment('qty',{by: qty})
+    }
+    await salesInvoiceItem.destroy({ where: { salesInvoiceId: id } })
+    await data.destroy()
+    return res
+        .status(200)
+        .json({ status: "true", message: "Sales Invoice Delete Successfully." });
   } catch (error) {
     console.log(error);
     return res
@@ -531,6 +572,16 @@ exports.C_create_salesinvoice = async (req, res) => {
       ...item,
     }));
     await C_salesinvoiceItem.bulkCreate(addToProduct);
+    for(const item of items){
+      const productId = item.productId;
+      const qty = item.qty;
+      const productCashStock = await C_Stock.findOne({
+        where: {productId}
+      })
+      if(productCashStock){
+        await productCashStock.decrement('qty',{by: qty})
+      }
+    }
 
     const data = await C_salesinvoice.findOne({
       where: { id: salesInvoiceData.id, companyId: req.user.companyId },
@@ -644,6 +695,16 @@ exports.C_update_salesinvoice = async (req, res) => {
           mrp: item.mrp,
         });
       }
+      const productId = item.productId;
+      const previousQty = existingItem?.qty ?? 0;
+      const newQty = item.qty;
+      const productCashStock = await C_Stock.findOne({
+        where: {productId}
+      })
+      if(productCashStock){
+        await productCashStock.increment('qty',{by: previousQty})
+        await productCashStock.decrement('qty',{by: newQty})
+      }
     }
     const updatedProductIds = items.map((item) => item.id);
 
@@ -652,6 +713,12 @@ exports.C_update_salesinvoice = async (req, res) => {
     );
 
     for (const item of itemsToDelete) {
+      const productId = item.productId;
+      const qty = item.qty;
+      const productCashStock = await C_Stock.findOne({
+        where: {productId}
+      })
+      if(productCashStock) await productCashStock.increment('qty',{by: qty})
       await 
       C_salesinvoiceItem.destroy({ where: { id: item.id } });
     }
@@ -749,19 +816,30 @@ exports.C_view_salesInvoice = async (req, res) => {
 exports.C_delete_salesInvoice = async (req, res) => {
   try {
     const { id } = req.params;
-    const data = await C_salesinvoice.destroy({
+    const data = await C_salesinvoice.findOne({
       where: { id: id, companyId: req.user.companyId },
     });
     if (!data) {
       return res
         .status(404)
         .json({ status: "false", message: "Sales Invoice Not Found" });
-    } else {
-      return res.status(200).json({
-        status: "true",
-        message: "Sales Invoice Deleted Successfully",
-      });
     }
+    const findItems = await C_salesinvoiceItem.findAll({
+      where: { invoiceId: id },
+    })
+    for(const item of findItems){
+      const productId = item.productId;
+      const qty = item.qty;
+      const productCashStock = await C_Stock.findOne({
+        where: {productId}
+      })
+      if(productCashStock) await productCashStock.increment('qty',{by: qty})
+    }
+    await C_salesinvoiceItem.destroy({ where: { invoiceId: id } })
+    await data.destroy()
+    return res
+        .status(200)
+        .json({ status: "true", message: "Sales Cash Delete Successfully." });
   } catch (error) {
     console.log(error);
     return res

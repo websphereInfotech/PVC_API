@@ -5,6 +5,8 @@ const customer = require("../models/customer");
 const product = require("../models/product");
 const User = require("../models/user");
 const salesInvoice = require("../models/salesInvoice");
+const salesInvoiceItem = require("../models/salesInvoiceitem");
+const Stock = require("../models/stock");
 
 exports.create_ProFormaInvoice = async (req, res) => {
   try {
@@ -557,7 +559,7 @@ exports.delete_ProFormaInvoice = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await ProFormaInvoice.destroy({
+    const data = await ProFormaInvoice.findOne({
       where: { id: id, companyId: req.user.companyId },
     });
 
@@ -566,6 +568,29 @@ exports.delete_ProFormaInvoice = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "ProForma Invoice Item Not Found" });
     }
+    const salesInvoices = await salesInvoice.findAll({
+      where: { proFormaId: id },
+      // include: {model: salesInvoiceItem, as: "items" },
+    });
+
+    console.log(salesInvoices,"Sales Invoice")
+
+    for(const saleInvoice of salesInvoices){
+      const findItems = await salesInvoiceItem.findAll({
+        where: { salesInvoiceId: saleInvoice.id },
+      })
+      for(const item of findItems){
+        const productId = item.productId;
+        const qty = item.qty;
+        const productStock = await Stock.findOne({
+          where: {productId}
+        })
+        if(productStock) await productStock.increment('qty',{by: qty})
+      }
+    }
+
+    await data.destroy()
+
     return res.status(200).json({
       status: "true",
       message: "ProForma Invoice Item Delete Successfully",
