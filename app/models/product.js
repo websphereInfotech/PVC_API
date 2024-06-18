@@ -32,6 +32,10 @@ const product = sequelize.define("P_product", {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+  lowStockQty: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   purchaseprice: {
     type: DataTypes.INTEGER,
   },

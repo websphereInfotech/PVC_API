@@ -926,15 +926,29 @@ exports.nagativeqty = function (req, res, next) {
   next();
 };
 exports.lowstock = function (req, res, next) {
-  const { lowstock } = req.body;
-  const lowstockSchema = Joi.boolean()
+  const { lowstock, lowStockQty } = req.body;
+  const schema = Joi.object({
+    lowstock: Joi.boolean()
+        .required()
+        .messages({
+          "any.required": "Required Field : lowStock",
+          "boolean.empty": "lowStock Cannot Be Empty",
+        }),
+    lowStockQty: Joi.when('lowstock', {
+      is: true,
+      then: Joi.number().greater(0).required().messages({
+        "number.base": "lowStockQty must be a number when lowstock is true",
+        "number.greater": "lowStockQty must be greater than 0 when lowstock is true",
+        "any.required": "Required Field : lowStockQty when lowstock is true"
+      }),
+      otherwise: Joi.valid(null).required().messages({
+        "any.only": "lowStockQty must be null when lowstock is false",
+        "any.required": "Required Field : lowStockQty when lowstock is false"
+      })
+    })
+  });
 
-    .required()
-    .messages({
-      "any.required": "Required Field : lowStock",
-      "boolean.empty": "lowStock Cannot Be Empty",
-    });
-  const { error } = lowstockSchema.validate(lowstock);
+  const { error } = schema.validate({lowstock, lowStockQty});
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
