@@ -67,6 +67,7 @@ exports.create_product = async (req, res) => {
       companyId: req.user.companyId,
     });
     const cashProduct = await C_product.create({
+      id: data.id,
       productname: productname,
       companyId: req.user.companyId,
     });

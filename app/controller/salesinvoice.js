@@ -128,7 +128,7 @@ exports.create_salesInvoice = async (req, res) => {
       }
       const productStock = await Stock.findOne({where: {productId: item.productId}})
       const totalProductQty = productStock?.qty ?? 0;
-      const isLawStock = await lowStockWaring(productname.id, item.qty, totalProductQty)
+      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, item.qty, totalProductQty)
       if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
 
@@ -337,6 +337,10 @@ exports.update_salesInvoice = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Required Field oF items" });
     }
+    const existingItems = await salesInvoiceItem.findAll({
+      where: { salesInvoiceId: id },
+    });
+    console.log(existingItems,"Exting Item")
     for (const item of items) {
       if (!item.productId || item.productId === "") {
         return res
@@ -361,6 +365,13 @@ exports.update_salesInvoice = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Product Not Found" });
       }
+
+      const existingItem = existingItems.find((ei) => ei.id === item.id);
+      const productStock = await Stock.findOne({where: {productId: item.productId}})
+      const totalProductQty = productStock?.qty ?? 0;
+      const tempQty = item.qty - existingItem.qty;
+      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, tempQty, totalProductQty)
+      if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
     await salesInvoice.update(
       {
@@ -398,9 +409,7 @@ exports.update_salesInvoice = async (req, res) => {
       },
       { where: { creditId: id } }
     );
-    const existingItems = await salesInvoiceItem.findAll({
-      where: { salesInvoiceId: id },
-    });
+
 
     for (const item of items) {
       const existingItem = existingItems.find((ei) => ei.id === item.id);

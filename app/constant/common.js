@@ -13,13 +13,11 @@ exports.splitQuantity = (qty)=>{
     };
 };
 
-exports.lowStockWaring = async (productId, qty, totalQty)=>{
+exports.lowStockWaring = async (lowstock, lowStockQty, qty, totalQty)=>{
     const findProduct = await Product.findByPk(productId);
     if(findProduct){
-        const isLowStock = findProduct.lowstock
         const tempStock = totalQty - qty;
-        if(isLowStock){
-            const lowStockQty = findProduct.lowStockQty;
+        if(lowstock){
             if(tempStock <= lowStockQty){
                 return true;
             }
