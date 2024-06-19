@@ -392,21 +392,32 @@ exports.add_user = async (req, res) => {
       where: { companyId: companyId, userId: id },
     });
 
+    const findCompany = await companyUser.findOne({
+      where: {
+        userId: id,
+        setDefault: true
+      }
+    });
+
     await C_userBalance.create({
       userId: id,
       companyId: req.user.companyId,
       balance: 0,
     })
-    if (!data) {
-      await companyUser.create({ companyId: companyId, userId: id });
-      return res
-        .status(200)
-        .json({ status: "true", message: "User Added Successfully" });
-    } else {
+    if (data) {
       return res
         .status(400)
         .json({ status: "false", message: "User Already Exists" });
     }
+
+    if(findCompany){
+        await companyUser.create({ companyId: companyId, userId: id });
+    }else{
+      await companyUser.create({ companyId: companyId, userId: id, setDefault: true });
+    }
+    return res
+        .status(200)
+        .json({ status: "true", message: "User Added Successfully" });
   } catch (error) {
     console.log(error);
     return res
@@ -460,7 +471,6 @@ exports.remove_company = async (req,res)=>{
       where: {
         userId: id,
         companyId: { [Op.ne]: companyId },
-        setDefault: false
       }
     });
 
