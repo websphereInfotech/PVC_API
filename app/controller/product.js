@@ -29,6 +29,7 @@ exports.create_product = async (req, res) => {
       gstrate,
       HSNcode,
       cess,
+      weight
     } = req.body;
 
     let purchaseprice = req.body.purchaseprice;
@@ -61,6 +62,7 @@ exports.create_product = async (req, res) => {
       gstrate,
       HSNcode,
       cess,
+      weight,
       lowStockQty,
       companyId: req.user.companyId,
     });
@@ -109,6 +111,7 @@ exports.update_product = async (req, res) => {
       gstrate,
       HSNcode,
       cess,
+      weight
     } = req.body;
 
     let purchaseprice = req.body.purchaseprice;
@@ -154,6 +157,7 @@ exports.update_product = async (req, res) => {
         gstrate: gstrate,
         HSNcode: HSNcode,
         cess: cess,
+        weight: weight,
         lowStockQty: lowStockQty,
         companyId: req.user.companyId,
       },

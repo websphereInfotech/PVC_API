@@ -164,7 +164,6 @@ exports.qty = function (req, res, next) {
     const { qty } = item;
     // console.log("item",item);
     const qtySchema = Joi.number()
-
       .required()
       .messages({
         "any.required": "Required Filed : QTY",
@@ -185,11 +184,10 @@ exports.productId = function (req, res, next) {
   for (const item of items) {
     const { productId } = item;
     const productSchema = Joi.number()
-
       .required()
       .messages({
         "any.required": "Required Filed : Product",
-        "string.empty": "Product Cannot Be Empty",
+        "number.empty": "Product Cannot Be Empty",
       });
 
     const { error } = productSchema.validate(productId);
@@ -1539,6 +1537,24 @@ exports.validateCredit = function(req, res, next) {
   next();
 }
 
+exports.weight = function (req, res, next){
+  const {weight} = req.body;
+  const weightSchema = Joi.number().greater(0).required().messages({
+    'any.required': 'The weight field is required.',
+    'number.base': 'The weight must be a string.',
+    "number.greater": "Weight must be greater than 0.",
+  });
+  const { error } = weightSchema.validate(weight);
+  if (error) {
+    return res.status(400).json({
+      status: "false",
+      message: error.message
+    })
+  } else {
+    next();
+  }
+}
+
 
 exports.create_bom = function(req, res, next) {
   const payload = req.body;
@@ -1614,3 +1630,25 @@ exports.proFormaNo = function (req, res, next) {
   }
   next();
 };
+
+exports.update_productStock = function (req,res,next){
+  const {productId, qty} = req.body;
+  const ProductStockSchema = Joi.object({
+    productId: Joi.number()
+        .required()
+        .messages({
+          "any.required": "Required Filed : Product",
+          "number.empty": "Product Cannot Be Empty",
+        }),
+    qty: Joi.number().required().messages({
+      "any.required": "Required Filed : Qty",
+      "number.empty": "Qty Cannot Be Empty",
+    })
+  })
+
+  const {error} = ProductStockSchema.validate({productId, qty});
+  if (error) {
+    return res.status(400).json({ status: "false", message: error.message });
+  }
+  next();
+}

@@ -396,27 +396,33 @@ exports.permissions = {
     },
     "Stock" : {
         "Super Admin" :{
-            "create_stockitem":true,
+            "update_product_stock":true,
+            "view_all_product_stock":true,
             "view_product_stock":true,
         },
         "Admin" :{
-            "create_stockitem":true,
+            "update_product_stock":true,
+            "view_all_product_stock":true,
             "view_product_stock":true,
         },
         "Account" :{
-            "create_stockitem":true,
+            "update_product_stock":true,
+            "view_all_product_stock":true,
             "view_product_stock":true,
         },
         "Employee" :{
-            "create_stockitem":true,
+            "update_product_stock":true,
+            "view_all_product_stock":true,
             "view_product_stock":true,
         },
         "Workers" :{
-            "create_stockitem":true,
+            "update_product_stock":true,
+            "view_all_product_stock":true,
             "view_product_stock":true,
         },
         "Other" :{
-            "create_stockitem":true,
+            "update_product_stock":true,
+            "view_all_product_stock":true,
             "view_product_stock":true,
         }
     },
@@ -1194,6 +1200,38 @@ exports.permissions = {
             "view_claimBalance_ledger":true,
             "view_all_ClaimUser":true,
             "view_user_balance":true
+        },
+    },
+    "Stock Cash" : {
+        "Super Admin" :{
+            "view_all_product_cash_stock": true,
+            "view_product_cash_stock": true,
+            "update_product_cash_stock": true,
+        },
+        "Admin" :{
+            "view_all_product_cash_stock": true,
+            "view_product_cash_stock": true,
+            "update_product_cash_stock": true,
+        },
+        "Account" :{
+            "view_all_product_cash_stock": true,
+            "view_product_cash_stock": true,
+            "update_product_cash_stock": true,
+        },
+        "Employee" :{
+            "view_all_product_cash_stock": true,
+            "view_product_cash_stock": true,
+            "update_product_cash_stock": true,
+        },
+        "Workers" :{
+            "view_all_product_cash_stock": true,
+            "view_product_cash_stock": true,
+            "update_product_cash_stock": true,
+        },
+        "Other" :{
+            "view_all_product_cash_stock": true,
+            "view_product_cash_stock": true,
+            "update_product_cash_stock": true,
         },
     },
 
