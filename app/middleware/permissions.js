@@ -58,6 +58,7 @@ exports.permissions = {
             "check_user":true,
             "add_user":true,
             "view_all_JoinComapny":true,
+            "remove_company": true
         },
         "Admin" : {
             "update_user":true,

@@ -620,7 +620,6 @@ exports.creditdate = function (req, res, next) {
 exports.invoiceno = function (req, res, next) {
   const { invoiceno } = req.body;
   const invoicenoSchema = Joi.number()
-
     .required()
     .messages({
       "number.base": "Invoice Number must be a number",
