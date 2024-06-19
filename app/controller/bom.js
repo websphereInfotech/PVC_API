@@ -10,7 +10,7 @@ const {splitQuantity} = require("../constant/common");
 exports.create_bom = async (req, res) => {
     try {
         console.log(req.body,"Req.body")
-        const {bomNo, date, description, items, productId, qty} = req.body;
+        const {bomNo, date, weight, items, productId, qty} = req.body;
         const userId = req.user.userId;
         const companyId = req.user.companyId;
         const checkBomNo = await Bom.findOne({where: {bomNo: bomNo, companyId: companyId}});
@@ -48,7 +48,7 @@ exports.create_bom = async (req, res) => {
         const createBOM = await Bom.create({
             bomNo: bomNo,
             date: date,
-            description: description,
+            weight: weight,
             productId,
             qty,
             createdBy: userId,
@@ -83,7 +83,6 @@ exports.create_bom = async (req, res) => {
             const productCashStock = await C_Stock.findOne({
                 where: {productId: item.productId},
             })
-            console.log(splitQuantity(qty), "Split Qty")
             const {cashQty, productQty} = splitQuantity(qty)
             if(productStock){
                 await productStock.decrement('qty',{by: productQty})
@@ -111,7 +110,7 @@ exports.update_bom = async (req, res) => {
         const companyId = req.user.companyId;
         const {bomId} = req.params;
         const userId = req.user.userId;
-        const {bomNo, date, description, items, productId, qty} = req.body;
+        const {bomNo, date, weight, items, productId, qty} = req.body;
 
         const bomExist = await Bom.findOne({where: {id: bomId, companyId: companyId}})
         if(!bomExist){
@@ -175,7 +174,7 @@ exports.update_bom = async (req, res) => {
             {
                 bomNo,
                 date,
-                description,
+                weight,
                 productId,
                 qty,
                 updatedBy: req.user.userId
@@ -209,7 +208,6 @@ exports.update_bom = async (req, res) => {
             if(existingItem){
                 BomItem.update(
                     {
-                        wastage: item.wastage,
                         productId : item.productId,
                         qty: item.qty
                     },

@@ -7,7 +7,6 @@ const BomItem = sequelize.define("P_BomItem", {
     productId: { type: DataTypes.INTEGER, allowNull: false },
     qty: { type: DataTypes.INTEGER, allowNull: false },
     bomId: { type: DataTypes.INTEGER, allowNull: false },
-    wastage: { type: DataTypes.INTEGER },
 });
 
 Bom.hasMany(BomItem, { foreignKey: "bomId", as: "bomItems" });

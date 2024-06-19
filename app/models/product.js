@@ -53,6 +53,9 @@ const product = sequelize.define("P_product", {
     defaultValue: false,
   },
   companyId: { type: DataTypes.INTEGER },
+  weight: {
+    type: DataTypes.INTEGER,
+  }
 });
 
 company.hasMany(product, { foreignKey: "companyId", onDelete: "CASCADE" });

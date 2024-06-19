@@ -1552,9 +1552,10 @@ exports.create_bom = function(req, res, next) {
       'any.required': 'The date field is required.',
       'date.base': 'The date must be a valid date.'
     }),
-    description: Joi.string().required().messages({
-      'any.required': 'The description field is required.',
-      'string.base': 'The description must be a string.'
+    weight: Joi.number().greater(0).required().messages({
+      'any.required': 'The weight field is required.',
+      'number.base': 'The weight must be a string.',
+      "number.greater": "Weight must be greater than 0.",
     }),
     productId: Joi.number().required().messages({
       'any.required': 'The productId field is required.',
@@ -1575,9 +1576,6 @@ exports.create_bom = function(req, res, next) {
             'any.required': 'The qty field is required.',
             "number.greater": "Qty must be greater than 0.",
             'number.base': 'The qty must be a number.'
-          }),
-          wastage: Joi.number().messages({
-            'number.base': 'The wastage must be a number.'
           }),
           id: Joi.number().allow(null).messages({
             'number.base': 'The id must be a number or null.'
