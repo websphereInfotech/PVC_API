@@ -25,7 +25,7 @@ exports.create_salesInvoice = async (req, res) => {
       customerId,
       invoiceno,
       invoicedate,
-      proFormaId,
+      proFormaNo,
       dispatchThrough,
       dispatchno,
       deliverydate,
@@ -42,18 +42,15 @@ exports.create_salesInvoice = async (req, res) => {
       items,
     } = req.body;
 
-    const proformaData = await ProFormaInvoice.findOne({
-      where: { id: proFormaId, companyId: req.user.companyId },
-    });
-    if (!proformaData) {
-      return res
-        .status(404)
-        .json({ status: "false", message: "ProFrorma Not Found" });
-    }
-    if (proFormaId === "" || proFormaId === undefined || proFormaId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required Field: ProForma Invoice" });
+    if (proFormaNo) {
+      const proformaData = await ProFormaInvoice.findOne({
+        where: { ProFormaInvoice_no: proFormaNo, companyId: req.user.companyId },
+      });
+      if (!proformaData) {
+        return res
+            .status(404)
+            .json({ status: "false", message: "ProForma Not Found" });
+      }
     }
     // for (const item of items) {
     //   const mrp = item.qty * item.rate;
@@ -147,7 +144,7 @@ exports.create_salesInvoice = async (req, res) => {
       invoiceno,
       invoicedate,
       termsOfDelivery,
-      proFormaId,
+      proFormaNo,
       totalIgst,
       totalSgst,
       totalMrp,
@@ -243,7 +240,6 @@ exports.view_salesInvoice = async (req, res) => {
           include: [{ model: product, as: "InvoiceProduct" }],
         },
         { model: customer, as: "InvioceCustomer" },
-        { model: ProFormaInvoice, as: "proFormaItem" },
       ],
     });
 
@@ -281,7 +277,7 @@ exports.update_salesInvoice = async (req, res) => {
       terms,
       invoicedate,
       termsOfDelivery,
-      proFormaId,
+      proFormaNo,
       totalIgst,
       totalSgst,
       totalMrp,
@@ -325,13 +321,16 @@ exports.update_salesInvoice = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
-    const proFormaItem = await ProFormaInvoice.findOne({
-      where: { id: proFormaId, companyId: req.user.companyId },
-    });
-    if (!proFormaItem) {
-      return res
-        .status(404)
-        .json({ status: "false", message: "proForma Invoice Not Found" });
+    if (proFormaNo) { // Check if proFormaId is provided
+      const proformaData = await ProFormaInvoice.findOne({
+        where: { ProFormaInvoice_no: proFormaNo, companyId: req.user.companyId },
+      });
+
+      if (!proformaData) {
+        return res
+            .status(404)
+            .json({ status: "false", message: "ProForma Not Found" });
+      }
     }
     if (!items || items.length === 0) {
       return res
@@ -376,7 +375,7 @@ exports.update_salesInvoice = async (req, res) => {
         invoiceno,
         invoicedate,
         termsOfDelivery,
-        proFormaId,
+        proFormaNo,
         totalIgst,
         totalSgst,
         totalMrp,

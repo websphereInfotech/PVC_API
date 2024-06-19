@@ -1601,3 +1601,19 @@ exports.create_bom = function(req, res, next) {
     next();
   }
 }
+
+exports.proFormaNo = function (req, res, next) {
+  const {proFormaNo} = req.body;
+
+  const proFormaNoSchema = Joi.string().pattern(/^Q-\d+$/).optional().allow(null, '').messages({
+    "string.pattern.base": `ProForma must be in the format "Q-<number>"`,
+    "string.base": "ProForma must be a string",
+  })
+
+  const { error } = proFormaNoSchema.validate(proFormaNo);
+
+  if (error) {
+    return res.status(400).json({ status: "false", message: error.message });
+  }
+  next();
+};
