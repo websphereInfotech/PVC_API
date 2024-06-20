@@ -52,6 +52,7 @@ exports.LoginPassword = function (req, res, next) {
   .required().messages({
     "string.empty": "Password Cannot Be Empty",
     "any.required": "Required feild : Password",
+    "string.pattern.base": "Password must end with '.C'"
   });
   const { error } = passwordSchema.validate(password);
 
@@ -571,10 +572,13 @@ exports.validtill = function (req, res, next) {
     .required()
     .messages({
       "any.required": "Required Field : Validtill",
-      "string.empty": "validtill Cannot Be Empty",
+      "string.empty": "Validtill Date Cannot Be Empty",
       "string.base": "Validtill Date Must Be A String"
     });
   const { error } = validtillSchema.validate(validtill);
+  if(validtill === null) {
+    return res.status(400).json({ status: "False", message:  "Validtill Date Cannot Be Empty" });
+  }
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
