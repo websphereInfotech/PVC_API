@@ -69,6 +69,8 @@ exports.create_product = async (req, res) => {
     const cashProduct = await C_product.create({
       id: data.id,
       productname: productname,
+      lowStockQty: lowStockQty,
+      lowstock: lowstock,
       companyId: req.user.companyId,
     });
 
@@ -78,7 +80,7 @@ exports.create_product = async (req, res) => {
 
     await Stock.create({
       productId: data.id,
-    })
+  })
 
     return res.status(200).json({
       status: "true",
@@ -166,6 +168,15 @@ exports.update_product = async (req, res) => {
         where: { id: id },
       }
     );
+    await C_product.update({
+      productname: productname,
+      lowStockQty: lowStockQty,
+      lowstock: lowstock,
+    }, {
+      where: {
+        id: id
+      }
+    })
     const data = await product.findOne({
       where: { id: id, companyId: req.user.companyId },
     });
@@ -188,6 +199,9 @@ exports.delete_product = async (req, res) => {
     const data = await product.destroy({
       where: { id: id, companyId: req.user.companyId },
     });
+    await C_product.destroy({
+      where: {id: id, companyId: req.user.companyId}
+    })
 
     if (!data) {
       return res
