@@ -563,6 +563,10 @@ exports.C_create_salesinvoice = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Product Not Found" });
       }
+      const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
+      const totalProductQty = productCashStock?.qty ?? 0;
+      const isLawStock = await lowStockWaring(productData.lowstock, productData.lowStockQty, item.qty, totalProductQty)
+      if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productData.productname} Product`});
     }
     const salesInvoiceData = await C_salesinvoice.create({
       customerId,
@@ -642,6 +646,9 @@ exports.C_update_salesinvoice = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Cusomer Not Found" });
     }
+    const existingItems = await C_salesinvoiceItem.findAll({
+      where: { invoiceId: id },
+    });
     if (!items || items.length === 0) {
       return res
         .status(400)
@@ -658,6 +665,7 @@ exports.C_update_salesinvoice = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Qty Value Invalid" });
       }
+      console.log(item,"Item.........")
       if (item.rate === 0) {
         return res
           .status(400)
@@ -671,6 +679,12 @@ exports.C_update_salesinvoice = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Product Not Found" });
       }
+      const existingItem = existingItems.find((ei) => ei.id === item.id);
+      const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
+      const totalProductQty = productCashStock?.qty ?? 0;
+      const tempQty = item.qty - existingItem.qty;
+      const isLawStock = await lowStockWaring(productData.lowstock, productData.lowStockQty, tempQty, totalProductQty)
+      if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productData.productname} Product`});
     }
     await C_salesinvoice.update(
       {
@@ -684,9 +698,6 @@ exports.C_update_salesinvoice = async (req, res) => {
       { where: { id } }
     );
 
-    const existingItems = await C_salesinvoiceItem.findAll({
-      where: { invoiceId: id },
-    });
     for (const item of items) {
       const existingItem = existingItems.find((ei) => ei.id === item.id);
 
