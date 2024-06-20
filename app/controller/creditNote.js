@@ -243,7 +243,7 @@ exports.update_creditNote = async (req, res) => {
         totalQty,
         mainTotal,
         companyId: req.user.companyId,
-        createdBy: existingCredit.id,
+        createdBy: existingCredit.createdBy,
         updatedBy: req.user.userId,
       },
       { where: { id } }
