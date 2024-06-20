@@ -7,6 +7,7 @@ const User = require("../models/user");
 const salesInvoice = require("../models/salesInvoice");
 const salesInvoiceItem = require("../models/salesInvoiceitem");
 const Stock = require("../models/stock");
+const {lowStockWaring} = require("../constant/common");
 
 exports.create_ProFormaInvoice = async (req, res) => {
   try {
@@ -40,7 +41,26 @@ exports.create_ProFormaInvoice = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Required Field oF items" });
     }
-
+    const numberOf = await ProFormaInvoice.findOne({
+      where: {
+        ProFormaInvoice_no: ProFormaInvoice_no,
+        companyId: req.user.companyId,
+      },
+    });
+    if (numberOf) {
+      return res.status(400).json({
+        status: "false",
+        message: "ProForma Invoice Number Already Exists",
+      });
+    }
+    const customerData = await customer.findOne({
+      where: { id: customerId, companyId: req.user.companyId },
+    });
+    if (!customerData) {
+      return res
+          .status(404)
+          .json({ status: "false", message: "Customer Not Found" });
+    }
     for (const item of items) {
       if (!item.productId || item.productId === "") {
         return res
@@ -57,45 +77,6 @@ exports.create_ProFormaInvoice = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Rate Value Invalid" });
       }
-      // for (const item of items) {
-      //   const mrp = item.qty * item.rate;
-      //   if (item.mrp !== mrp) {
-      //     return res.status(400).json({
-      //       status: "false",
-      //       message: `MRP for item ${item.productId} does not match the calculated value`,
-      //     });
-      //   }
-      // }
-      // const totalMrpFromItems = items.reduce((total, item) => {
-      //   return total + (item.qty * item.rate);
-      // }, 0);
-
-      // if (totalMrp !== totalMrpFromItems) {
-      //   return res.status(400).json({
-      //     status: "false",
-      //     message: "Total MRP Not Match",
-      //   });
-      // }
-      const numberOf = await ProFormaInvoice.findOne({
-        where: {
-          ProFormaInvoice_no: ProFormaInvoice_no,
-          companyId: req.user.companyId,
-        },
-      });
-      if (numberOf) {
-        return res.status(400).json({
-          status: "false",
-          message: "ProForma Invoice Number Already Exists",
-        });
-      }
-      const customerData = await customer.findOne({
-        where: { id: customerId, companyId: req.user.companyId },
-      });
-      if (!customerData) {
-        return res
-          .status(404)
-          .json({ status: "false", message: "Customer Not Found" });
-      }
 
       const productname = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId },
@@ -105,6 +86,10 @@ exports.create_ProFormaInvoice = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Product Not Found" });
       }
+      const productStock = await Stock.findOne({where: {productId: item.productId}})
+      const totalProductQty = productStock?.qty ?? 0;
+      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, item.qty, totalProductQty)
+      if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
     const createdInvoice = await ProFormaInvoice.create({
       ProFormaInvoice_no,
@@ -283,6 +268,10 @@ exports.update_ProFormaInvoice = async (req, res) => {
       return res.status(400).json({ status: false, message: "Required Field of items" });
     }
 
+    const existingItems = await ProFormaInvoiceItem.findAll({
+      where: { InvoiceId: id },
+    });
+
     for (const item of items) {
       if (!item.productId || item.productId === "") {
         return res.status(400).json({ status: false, message: "Required field: Product" });
@@ -299,6 +288,13 @@ exports.update_ProFormaInvoice = async (req, res) => {
       if (!productname) {
         return res.status(404).json({ status: false, message: "Product Not Found" });
       }
+
+      const existingItem = existingItems.find((ei) => ei.id === item.id);
+      const productStock = await Stock.findOne({where: {productId: item.productId}})
+      const totalProductQty = productStock?.qty ?? 0;
+      const tempQty = item.qty - existingItem.qty;
+      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, tempQty, totalProductQty)
+      if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
 
     await ProFormaInvoice.update(
@@ -324,11 +320,6 @@ exports.update_ProFormaInvoice = async (req, res) => {
       },
       { where: { id } }
     );
-
-    const existingItems = await ProFormaInvoiceItem.findAll({
-      where: { InvoiceId: id },
-    });
-
 
     for (const item of items) {
       const existingItem = existingItems.find((ei) => ei.id === item.id);
@@ -568,32 +559,12 @@ exports.delete_ProFormaInvoice = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "ProForma Invoice Item Not Found" });
     }
-    const salesInvoices = await salesInvoice.findAll({
-      where: { proFormaId: id },
-      // include: {model: salesInvoiceItem, as: "items" },
-    });
-
-    console.log(salesInvoices,"Sales Invoice")
-
-    for(const saleInvoice of salesInvoices){
-      const findItems = await salesInvoiceItem.findAll({
-        where: { salesInvoiceId: saleInvoice.id },
-      })
-      for(const item of findItems){
-        const productId = item.productId;
-        const qty = item.qty;
-        const productStock = await Stock.findOne({
-          where: {productId}
-        })
-        if(productStock) await productStock.increment('qty',{by: qty})
-      }
-    }
 
     await data.destroy()
 
     return res.status(200).json({
       status: "true",
-      message: "ProForma Invoice Item Delete Successfully",
+      message: "ProForma Invoice Delete Successfully",
     });
   } catch (error) {
     console.log(error.message);

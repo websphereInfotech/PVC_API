@@ -23,11 +23,13 @@ exports.create_product = async (req, res) => {
       openingstock,
       nagativeqty,
       lowstock,
+      lowStockQty,
       itemselected,
       salesprice,
       gstrate,
       HSNcode,
       cess,
+      weight
     } = req.body;
 
     let purchaseprice = req.body.purchaseprice;
@@ -60,9 +62,12 @@ exports.create_product = async (req, res) => {
       gstrate,
       HSNcode,
       cess,
+      weight,
+      lowStockQty,
       companyId: req.user.companyId,
     });
     const cashProduct = await C_product.create({
+      id: data.id,
       productname: productname,
       companyId: req.user.companyId,
     });
@@ -101,13 +106,19 @@ exports.update_product = async (req, res) => {
       openingstock,
       nagativeqty,
       lowstock,
+      lowStockQty,
       itemselected,
-      purchaseprice,
       salesprice,
       gstrate,
       HSNcode,
       cess,
+      weight
     } = req.body;
+
+    let purchaseprice = req.body.purchaseprice;
+    if (purchaseprice === "") {
+      purchaseprice = null;
+    }
 
     const existingProduct = await product.findOne({
       where: { id: id, companyId: req.user.companyId },
@@ -147,6 +158,8 @@ exports.update_product = async (req, res) => {
         gstrate: gstrate,
         HSNcode: HSNcode,
         cess: cess,
+        weight: weight,
+        lowStockQty: lowStockQty,
         companyId: req.user.companyId,
       },
       {

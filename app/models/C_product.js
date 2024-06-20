@@ -5,6 +5,14 @@ const company = require("./company");
 const C_product = sequelize.define("P_C_product", {
   productname: { type: DataTypes.STRING },
   companyId: { type: DataTypes.INTEGER },
+  lowstock: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
+  lowStockQty: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
 });
 
 company.hasMany(C_product, { foreignKey: "companyId", onDelete: "CASCADE" });

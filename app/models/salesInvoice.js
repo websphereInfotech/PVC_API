@@ -18,7 +18,7 @@ const salesInvoice = sequelize.define("P_salesInvoice", {
   invoiceno: { type: DataTypes.INTEGER },
   invoicedate: { type: DataTypes.DATEONLY },
   termsOfDelivery: { type: DataTypes.STRING },
-  proFormaId: { type: DataTypes.INTEGER },
+  proFormaNo: { type: DataTypes.STRING, allowNull: true },
   dispatchThrough: { type: DataTypes.STRING },
   destination: { type: DataTypes.STRING },
   LL_RR_no: { type: DataTypes.INTEGER },
@@ -51,16 +51,16 @@ salesInvoice.belongsTo(User, { foreignKey: "createdBy", as: "createUser" });
 User.hasMany(salesInvoice, { foreignKey: "updatedBy", as: "updateUser" });
 salesInvoice.belongsTo(User, { foreignKey: "updatedBy", as: "updateUser" });
 
-ProFormaInvoice.hasMany(salesInvoice, {
-  foreignKey: "proFormaId",
-  onDelete: "CASCADE",
-  as: "proFormaItem",
-});
-salesInvoice.belongsTo(ProFormaInvoice, {
-  foreignKey: "proFormaId",
-  onDelete: "CASCADE",
-  as: "proFormaItem",
-});
+// ProFormaInvoice.hasMany(salesInvoice, {
+//   foreignKey: "proFormaId",
+//   onDelete: "CASCADE",
+//   as: "proFormaItem",
+// });
+// salesInvoice.belongsTo(ProFormaInvoice, {
+//   foreignKey: "proFormaId",
+//   onDelete: "CASCADE",
+//   as: "proFormaItem",
+// });
 
 customer.hasMany(salesInvoice, {
   foreignKey: "customerId",

@@ -5,6 +5,7 @@ const admintoken = require("../models/admintoken");
 const companyUser = require("../models/companyUser");
 const company = require("../models/company");
 const C_userBalance = require("../models/C_userBalance");
+const {Op} = require("sequelize");
 
 exports.create_user = async (req, res) => {
   try {
@@ -391,21 +392,32 @@ exports.add_user = async (req, res) => {
       where: { companyId: companyId, userId: id },
     });
 
+    const findCompany = await companyUser.findOne({
+      where: {
+        userId: id,
+        setDefault: true
+      }
+    });
+
     await C_userBalance.create({
       userId: id,
       companyId: req.user.companyId,
       balance: 0,
     })
-    if (!data) {
-      await companyUser.create({ companyId: companyId, userId: id });
-      return res
-        .status(200)
-        .json({ status: "true", message: "User Added Successfully" });
-    } else {
+    if (data) {
       return res
         .status(400)
         .json({ status: "false", message: "User Already Exists" });
     }
+
+    if(findCompany){
+        await companyUser.create({ companyId: companyId, userId: id });
+    }else{
+      await companyUser.create({ companyId: companyId, userId: id, setDefault: true });
+    }
+    return res
+        .status(200)
+        .json({ status: "true", message: "User Added Successfully" });
   } catch (error) {
     console.log(error);
     return res
@@ -441,3 +453,62 @@ exports.view_all_userTOComapny = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+exports.remove_company = async (req,res)=>{
+  try {
+    const companyId = req.user.companyId;
+    const {id} = req.params;
+
+    const findUser = await User.findByPk(id);
+
+    if(!findUser){
+      return res.status(404).json({
+        status: "false",
+        message: "User Not Found"
+      })
+    }
+
+    const findAllCompany = await companyUser.findAll({
+      where: {
+        userId: id,
+        companyId: { [Op.ne]: companyId },
+      }
+    });
+
+    const currentCompany = await companyUser.findOne({
+      where: {
+        userId: id,
+        companyId: companyId,
+      }
+    })
+    if(!currentCompany){
+      return res.status(404).json({
+        status: "false",
+        message: "Current Company Not Found."
+      })
+    }
+
+    if(currentCompany.setDefault){
+      if(findAllCompany.length){
+        const firstCompany = findAllCompany[0];
+        firstCompany.setDefault = true;
+        await firstCompany.save();
+      }
+      await currentCompany.destroy();
+    }else{
+      await currentCompany.destroy();
+    }
+
+    return res.status(200).json({
+      status: "true",
+      message: "Successfully remove user in company."
+    })
+
+  }catch (e) {
+    console.error(e)
+    return res.status(500).json({
+      status: "false",
+      message: "Internal Server Error."
+    })
+  }
+
+}

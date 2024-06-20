@@ -32,6 +32,10 @@ const product = sequelize.define("P_product", {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+  lowStockQty: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   purchaseprice: {
     type: DataTypes.INTEGER,
   },
@@ -49,6 +53,9 @@ const product = sequelize.define("P_product", {
     defaultValue: false,
   },
   companyId: { type: DataTypes.INTEGER },
+  weight: {
+    type: DataTypes.INTEGER,
+  }
 });
 
 company.hasMany(product, { foreignKey: "companyId", onDelete: "CASCADE" });

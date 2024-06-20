@@ -7,7 +7,7 @@ const Product = require("./product");
 const Bom = sequelize.define("P_Bom", {
     bomNo: { type: DataTypes.INTEGER, allowNull: false },
     date: { type: DataTypes.DATEONLY, allowNull: false },
-    description: { type: DataTypes.TEXT },
+    weight: { type: DataTypes.INTEGER },
     createdBy: { type: DataTypes.INTEGER, allowNull: false },
     updatedBy: { type: DataTypes.INTEGER, allowNull: false },
     companyId: { type: DataTypes.INTEGER, allowNull: false },

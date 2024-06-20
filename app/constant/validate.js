@@ -81,7 +81,7 @@ const {
   gstnumber,
   HSNcode,
   companyname,
-  proFormaId,
+  proFormaNo,
   branch,
   debitnoteno,
   creditnoteNo,
@@ -94,7 +94,9 @@ const {
   validateCredit,
   LoginPassword,
   purchaseinvoicedate,
-  create_bom, update_bom
+  create_bom,
+  update_productStock,
+  weight
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -116,9 +118,9 @@ module.exports.validation = function (method) {
     case "update_ProFormaInvoice":
       return [ProFormaInvoice_no, terms, date, validtill, rate, qty];
     case "create_salesinvoice":
-      return [invoiceno, terms, invoicedate, rate, qty];
+      return [invoiceno, terms, invoicedate, rate, qty, proFormaNo];
     case "update_salesinvoice":
-      return [invoiceno, terms, invoicedate, rate, qty];
+      return [invoiceno, terms, invoicedate, rate, qty, proFormaNo];
     case "create_debitNote":
       return [debitnoteno, purchaseinvoicedate, debitdate, qty, mrp, rate];
     case "update_debitNote":
@@ -134,9 +136,9 @@ module.exports.validation = function (method) {
       return [ accountname, email, mobileno, contactpersonname, creditperiod, address1, pincode, state,
                city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails,validateCredit ];
     case "create_product":
-      return [ itemtype, productname, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice ];
+      return [ itemtype, productname, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice, weight ];
     case "update_product":
-      return [ itemtype, productname, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice ];
+      return [ itemtype, productname, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice, weight ];
     case "create_purchaseInvoice":
       return [duedate, invoiceno, invoicedate, qty, rate];
     case "update_purchaseInvoice":
@@ -194,6 +196,8 @@ module.exports.validation = function (method) {
       return [create_bom];
     case "update_bom":
       return [create_bom];
+    case "update_productStock":
+      return [update_productStock];
     default:
       throw new Error("Invalid validation method");
   }

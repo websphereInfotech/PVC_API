@@ -165,7 +165,6 @@ exports.qty = function (req, res, next) {
     const { qty } = item;
     // console.log("item",item);
     const qtySchema = Joi.number()
-
       .required()
       .messages({
         "any.required": "Required Filed : QTY",
@@ -186,11 +185,10 @@ exports.productId = function (req, res, next) {
   for (const item of items) {
     const { productId } = item;
     const productSchema = Joi.number()
-
       .required()
       .messages({
         "any.required": "Required Filed : Product",
-        "string.empty": "Product Cannot Be Empty",
+        "number.empty": "Product Cannot Be Empty",
       });
 
     const { error } = productSchema.validate(productId);
@@ -624,7 +622,6 @@ exports.creditdate = function (req, res, next) {
 exports.invoiceno = function (req, res, next) {
   const { invoiceno } = req.body;
   const invoicenoSchema = Joi.number()
-
     .required()
     .messages({
       "number.base": "Invoice Number must be a number",
@@ -930,15 +927,29 @@ exports.nagativeqty = function (req, res, next) {
   next();
 };
 exports.lowstock = function (req, res, next) {
-  const { lowstock } = req.body;
-  const lowstockSchema = Joi.boolean()
+  const { lowstock, lowStockQty } = req.body;
+  const schema = Joi.object({
+    lowstock: Joi.boolean()
+        .required()
+        .messages({
+          "any.required": "Required Field : lowStock",
+          "boolean.empty": "lowStock Cannot Be Empty",
+        }),
+    lowStockQty: Joi.when('lowstock', {
+      is: true,
+      then: Joi.number().greater(0).required().messages({
+        "number.base": "lowStockQty must be a number when lowstock is true",
+        "number.greater": "lowStockQty must be greater than 0 when lowstock is true",
+        "any.required": "Required Field : lowStockQty when lowstock is true"
+      }),
+      otherwise: Joi.valid(null).required().messages({
+        "any.only": "lowStockQty must be null when lowstock is false",
+        "any.required": "Required Field : lowStockQty when lowstock is false"
+      })
+    })
+  });
 
-    .required()
-    .messages({
-      "any.required": "Required Field : lowStock",
-      "boolean.empty": "lowStock Cannot Be Empty",
-    });
-  const { error } = lowstockSchema.validate(lowstock);
+  const { error } = schema.validate({lowstock, lowStockQty});
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -1530,6 +1541,24 @@ exports.validateCredit = function(req, res, next) {
   next();
 }
 
+exports.weight = function (req, res, next){
+  const {weight} = req.body;
+  const weightSchema = Joi.number().greater(0).required().messages({
+    'any.required': 'The weight field is required.',
+    'number.base': 'The weight must be a string.',
+    "number.greater": "Weight must be greater than 0.",
+  });
+  const { error } = weightSchema.validate(weight);
+  if (error) {
+    return res.status(400).json({
+      status: "false",
+      message: error.message
+    })
+  } else {
+    next();
+  }
+}
+
 
 exports.create_bom = function(req, res, next) {
   const payload = req.body;
@@ -1543,17 +1572,19 @@ exports.create_bom = function(req, res, next) {
       'any.required': 'The date field is required.',
       'date.base': 'The date must be a valid date.'
     }),
-    description: Joi.string().required().messages({
-      'any.required': 'The description field is required.',
-      'string.base': 'The description must be a string.'
+    weight: Joi.number().greater(0).required().messages({
+      'any.required': 'The weight field is required.',
+      'number.base': 'The weight must be a string.',
+      "number.greater": "Weight must be greater than 0.",
     }),
     productId: Joi.number().required().messages({
       'any.required': 'The productId field is required.',
       'number.base': 'The productId must be a number.'
     }),
-    qty: Joi.number().required().messages({
+    qty: Joi.number().greater(0).required().messages({
       'any.required': 'The qty field is required.',
-      'number.base': 'The qty must be a number.'
+      'number.base': 'The qty must be a number.',
+      "number.greater": "Qty must be greater than 0.",
     }),
     items: Joi.array().items(
         Joi.object({
@@ -1561,12 +1592,10 @@ exports.create_bom = function(req, res, next) {
             'any.required': 'The productId field is required.',
             'number.base': 'The productId must be a number.'
           }),
-          qty: Joi.number().required().messages({
+          qty: Joi.number().greater(0).required().messages({
             'any.required': 'The qty field is required.',
+            "number.greater": "Qty must be greater than 0.",
             'number.base': 'The qty must be a number.'
-          }),
-          wastage: Joi.number().messages({
-            'number.base': 'The wastage must be a number.'
           }),
           id: Joi.number().allow(null).messages({
             'number.base': 'The id must be a number or null.'
@@ -1588,4 +1617,42 @@ exports.create_bom = function(req, res, next) {
   } else {
     next();
   }
+}
+
+exports.proFormaNo = function (req, res, next) {
+  const {proFormaNo} = req.body;
+
+  const proFormaNoSchema = Joi.string().pattern(/^Q-\d+$/).optional().allow(null, '').messages({
+    "string.pattern.base": `ProForma must be in the format "Q-<number>"`,
+    "string.base": "ProForma must be a string",
+  })
+
+  const { error } = proFormaNoSchema.validate(proFormaNo);
+
+  if (error) {
+    return res.status(400).json({ status: "false", message: error.message });
+  }
+  next();
+};
+
+exports.update_productStock = function (req,res,next){
+  const {productId, qty} = req.body;
+  const ProductStockSchema = Joi.object({
+    productId: Joi.number()
+        .required()
+        .messages({
+          "any.required": "Required Filed : Product",
+          "number.empty": "Product Cannot Be Empty",
+        }),
+    qty: Joi.number().required().messages({
+      "any.required": "Required Filed : Qty",
+      "number.empty": "Qty Cannot Be Empty",
+    })
+  })
+
+  const {error} = ProductStockSchema.validate({productId, qty});
+  if (error) {
+    return res.status(400).json({ status: "false", message: error.message });
+  }
+  next();
 }

@@ -13,6 +13,7 @@ const salesInvoiceItem = require("../models/salesInvoiceitem");
 const User = require("../models/user");
 const Stock = require("../models/stock");
 const C_Stock = require("../models/C_stock");
+const {lowStockWaring} = require("../constant/common");
 
 /*=============================================================================================================
                                           Without Typc C API
@@ -24,7 +25,7 @@ exports.create_salesInvoice = async (req, res) => {
       customerId,
       invoiceno,
       invoicedate,
-      proFormaId,
+      proFormaNo,
       dispatchThrough,
       dispatchno,
       deliverydate,
@@ -41,18 +42,15 @@ exports.create_salesInvoice = async (req, res) => {
       items,
     } = req.body;
 
-    const proformaData = await ProFormaInvoice.findOne({
-      where: { id: proFormaId, companyId: req.user.companyId },
-    });
-    if (!proformaData) {
-      return res
-        .status(404)
-        .json({ status: "false", message: "ProFrorma Not Found" });
-    }
-    if (proFormaId === "" || proFormaId === undefined || proFormaId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required Field: ProForma Invoice" });
+    if (proFormaNo) {
+      const proformaData = await ProFormaInvoice.findOne({
+        where: { ProFormaInvoice_no: proFormaNo, companyId: req.user.companyId },
+      });
+      if (!proformaData) {
+        return res
+            .status(404)
+            .json({ status: "false", message: "ProForma Not Found" });
+      }
     }
     // for (const item of items) {
     //   const mrp = item.qty * item.rate;
@@ -128,6 +126,10 @@ exports.create_salesInvoice = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Product Not Found" });
       }
+      const productStock = await Stock.findOne({where: {productId: item.productId}})
+      const totalProductQty = productStock?.qty ?? 0;
+      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, item.qty, totalProductQty)
+      if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
 
     const data = await salesInvoice.create({
@@ -142,7 +144,7 @@ exports.create_salesInvoice = async (req, res) => {
       invoiceno,
       invoicedate,
       termsOfDelivery,
-      proFormaId,
+      proFormaNo,
       totalIgst,
       totalSgst,
       totalMrp,
@@ -238,7 +240,6 @@ exports.view_salesInvoice = async (req, res) => {
           include: [{ model: product, as: "InvoiceProduct" }],
         },
         { model: customer, as: "InvioceCustomer" },
-        { model: ProFormaInvoice, as: "proFormaItem" },
       ],
     });
 
@@ -276,7 +277,7 @@ exports.update_salesInvoice = async (req, res) => {
       terms,
       invoicedate,
       termsOfDelivery,
-      proFormaId,
+      proFormaNo,
       totalIgst,
       totalSgst,
       totalMrp,
@@ -320,19 +321,26 @@ exports.update_salesInvoice = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Customer Not Found" });
     }
-    const proFormaItem = await ProFormaInvoice.findOne({
-      where: { id: proFormaId, companyId: req.user.companyId },
-    });
-    if (!proFormaItem) {
-      return res
-        .status(404)
-        .json({ status: "false", message: "proForma Invoice Not Found" });
+    if (proFormaNo) { // Check if proFormaId is provided
+      const proformaData = await ProFormaInvoice.findOne({
+        where: { ProFormaInvoice_no: proFormaNo, companyId: req.user.companyId },
+      });
+
+      if (!proformaData) {
+        return res
+            .status(404)
+            .json({ status: "false", message: "ProForma Not Found" });
+      }
     }
     if (!items || items.length === 0) {
       return res
         .status(400)
         .json({ status: "false", message: "Required Field oF items" });
     }
+    const existingItems = await salesInvoiceItem.findAll({
+      where: { salesInvoiceId: id },
+    });
+    console.log(existingItems,"Exting Item")
     for (const item of items) {
       if (!item.productId || item.productId === "") {
         return res
@@ -357,6 +365,13 @@ exports.update_salesInvoice = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Product Not Found" });
       }
+
+      const existingItem = existingItems.find((ei) => ei.id === item.id);
+      const productStock = await Stock.findOne({where: {productId: item.productId}})
+      const totalProductQty = productStock?.qty ?? 0;
+      const tempQty = item.qty - existingItem.qty;
+      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, tempQty, totalProductQty)
+      if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
     await salesInvoice.update(
       {
@@ -371,7 +386,7 @@ exports.update_salesInvoice = async (req, res) => {
         invoiceno,
         invoicedate,
         termsOfDelivery,
-        proFormaId,
+        proFormaNo,
         totalIgst,
         totalSgst,
         totalMrp,
@@ -394,9 +409,7 @@ exports.update_salesInvoice = async (req, res) => {
       },
       { where: { creditId: id } }
     );
-    const existingItems = await salesInvoiceItem.findAll({
-      where: { salesInvoiceId: id },
-    });
+
 
     for (const item of items) {
       const existingItem = existingItems.find((ei) => ei.id === item.id);

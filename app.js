@@ -58,7 +58,7 @@ app.use("/admin/claim",claimRoute);
 app.use("/admin/companybank",companyBankDetails);
 app.use('/admin/bom', bom)
 app.use("/admin", receiptRoute);
-app.use("/admin", stock);
+app.use("/admin/stock", stock);
 app.use("/admin", expenseRoute);
 // app.use("/admin", itemgroupRoute);
 // app.use("/admin", itemcategoryRoute);
