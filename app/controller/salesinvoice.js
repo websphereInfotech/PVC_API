@@ -126,9 +126,17 @@ exports.create_salesInvoice = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Product Not Found" });
       }
+      const productId = productname.id;
+
+      const qtys = items.reduce((acc, item) => {
+        if (item.productId === productId) {
+          return acc + item.qty;
+        }
+        return acc;
+      }, 0);
       const productStock = await Stock.findOne({where: {productId: item.productId}})
       const totalProductQty = productStock?.qty ?? 0;
-      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, item.qty, totalProductQty)
+      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, qtys, totalProductQty)
       if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
 
@@ -341,6 +349,10 @@ exports.update_salesInvoice = async (req, res) => {
       where: { salesInvoiceId: id },
     });
     console.log(existingItems,"Exting Item")
+
+    const filteredExistingItems = existingItems.filter(existingItem =>
+        items.some(insertItem => insertItem.id === existingItem.id)
+    );
     for (const item of items) {
       if (!item.productId || item.productId === "") {
         return res
@@ -366,10 +378,25 @@ exports.update_salesInvoice = async (req, res) => {
           .json({ status: "false", message: "Product Not Found" });
       }
 
-      const existingItem = existingItems.find((ei) => ei.id === item.id);
+      const productId = item.productId;
+      const qtys = items.reduce((acc, item) => {
+        if (item.productId === productId) {
+          return acc + item.qty;
+        }
+        return acc;
+      }, 0);
+
+
+      const existingItemsQty = filteredExistingItems.reduce((acc, item) => {
+        if (item.productId === productId) {
+          return acc + item.qty;
+        }
+        return acc;
+      }, 0);
+
       const productStock = await Stock.findOne({where: {productId: item.productId}})
       const totalProductQty = productStock?.qty ?? 0;
-      const tempQty = item.qty - existingItem.qty;
+      const tempQty = qtys - existingItemsQty;
       const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, tempQty, totalProductQty)
       if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
@@ -654,6 +681,9 @@ exports.C_update_salesinvoice = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Required Field oF items" });
     }
+    const filteredExistingItems = existingItems.filter(existingItem =>
+        items.some(insertItem => insertItem.id === existingItem.id)
+    );
     for (const item of items) {
       if (!item.productId || item.productId === "") {
         return res
@@ -679,10 +709,23 @@ exports.C_update_salesinvoice = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Product Not Found" });
       }
-      const existingItem = existingItems.find((ei) => ei.id === item.id);
+
+      const productId = item.productId;
+      const qtys = items.reduce((acc, item) => {
+        if (item.productId === productId) {
+          return acc + item.qty;
+        }
+        return acc;
+      }, 0);
+      const existingItemsQty = filteredExistingItems.reduce((acc, item) => {
+        if (item.productId === productId) {
+          return acc + item.qty;
+        }
+        return acc;
+      }, 0);
       const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
       const totalProductQty = productCashStock?.qty ?? 0;
-      const tempQty = item.qty - existingItem.qty;
+      const tempQty = qtys - existingItemsQty;
       const isLawStock = await lowStockWaring(productData.lowstock, productData.lowStockQty, tempQty, totalProductQty)
       if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productData.productname} Product`});
     }

@@ -12,6 +12,7 @@ const vendor = require("../models/vendor");
 const vendorLedger = require("../models/vendorLedger");
 const Stock = require("../models/stock");
 const C_Stock = require("../models/C_stock");
+const {lowStockWaring} = require("../constant/common");
 
 /*=============================================================================================================
                                           Without Typc C API
@@ -332,6 +333,23 @@ exports.delete_purchaseInvoice = async (req, res) => {
     const findItems = await purchaseInvoiceItem.findAll({
       where: { purchasebillId: billId.id },
     })
+    for(const item of findItems){
+      const productname = await product.findOne({
+        where: { id: item.productId, companyId: req.user.companyId },
+      });
+      const productId = item.productId;
+      const qtys = findItems.reduce((acc, item) => {
+        if (item.productId === productId) {
+          return acc + item.qty;
+        }
+        return acc;
+      }, 0);
+      const productStock = await Stock.findOne({where: {productId: item.productId}})
+      const totalProductQty = productStock?.qty ?? 0;
+      console.log(productname.lowStockQty,"Low staok QTY.................")
+      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, qtys, totalProductQty)
+      if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
+    }
     for(const item of findItems){
       const productId = item.productId;
       const qty = item.qty;
@@ -689,6 +707,23 @@ exports.C_delete_purchaseCash = async (req, res) => {
     const findItems = await C_purchaseCashItem.findAll({
       where: { PurchaseId: billId.id },
     })
+    for(const item of findItems){
+      const productname = await C_product.findOne({
+        where: { id: item.productId, companyId: req.user.companyId },
+      });
+      const productId = item.productId;
+      const qtys = findItems.reduce((acc, item) => {
+        if (item.productId === productId) {
+          return acc + item.qty;
+        }
+        return acc;
+      }, 0);
+      const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
+      const totalProductQty = productCashStock?.qty ?? 0;
+      console.log(productname.lowStockQty,"Low staok QTY.................")
+      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, qtys, totalProductQty)
+      if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
+    }
     for(const item of findItems){
       const productId = item.productId;
       const qty = item.qty;
