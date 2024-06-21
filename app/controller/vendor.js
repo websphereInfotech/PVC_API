@@ -1,6 +1,7 @@
 const C_vendor = require("../models/C_vendor");
 const bankAccount = require("../models/bankAccount");
 const vendor = require("../models/vendor");
+const {Op} = require("sequelize");
 
 /*=============================================================================================================
                                           Widhout Typc C API
@@ -302,8 +303,15 @@ exports.delete_vandor = async (req, res) => {
 };
 exports.get_all_vandor = async (req, res) => {
   try {
+
+    const { search } = req.query;
+    const whereClause = { companyId: req.user.companyId };
+
+    if (search) {
+      whereClause.accountname = { [Op.like]: `%${search}%` };
+    }
     const data = await vendor.findAll({
-      where: { companyId: req.user.companyId },
+      where: whereClause,
       include: [{ model: bankAccount, as: "v_bankdetails" }],
     });
     if (data) {

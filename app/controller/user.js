@@ -90,6 +90,12 @@ exports.create_user = async (req, res) => {
 exports.get_all_user = async (req, res) => {
   try {
     const companyId = req.user.companyId;
+    const { search } = req.query;
+    const whereClause = { };
+
+    if (search) {
+      whereClause.username = { [Op.like]: `%${search}%` };
+    }
     const data = await company.findAll({
       where: { id: companyId },
 
@@ -97,6 +103,7 @@ exports.get_all_user = async (req, res) => {
         model: User,
         as: "users",
         through: { attributes: [] },
+        where: whereClause
       },
       attributes: [],
     });

@@ -4,6 +4,7 @@ const C_product = require("../models/C_product");
 const product = require("../models/product");
 const C_stock = require("../models/C_stock");
 const Stock = require("../models/stock");
+const {Op} = require("sequelize");
 // const unit = require("../models/unit");
 
 /*=============================================================================================================
@@ -246,8 +247,14 @@ exports.view_product = async (req, res) => {
 };
 exports.get_all_product = async (req, res) => {
   try {
+    const { search } = req.query;
+    const whereClause = { companyId: req.user.companyId };
+
+    if (search) {
+      whereClause.productname = { [Op.like]: `%${search}%` };
+    }
     const data = await product.findAll({
-      where: { companyId: req.user.companyId },
+      where: whereClause,
     });
     if (!data) {
       return res
