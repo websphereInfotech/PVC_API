@@ -60,10 +60,10 @@ exports.create_bom = async (req, res) => {
             const {cashQty, productQty} = splitQuantity(qtys)
             const productStock = await Stock.findOne({where: {productId: item.productId}})
             const totalProductQty = productStock?.qty ?? 0;
-            const isLawStock = await lowStockWaring(productExist.lowstock, productExist.lowStockQty, productQty, totalProductQty)
+            const isLawStock = await lowStockWaring(productExist.lowstock, productExist.lowStockQty, productQty, totalProductQty, productExist.nagativeqty)
             const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
             const totalProductCashQty = productCashStock?.qty ?? 0;
-            const isLawStockCash = await lowStockWaring(cashProduct.lowstock, cashProduct.lowStockQty, cashQty, totalProductCashQty)
+            const isLawStockCash = await lowStockWaring(cashProduct.lowstock, cashProduct.lowStockQty, cashQty, totalProductCashQty, cashProduct.nagativeqty)
             if(isLawStock || isLawStockCash) return res.status(400).json({status: "false", message: `Low Stock in ${productExist.productname} Product`});
         }
 
@@ -218,10 +218,10 @@ exports.update_bom = async (req, res) => {
             const {cashQty, productQty} = splitQuantity(tempQty)
             const productStock = await Stock.findOne({where: {productId: item.productId}})
             const totalProductQty = productStock?.qty ?? 0;
-            const isLawStock = await lowStockWaring(productExist.lowstock, productExist.lowStockQty, productQty, totalProductQty)
+            const isLawStock = await lowStockWaring(productExist.lowstock, productExist.lowStockQty, productQty, totalProductQty, productExist.nagativeqty)
             const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
             const totalProductCashQty = productCashStock?.qty ?? 0;
-            const isLawStockCash = await lowStockWaring(cashProduct.lowstock, cashProduct.lowStockQty, cashQty, totalProductCashQty)
+            const isLawStockCash = await lowStockWaring(cashProduct.lowstock, cashProduct.lowStockQty, cashQty, totalProductCashQty, cashProduct.nagativeqty)
             if(isLawStock || isLawStockCash) return res.status(400).json({status: "false", message: `Low Stock in ${productExist.productname} Product`});
         }
 
@@ -470,8 +470,8 @@ exports.delete_bom = async (req,res)=>{
 
         const {cashQty:previousCashQty, productQty:previousProductQty} = splitQuantity(bomExist?.qty ?? 0)
 
-        const isLawStock = await lowStockWaring(bomProduct.lowstock, bomProduct.lowStockQty, previousProductQty, totalProductQty)
-        const isLawStockCash = await lowStockWaring(bomProductCash.lowstock, bomProductCash.lowStockQty, previousCashQty, totalProductCashQty)
+        const isLawStock = await lowStockWaring(bomProduct.lowstock, bomProduct.lowStockQty, previousProductQty, totalProductQty, bomProduct.nagativeqty)
+        const isLawStockCash = await lowStockWaring(bomProductCash.lowstock, bomProductCash.lowStockQty, previousCashQty, totalProductCashQty, bomProductCash.nagativeqty)
 
         if(isLawStock || isLawStockCash) return res.status(400).json({status: "false", message: `Low Stock in ${bomProduct.productname} Product`});
 

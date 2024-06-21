@@ -347,7 +347,7 @@ exports.delete_purchaseInvoice = async (req, res) => {
       const productStock = await Stock.findOne({where: {productId: item.productId}})
       const totalProductQty = productStock?.qty ?? 0;
       console.log(productname.lowStockQty,"Low staok QTY.................")
-      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, qtys, totalProductQty)
+      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, qtys, totalProductQty, productname.nagativeqty)
       if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
     for(const item of findItems){
@@ -721,7 +721,7 @@ exports.C_delete_purchaseCash = async (req, res) => {
       const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
       const totalProductQty = productCashStock?.qty ?? 0;
       console.log(productname.lowStockQty,"Low staok QTY.................")
-      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, qtys, totalProductQty)
+      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, qtys, totalProductQty, productname.nagativeqty)
       if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
     for(const item of findItems){

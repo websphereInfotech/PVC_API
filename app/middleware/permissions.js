@@ -1279,6 +1279,26 @@ exports.permissions = {
             "delete_bom":true,
         },
     },
+    "Notification" : {
+        "Super Admin" :{
+            "view_all_notification":true,
+        },
+        "Admin" :{
+            "view_all_notification":true,
+        },
+        "Account" :{
+            "view_all_notification":true,
+        },
+        "Employee" :{
+            "view_all_notification":true,
+        },
+        "Workers" :{
+            "view_all_notification":true,
+        },
+        "Other" :{
+            "view_all_notification":true,
+        }
+    },
     // "Permission":{
     //     "Super Admin": {
     //         "view_all_permissions":true,

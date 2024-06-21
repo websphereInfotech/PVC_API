@@ -13,6 +13,9 @@ const C_product = sequelize.define("P_C_product", {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
+  nagativeqty: {
+    type: DataTypes.BOOLEAN
+  },
 });
 
 company.hasMany(C_product, { foreignKey: "companyId", onDelete: "CASCADE" });
