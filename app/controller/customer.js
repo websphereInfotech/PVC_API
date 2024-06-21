@@ -1,6 +1,7 @@
 const C_customer = require("../models/C_customer");
 const bankAccount = require("../models/bankAccount");
 const customer = require("../models/customer");
+const {Op} = require("sequelize");
 
 /*=============================================================================================================
                                           Widhout Typc C API
@@ -330,8 +331,15 @@ exports.view_customer = async (req, res) => {
 };
 exports.get_all_customer = async (req, res) => {
   try {
+    const { search } = req.query;
+    const whereClause = { companyId: req.user.companyId };
+
+    if (search) {
+      whereClause.accountname = { [Op.like]: `%${search}%` };
+    }
+
     const data = await customer.findAll({
-      where: { companyId: req.user.companyId },
+      where: whereClause,
       include: [{ model: bankAccount, as: "bankdetails" }],
     });
 
