@@ -108,7 +108,7 @@ module.exports.validation = function (method) {
     case "create_user":
       return [username, email, mobileno, password, salary, role];
     case "update_user":
-      return [email, mobileno, password, salary, role];
+      return [email, mobileno, salary, role];
     case "create_deliverychallan":
       return [challanno, date, qty];
     case "update_deliverychallan":
