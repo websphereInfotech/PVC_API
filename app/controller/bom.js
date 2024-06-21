@@ -4,12 +4,12 @@ const Product = require("../models/product");
 const User = require("../models/user");
 const {Sequelize} = require("sequelize");
 const C_Stock = require("../models/C_stock");
+const C_Product = require("../models/C_product");
 const Stock = require("../models/stock");
-const {splitQuantity} = require("../constant/common");
+const {splitQuantity, lowStockWaring} = require("../constant/common");
 
 exports.create_bom = async (req, res) => {
     try {
-        console.log(req.body,"Req.body")
         const {bomNo, date, weight, items, productId, qty} = req.body;
         const userId = req.user.userId;
         const companyId = req.user.companyId;
@@ -43,6 +43,28 @@ exports.create_bom = async (req, res) => {
                     message: "Product Not Found.",
                 })
             }
+            const productId = productExist.id;
+
+            const qtys = items.reduce((acc, item) => {
+                if (item.productId === productId) {
+                    return acc + item.qty;
+                }
+                return acc;
+            }, 0);
+
+            const cashProduct = await C_Product.findOne({
+                id: item.productId,
+                companyId: companyId,
+            })
+
+            const {cashQty, productQty} = splitQuantity(qtys)
+            const productStock = await Stock.findOne({where: {productId: item.productId}})
+            const totalProductQty = productStock?.qty ?? 0;
+            const isLawStock = await lowStockWaring(productExist.lowstock, productExist.lowStockQty, productQty, totalProductQty, productExist.nagativeqty)
+            const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
+            const totalProductCashQty = productCashStock?.qty ?? 0;
+            const isLawStockCash = await lowStockWaring(cashProduct.lowstock, cashProduct.lowStockQty, cashQty, totalProductCashQty, cashProduct.nagativeqty)
+            if(isLawStock || isLawStockCash) return res.status(400).json({status: "false", message: `Low Stock in ${productExist.productname} Product`});
         }
 
         const createBOM = await Bom.create({
@@ -143,6 +165,10 @@ exports.update_bom = async (req, res) => {
             where: { bomId: bomExist.id },
         });
 
+        const filteredExistingItems = existingItems.filter(existingItem =>
+            items.some(insertItem => insertItem.id === existingItem.id)
+        );
+
         for(const item of items){
             const productExist = await Product.findOne({where: {
                     id: item.productId,
@@ -168,6 +194,35 @@ exports.update_bom = async (req, res) => {
                     })
                 }
             }
+            const productId = productExist.id;
+
+            const qtys = items.reduce((acc, item) => {
+                if (item.productId === productId) {
+                    return acc + item.qty;
+                }
+                return acc;
+            }, 0);
+
+            const existingItemsQty = filteredExistingItems.reduce((acc, item) => {
+                if (item.productId === productId) {
+                    return acc + item.qty;
+                }
+                return acc;
+            }, 0);
+
+            const cashProduct = await C_Product.findOne({
+                id: item.productId,
+                companyId: companyId,
+            })
+            const tempQty = qtys - existingItemsQty;
+            const {cashQty, productQty} = splitQuantity(tempQty)
+            const productStock = await Stock.findOne({where: {productId: item.productId}})
+            const totalProductQty = productStock?.qty ?? 0;
+            const isLawStock = await lowStockWaring(productExist.lowstock, productExist.lowStockQty, productQty, totalProductQty, productExist.nagativeqty)
+            const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
+            const totalProductCashQty = productCashStock?.qty ?? 0;
+            const isLawStockCash = await lowStockWaring(cashProduct.lowstock, cashProduct.lowStockQty, cashQty, totalProductCashQty, cashProduct.nagativeqty)
+            if(isLawStock || isLawStockCash) return res.status(400).json({status: "false", message: `Low Stock in ${productExist.productname} Product`});
         }
 
         await  Bom.update(
@@ -390,6 +445,36 @@ exports.delete_bom = async (req,res)=>{
                 message: "Bom Not Found."
             })
         }
+        const bomProduct = await Product.findOne({
+            where: {
+                id: bomExist.productId,
+                companyId: companyId
+            }
+        })
+        const bomProductCash = await C_Product.findOne({
+            where: {
+                id: bomExist.productId,
+                companyId: companyId
+            }
+        })
+        const productStock = await Stock.findOne({
+            where: {productId: bomExist.productId},
+        })
+        const productCashStock = await C_Stock.findOne({
+            where: {productId: bomExist.productId},
+        })
+
+        const totalProductQty = productStock?.qty ?? 0;
+        const totalProductCashQty = productCashStock?.qty ?? 0;
+
+
+        const {cashQty:previousCashQty, productQty:previousProductQty} = splitQuantity(bomExist?.qty ?? 0)
+
+        const isLawStock = await lowStockWaring(bomProduct.lowstock, bomProduct.lowStockQty, previousProductQty, totalProductQty, bomProduct.nagativeqty)
+        const isLawStockCash = await lowStockWaring(bomProductCash.lowstock, bomProductCash.lowStockQty, previousCashQty, totalProductCashQty, bomProductCash.nagativeqty)
+
+        if(isLawStock || isLawStockCash) return res.status(400).json({status: "false", message: `Low Stock in ${bomProduct.productname} Product`});
+
         const existingItems = await BomItem.findAll({
             where: { bomId: bomExist.id },
         });
@@ -408,13 +493,7 @@ exports.delete_bom = async (req,res)=>{
                 await productCashStock.increment('qty',{by: previousCashQty})
             }
         }
-        const productStock = await Stock.findOne({
-            where: {productId: bomExist.productId},
-        })
-        const productCashStock = await C_Stock.findOne({
-            where: {productId: bomExist.productId},
-        })
-        const {cashQty:previousCashQty, productQty:previousProductQty} = splitQuantity(bomExist?.qty ?? 0)
+
         if(productStock){
             await productStock.decrement('qty',{by: previousProductQty})
         }

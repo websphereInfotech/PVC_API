@@ -88,7 +88,7 @@ exports.create_ProFormaInvoice = async (req, res) => {
       }
       const productStock = await Stock.findOne({where: {productId: item.productId}})
       const totalProductQty = productStock?.qty ?? 0;
-      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, item.qty, totalProductQty)
+      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, item.qty, totalProductQty, productname.nagativeqty)
       if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
     const createdInvoice = await ProFormaInvoice.create({
@@ -293,7 +293,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
       const productStock = await Stock.findOne({where: {productId: item.productId}})
       const totalProductQty = productStock?.qty ?? 0;
       const tempQty = item.qty - existingItem.qty;
-      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, tempQty, totalProductQty)
+      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, tempQty, totalProductQty, productname.nagativeqty)
       if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
 

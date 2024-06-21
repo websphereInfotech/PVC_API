@@ -13,12 +13,20 @@ exports.splitQuantity = (qty)=>{
     };
 };
 
-exports.lowStockWaring = async (lowstock, lowStockQty, qty, totalQty)=>{
-        const tempStock = totalQty - qty;
-        if(lowstock){
-            if(tempStock <= lowStockQty){
-                return true;
-            }
-        }
+exports.lowStockWaring = async (lowstock, lowStockQty, qty, totalQty, negativeQty)=>{
+    const tempStock = totalQty - qty;
+    console.log(tempStock,"Temp Qty");
+    if (!negativeQty && tempStock < 0) {
+        console.log("Inside the negative Qty");
+        return true;
+    }
+    if (negativeQty) {
+        return false;
+    }
+
+    if (lowstock && tempStock <= lowStockQty) {
+        return true;
+    }
+
     return false;
 }

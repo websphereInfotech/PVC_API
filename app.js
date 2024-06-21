@@ -5,7 +5,7 @@ const path = require("path");
 
 const app = express();
 const port = process.env.PORT;
-// require('./app/models/companyUser.js')
+require('./app/util/cron')
 app.use(cors());
 
 app.use(express.json());
@@ -34,7 +34,8 @@ const {
     vendorLedger,
     claimRoute,
     companyBankDetails,
-    bom
+    bom,
+    notificationRoute
 } = require('./app/route/adminRoute');
 
 
@@ -60,6 +61,7 @@ app.use('/admin/bom', bom)
 app.use("/admin", receiptRoute);
 app.use("/admin/stock", stock);
 app.use("/admin", expenseRoute);
+app.use('/admin/notification', notificationRoute)
 // app.use("/admin", itemgroupRoute);
 // app.use("/admin", itemcategoryRoute);
 // app.use("/admin", unitRoute);
