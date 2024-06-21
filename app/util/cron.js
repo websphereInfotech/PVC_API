@@ -5,7 +5,7 @@ const Product = require('../models/product');
 const C_Product = require('../models/C_product');
 const Notification = require('../models/notification');
 
-exports.lowStockNotification = cron.schedule('*/5 * * * *', async () => {
+exports.lowStockNotification = cron.schedule('0 * * * *', async () => {
     const productStocks = await Stock.findAll({
         include: {model: Product, as: "productStock"}
     })
