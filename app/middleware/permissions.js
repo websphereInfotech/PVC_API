@@ -256,56 +256,6 @@ exports.permissions = {
             "view_single_creditNote":true
         }
     },
-    // "Expense" : {
-    //     "Super Admin" :{
-    //         "create_expense":true,
-    //         "update_expense":true,
-    //         "delete_expense":true,
-    //         "delete_expenseItem":true,
-    //         "view_single_expense":true,
-    //         "view_all_expense":true
-    //     },
-    //     "Admin" :{
-    //         "create_expense":true,
-    //         "update_expense":true,
-    //         "delete_expense":true,
-    //         "delete_expenseItem":true,
-    //         "view_single_expense":true,
-    //         "view_all_expense":true
-    //     },
-    //     "Account" :{
-    //         "create_expense":true,
-    //         "update_expense":true,
-    //         "delete_expense":true,
-    //         "delete_expenseItem":true,
-    //         "view_single_expense":true,
-    //         "view_all_expense":true
-    //     },
-    //     "Employee" :{
-    //         "create_expense":true,
-    //         "update_expense":true,
-    //         "delete_expense":true,
-    //         "delete_expenseItem":true,
-    //         "view_single_expense":true,
-    //         "view_all_expense":true
-    //     },
-    //     "Workers" :{
-    //         "create_expense":true,
-    //         "update_expense":true,
-    //         "delete_expense":true,
-    //         "delete_expenseItem":true,
-    //         "view_single_expense":true,
-    //         "view_all_expense":true
-    //     },
-    //     "Other" :{
-    //         "create_expense":true,
-    //         "update_expense":true,
-    //         "delete_expense":true,
-    //         "delete_expenseItem":true,
-    //         "view_single_expense":true,
-    //         "view_all_expense":true
-    //     }
-    // },
     "Sales Invoice" : {
         "Super Admin" :{
             "create_salesinvoice":true,
@@ -558,50 +508,6 @@ exports.permissions = {
             "view_all_purchase_Invoice":true,
         }
     },
-    // "Receipt" : {
-    //     "Super Admin" :{
-    //         "create_receipt":true,
-    //         "update_receipt":true,
-    //         "delete_receipt":true,
-    //         "view_single_receipt":true,
-    //         "view_all_receipt":true,
-    //     },
-    //     "Admin" :{
-    //         "create_receipt":true,
-    //         "update_receipt":true,
-    //         "delete_receipt":true,
-    //         "view_single_receipt":true,
-    //         "view_all_receipt":true,
-    //     },
-    //     "Account" :{
-    //         "create_receipt":true,
-    //         "update_receipt":true,
-    //         "delete_receipt":true,
-    //         "view_single_receipt":true,
-    //         "view_all_receipt":true,
-    //     },
-    //     "Employee" :{
-    //         "create_receipt":true,
-    //         "update_receipt":true,
-    //         "delete_receipt":true,
-    //         "view_single_receipt":true,
-    //         "view_all_receipt":true,
-    //     },
-    //     "Workers" :{
-    //         "create_receipt":true,
-    //         "update_receipt":true,
-    //         "delete_receipt":true,
-    //         "view_single_receipt":true,
-    //         "view_all_receipt":true,
-    //     },
-    //     "Other" :{
-    //         "create_receipt":true,
-    //         "update_receipt":true,
-    //         "delete_receipt":true,
-    //         "view_single_receipt":true,
-    //         "view_all_receipt":true,
-    //     }
-    // },
     "Vendor" :{
         "Super Admin" :{
             "create_vendor":true,
@@ -1234,7 +1140,6 @@ exports.permissions = {
             "update_product_cash_stock": true,
         },
     },
-
     "Bom" : {
         "Super Admin" :{
             "create_bom":true,
@@ -1299,9 +1204,4 @@ exports.permissions = {
             "view_all_notification":true,
         }
     },
-    // "Permission":{
-    //     "Super Admin": {
-    //         "view_all_permissions":true,
-    //     }
-    // },
 }
