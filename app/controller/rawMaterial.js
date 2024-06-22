@@ -120,7 +120,7 @@ exports.update_raw_material = async (req, res)=>{
         }
 
         const existingProduct = await product.findOne({
-            where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL },
+            where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
         });
 
         if (!existingProduct) {
@@ -177,7 +177,7 @@ exports.update_raw_material = async (req, res)=>{
             }
         })
         const data = await product.findOne({
-            where: { id: id, companyId: req.user.companyId },
+            where: { id: id, companyId: req.user.companyId, isActive: true, productType: PRODUCT_TYPE.RAW_MATERIAL },
         });
         return res.status(200).json({
             status: "true",
@@ -196,22 +196,25 @@ exports.delete_raw_material = async (req, res)=>{
     try {
         const { id } = req.params;
 
-        const data = await product.destroy({
-            where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL },
+        const data = await product.findOne({
+            where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
         });
-        await C_product.destroy({
-            where: {id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL}
+        const dataCash = await C_product.findOne({
+            where: {id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true}
         })
 
         if (!data) {
             return res
                 .status(400)
                 .json({ status: "false", message: "Raw Material Not Found" });
-        } else {
-            return res
-                .status(200)
-                .json({ status: "true", message: "Raw Material Delete Successfully" });
         }
+        data.isActive = false;
+        dataCash.isActive = false
+        await data.save()
+        await dataCash.save()
+        return res
+            .status(200)
+            .json({ status: "true", message: "Raw Material Delete Successfully" });
     } catch (error) {
         console.log(error);
         return res
@@ -225,7 +228,7 @@ exports.view_single_raw_material = async (req, res)=>{
         const { id } = req.params;
 
         const data = await product.findOne({
-            where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL },
+            where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
         });
 
         if (!data) {
@@ -249,7 +252,7 @@ exports.view_single_raw_material = async (req, res)=>{
 exports.view_all_raw_material = async (req, res)=>{
     try {
         const { search } = req.query;
-        const whereClause = { companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL };
+        const whereClause = { companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true };
 
         if (search) {
             whereClause.productname = { [Op.like]: `%${search}%` };
@@ -284,7 +287,7 @@ exports.view_all_raw_material = async (req, res)=>{
 exports.C_get_all_raw_material_cash = async (req, res)=>{
     try {
         const data = await C_product.findAll({
-            where: { companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL },
+            where: { companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
         });
         if (!data) {
             return res

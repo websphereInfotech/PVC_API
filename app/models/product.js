@@ -61,6 +61,11 @@ const product = sequelize.define("P_product", {
   companyId: { type: DataTypes.INTEGER },
   weight: {
     type: DataTypes.INTEGER,
+  },
+  isActive: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
   }
 });
 

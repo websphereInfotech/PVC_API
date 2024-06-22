@@ -124,7 +124,7 @@ exports.update_product = async (req, res) => {
     }
 
     const existingProduct = await product.findOne({
-      where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT },
+      where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true },
     });
 
     if (!existingProduct) {
@@ -181,7 +181,7 @@ exports.update_product = async (req, res) => {
       }
     })
     const data = await product.findOne({
-      where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT },
+      where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true },
     });
     return res.status(200).json({
       status: "true",
@@ -199,10 +199,10 @@ exports.delete_product = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await product.destroy({
+    const data = await product.findOne({
       where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT },
     });
-    await C_product.destroy({
+    const dataCash = await C_product.findOne({
       where: {id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT}
     })
 
@@ -210,11 +210,14 @@ exports.delete_product = async (req, res) => {
       return res
         .status(400)
         .json({ status: "false", message: "Product Not Found" });
-    } else {
+    }
+    data.isActive = false;
+    dataCash.isActive = false
+    await data.save()
+    await dataCash.save()
       return res
         .status(200)
         .json({ status: "true", message: "Product Delete Successfully" });
-    }
   } catch (error) {
     console.log(error);
     return res
@@ -227,7 +230,7 @@ exports.view_product = async (req, res) => {
     const { id } = req.params;
 
     const data = await product.findOne({
-      where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT },
+      where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true },
     });
 
     if (!data) {
@@ -250,7 +253,7 @@ exports.view_product = async (req, res) => {
 exports.get_all_product = async (req, res) => {
   try {
     const { search } = req.query;
-    const whereClause = { companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT };
+    const whereClause = { companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive };
 
     if (search) {
       whereClause.productname = { [Op.like]: `%${search}%` };
@@ -283,7 +286,7 @@ exports.get_all_product = async (req, res) => {
 exports.C_get_all_product = async (req, res) => {
   try {
     const data = await C_product.findAll({
-      where: { companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT },
+      where: { companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true },
     });
     if (!data) {
       return res
