@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const company = require("./company");
+const {PRODUCT_TYPE} = require("../constant/constant");
 
 const C_product = sequelize.define("P_C_product", {
   productname: { type: DataTypes.STRING },
@@ -15,6 +16,11 @@ const C_product = sequelize.define("P_C_product", {
   },
   nagativeqty: {
     type: DataTypes.BOOLEAN
+  },
+  productType: {
+    type: DataTypes.ENUM,
+    values: [PRODUCT_TYPE.PRODUCT, PRODUCT_TYPE.RAW_MATERIAL],
+    allowNull: false
   },
 });
 

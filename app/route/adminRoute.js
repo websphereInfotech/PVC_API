@@ -25,7 +25,7 @@ const claimRoute = require('./claim');
 const companyBankDetails = require('./companyBankdetails');
 const bom = require('./bom')
 const notificationRoute = require('./notification')
-
+const rawMaterialRoute = require('./rawMaterial')
 module.exports = {
   ProFormaInvoice,
   debitNoteRoute,
@@ -52,5 +52,6 @@ module.exports = {
   claimRoute,
   companyBankDetails,
   bom,
-  notificationRoute
+  notificationRoute,
+  rawMaterialRoute
 };
