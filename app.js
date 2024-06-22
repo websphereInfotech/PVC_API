@@ -35,7 +35,8 @@ const {
     claimRoute,
     companyBankDetails,
     bom,
-    notificationRoute
+    notificationRoute,
+    rawMaterialRoute
 } = require('./app/route/adminRoute');
 
 
@@ -62,6 +63,7 @@ app.use("/admin", receiptRoute);
 app.use("/admin/stock", stock);
 app.use("/admin", expenseRoute);
 app.use('/admin/notification', notificationRoute)
+app.use("/admin/rawMaterial", rawMaterialRoute);
 // app.use("/admin", itemgroupRoute);
 // app.use("/admin", itemcategoryRoute);
 // app.use("/admin", unitRoute);

@@ -1,11 +1,9 @@
 const C_product = require("../models/C_product");
-// const itemcategory = require("../models/itemcategory");
-// const itemgroup = require("../models/itemgroup");
 const product = require("../models/product");
 const C_stock = require("../models/C_stock");
 const Stock = require("../models/stock");
 const {Op} = require("sequelize");
-// const unit = require("../models/unit");
+const {PRODUCT_TYPE} = require("../constant/constant");
 
 /*=============================================================================================================
                                           Widhout Typc C API
@@ -66,6 +64,7 @@ exports.create_product = async (req, res) => {
       weight,
       lowStockQty,
       companyId: req.user.companyId,
+      productType: PRODUCT_TYPE.PRODUCT
     });
     const cashProduct = await C_product.create({
       id: data.id,
@@ -73,6 +72,7 @@ exports.create_product = async (req, res) => {
       lowStockQty: lowStockQty,
       lowstock: lowstock,
       companyId: req.user.companyId,
+      productType: PRODUCT_TYPE.PRODUCT
     });
 
     await C_stock.create({
@@ -124,7 +124,7 @@ exports.update_product = async (req, res) => {
     }
 
     const existingProduct = await product.findOne({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT },
     });
 
     if (!existingProduct) {
@@ -164,6 +164,7 @@ exports.update_product = async (req, res) => {
         weight: weight,
         lowStockQty: lowStockQty,
         companyId: req.user.companyId,
+        productType: PRODUCT_TYPE.PRODUCT
       },
       {
         where: { id: id },
@@ -173,13 +174,14 @@ exports.update_product = async (req, res) => {
       productname: productname,
       lowStockQty: lowStockQty,
       lowstock: lowstock,
+      productType: PRODUCT_TYPE.PRODUCT
     }, {
       where: {
         id: id
       }
     })
     const data = await product.findOne({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT },
     });
     return res.status(200).json({
       status: "true",
@@ -198,10 +200,10 @@ exports.delete_product = async (req, res) => {
     const { id } = req.params;
 
     const data = await product.destroy({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT },
     });
     await C_product.destroy({
-      where: {id: id, companyId: req.user.companyId}
+      where: {id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT}
     })
 
     if (!data) {
@@ -225,7 +227,7 @@ exports.view_product = async (req, res) => {
     const { id } = req.params;
 
     const data = await product.findOne({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT },
     });
 
     if (!data) {
@@ -248,7 +250,7 @@ exports.view_product = async (req, res) => {
 exports.get_all_product = async (req, res) => {
   try {
     const { search } = req.query;
-    const whereClause = { companyId: req.user.companyId };
+    const whereClause = { companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT };
 
     if (search) {
       whereClause.productname = { [Op.like]: `%${search}%` };
@@ -281,7 +283,7 @@ exports.get_all_product = async (req, res) => {
 exports.C_get_all_product = async (req, res) => {
   try {
     const data = await C_product.findAll({
-      where: { companyId: req.user.companyId },
+      where: { companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT },
     });
     if (!data) {
       return res

@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const company = require("./company");
+const {PRODUCT_TYPE} = require("../constant/constant");
 
 const product = sequelize.define("P_product", {
   itemtype: {
@@ -51,6 +52,11 @@ const product = sequelize.define("P_product", {
   cess: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
+  },
+  productType: {
+    type: DataTypes.ENUM,
+    values: [PRODUCT_TYPE.PRODUCT, PRODUCT_TYPE.RAW_MATERIAL],
+    allowNull: false
   },
   companyId: { type: DataTypes.INTEGER },
   weight: {

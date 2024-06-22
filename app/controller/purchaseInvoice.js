@@ -13,6 +13,7 @@ const vendorLedger = require("../models/vendorLedger");
 const Stock = require("../models/stock");
 const C_Stock = require("../models/C_stock");
 const {lowStockWaring} = require("../constant/common");
+const {PRODUCT_TYPE} = require("../constant/constant");
 
 /*=============================================================================================================
                                           Without Typc C API
@@ -79,12 +80,12 @@ exports.create_purchaseInvoice = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productData = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId },
+        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL },
       });
       if (!productData) {
         return res
           .status(404)
-          .json({ status: "false", message: "Product Not Found" });
+          .json({ status: "false", message: "Raw Material Not Found" });
       }
     }
     const purchseData = await purchaseInvoice.create({
@@ -121,7 +122,6 @@ exports.create_purchaseInvoice = async (req, res) => {
         const productStock = await Stock.findOne({
           where: {productId}
         })
-      console.log(productStock,"Product Stock")
       if(productStock){
         await productStock.increment('qty',{by: qty})
       }
@@ -216,12 +216,12 @@ exports.update_purchaseInvoice = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productData = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId },
+        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL },
       });
       if (!productData) {
         return res
           .status(404)
-          .json({ status: "false", message: "Product Not Found" });
+          .json({ status: "false", message: "Raw Material Not Found" });
       }
     }
     await purchaseInvoice.update(
@@ -335,7 +335,7 @@ exports.delete_purchaseInvoice = async (req, res) => {
     })
     for(const item of findItems){
       const productname = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId },
+        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL },
       });
       const productId = item.productId;
       const qtys = findItems.reduce((acc, item) => {
@@ -346,7 +346,6 @@ exports.delete_purchaseInvoice = async (req, res) => {
       }, 0);
       const productStock = await Stock.findOne({where: {productId: item.productId}})
       const totalProductQty = productStock?.qty ?? 0;
-      console.log(productname.lowStockQty,"Low staok QTY.................")
       const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, qtys, totalProductQty, productname.nagativeqty)
       if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
@@ -483,12 +482,12 @@ exports.C_create_purchaseCash = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productData = await C_product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId },
+        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL },
       });
       if (!productData) {
         return res
           .status(404)
-          .json({ status: "false", message: "Product Not Found" });
+          .json({ status: "false", message: "Raw Material Not Found" });
       }
     }
     const purchseData = await C_purchaseCash.create({
@@ -592,12 +591,12 @@ exports.C_update_purchaseCash = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productData = await C_product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId },
+        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL },
       });
       if (!productData) {
         return res
           .status(404)
-          .json({ status: "false", message: "Product Not Found" });
+          .json({ status: "false", message: "Raw Material Not Found" });
       }
     }
     await C_purchaseCash.update(
@@ -709,7 +708,7 @@ exports.C_delete_purchaseCash = async (req, res) => {
     })
     for(const item of findItems){
       const productname = await C_product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId },
+        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL },
       });
       const productId = item.productId;
       const qtys = findItems.reduce((acc, item) => {

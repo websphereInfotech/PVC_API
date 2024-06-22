@@ -5,9 +5,9 @@ const customer = require("../models/customer");
 const product = require("../models/product");
 const User = require("../models/user");
 const salesInvoice = require("../models/salesInvoice");
-const salesInvoiceItem = require("../models/salesInvoiceitem");
 const Stock = require("../models/stock");
 const {lowStockWaring} = require("../constant/common");
+const {PRODUCT_TYPE} = require("../constant/constant");
 
 exports.create_ProFormaInvoice = async (req, res) => {
   try {
@@ -79,7 +79,7 @@ exports.create_ProFormaInvoice = async (req, res) => {
       }
 
       const productname = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId },
+        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT },
       });
       if (!productname) {
         return res
@@ -283,7 +283,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
         return res.status(400).json({ status: false, message: "Rate Value Invalid" });
       }
       const productname = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId },
+        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT },
       });
       if (!productname) {
         return res.status(404).json({ status: false, message: "Product Not Found" });
