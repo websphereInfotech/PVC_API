@@ -1586,6 +1586,11 @@ exports.create_bom = function(req, res, next) {
       'number.base': 'The qty must be a number.',
       "number.greater": "Qty must be greater than 0.",
     }),
+    unit: Joi.string().required().messages({
+      'any.required': 'The product unit field is required.',
+      'string.base': 'The product unit must be a string.',
+      'string.empty': 'The product unit cannot be empty.'
+    }),
     items: Joi.array().items(
         Joi.object({
           productId: Joi.number().required().messages({
@@ -1599,7 +1604,12 @@ exports.create_bom = function(req, res, next) {
           }),
           id: Joi.number().allow(null).messages({
             'number.base': 'The id must be a number or null.'
-          })
+          }),
+          unit: Joi.string().required().messages({
+            'any.required': 'The raw material unit field is required.',
+            'string.base': 'The raw material unit must be a string.',
+            'string.empty': 'The raw material unit cannot be empty.'
+          }),
         })
     ).min(1).required().messages({
       'any.required': 'The items field is required.',

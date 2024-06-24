@@ -12,7 +12,7 @@ const product = require("../models/product");
 
 exports.create_bom = async (req, res) => {
     try {
-        const {bomNo, date, weight, items, productId, qty} = req.body;
+        const {bomNo, date, unit, weight, items, productId, qty} = req.body;
         const userId = req.user.userId;
         const companyId = req.user.companyId;
         const checkBomNo = await Bom.findOne({where: {bomNo: bomNo, companyId: companyId}});
@@ -83,7 +83,8 @@ exports.create_bom = async (req, res) => {
             qty,
             createdBy: userId,
             updatedBy: userId,
-            companyId
+            companyId,
+            unit: unit
         })
         const productStock = await Stock.findOne({
             where: {productId}
@@ -139,7 +140,7 @@ exports.update_bom = async (req, res) => {
         const companyId = req.user.companyId;
         const {bomId} = req.params;
         const userId = req.user.userId;
-        const {bomNo, date, weight, items, productId, qty} = req.body;
+        const {bomNo, date, unit, weight, items, productId, qty} = req.body;
 
         const bomExist = await Bom.findOne({where: {id: bomId, companyId: companyId}})
         if(!bomExist){
@@ -245,6 +246,7 @@ exports.update_bom = async (req, res) => {
                 weight,
                 productId,
                 qty,
+                unit,
                 updatedBy: req.user.userId
             },
             {
@@ -277,7 +279,8 @@ exports.update_bom = async (req, res) => {
                 BomItem.update(
                     {
                         productId : item.productId,
-                        qty: item.qty
+                        qty: item.qty,
+                        unit: item.unit
                     },
                     {
                         where: {
