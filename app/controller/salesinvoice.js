@@ -120,7 +120,8 @@ exports.create_salesInvoice = async (req, res) => {
         where: {
           id: item.productId,
           companyId: req.user.companyId,
-          productType: PRODUCT_TYPE.PRODUCT
+          productType: PRODUCT_TYPE.PRODUCT,
+          isActive: true
         },
       });
       if (!productname) {
@@ -372,7 +373,7 @@ exports.update_salesInvoice = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productname = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT },
+        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true },
       });
       if (!productname) {
         return res
@@ -585,7 +586,7 @@ exports.C_create_salesinvoice = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productData = await C_product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT },
+        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true },
       });
       if (!productData) {
         return res
@@ -704,7 +705,7 @@ exports.C_update_salesinvoice = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productData = await C_product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT },
+        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true },
       });
       if (!productData) {
         return res

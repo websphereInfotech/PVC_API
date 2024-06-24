@@ -196,7 +196,7 @@ module.exports.validation = function (method) {
       return [create_bom];
     case "update_bom":
       return [create_bom];
-    case "update_productStock":
+    case "update_stock":
       return [update_productStock];
     case "create_raw_material":
       return [ itemtype, productname, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice, weight ];

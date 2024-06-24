@@ -8,6 +8,7 @@ const C_Product = require("../models/C_product");
 const Stock = require("../models/stock");
 const {splitQuantity, lowStockWaring} = require("../constant/common");
 const {PRODUCT_TYPE} = require("../constant/constant");
+const product = require("../models/product");
 
 exports.create_bom = async (req, res) => {
     try {
@@ -25,7 +26,8 @@ exports.create_bom = async (req, res) => {
         const productExist = await Product.findOne({where: {
             id: productId,
                 companyId: companyId,
-                productType: PRODUCT_TYPE.PRODUCT
+                productType: PRODUCT_TYPE.PRODUCT,
+                isActive: true
             }});
         if(!productExist){
             return res.status(404).json({
@@ -38,7 +40,8 @@ exports.create_bom = async (req, res) => {
             const productExist = await Product.findOne({where: {
                     id: item.productId,
                     companyId: companyId,
-                    productType: PRODUCT_TYPE.RAW_MATERIAL
+                    productType: PRODUCT_TYPE.RAW_MATERIAL,
+                    isActive: true
                 }});
             if(!productExist){
                 return res.status(404).json({
@@ -58,7 +61,8 @@ exports.create_bom = async (req, res) => {
             const cashProduct = await C_Product.findOne({
                 id: item.productId,
                 companyId: companyId,
-                productType: PRODUCT_TYPE.RAW_MATERIAL
+                productType: PRODUCT_TYPE.RAW_MATERIAL,
+                isActive: true
             })
 
             const {cashQty, productQty} = splitQuantity(qtys)
@@ -157,7 +161,8 @@ exports.update_bom = async (req, res) => {
         const productExist = await Product.findOne({where: {
                 id: productId,
                 companyId: companyId,
-                productType: PRODUCT_TYPE.PRODUCT
+                productType: PRODUCT_TYPE.PRODUCT,
+                isActive: true
             }});
         if(!productExist){
             return res.status(404).json({
@@ -177,7 +182,8 @@ exports.update_bom = async (req, res) => {
             const productExist = await Product.findOne({where: {
                     id: item.productId,
                     companyId: companyId,
-                    productType: PRODUCT_TYPE.RAW_MATERIAL
+                    productType: PRODUCT_TYPE.RAW_MATERIAL,
+                    isActive: true
                 }});
             if(!productExist){
                 return res.status(404).json({
@@ -218,7 +224,8 @@ exports.update_bom = async (req, res) => {
             const cashProduct = await C_Product.findOne({
                 id: item.productId,
                 companyId: companyId,
-                productType: PRODUCT_TYPE.RAW_MATERIAL
+                productType: PRODUCT_TYPE.RAW_MATERIAL,
+                isActive: true
             })
             const tempQty = qtys - existingItemsQty;
             const {cashQty, productQty} = splitQuantity(tempQty)
@@ -455,14 +462,16 @@ exports.delete_bom = async (req,res)=>{
             where: {
                 id: bomExist.productId,
                 companyId: companyId,
-                productType: PRODUCT_TYPE.PRODUCT
+                productType: PRODUCT_TYPE.PRODUCT,
+                isActive: true
             }
         })
         const bomProductCash = await C_Product.findOne({
             where: {
                 id: bomExist.productId,
                 companyId: companyId,
-                productType: PRODUCT_TYPE.PRODUCT
+                productType: PRODUCT_TYPE.PRODUCT,
+                isActive: true
             }
         })
         const productStock = await Stock.findOne({
