@@ -54,7 +54,7 @@ router.get(
   adminAuth("Login:view_all_JoinComapny"),
   view_all_userTOComapny
 );
-router.get('/remove_company/:id', adminAuth("Login:remove_company"), remove_company)
+router.delete('/remove_company/:id', adminAuth("Login:remove_company"), remove_company)
 
 router.get('/view_user_balance',adminToken("Claim Cash:view_user_balance"),view_user_balance);
 
