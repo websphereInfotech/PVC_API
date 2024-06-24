@@ -36,14 +36,14 @@ exports.create_product = async (req, res) => {
       purchaseprice = null;
     }
 
-    const existingHSNcode = await product.findOne({
-      where: { HSNcode: HSNcode, companyId: req.user.companyId },
-    });
-    if (existingHSNcode) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "HSN Code Already Exists" });
-    }
+    // const existingHSNcode = await product.findOne({
+    //   where: { HSNcode: HSNcode, companyId: req.user.companyId },
+    // });
+    // if (existingHSNcode) {
+    //   return res
+    //     .status(400)
+    //     .json({ status: "false", message: "HSN Code Already Exists" });
+    // }
     const data = await product.create({
       itemtype,
       productname,
@@ -134,16 +134,16 @@ exports.update_product = async (req, res) => {
         .json({ status: "false", message: "Product Not Found" });
     }
 
-    if (existingProduct.HSNcode !== HSNcode) {
-      const existingHSNcode = await product.findOne({
-        where: { HSNcode: HSNcode,companyId: req.user.companyId },
-      });
-      if (existingHSNcode) {
-        return res
-          .status(400)
-          .json({ status: "false", message: "HSN Code Already Exists" });
-      }
-    }
+    // if (existingProduct.HSNcode !== HSNcode) {
+    //   const existingHSNcode = await product.findOne({
+    //     where: { HSNcode: HSNcode,companyId: req.user.companyId },
+    //   });
+    //   if (existingHSNcode) {
+    //     return res
+    //       .status(400)
+    //       .json({ status: "false", message: "HSN Code Already Exists" });
+    //   }
+    // }
     await product.update(
       {
         itemtype: itemtype,

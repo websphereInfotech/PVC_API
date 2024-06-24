@@ -1392,16 +1392,20 @@ exports.HSNcode = function (req, res, next) {
   const { HSNcode } = req.body;
 
   const HSNcodeSchema = Joi.number()
-
-    .integer()
-    .max(999999)
-    .required()
-    .messages({
-      "any.required": "Required Filed : HSN Code",
-      "number.base": "HSN Code must be a number",
-      "number.empty": "HSN Code Cannot Be Empty",
-      "number.max": "HSN Code Cannot Have More Then 6 Digits",
-    });
+      .integer()
+      .required()
+      .custom((value, helpers) => {
+        const length = value.toString().length;
+        if (length !== 4 && length !== 6 && length !== 8) {
+          return helpers.message('HSN Code must be 4, 6, or 8 digits');
+        }
+        return value;
+      })
+      .messages({
+        "any.required": "Required Field: HSN Code",
+        "number.base": "HSN Code must be a number",
+        "number.empty": "HSN Code cannot be empty",
+      });
     const valueToValidate = HSNcode === '' ? undefined : HSNcode;
   const { error } = HSNcodeSchema.validate(valueToValidate);
   if (error) {

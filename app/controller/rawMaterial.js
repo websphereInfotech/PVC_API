@@ -31,14 +31,14 @@ exports.create_raw_material = async (req, res) => {
             purchaseprice = null;
         }
 
-        const existingHSNcode = await product.findOne({
-            where: { HSNcode: HSNcode, companyId: req.user.companyId },
-        });
-        if (existingHSNcode) {
-            return res
-                .status(400)
-                .json({ status: "false", message: "HSN Code Already Exists" });
-        }
+        // const existingHSNcode = await product.findOne({
+        //     where: { HSNcode: HSNcode, companyId: req.user.companyId },
+        // });
+        // if (existingHSNcode) {
+        //     return res
+        //         .status(400)
+        //         .json({ status: "false", message: "HSN Code Already Exists" });
+        // }
         const data = await product.create({
             itemtype,
             productname,
@@ -67,7 +67,8 @@ exports.create_raw_material = async (req, res) => {
             lowStockQty: lowStockQty,
             lowstock: lowstock,
             companyId: req.user.companyId,
-            productType: PRODUCT_TYPE.RAW_MATERIAL
+            productType: PRODUCT_TYPE.RAW_MATERIAL,
+            unit: unit
         });
 
         await C_stock.create({
@@ -129,16 +130,16 @@ exports.update_raw_material = async (req, res)=>{
                 .json({ status: "false", message: "Raw Material Not Found" });
         }
 
-        if (existingProduct.HSNcode !== HSNcode) {
-            const existingHSNcode = await product.findOne({
-                where: { HSNcode: HSNcode,companyId: req.user.companyId },
-            });
-            if (existingHSNcode) {
-                return res
-                    .status(400)
-                    .json({ status: "false", message: "HSN Code Already Exists" });
-            }
-        }
+        // if (existingProduct.HSNcode !== HSNcode) {
+        //     const existingHSNcode = await product.findOne({
+        //         where: { HSNcode: HSNcode,companyId: req.user.companyId },
+        //     });
+        //     if (existingHSNcode) {
+        //         return res
+        //             .status(400)
+        //             .json({ status: "false", message: "HSN Code Already Exists" });
+        //     }
+        // }
         await product.update(
             {
                 itemtype: itemtype,
@@ -170,7 +171,8 @@ exports.update_raw_material = async (req, res)=>{
             productname: productname,
             lowStockQty: lowStockQty,
             lowstock: lowstock,
-            productType: PRODUCT_TYPE.RAW_MATERIAL
+            productType: PRODUCT_TYPE.RAW_MATERIAL,
+            unit: unit
         }, {
             where: {
                 id: id
