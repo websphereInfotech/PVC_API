@@ -253,7 +253,7 @@ exports.view_product = async (req, res) => {
 exports.get_all_product = async (req, res) => {
   try {
     const { search } = req.query;
-    const whereClause = { companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive };
+    const whereClause = { companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true };
 
     if (search) {
       whereClause.productname = { [Op.like]: `%${search}%` };
