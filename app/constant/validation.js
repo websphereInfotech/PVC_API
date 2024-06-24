@@ -1549,7 +1549,7 @@ exports.weight = function (req, res, next){
   const {weight} = req.body;
   const weightSchema = Joi.number().greater(0).required().messages({
     'any.required': 'The weight field is required.',
-    'number.base': 'The weight must be a string.',
+    'number.base': 'The weight must be a number.',
     "number.greater": "Weight must be greater than 0.",
   });
   const { error } = weightSchema.validate(weight);
@@ -1578,7 +1578,7 @@ exports.create_bom = function(req, res, next) {
     }),
     weight: Joi.number().greater(0).required().messages({
       'any.required': 'The weight field is required.',
-      'number.base': 'The weight must be a string.',
+      'number.base': 'The weight must be a number.',
       "number.greater": "Weight must be greater than 0.",
     }),
     productId: Joi.number().required().messages({
@@ -1661,6 +1661,7 @@ exports.update_productStock = function (req,res,next){
     qty: Joi.number().required().messages({
       "any.required": "Required Filed : Qty",
       "number.empty": "Qty Cannot Be Empty",
+      "number.base": "Qty must be number"
     })
   })
 
