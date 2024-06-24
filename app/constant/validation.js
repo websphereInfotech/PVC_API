@@ -1656,3 +1656,21 @@ exports.update_productStock = function (req,res,next){
   }
   next();
 }
+
+exports.itemUnit = async function (req,res,next){
+  const {items} = req.body;
+  const itemSchema = Joi.array().items(
+      Joi.object({
+        unit: Joi.string().required().messages({
+          'any.required': 'The unit field is required.',
+          'string.base': 'The unit must be a string.',
+          'string.empty': 'The unit cannot be empty.'
+        }),
+      })
+  );
+  const {error} = itemSchema.validate(items);
+  if (error) {
+    return res.status(400).json({ status: "false", message: error.message });
+  }
+  next();
+}

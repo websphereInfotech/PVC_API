@@ -96,7 +96,8 @@ const {
   purchaseinvoicedate,
   create_bom,
   update_productStock,
-  weight
+  weight,
+  itemUnit
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -114,9 +115,9 @@ module.exports.validation = function (method) {
     case "update_deliverychallan":
       return [challanno, date, qty];
     case "create_ProFormaInvoice":
-      return [ProFormaInvoice_no, terms, date, validtill, rate, qty];
+      return [ProFormaInvoice_no, terms, date, validtill, qty, itemUnit, rate];
     case "update_ProFormaInvoice":
-      return [ProFormaInvoice_no, terms, date, validtill, rate, qty];
+      return [ProFormaInvoice_no, terms, date, validtill, qty, itemUnit, rate];
     case "create_salesinvoice":
       return [invoiceno, terms, invoicedate, rate, qty, proFormaNo];
     case "update_salesinvoice":
