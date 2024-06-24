@@ -1178,6 +1178,8 @@ exports.permissions = {
             "view_all_raw_material_cash_stock": true,
             "view_raw_material_cash_stock": true,
             "update_raw_material_cash_stock": true,
+            "view_total_product_stock": true,
+            "view_total_material_stock": true,
         },
         "Admin" :{
             "view_all_product_cash_stock": true,
@@ -1186,6 +1188,8 @@ exports.permissions = {
             "view_all_raw_material_cash_stock": true,
             "view_raw_material_cash_stock": true,
             "update_raw_material_cash_stock": true,
+            "view_total_product_stock": true,
+            "view_total_material_stock": true,
         },
         "Account" :{
             "view_all_product_cash_stock": true,
@@ -1194,6 +1198,8 @@ exports.permissions = {
             "view_all_raw_material_cash_stock": true,
             "view_raw_material_cash_stock": true,
             "update_raw_material_cash_stock": true,
+            "view_total_product_stock": true,
+            "view_total_material_stock": true,
         },
         "Employee" :{
             "view_all_product_cash_stock": true,
@@ -1202,6 +1208,8 @@ exports.permissions = {
             "view_all_raw_material_cash_stock": true,
             "view_raw_material_cash_stock": true,
             "update_raw_material_cash_stock": true,
+            "view_total_product_stock": true,
+            "view_total_material_stock": true,
         },
         "Workers" :{
             "view_all_product_cash_stock": true,
@@ -1210,6 +1218,8 @@ exports.permissions = {
             "view_all_raw_material_cash_stock": true,
             "view_raw_material_cash_stock": true,
             "update_raw_material_cash_stock": true,
+            "view_total_product_stock": true,
+            "view_total_material_stock": true,
         },
         "Other" :{
             "view_all_product_cash_stock": true,
@@ -1218,6 +1228,8 @@ exports.permissions = {
             "view_all_raw_material_cash_stock": true,
             "view_raw_material_cash_stock": true,
             "update_raw_material_cash_stock": true,
+            "view_total_product_stock": true,
+            "view_total_material_stock": true,
         },
     },
     "Bom" : {

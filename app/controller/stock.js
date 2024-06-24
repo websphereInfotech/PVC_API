@@ -286,7 +286,10 @@ exports.C_update_product_stock = async (req, res) => {
             data: productCashStockExists
         })
     }catch (e) {
-
+        console.error(e);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
     }
 }
 
@@ -374,6 +377,121 @@ exports.C_update_raw_material_cash_stock = async (req, res) => {
             data: productCashStockExists
         })
     }catch (e) {
+        console.error(e);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
+}
 
+exports.C_view_total_product_stock = async (req,res)=>{
+    try {
+        const companyId = req.user.companyId;
+        const productStocks = await Stock.findAll({
+            include: [{model: Product, as: "productStock", where: {companyId: companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true}}, {model: User, as: "stockUpdateUser", attributes: ["username"]}],
+        })
+        const productCashStock =  await C_Stock.findAll({
+            include: [{model: C_Product, as: "productCashStock", where: {companyId: companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true}}, {model: User, as: "cashStockUpdateUser", attributes: ["username"]}],
+        })
+            const mergedData = {};
+
+            productStocks.forEach(item => {
+                const productId = item.productId;
+                const productName = item.productStock.productname;
+
+                if (!mergedData[productId]) {
+                    mergedData[productId] = {
+                        productId: productId,
+                        productName: productName,
+                        totalQty: item.qty
+                    };
+                } else {
+                    mergedData[productId].totalQty += item.qty;
+                }
+            });
+
+            productCashStock.forEach(item => {
+                const productId = item.productId;
+                const productName = item.productCashStock.productname;
+
+                if (!mergedData[productId]) {
+                    mergedData[productId] = {
+                        productId: productId,
+                        productName: productName,
+                        totalQty: item.qty
+                    };
+                } else {
+                    mergedData[productId].totalQty += item.qty;
+                }
+            });
+
+            const mergedItem =  Object.values(mergedData);
+
+        return res.status(200).json({
+            status: "true",
+            message: "Total Product Stock Fetch Successfully.",
+            data:  mergedItem
+        })
+    }catch (e) {
+        console.error(e);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
+}
+
+exports.C_view_total_material_stock = async (req,res)=>{
+    try {
+        const companyId = req.user.companyId;
+        const productStocks = await Stock.findAll({
+            include: [{model: Product, as: "productStock", where: {companyId: companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true}}, {model: User, as: "stockUpdateUser", attributes: ["username"]}],
+        })
+        const productCashStock =  await C_Stock.findAll({
+            include: [{model: C_Product, as: "productCashStock", where: {companyId: companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true}}, {model: User, as: "cashStockUpdateUser", attributes: ["username"]}],
+        })
+            const mergedData = {};
+
+            productStocks.forEach(item => {
+                const productId = item.productId;
+                const productName = item.productStock.productname;
+
+                if (!mergedData[productId]) {
+                    mergedData[productId] = {
+                        productId: productId,
+                        productName: productName,
+                        totalQty: item.qty
+                    };
+                } else {
+                    mergedData[productId].totalQty += item.qty;
+                }
+            });
+
+            productCashStock.forEach(item => {
+                const productId = item.productId;
+                const productName = item.productCashStock.productname;
+
+                if (!mergedData[productId]) {
+                    mergedData[productId] = {
+                        productId: productId,
+                        productName: productName,
+                        totalQty: item.qty
+                    };
+                } else {
+                    mergedData[productId].totalQty += item.qty;
+                }
+            });
+
+            const mergedItem =  Object.values(mergedData);
+
+        return res.status(200).json({
+            status: "true",
+            message: "Total Raw Material Stock Fetch Successfully.",
+            data:  mergedItem
+        })
+    }catch (e) {
+        console.error(e);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
     }
 }
