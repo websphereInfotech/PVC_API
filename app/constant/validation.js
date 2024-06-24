@@ -1666,7 +1666,7 @@ exports.itemUnit = async function (req,res,next){
           'string.base': 'The unit must be a string.',
           'string.empty': 'The unit cannot be empty.'
         }),
-      })
+      }).options({ allowUnknown: true })
   );
   const {error} = itemSchema.validate(items);
   if (error) {
