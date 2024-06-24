@@ -18,8 +18,7 @@ const ProFormaInvoiceItem = sequelize.define("P_ProFormaInvoiceItem", {
   },
   unit: {
     type: DataTypes.STRING,
-    allowNull: false,
-    // defaultValue: "GM",
+    allowNull: false
   },
   mrp: {
     type: DataTypes.FLOAT,

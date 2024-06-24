@@ -16,7 +16,11 @@ const debitNoteItem = sequelize.define('P_debitNoteItem', {
     },
     rate: {
         type: DataTypes.FLOAT
-    }
+    },
+    unit: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
 });
 
 product.hasMany(debitNoteItem,{foreignKey:'productId', onDelete:'CASCADE', as:'DebitProduct'});

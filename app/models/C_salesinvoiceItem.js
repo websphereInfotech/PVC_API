@@ -13,7 +13,11 @@ const C_salesinvoiceItem = sequelize.define('P_C_salesInvoiceItem', {
     },
     mrp: {type: DataTypes.INTEGER,
         defaultValue:0
-    }
+    },
+    unit: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
 });
 
 C_product.hasMany(C_salesinvoiceItem, {foreignKey:'productId',onDelete:'CASCADE', as:'CashProduct'});

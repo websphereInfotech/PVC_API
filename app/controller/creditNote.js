@@ -263,6 +263,7 @@ exports.update_creditNote = async (req, res) => {
             qty: item.qty,
             rate: item.rate,
             mrp: item.mrp,
+            unit: item.unit
           },
           { where: { id: existingItem.id } }
         );
@@ -273,6 +274,7 @@ exports.update_creditNote = async (req, res) => {
           qty: item.qty,
           rate: item.rate,
           mrp: item.mrp,
+          unit: item.unit
         });
       }
     }

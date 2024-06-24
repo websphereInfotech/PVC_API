@@ -111,25 +111,25 @@ module.exports.validation = function (method) {
     case "update_user":
       return [email, mobileno, salary, role];
     case "create_deliverychallan":
-      return [challanno, date, qty];
+      return [challanno, date, qty, itemUnit];
     case "update_deliverychallan":
-      return [challanno, date, qty];
+      return [challanno, date, qty, itemUnit];
     case "create_ProFormaInvoice":
       return [ProFormaInvoice_no, terms, date, validtill, qty, itemUnit, rate];
     case "update_ProFormaInvoice":
       return [ProFormaInvoice_no, terms, date, validtill, qty, itemUnit, rate];
     case "create_salesinvoice":
-      return [invoiceno, terms, invoicedate, rate, qty, proFormaNo];
+      return [invoiceno, terms, invoicedate, rate, qty, proFormaNo, itemUnit];
     case "update_salesinvoice":
-      return [invoiceno, terms, invoicedate, rate, qty, proFormaNo];
+      return [invoiceno, terms, invoicedate, rate, qty, proFormaNo, itemUnit];
     case "create_debitNote":
-      return [debitnoteno, purchaseinvoicedate, debitdate, qty, mrp, rate];
+      return [debitnoteno, purchaseinvoicedate, debitdate, qty, mrp, rate, itemUnit];
     case "update_debitNote":
-      return [debitnoteno, purchaseinvoicedate, debitdate, qty, mrp, rate];
+      return [debitnoteno, purchaseinvoicedate, debitdate, qty, mrp, rate, itemUnit];
     case "create_creditNote":
-      return [ creditnoteNo, creditdate, org_invoiceno, org_invoicedate, rate, qty ];
+      return [ creditnoteNo, creditdate, org_invoiceno, org_invoicedate, rate, qty, itemUnit ];
     case "update_creditNote":
-      return [ creditnoteNo, creditdate, org_invoiceno, org_invoicedate, rate, qty ];
+      return [ creditnoteNo, creditdate, org_invoiceno, org_invoicedate, rate, qty, itemUnit ];
     case "create_customer":
       return [ accountname, email, mobileno, contactpersonname, creditperiod, address1, pincode, state,
                city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails,validateCredit ];
@@ -141,9 +141,9 @@ module.exports.validation = function (method) {
     case "update_product":
       return [ itemtype, productname, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice, weight ];
     case "create_purchaseInvoice":
-      return [duedate, invoiceno, invoicedate, qty, rate];
+      return [duedate, invoiceno, invoicedate, qty,itemUnit, rate];
     case "update_purchaseInvoice":
-      return [duedate, invoiceno, invoicedate, qty, rate];
+      return [duedate, invoiceno, invoicedate, qty, itemUnit, rate];
     case "create_company":
       return [ companyname, gstnumber, email, mobileno, address1, pincode, state, city ];
     case "update_company":
@@ -155,13 +155,13 @@ module.exports.validation = function (method) {
       return [ accountname, email, contactpersonname, mobileno, creditperiod, address1, pincode, state,
                city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails,validateCredit ];
     case "C_create_salesinvoice":
-      return [date, qty, rate];
+      return [date, qty,itemUnit, rate];
     case "C_update_salesinvoice":
-      return [date, qty, rate];
+      return [date, qty,itemUnit, rate];
     case "C_create_purchase_Cash":
-      return [date, qty, rate];
+      return [date, qty, itemUnit, rate];
     case "C_update_purchase_Cash":
-      return [date, qty, rate];
+      return [date, qty, itemUnit, rate];
     case "create_receiveCash":
       return [date, amount];
     case "update_receiveCash":

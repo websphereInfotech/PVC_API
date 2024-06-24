@@ -23,6 +23,10 @@ const salesInvoiceItem = sequelize.define("P_salesInvoiceItem", {
   rate: {
     type: DataTypes.FLOAT,
   },
+  unit: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
 });
 
 

@@ -263,6 +263,7 @@ exports.update_purchaseInvoice = async (req, res) => {
             qty: item.qty,
             rate: item.rate,
             mrp: item.mrp,
+            unit: item.unit
           },
           { where: { id: existingItem.id } }
         );
@@ -273,6 +274,7 @@ exports.update_purchaseInvoice = async (req, res) => {
           qty: item.qty,
           rate: item.rate,
           mrp: item.mrp,
+          unit: item.unit
         });
       }
       const productId = item.productId;
@@ -639,6 +641,7 @@ exports.C_update_purchaseCash = async (req, res) => {
             qty: item.qty,
             rate: item.rate,
             mrp: item.mrp,
+            unit: item.unit
           },
           { where: { id: existingItem.id } }
         );
@@ -649,6 +652,7 @@ exports.C_update_purchaseCash = async (req, res) => {
           qty: item.qty,
           rate: item.rate,
           mrp: item.mrp,
+          unit: item.unit
         });
       }
       const productId = item.productId;
