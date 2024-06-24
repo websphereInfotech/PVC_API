@@ -13,7 +13,7 @@ const salesInvoiceItem = require("../models/salesInvoiceitem");
 const User = require("../models/user");
 const Stock = require("../models/stock");
 const C_Stock = require("../models/C_stock");
-const {lowStockWaring} = require("../constant/common");
+// const {lowStockWaring} = require("../constant/common");
 const {PRODUCT_TYPE} = require("../constant/constant");
 
 /*=============================================================================================================
@@ -129,18 +129,18 @@ exports.create_salesInvoice = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Product Not Found" });
       }
-      const productId = productname.id;
-
-      const qtys = items.reduce((acc, item) => {
-        if (item.productId === productId) {
-          return acc + item.qty;
-        }
-        return acc;
-      }, 0);
-      const productStock = await Stock.findOne({where: {productId: item.productId}})
-      const totalProductQty = productStock?.qty ?? 0;
-      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, qtys, totalProductQty, productname.nagativeqty)
-      if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
+      // const productId = productname.id;
+      //
+      // const qtys = items.reduce((acc, item) => {
+      //   if (item.productId === productId) {
+      //     return acc + item.qty;
+      //   }
+      //   return acc;
+      // }, 0);
+      // const productStock = await Stock.findOne({where: {productId: item.productId}})
+      // const totalProductQty = productStock?.qty ?? 0;
+      // const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, qtys, totalProductQty, productname.nagativeqty)
+      // if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
 
     const data = await salesInvoice.create({
@@ -381,27 +381,27 @@ exports.update_salesInvoice = async (req, res) => {
           .json({ status: "false", message: "Product Not Found" });
       }
 
-      const productId = item.productId;
-      const qtys = items.reduce((acc, item) => {
-        if (item.productId === productId) {
-          return acc + item.qty;
-        }
-        return acc;
-      }, 0);
-
-
-      const existingItemsQty = filteredExistingItems.reduce((acc, item) => {
-        if (item.productId === productId) {
-          return acc + item.qty;
-        }
-        return acc;
-      }, 0);
-
-      const productStock = await Stock.findOne({where: {productId: item.productId}})
-      const totalProductQty = productStock?.qty ?? 0;
-      const tempQty = qtys - existingItemsQty;
-      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, tempQty, totalProductQty, productname.nagativeqty)
-      if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
+      // const productId = item.productId;
+      // const qtys = items.reduce((acc, item) => {
+      //   if (item.productId === productId) {
+      //     return acc + item.qty;
+      //   }
+      //   return acc;
+      // }, 0);
+      //
+      //
+      // const existingItemsQty = filteredExistingItems.reduce((acc, item) => {
+      //   if (item.productId === productId) {
+      //     return acc + item.qty;
+      //   }
+      //   return acc;
+      // }, 0);
+      //
+      // const productStock = await Stock.findOne({where: {productId: item.productId}})
+      // const totalProductQty = productStock?.qty ?? 0;
+      // const tempQty = qtys - existingItemsQty;
+      // const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, tempQty, totalProductQty, productname.nagativeqty)
+      // if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
     await salesInvoice.update(
       {
@@ -596,10 +596,10 @@ exports.C_create_salesinvoice = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Product Not Found" });
       }
-      const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
-      const totalProductQty = productCashStock?.qty ?? 0;
-      const isLawStock = await lowStockWaring(productData.lowstock, productData.lowStockQty, item.qty, totalProductQty, productData.nagativeqty)
-      if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productData.productname} Product`});
+      // const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
+      // const totalProductQty = productCashStock?.qty ?? 0;
+      // const isLawStock = await lowStockWaring(productData.lowstock, productData.lowStockQty, item.qty, totalProductQty, productData.nagativeqty)
+      // if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productData.productname} Product`});
     }
     const salesInvoiceData = await C_salesinvoice.create({
       customerId,
@@ -716,24 +716,24 @@ exports.C_update_salesinvoice = async (req, res) => {
           .json({ status: "false", message: "Product Not Found" });
       }
 
-      const productId = item.productId;
-      const qtys = items.reduce((acc, item) => {
-        if (item.productId === productId) {
-          return acc + item.qty;
-        }
-        return acc;
-      }, 0);
-      const existingItemsQty = filteredExistingItems.reduce((acc, item) => {
-        if (item.productId === productId) {
-          return acc + item.qty;
-        }
-        return acc;
-      }, 0);
-      const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
-      const totalProductQty = productCashStock?.qty ?? 0;
-      const tempQty = qtys - existingItemsQty;
-      const isLawStock = await lowStockWaring(productData.lowstock, productData.lowStockQty, tempQty, totalProductQty, productData.nagativeqty)
-      if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productData.productname} Product`});
+      // const productId = item.productId;
+      // const qtys = items.reduce((acc, item) => {
+      //   if (item.productId === productId) {
+      //     return acc + item.qty;
+      //   }
+      //   return acc;
+      // }, 0);
+      // const existingItemsQty = filteredExistingItems.reduce((acc, item) => {
+      //   if (item.productId === productId) {
+      //     return acc + item.qty;
+      //   }
+      //   return acc;
+      // }, 0);
+      // const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
+      // const totalProductQty = productCashStock?.qty ?? 0;
+      // const tempQty = qtys - existingItemsQty;
+      // const isLawStock = await lowStockWaring(productData.lowstock, productData.lowStockQty, tempQty, totalProductQty, productData.nagativeqty)
+      // if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productData.productname} Product`});
     }
     await C_salesinvoice.update(
       {

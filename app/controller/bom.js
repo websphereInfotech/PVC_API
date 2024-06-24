@@ -8,7 +8,6 @@ const C_Product = require("../models/C_product");
 const Stock = require("../models/stock");
 const {splitQuantity, lowStockWaring} = require("../constant/common");
 const {PRODUCT_TYPE} = require("../constant/constant");
-const product = require("../models/product");
 
 exports.create_bom = async (req, res) => {
     try {
@@ -49,30 +48,30 @@ exports.create_bom = async (req, res) => {
                     message: "Raw Material Not Found.",
                 })
             }
-            const productId = productExist.id;
-
-            const qtys = items.reduce((acc, item) => {
-                if (item.productId === productId) {
-                    return acc + item.qty;
-                }
-                return acc;
-            }, 0);
-
-            const cashProduct = await C_Product.findOne({
-                id: item.productId,
-                companyId: companyId,
-                productType: PRODUCT_TYPE.RAW_MATERIAL,
-                isActive: true
-            })
-
-            const {cashQty, productQty} = splitQuantity(qtys)
-            const productStock = await Stock.findOne({where: {productId: item.productId}})
-            const totalProductQty = productStock?.qty ?? 0;
-            const isLawStock = await lowStockWaring(productExist.lowstock, productExist.lowStockQty, productQty, totalProductQty, productExist.nagativeqty)
-            const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
-            const totalProductCashQty = productCashStock?.qty ?? 0;
-            const isLawStockCash = await lowStockWaring(cashProduct.lowstock, cashProduct.lowStockQty, cashQty, totalProductCashQty, cashProduct.nagativeqty)
-            if(isLawStock || isLawStockCash) return res.status(400).json({status: "false", message: `Low Stock in ${productExist.productname} Product`});
+            // const productId = productExist.id;
+            //
+            // const qtys = items.reduce((acc, item) => {
+            //     if (item.productId === productId) {
+            //         return acc + item.qty;
+            //     }
+            //     return acc;
+            // }, 0);
+            //
+            // const cashProduct = await C_Product.findOne({
+            //     id: item.productId,
+            //     companyId: companyId,
+            //     productType: PRODUCT_TYPE.RAW_MATERIAL,
+            //     isActive: true
+            // })
+            //
+            // const {cashQty, productQty} = splitQuantity(qtys)
+            // const productStock = await Stock.findOne({where: {productId: item.productId}})
+            // const totalProductQty = productStock?.qty ?? 0;
+            // const isLawStock = await lowStockWaring(productExist.lowstock, productExist.lowStockQty, productQty, totalProductQty, productExist.nagativeqty)
+            // const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
+            // const totalProductCashQty = productCashStock?.qty ?? 0;
+            // const isLawStockCash = await lowStockWaring(cashProduct.lowstock, cashProduct.lowStockQty, cashQty, totalProductCashQty, cashProduct.nagativeqty)
+            // if(isLawStock || isLawStockCash) return res.status(400).json({status: "false", message: `Low Stock in ${productExist.productname} Product`});
         }
 
         const createBOM = await Bom.create({
@@ -206,37 +205,37 @@ exports.update_bom = async (req, res) => {
                     })
                 }
             }
-            const productId = productExist.id;
-
-            const qtys = items.reduce((acc, item) => {
-                if (item.productId === productId) {
-                    return acc + item.qty;
-                }
-                return acc;
-            }, 0);
-
-            const existingItemsQty = filteredExistingItems.reduce((acc, item) => {
-                if (item.productId === productId) {
-                    return acc + item.qty;
-                }
-                return acc;
-            }, 0);
-
-            const cashProduct = await C_Product.findOne({
-                id: item.productId,
-                companyId: companyId,
-                productType: PRODUCT_TYPE.RAW_MATERIAL,
-                isActive: true
-            })
-            const tempQty = qtys - existingItemsQty;
-            const {cashQty, productQty} = splitQuantity(tempQty)
-            const productStock = await Stock.findOne({where: {productId: item.productId}})
-            const totalProductQty = productStock?.qty ?? 0;
-            const isLawStock = await lowStockWaring(productExist.lowstock, productExist.lowStockQty, productQty, totalProductQty, productExist.nagativeqty)
-            const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
-            const totalProductCashQty = productCashStock?.qty ?? 0;
-            const isLawStockCash = await lowStockWaring(cashProduct.lowstock, cashProduct.lowStockQty, cashQty, totalProductCashQty, cashProduct.nagativeqty)
-            if(isLawStock || isLawStockCash) return res.status(400).json({status: "false", message: `Low Stock in ${productExist.productname} Product`});
+            // const productId = productExist.id;
+            //
+            // const qtys = items.reduce((acc, item) => {
+            //     if (item.productId === productId) {
+            //         return acc + item.qty;
+            //     }
+            //     return acc;
+            // }, 0);
+            //
+            // const existingItemsQty = filteredExistingItems.reduce((acc, item) => {
+            //     if (item.productId === productId) {
+            //         return acc + item.qty;
+            //     }
+            //     return acc;
+            // }, 0);
+            //
+            // const cashProduct = await C_Product.findOne({
+            //     id: item.productId,
+            //     companyId: companyId,
+            //     productType: PRODUCT_TYPE.RAW_MATERIAL,
+            //     isActive: true
+            // })
+            // const tempQty = qtys - existingItemsQty;
+            // const {cashQty, productQty} = splitQuantity(tempQty)
+            // const productStock = await Stock.findOne({where: {productId: item.productId}})
+            // const totalProductQty = productStock?.qty ?? 0;
+            // const isLawStock = await lowStockWaring(productExist.lowstock, productExist.lowStockQty, productQty, totalProductQty, productExist.nagativeqty)
+            // const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
+            // const totalProductCashQty = productCashStock?.qty ?? 0;
+            // const isLawStockCash = await lowStockWaring(cashProduct.lowstock, cashProduct.lowStockQty, cashQty, totalProductCashQty, cashProduct.nagativeqty)
+            // if(isLawStock || isLawStockCash) return res.status(400).json({status: "false", message: `Low Stock in ${productExist.productname} Product`});
         }
 
         await  Bom.update(
@@ -483,17 +482,17 @@ exports.delete_bom = async (req,res)=>{
         const productCashStock = await C_Stock.findOne({
             where: {productId: bomExist.productId},
         })
-
-        const totalProductQty = productStock?.qty ?? 0;
-        const totalProductCashQty = productCashStock?.qty ?? 0;
-
-
         const {cashQty:previousCashQty, productQty:previousProductQty} = splitQuantity(bomExist?.qty ?? 0)
 
-        const isLawStock = await lowStockWaring(bomProduct.lowstock, bomProduct.lowStockQty, previousProductQty, totalProductQty, bomProduct.nagativeqty)
-        const isLawStockCash = await lowStockWaring(bomProductCash.lowstock, bomProductCash.lowStockQty, previousCashQty, totalProductCashQty, bomProductCash.nagativeqty)
-
-        if(isLawStock || isLawStockCash) return res.status(400).json({status: "false", message: `Low Stock in ${bomProduct.productname} Product`});
+        // const totalProductQty = productStock?.qty ?? 0;
+        // const totalProductCashQty = productCashStock?.qty ?? 0;
+        //
+        //
+        //
+        // const isLawStock = await lowStockWaring(bomProduct.lowstock, bomProduct.lowStockQty, previousProductQty, totalProductQty, bomProduct.nagativeqty)
+        // const isLawStockCash = await lowStockWaring(bomProductCash.lowstock, bomProductCash.lowStockQty, previousCashQty, totalProductCashQty, bomProductCash.nagativeqty)
+        //
+        // if(isLawStock || isLawStockCash) return res.status(400).json({status: "false", message: `Low Stock in ${bomProduct.productname} Product`});
 
         const existingItems = await BomItem.findAll({
             where: { bomId: bomExist.id },
