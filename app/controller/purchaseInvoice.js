@@ -641,7 +641,8 @@ exports.C_update_purchaseCash = async (req, res) => {
             qty: item.qty,
             rate: item.rate,
             mrp: item.mrp,
-            unit: item.unit
+            unit: item.unit,
+            productId: item.productId
           },
           { where: { id: existingItem.id } }
         );

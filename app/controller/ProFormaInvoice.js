@@ -327,6 +327,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
       if (existingItem) {
         await ProFormaInvoiceItem.update(
           {
+            productId: item.productId,
             qty: item.qty,
             rate: item.rate,
             mrp: item.mrp,

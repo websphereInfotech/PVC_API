@@ -169,7 +169,8 @@ exports.update_deliverychallan = async (req, res) => {
         await deliverychallanitem.update(
           {
             qty: item.qty,
-            unit: item.unit
+            unit: item.unit,
+            productId: item.productId
           },
           { where: { id: existingItem.id } }
         );

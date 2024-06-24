@@ -72,7 +72,8 @@ exports.create_product = async (req, res) => {
       lowStockQty: lowStockQty,
       lowstock: lowstock,
       companyId: req.user.companyId,
-      productType: PRODUCT_TYPE.PRODUCT
+      productType: PRODUCT_TYPE.PRODUCT,
+      unit: unit
     });
 
     await C_stock.create({
@@ -174,7 +175,8 @@ exports.update_product = async (req, res) => {
       productname: productname,
       lowStockQty: lowStockQty,
       lowstock: lowstock,
-      productType: PRODUCT_TYPE.PRODUCT
+      productType: PRODUCT_TYPE.PRODUCT,
+      unit: unit
     }, {
       where: {
         id: id
