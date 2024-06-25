@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const company = require("./company");
 const {PRODUCT_TYPE} = require("../constant/constant");
+const User = require("./user");
 
 const product = sequelize.define("P_product", {
   itemtype: {
@@ -66,10 +67,18 @@ const product = sequelize.define("P_product", {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: true,
-  }
+  },
+  updatedBy: { type: DataTypes.INTEGER },
+  createdBy: { type: DataTypes.INTEGER }
 });
 
 company.hasMany(product, { foreignKey: "companyId", onDelete: "CASCADE" });
 product.belongsTo(company, { foreignKey: "companyId", onDelete: "CASCADE" });
+
+User.hasMany(product, { foreignKey: "updatedBy", as: "productUpdateUser" });
+product.belongsTo(User, { foreignKey: "updatedBy", as: "productUpdateUser" });
+
+User.hasMany(product, { foreignKey: "createdBy", as: "productCreateUser" });
+product.belongsTo(User, { foreignKey: "createdBy", as: "productCreateUser" });
 
 module.exports = product;

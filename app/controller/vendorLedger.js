@@ -7,7 +7,6 @@ const vendorLedger = require("../models/vendorLedger");
 const purchaseInvoice = require("../models/purchaseInvoice");
 const paymentBank = require("../models/paymentBank");
 const vendor = require("../models/vendor");
-const { Op, literal } = Sequelize;
 
 /*=============================================================================================================
                                            Typc C API

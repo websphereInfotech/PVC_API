@@ -138,7 +138,6 @@ exports.update_bom = async (req, res) => {
     try{
         const companyId = req.user.companyId;
         const {bomId} = req.params;
-        const userId = req.user.userId;
         const {bomNo, date, unit, weight, items, productId, qty} = req.body;
 
         const bomExist = await Bom.findOne({where: {id: bomId, companyId: companyId}})
@@ -174,9 +173,9 @@ exports.update_bom = async (req, res) => {
             where: { bomId: bomExist.id },
         });
 
-        const filteredExistingItems = existingItems.filter(existingItem =>
-            items.some(insertItem => insertItem.id === existingItem.id)
-        );
+        // const filteredExistingItems = existingItems.filter(existingItem =>
+        //     items.some(insertItem => insertItem.id === existingItem.id)
+        // );
 
         for(const item of items){
             const productExist = await Product.findOne({where: {
@@ -460,22 +459,22 @@ exports.delete_bom = async (req,res)=>{
                 message: "Bom Not Found."
             })
         }
-        const bomProduct = await Product.findOne({
-            where: {
-                id: bomExist.productId,
-                companyId: companyId,
-                productType: PRODUCT_TYPE.PRODUCT,
-                isActive: true
-            }
-        })
-        const bomProductCash = await C_Product.findOne({
-            where: {
-                id: bomExist.productId,
-                companyId: companyId,
-                productType: PRODUCT_TYPE.PRODUCT,
-                isActive: true
-            }
-        })
+        // const bomProduct = await Product.findOne({
+        //     where: {
+        //         id: bomExist.productId,
+        //         companyId: companyId,
+        //         productType: PRODUCT_TYPE.PRODUCT,
+        //         isActive: true
+        //     }
+        // })
+        // const bomProductCash = await C_Product.findOne({
+        //     where: {
+        //         id: bomExist.productId,
+        //         companyId: companyId,
+        //         productType: PRODUCT_TYPE.PRODUCT,
+        //         isActive: true
+        //     }
+        // })
         const productStock = await Stock.findOne({
             where: {productId: bomExist.productId},
         })

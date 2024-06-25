@@ -351,11 +351,10 @@ exports.update_salesInvoice = async (req, res) => {
     const existingItems = await salesInvoiceItem.findAll({
       where: { salesInvoiceId: id },
     });
-    console.log(existingItems,"Exting Item")
 
-    const filteredExistingItems = existingItems.filter(existingItem =>
-        items.some(insertItem => insertItem.id === existingItem.id)
-    );
+    // const filteredExistingItems = existingItems.filter(existingItem =>
+    //     items.some(insertItem => insertItem.id === existingItem.id)
+    // );
     for (const item of items) {
       if (!item.productId || item.productId === "") {
         return res
@@ -687,9 +686,9 @@ exports.C_update_salesinvoice = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Required Field oF items" });
     }
-    const filteredExistingItems = existingItems.filter(existingItem =>
-        items.some(insertItem => insertItem.id === existingItem.id)
-    );
+    // const filteredExistingItems = existingItems.filter(existingItem =>
+    //     items.some(insertItem => insertItem.id === existingItem.id)
+    // );
     for (const item of items) {
       if (!item.productId || item.productId === "") {
         return res

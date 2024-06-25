@@ -68,7 +68,7 @@ exports.LoginPassword = function (req, res, next) {
 exports.mobileno = function (req, res, next) {
   const { mobileno } = req.body;
   // console.log("mo",mobileno);
-  if ((mobileno === null || mobileno === undefined, mobileno === "")) {
+  if ((mobileno === null || mobileno === undefined || mobileno === "")) {
     return res
       .status(400)
       .json({ status: "Fail", message: "Mobile Number Cannot Be Empty" });
@@ -974,13 +974,13 @@ exports.purchaseprice = function (req, res, next) {
 };
 exports.salesprice = function (req, res, next) {
   const { salesprice } = req.body;
-  const salespriceSchema = Joi.number()
-
+  const salespriceSchema = Joi.number().greater(0)
     .required()
     .messages({
       "any.required": "Required Field : Sales Price",
       "number.empty": "Sales Price Cannot Be Empty",
       "number.base": "Sales Price must be a number",
+      "number.greater": "Sales Price must be greater than 0.",
     });
     const valueToValidate = salesprice === '' ? undefined : salesprice;
   const { error } = salespriceSchema.validate(valueToValidate);

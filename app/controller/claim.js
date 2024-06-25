@@ -1,4 +1,4 @@
-const { Sequelize, Op } = require("sequelize");
+const { Sequelize } = require("sequelize");
 const C_claim = require("../models/C_claim");
 const User = require("../models/user");
 const C_claimLedger = require("../models/C_claimLedger");
