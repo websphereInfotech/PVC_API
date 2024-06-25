@@ -5,7 +5,6 @@ const C_salesinvoice = require("../models/C_salesinvoice");
 const C_customer = require("../models/C_customer");
 const customerLedger = require("../models/customerLedger");
 const salesInvoice = require("../models/salesInvoice");
-const creditNote = require("../models/creditNote");
 const customer = require("../models/customer");
 const receiveBank = require("../models/receiveBank");
 

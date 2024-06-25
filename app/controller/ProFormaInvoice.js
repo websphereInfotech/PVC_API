@@ -1,11 +1,9 @@
-const { Sequelize, where } = require("sequelize");
+const { Sequelize } = require("sequelize");
 const ProFormaInvoice = require("../models/ProFormaInvoice");
 const ProFormaInvoiceItem = require("../models/ProFormaInvoiceItem");
 const customer = require("../models/customer");
 const product = require("../models/product");
 const User = require("../models/user");
-const salesInvoice = require("../models/salesInvoice");
-const Stock = require("../models/stock");
 // const {lowStockWaring} = require("../constant/common");
 const {PRODUCT_TYPE} = require("../constant/constant");
 

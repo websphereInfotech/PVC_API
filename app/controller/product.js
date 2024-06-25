@@ -2,6 +2,7 @@ const C_product = require("../models/C_product");
 const product = require("../models/product");
 const C_stock = require("../models/C_stock");
 const Stock = require("../models/stock");
+const User = require("../models/user");
 const {Op} = require("sequelize");
 const {PRODUCT_TYPE} = require("../constant/constant");
 
@@ -30,6 +31,7 @@ exports.create_product = async (req, res) => {
       cess,
       weight
     } = req.body;
+    const userId = req.user.userId
 
     let purchaseprice = req.body.purchaseprice;
     if (purchaseprice === "") {
@@ -64,7 +66,9 @@ exports.create_product = async (req, res) => {
       weight,
       lowStockQty,
       companyId: req.user.companyId,
-      productType: PRODUCT_TYPE.PRODUCT
+      productType: PRODUCT_TYPE.PRODUCT,
+      createdBy: userId,
+      updatedBy: userId
     });
     const cashProduct = await C_product.create({
       id: data.id,
@@ -118,6 +122,7 @@ exports.update_product = async (req, res) => {
       cess,
       weight
     } = req.body;
+    const userId = req.user.userId;
 
     let purchaseprice = req.body.purchaseprice;
     if (purchaseprice === "") {
@@ -165,7 +170,8 @@ exports.update_product = async (req, res) => {
         weight: weight,
         lowStockQty: lowStockQty,
         companyId: req.user.companyId,
-        productType: PRODUCT_TYPE.PRODUCT
+        productType: PRODUCT_TYPE.PRODUCT,
+        updatedBy: userId
       },
       {
         where: { id: id },
@@ -262,6 +268,7 @@ exports.get_all_product = async (req, res) => {
     }
     const data = await product.findAll({
       where: whereClause,
+      include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
     });
     if (!data) {
       return res

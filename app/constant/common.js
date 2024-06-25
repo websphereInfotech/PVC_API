@@ -1,6 +1,4 @@
 const {CASHPRODUCTRATIO} = require("../constant/constant");
-const Product = require("../models/product");
-const Stock = require("../models/stock");
 
 exports.splitQuantity = (qty)=>{
     const productRatio = 100 - CASHPRODUCTRATIO;

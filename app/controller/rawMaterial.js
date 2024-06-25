@@ -4,6 +4,7 @@ const C_stock = require("../models/C_stock");
 const Stock = require("../models/stock");
 const {PRODUCT_TYPE} = require("../constant/constant");
 const {Op} = require("sequelize");
+const User = require("../models/user");
 exports.create_raw_material = async (req, res) => {
     try{
         const {
@@ -25,6 +26,7 @@ exports.create_raw_material = async (req, res) => {
             cess,
             weight
         } = req.body;
+        const userId = req.user.userId
 
         let purchaseprice = req.body.purchaseprice;
         if (purchaseprice === "") {
@@ -59,7 +61,9 @@ exports.create_raw_material = async (req, res) => {
             weight,
             lowStockQty,
             companyId: req.user.companyId,
-            productType: PRODUCT_TYPE.RAW_MATERIAL
+            productType: PRODUCT_TYPE.RAW_MATERIAL,
+            createdBy: userId,
+            updatedBy: userId
         });
         const cashProduct = await C_product.create({
             id: data.id,
@@ -114,6 +118,7 @@ exports.update_raw_material = async (req, res)=>{
             cess,
             weight
         } = req.body;
+        const userId = req.user.userId;
 
         let purchaseprice = req.body.purchaseprice;
         if (purchaseprice === "") {
@@ -161,7 +166,8 @@ exports.update_raw_material = async (req, res)=>{
                 weight: weight,
                 lowStockQty: lowStockQty,
                 companyId: req.user.companyId,
-                productType: PRODUCT_TYPE.RAW_MATERIAL
+                productType: PRODUCT_TYPE.RAW_MATERIAL,
+                updatedBy: userId
             },
             {
                 where: { id: id },
@@ -261,6 +267,7 @@ exports.view_all_raw_material = async (req, res)=>{
         }
         const data = await product.findAll({
             where: whereClause,
+            include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
         });
         if (!data.length) {
             return res

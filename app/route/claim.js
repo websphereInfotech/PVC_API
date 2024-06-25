@@ -9,7 +9,6 @@ const {
   view_single_claim,
   view_claimBalance_ledger,
   get_all_ClaimUser,
-  view_user_balance,
 } = require("../controller/claim");
 const adminToken = require("../middleware/adminAuth");
 const { validation } = require("../constant/validate");

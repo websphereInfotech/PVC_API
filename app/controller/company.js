@@ -71,7 +71,7 @@ exports.create_company = async (req, res) => {
     });
 
 
-    permissionAdd(data.id);
+    await permissionAdd(data.id);
 
     await companyUser.create({
       userId: userId,
@@ -183,18 +183,32 @@ exports.update_company = async (req, res) => {
 exports.delete_company = async (req, res) => {
   try {
     const { id } = req.params;
+    const {userId} = req.user;
 
     const data = await company.findOne({ where: { id: id } });
+    if(!data){
+      return res
+          .status(404)
+          .json({ status: "false", message: "Company Not Found" });
+    }
+    const currentCompany = await companyUser.findOne({
+      where: {
+        companyId: data.id,
+        userId: userId,
+        setDefault: true
+      }
+    })
+    if(currentCompany){
+      return res
+          .status(404)
+          .json({ status: "false", message: "You cannot delete the current company. Please switch to another company before deleting this one." });
+    }
     await data.setUsers([]);
     await data.destroy()
     if (data) {
       return res
         .status(200)
         .json({ status: "true", message: "Company Delete Successfully" });
-    } else {
-      return res
-        .status(404)
-        .json({ status: "false", message: "Company Not Found" });
     }
   } catch (error) {
     console.log(error);
@@ -266,7 +280,7 @@ exports.set_default_comapny = async (req, res) => {
     const userData = await companyUser.findAll({ where: { userId: userId } });
 
     const userToUpdate = userData.find(
-      (userComapny) => userComapny.companyId == id
+      (userComapny) => userComapny.companyId === id
     );
 
     if (userToUpdate.setDefault === true) {
@@ -276,7 +290,7 @@ exports.set_default_comapny = async (req, res) => {
     } else {
       await Promise.all(
         userData.map(async (userComapny) => {
-          if (userComapny.companyId != id && userComapny.setDefault === true) {
+          if (userComapny.companyId !== id && userComapny.setDefault === true) {
             await userComapny.update({ setDefault: false });
           }
         })

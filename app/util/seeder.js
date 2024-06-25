@@ -180,7 +180,6 @@ const existingPermission = async () => {
                 updatedAt: new Date(),
               };
 
-
               createPromises.push(Permissions.create(newPermission));
             }
           }

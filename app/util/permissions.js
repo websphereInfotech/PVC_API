@@ -10,7 +10,7 @@ const permissionAdd = async (companyId) => {
         
                 for (const permissionKey in permissionsForRole) {
                   const permissionValue = permissionsForRole[permissionKey];
-                  const type = resource.includes("Cash") ? true : false;
+                  const type = resource.includes("Cash");
                   promises.push({
                     role: role,
                     resource: resource,

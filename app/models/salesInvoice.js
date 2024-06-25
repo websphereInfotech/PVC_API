@@ -1,7 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const customer = require("./customer");
-const ProFormaInvoice = require("./ProFormaInvoice");
 const User = require("./user");
 const company = require("./company");
 
