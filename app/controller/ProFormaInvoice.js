@@ -6,7 +6,7 @@ const product = require("../models/product");
 const User = require("../models/user");
 const salesInvoice = require("../models/salesInvoice");
 const Stock = require("../models/stock");
-const {lowStockWaring} = require("../constant/common");
+// const {lowStockWaring} = require("../constant/common");
 const {PRODUCT_TYPE} = require("../constant/constant");
 
 exports.create_ProFormaInvoice = async (req, res) => {
@@ -86,10 +86,10 @@ exports.create_ProFormaInvoice = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Product Not Found" });
       }
-      const productStock = await Stock.findOne({where: {productId: item.productId}})
-      const totalProductQty = productStock?.qty ?? 0;
-      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, item.qty, totalProductQty, productname.nagativeqty)
-      if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
+      // const productStock = await Stock.findOne({where: {productId: item.productId}})
+      // const totalProductQty = productStock?.qty ?? 0;
+      // const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, item.qty, totalProductQty, productname.nagativeqty)
+      // if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
     const createdInvoice = await ProFormaInvoice.create({
       ProFormaInvoice_no,
@@ -289,12 +289,12 @@ exports.update_ProFormaInvoice = async (req, res) => {
         return res.status(404).json({ status: false, message: "Product Not Found" });
       }
 
-      const existingItem = existingItems.find((ei) => ei.id === item.id);
-      const productStock = await Stock.findOne({where: {productId: item.productId}})
-      const totalProductQty = productStock?.qty ?? 0;
-      const tempQty = item.qty - existingItem.qty;
-      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, tempQty, totalProductQty, productname.nagativeqty)
-      if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
+      // const existingItem = existingItems.find((ei) => ei.id === item.id);
+      // const productStock = await Stock.findOne({where: {productId: item.productId}})
+      // const totalProductQty = productStock?.qty ?? 0;
+      // const tempQty = item.qty - existingItem.qty;
+      // const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, tempQty, totalProductQty, productname.nagativeqty)
+      // if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
 
     await ProFormaInvoice.update(
@@ -327,9 +327,11 @@ exports.update_ProFormaInvoice = async (req, res) => {
       if (existingItem) {
         await ProFormaInvoiceItem.update(
           {
+            productId: item.productId,
             qty: item.qty,
             rate: item.rate,
             mrp: item.mrp,
+            unit: item.unit
           },
           { where: { id: existingItem.id } }
         );
@@ -340,6 +342,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
           qty: item.qty,
           rate: item.rate,
           mrp: item.mrp,
+          unit: item.unit
         });
       }
     }
@@ -568,30 +571,6 @@ exports.delete_ProFormaInvoice = async (req, res) => {
     });
   } catch (error) {
     console.log(error.message);
-    return res
-      .status(500)
-      .json({ status: "false", message: "Internal Server Error" });
-  }
-};
-exports.count_salesInvoice = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const data = await salesInvoice.count({ where: { proFormaId: id } });
-
-    if (data) {
-      return res.status(200).json({
-        status: "true",
-        message: "Number of sales invoices connected to the proforma invoice",
-        data: data,
-      });
-    } else {
-      return res
-        .status(404)
-        .json({ status: "false", message: "Sales Invoice Data Not Found" });
-    }
-  } catch (error) {
-    console.log(error);
     return res
       .status(500)
       .json({ status: "false", message: "Internal Server Error" });

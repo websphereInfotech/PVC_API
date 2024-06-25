@@ -8,6 +8,10 @@ const purchaseInvoiceItem = sequelize.define("P_purchaseInvoiceItem", {
   qty: { type: DataTypes.INTEGER },
   rate: { type: DataTypes.INTEGER },
   mrp: { type: DataTypes.INTEGER },
+  unit: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
 });
 
 product.hasMany(purchaseInvoiceItem, {foreignKey:'productId',onDelete:'CASCADE',as:'purchseProduct'});

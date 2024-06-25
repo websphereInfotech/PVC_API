@@ -26,7 +26,11 @@ const C_product = sequelize.define("P_C_product", {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: true,
-  }
+  },
+  unit: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
 });
 
 company.hasMany(C_product, { foreignKey: "companyId", onDelete: "CASCADE" });

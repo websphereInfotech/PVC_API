@@ -12,9 +12,13 @@ const ProFormaInvoiceItem = sequelize.define("P_ProFormaInvoiceItem", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  productId: { 
+  productId: {
     type: DataTypes.INTEGER,
     allowNull: false,
+  },
+  unit: {
+    type: DataTypes.STRING,
+    allowNull: false
   },
   mrp: {
     type: DataTypes.FLOAT,

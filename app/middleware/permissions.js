@@ -125,39 +125,34 @@ exports.permissions = {
             "delete_ProFormaInvoice":true,
             "view_single_ProFormaInvoice":true,
             "view_all_ProFormaInvoice":true,
-            "count_salesInvoice":true
         },
         "Admin" :{
             "create_ProFormaInvoice":true,
             "update_ProFormaInvoice":true,
             "delete_ProFormaInvoice":true,
             "view_single_ProFormaInvoice":true,
-            "view_all_ProFormaInvoice":true,
-            "count_salesInvoice":true
+            "view_all_ProFormaInvoice":true
         },
         "Account" :{
             "create_ProFormaInvoice":true,
             "update_ProFormaInvoice":true,
             "delete_ProFormaInvoice":true,
             "view_single_ProFormaInvoice":true,
-            "view_all_ProFormaInvoice":true,
-            "count_salesInvoice":true
+            "view_all_ProFormaInvoice":true
         },
         "Employee" :{
             "create_ProFormaInvoice":true,
             "update_ProFormaInvoice":true,
             "delete_ProFormaInvoice":true,
             "view_single_ProFormaInvoice":true,
-            "view_all_ProFormaInvoice":true,
-            "count_salesInvoice":true
+            "view_all_ProFormaInvoice":true
         },
         "Workers" :{
             "create_ProFormaInvoice":true,
             "update_ProFormaInvoice":true,
             "delete_ProFormaInvoice":true,
             "view_single_ProFormaInvoice":true,
-            "view_all_ProFormaInvoice":true,
-            "count_salesInvoice":true
+            "view_all_ProFormaInvoice":true
         },
         "Other" :{
             "create_ProFormaInvoice":true,
@@ -165,7 +160,7 @@ exports.permissions = {
             "delete_ProFormaInvoice":true,
             "view_single_ProFormaInvoice":true,
             "view_all_ProFormaInvoice":true,
-            "count_salesInvoice":true
+
         },
     },
     "Debit Note" : {

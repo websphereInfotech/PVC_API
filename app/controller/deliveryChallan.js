@@ -168,7 +168,9 @@ exports.update_deliverychallan = async (req, res) => {
       if (existingItem) {
         await deliverychallanitem.update(
           {
-            qty: item.qty
+            qty: item.qty,
+            unit: item.unit,
+            productId: item.productId
           },
           { where: { id: existingItem.id } }
         );
@@ -176,7 +178,8 @@ exports.update_deliverychallan = async (req, res) => {
         await deliverychallanitem.create({
           deliverychallanId: id,
           productId: item.productId,
-          qty: item.qty
+          qty: item.qty,
+          unit: item.unit
         });
       }
     }

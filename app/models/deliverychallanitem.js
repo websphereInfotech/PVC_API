@@ -13,7 +13,11 @@ const deliverychallanitem = sequelize.define("P_deliverychallanItem", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  companyId: {type: DataTypes.INTEGER}
+  companyId: {type: DataTypes.INTEGER},
+  unit: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
 });
 
 company.hasMany(deliverychallan,{foreignKey:'companyId',onDelete:'CASCADE'});

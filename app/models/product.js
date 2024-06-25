@@ -60,7 +60,7 @@ const product = sequelize.define("P_product", {
   },
   companyId: { type: DataTypes.INTEGER },
   weight: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.FLOAT,
   },
   isActive: {
     type: DataTypes.BOOLEAN,

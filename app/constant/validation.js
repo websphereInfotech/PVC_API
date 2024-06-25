@@ -1392,16 +1392,20 @@ exports.HSNcode = function (req, res, next) {
   const { HSNcode } = req.body;
 
   const HSNcodeSchema = Joi.number()
-
-    .integer()
-    .max(999999)
-    .required()
-    .messages({
-      "any.required": "Required Filed : HSN Code",
-      "number.base": "HSN Code must be a number",
-      "number.empty": "HSN Code Cannot Be Empty",
-      "number.max": "HSN Code Cannot Have More Then 6 Digits",
-    });
+      .integer()
+      .required()
+      .custom((value, helpers) => {
+        const length = value.toString().length;
+        if (length !== 4 && length !== 6 && length !== 8) {
+          return helpers.message('HSN Code must be 4, 6, or 8 digits');
+        }
+        return value;
+      })
+      .messages({
+        "any.required": "Required Field: HSN Code",
+        "number.base": "HSN Code must be a number",
+        "number.empty": "HSN Code cannot be empty",
+      });
     const valueToValidate = HSNcode === '' ? undefined : HSNcode;
   const { error } = HSNcodeSchema.validate(valueToValidate);
   if (error) {
@@ -1545,7 +1549,7 @@ exports.weight = function (req, res, next){
   const {weight} = req.body;
   const weightSchema = Joi.number().greater(0).required().messages({
     'any.required': 'The weight field is required.',
-    'number.base': 'The weight must be a string.',
+    'number.base': 'The weight must be a number.',
     "number.greater": "Weight must be greater than 0.",
   });
   const { error } = weightSchema.validate(weight);
@@ -1574,7 +1578,7 @@ exports.create_bom = function(req, res, next) {
     }),
     weight: Joi.number().greater(0).required().messages({
       'any.required': 'The weight field is required.',
-      'number.base': 'The weight must be a string.',
+      'number.base': 'The weight must be a number.',
       "number.greater": "Weight must be greater than 0.",
     }),
     productId: Joi.number().required().messages({
@@ -1585,6 +1589,11 @@ exports.create_bom = function(req, res, next) {
       'any.required': 'The qty field is required.',
       'number.base': 'The qty must be a number.',
       "number.greater": "Qty must be greater than 0.",
+    }),
+    unit: Joi.string().required().messages({
+      'any.required': 'The product unit field is required.',
+      'string.base': 'The product unit must be a string.',
+      'string.empty': 'The product unit cannot be empty.'
     }),
     items: Joi.array().items(
         Joi.object({
@@ -1599,7 +1608,12 @@ exports.create_bom = function(req, res, next) {
           }),
           id: Joi.number().allow(null).messages({
             'number.base': 'The id must be a number or null.'
-          })
+          }),
+          unit: Joi.string().required().messages({
+            'any.required': 'The raw material unit field is required.',
+            'string.base': 'The raw material unit must be a string.',
+            'string.empty': 'The raw material unit cannot be empty.'
+          }),
         })
     ).min(1).required().messages({
       'any.required': 'The items field is required.',
@@ -1647,10 +1661,29 @@ exports.update_productStock = function (req,res,next){
     qty: Joi.number().required().messages({
       "any.required": "Required Filed : Qty",
       "number.empty": "Qty Cannot Be Empty",
+      "number.base": "Qty must be number"
     })
   })
 
   const {error} = ProductStockSchema.validate({productId, qty});
+  if (error) {
+    return res.status(400).json({ status: "false", message: error.message });
+  }
+  next();
+}
+
+exports.itemUnit = async function (req,res,next){
+  const {items} = req.body;
+  const itemSchema = Joi.array().items(
+      Joi.object({
+        unit: Joi.string().required().messages({
+          'any.required': 'The unit field is required.',
+          'string.base': 'The unit must be a string.',
+          'string.empty': 'The unit cannot be empty.'
+        }),
+      }).options({ allowUnknown: true })
+  );
+  const {error} = itemSchema.validate(items);
   if (error) {
     return res.status(400).json({ status: "false", message: error.message });
   }

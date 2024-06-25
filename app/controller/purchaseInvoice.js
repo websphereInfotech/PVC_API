@@ -12,7 +12,7 @@ const vendor = require("../models/vendor");
 const vendorLedger = require("../models/vendorLedger");
 const Stock = require("../models/stock");
 const C_Stock = require("../models/C_stock");
-const {lowStockWaring} = require("../constant/common");
+// const {lowStockWaring} = require("../constant/common");
 const {PRODUCT_TYPE} = require("../constant/constant");
 
 /*=============================================================================================================
@@ -263,6 +263,8 @@ exports.update_purchaseInvoice = async (req, res) => {
             qty: item.qty,
             rate: item.rate,
             mrp: item.mrp,
+            unit: item.unit,
+            productId: item.productId
           },
           { where: { id: existingItem.id } }
         );
@@ -273,6 +275,7 @@ exports.update_purchaseInvoice = async (req, res) => {
           qty: item.qty,
           rate: item.rate,
           mrp: item.mrp,
+          unit: item.unit
         });
       }
       const productId = item.productId;
@@ -344,28 +347,28 @@ exports.delete_purchaseInvoice = async (req, res) => {
         })
       }
     }
-    for(const item of findItems){
-      const productname = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
-      });
-      if(!productname){
-        return res.status(404).json({
-          status: "false",
-          message: `Product Not Found`,
-        })
-      }
-      const productId = item.productId;
-      const qtys = findItems.reduce((acc, item) => {
-        if (item.productId === productId) {
-          return acc + item.qty;
-        }
-        return acc;
-      }, 0);
-      const productStock = await Stock.findOne({where: {productId: item.productId}})
-      const totalProductQty = productStock?.qty ?? 0;
-      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, qtys, totalProductQty, productname.nagativeqty)
-      if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
-    }
+    // for(const item of findItems){
+    //   const productname = await product.findOne({
+    //     where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
+    //   });
+    //   if(!productname){
+    //     return res.status(404).json({
+    //       status: "false",
+    //       message: `Product Not Found`,
+    //     })
+    //   }
+    //   const productId = item.productId;
+    //   const qtys = findItems.reduce((acc, item) => {
+    //     if (item.productId === productId) {
+    //       return acc + item.qty;
+    //     }
+    //     return acc;
+    //   }, 0);
+    //   const productStock = await Stock.findOne({where: {productId: item.productId}})
+    //   const totalProductQty = productStock?.qty ?? 0;
+    //   const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, qtys, totalProductQty, productname.nagativeqty)
+    //   if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
+    // }
     for(const item of findItems){
       const productId = item.productId;
       const qty = item.qty;
@@ -639,6 +642,8 @@ exports.C_update_purchaseCash = async (req, res) => {
             qty: item.qty,
             rate: item.rate,
             mrp: item.mrp,
+            unit: item.unit,
+            productId: item.productId
           },
           { where: { id: existingItem.id } }
         );
@@ -649,6 +654,7 @@ exports.C_update_purchaseCash = async (req, res) => {
           qty: item.qty,
           rate: item.rate,
           mrp: item.mrp,
+          unit: item.unit
         });
       }
       const productId = item.productId;
@@ -723,23 +729,23 @@ exports.C_delete_purchaseCash = async (req, res) => {
     const findItems = await C_purchaseCashItem.findAll({
       where: { PurchaseId: billId.id },
     })
-    for(const item of findItems){
-      const productname = await C_product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
-      });
-      const productId = item.productId;
-      const qtys = findItems.reduce((acc, item) => {
-        if (item.productId === productId) {
-          return acc + item.qty;
-        }
-        return acc;
-      }, 0);
-      const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
-      const totalProductQty = productCashStock?.qty ?? 0;
-      console.log(productname.lowStockQty,"Low staok QTY.................")
-      const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, qtys, totalProductQty, productname.nagativeqty)
-      if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
-    }
+    // for(const item of findItems){
+    //   const productname = await C_product.findOne({
+    //     where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
+    //   });
+    //   const productId = item.productId;
+    //   const qtys = findItems.reduce((acc, item) => {
+    //     if (item.productId === productId) {
+    //       return acc + item.qty;
+    //     }
+    //     return acc;
+    //   }, 0);
+    //   const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
+    //   const totalProductQty = productCashStock?.qty ?? 0;
+    //   console.log(productname.lowStockQty,"Low staok QTY.................")
+    //   const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, qtys, totalProductQty, productname.nagativeqty)
+    //   if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
+    // }
     for(const item of findItems){
       const productId = item.productId;
       const qty = item.qty;

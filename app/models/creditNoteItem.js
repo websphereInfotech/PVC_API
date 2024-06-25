@@ -16,7 +16,11 @@ const creditNoteItem = sequelize.define("P_creditNoteItem", {
     },
     rate: {
         type: DataTypes.FLOAT
-    }
+    },
+    unit: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
 });
 
 product.hasMany(creditNoteItem, { foreignKey: 'productId', onDelete: 'CASCADE', as: 'CreditProduct' });
