@@ -83,10 +83,12 @@ exports.create_raw_material = async (req, res) => {
             productId: data.id,
         })
 
+        const productData = await product.findByPk(data.id)
+
         return res.status(200).json({
             status: "true",
             message: "Raw Material created successfully",
-            data: data,
+            data: productData,
         });
     }catch(e){
         console.log(e);
