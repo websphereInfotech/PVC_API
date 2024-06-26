@@ -87,11 +87,12 @@ exports.create_product = async (req, res) => {
     await Stock.create({
       productId: data.id,
   })
+    const productData = await product.findByPk(data.id)
 
     return res.status(200).json({
       status: "true",
       message: "Product created successfully",
-      data: data,
+      data: productData,
     });
   } catch (error) {
     console.log(error);
