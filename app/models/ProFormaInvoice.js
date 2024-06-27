@@ -3,7 +3,6 @@ const sequelize = require("../config/index");
 const customer = require("./customer");
 const User = require("./user");
 const Company = require("./company")
-// const moment = require('moment');
 const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
   ProFormaInvoice_no: {
     type: DataTypes.STRING,

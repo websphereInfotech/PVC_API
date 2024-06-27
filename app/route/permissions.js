@@ -12,11 +12,6 @@ router.get(
   adminAuth("Permission:view_all_permissions"),
   get_all_permissions
 );
-// router.get(
-//   "/get_all_permissions",
-//   adminAuth("Permission Cash:view_all_permissions"),
-//   get_all_permissions
-// );
 router.put(
   "/update_permissions",
   adminAuth("Permission:update_permissions"),

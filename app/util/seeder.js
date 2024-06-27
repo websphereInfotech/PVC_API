@@ -87,53 +87,6 @@ const existingData = async () => {
   }
 };
 
-// const existingPermission = async () => {
-//   try {
-//     const allCompany = await company.findAll();
-//     for (const comapy of allCompany) {
-//       const promises = [];
-//
-//       for (const resource in permissions) {
-//         const rolePermissions = permissions[resource];
-//
-//         for (const role in rolePermissions) {
-//           const permissionsForRole = rolePermissions[role];
-//
-//           for (const permissionKey in permissionsForRole) {
-//             const permissionValue = permissionsForRole[permissionKey];
-//             const type = resource.includes("Cash") ? true : false;
-//
-//             const isPermissionExist = await Permissions.findOne({
-//               where: {
-//                 role: role,
-//                 resource: resource,
-//                 companyId: comapy.id,
-//                 type: type,
-//                 permission: permissionKey,
-//               },
-//             });
-//             if (!isPermissionExist) {
-//               promises.push({
-//                 role: role,
-//                 resource: resource,
-//                 companyId: comapy.id,
-//                 type: type,
-//                 permission: permissionKey,
-//                 permissionValue: permissionValue,
-//                 createdAt: new Date(),
-//                 updatedAt: new Date(),
-//               });
-//             }
-//           }
-//         }
-//       }
-//       await Permissions.bulkCreate(promises);
-//     }
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
 
 const existingPermission = async () => {
   try {
@@ -203,8 +156,5 @@ const existingPermission = async () => {
     console.log(error);
   }
 };
-
-
-
 
 module.exports = { existingData, existingPermission };

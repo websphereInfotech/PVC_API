@@ -230,7 +230,7 @@ exports.update_debitNote = async (req, res) => {
         totalMrp,
         mainTotal,
         companyId: req.user.companyId,
-        createdBy: existingDebit.id,
+        createdBy: existingDebit.createdBy,
         updatedBy: req.user.userId,
       },
       { where: { id } }

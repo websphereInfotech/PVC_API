@@ -5,6 +5,11 @@ const Stock = require("../models/stock");
 const {PRODUCT_TYPE} = require("../constant/constant");
 const {Op} = require("sequelize");
 const User = require("../models/user");
+
+/*=============================================================================================================
+                                          Without Type C API
+ ============================================================================================================ */
+
 exports.create_raw_material = async (req, res) => {
     try{
         const {
@@ -99,7 +104,6 @@ exports.create_raw_material = async (req, res) => {
             .json({ status: "false", message: "Internal Server Error" });
     }
 }
-
 exports.update_raw_material = async (req, res)=>{
     try {
         const { id } = req.params;
@@ -204,7 +208,6 @@ exports.update_raw_material = async (req, res)=>{
             .json({ status: "false", message: "Internal server error" });
     }
 }
-
 exports.delete_raw_material = async (req, res)=>{
     try {
         const { id } = req.params;
@@ -235,7 +238,6 @@ exports.delete_raw_material = async (req, res)=>{
             .json({ status: "false", message: "Internal Server Error" });
     }
 }
-
 exports.view_single_raw_material = async (req, res)=>{
     try {
         const { id } = req.params;
@@ -261,7 +263,6 @@ exports.view_single_raw_material = async (req, res)=>{
             .json({ status: "false", message: "Internal Server Error" });
     }
 }
-
 exports.view_all_raw_material = async (req, res)=>{
     try {
         const { search } = req.query;
@@ -293,9 +294,8 @@ exports.view_all_raw_material = async (req, res)=>{
 }
 
 
-
 /*=============================================================================================================
-                                            Typc C API
+                                            Type C API
  ============================================================================================================ */
 
 exports.C_get_all_raw_material_cash = async (req, res)=>{

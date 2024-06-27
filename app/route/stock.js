@@ -5,7 +5,7 @@ const { view_all_product_stock, view_product_stock, update_product_stock, C_view
 const router = express.Router();
 
 /*=============================================================================================================
-                                          Without Typc C API
+                                          Without Type C API
  ============================================================================================================ */
 
 router.get("/view_all_product_stock", adminAuth("Stock:view_all_product_stock"),view_all_product_stock)
@@ -18,7 +18,7 @@ router.put("/update_raw_material_stock/:id", adminAuth("Stock:update_raw_materia
 
 
 /*=============================================================================================================
-                                           Typc C API
+                                           Type C API
  ============================================================================================================ */
 
 router.get("/C_view_all_product_stock", adminAuth("Stock Cash:view_all_product_cash_stock"),C_view_all_product_stock)

@@ -50,17 +50,6 @@ salesInvoice.belongsTo(User, { foreignKey: "createdBy", as: "createUser" });
 User.hasMany(salesInvoice, { foreignKey: "updatedBy", as: "updateUser" });
 salesInvoice.belongsTo(User, { foreignKey: "updatedBy", as: "updateUser" });
 
-// ProFormaInvoice.hasMany(salesInvoice, {
-//   foreignKey: "proFormaId",
-//   onDelete: "CASCADE",
-//   as: "proFormaItem",
-// });
-// salesInvoice.belongsTo(ProFormaInvoice, {
-//   foreignKey: "proFormaId",
-//   onDelete: "CASCADE",
-//   as: "proFormaItem",
-// });
-
 customer.hasMany(salesInvoice, {
   foreignKey: "customerId",
   onDelete: "CASCADE",
