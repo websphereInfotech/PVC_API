@@ -83,7 +83,9 @@ exports.create_raw_material = async (req, res) => {
             productId: data.id,
         })
 
-        const productData = await product.findByPk(data.id)
+        const productData = await product.findByPk(data.id,{
+            include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
+        })
 
         return res.status(200).json({
             status: "true",
@@ -188,6 +190,7 @@ exports.update_raw_material = async (req, res)=>{
         })
         const data = await product.findOne({
             where: { id: id, companyId: req.user.companyId, isActive: true, productType: PRODUCT_TYPE.RAW_MATERIAL },
+            include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
         });
         return res.status(200).json({
             status: "true",

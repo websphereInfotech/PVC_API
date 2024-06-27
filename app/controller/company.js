@@ -278,9 +278,8 @@ exports.set_default_comapny = async (req, res) => {
         .json({ status: "false", message: "Company Not Found" });
     }
     const userData = await companyUser.findAll({ where: { userId: userId } });
-
     const userToUpdate = userData.find(
-      (userComapny) => userComapny.companyId === id
+      (userComapny) => userComapny.companyId === Number(id)
     );
 
     if (userToUpdate.setDefault === true) {

@@ -87,7 +87,9 @@ exports.create_product = async (req, res) => {
     await Stock.create({
       productId: data.id,
   })
-    const productData = await product.findByPk(data.id)
+    const productData = await product.findByPk(data.id, {
+      include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
+    })
 
     return res.status(200).json({
       status: "true",
@@ -191,6 +193,7 @@ exports.update_product = async (req, res) => {
     })
     const data = await product.findOne({
       where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true },
+      include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
     });
     return res.status(200).json({
       status: "true",

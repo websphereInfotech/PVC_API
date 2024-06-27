@@ -957,8 +957,7 @@ exports.lowstock = function (req, res, next) {
 };
 exports.purchaseprice = function (req, res, next) {
   const { purchaseprice } = req.body;
-  const purchasepriceSchema = Joi.number()
-
+  const purchasepriceSchema = Joi.number().allow(null)
     .required()
     .messages({
       "any.required": "Required Field :Purchase Price",
