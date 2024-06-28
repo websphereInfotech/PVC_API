@@ -91,7 +91,7 @@ exports.get_all_user = async (req, res) => {
   try {
     const companyId = req.user.companyId;
     const { search } = req.query;
-    const whereClause = { };
+    const whereClause = {role: { [Op.ne]: "Super Admin" } };
 
     if (search) {
       whereClause.username = { [Op.like]: `%${search}%` };

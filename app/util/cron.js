@@ -4,8 +4,14 @@ const C_Stock = require('../models/C_stock');
 const Product = require('../models/product');
 const C_Product = require('../models/C_product');
 const Notification = require('../models/notification');
+const Salary = require('../models/salary')
+const {isLastDayOfMonth} = require("../constant/common");
+const moment = require("moment");
+const company = require("../models/company");
+const User = require("../models/user");
+const {Op} = require("sequelize");
 
-exports.lowStockNotification = cron.schedule('0 0 * * *', async () => {
+exports.lowStockNotificationJob = cron.schedule('0 0 * * *', async () => {
     const productStocks = await Stock.findAll({
         include: {model: Product, as: "productStock"}
     })
@@ -46,3 +52,40 @@ exports.lowStockNotification = cron.schedule('0 0 * * *', async () => {
         }
     }
 });
+
+exports.employeeSalaryCountJob = cron.schedule('0 0 * * *', async () => {
+    const date = new Date();
+    console.log(date,"Date??????");
+    const startDate = moment().startOf('month').format('YYYY-MM-DD');
+    const endDate = moment().endOf('month').format('YYYY-MM-DD');
+    console.log(startDate, "Start Date", endDate, "End Date.............")
+    const isSalaryDay = await isLastDayOfMonth()
+    console.log(isSalaryDay,"Is Salary Day of Month?")
+    if(isSalaryDay ? true: true){
+        const companies = await company.findAll({
+            include: {
+                model: User,
+                as: "users",
+                through: { attributes: [] },
+                where: {
+                    role: { [Op.ne]: "Super Admin" },
+                }
+            },
+        });
+
+        for(const company of companies){
+            const users = company.users;
+            for(const user of users){
+                await Salary.create({
+                    companyId: company.id,
+                    userId: user.id,
+                    amount: user.salary,
+                    monthStartDate: startDate,
+                    monthEndDate: endDate,
+                })
+                console.log('Salary Counted...................??????????????????')
+            }
+        }
+
+    }
+})

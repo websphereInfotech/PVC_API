@@ -1311,4 +1311,24 @@ exports.permissions = {
             "get_all_raw_material_cash":true,
         },
     },
+    "Salary" : {
+        "Super Admin" :{
+            "view_all_salary":true,
+        },
+        "Admin" :{
+            "view_all_salary":true,
+        },
+        "Account" :{
+            "view_all_salary":true,
+        },
+        "Employee" :{
+            "view_all_salary":true,
+        },
+        "Workers" :{
+            "view_all_salary":true,
+        },
+        "Other" :{
+            "view_all_salary":true,
+        }
+    },
 }

@@ -1,4 +1,5 @@
 const {CASHPRODUCTRATIO} = require("../constant/constant");
+const moment = require("moment");
 
 exports.splitQuantity = (qty)=>{
     const productRatio = 100 - CASHPRODUCTRATIO;
@@ -22,4 +23,10 @@ exports.lowStockWaring = async (lowstock, lowStockQty, qty, totalQty, negativeQt
 
     return lowstock && tempStock <= lowStockQty;
 
+}
+
+exports.isLastDayOfMonth = async () => {
+    const date = new Date();
+    const lastDayOfMonth = moment().daysInMonth()
+    return date.getDate() === lastDayOfMonth;
 }
