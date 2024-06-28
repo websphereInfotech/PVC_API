@@ -4,7 +4,6 @@ const Product = require("../models/product");
 const User = require("../models/user");
 const {Sequelize} = require("sequelize");
 const C_Stock = require("../models/C_stock");
-const C_Product = require("../models/C_product");
 const Stock = require("../models/stock");
 const {splitQuantity, lowStockWaring} = require("../constant/common");
 const {PRODUCT_TYPE} = require("../constant/constant");
@@ -112,7 +111,9 @@ exports.create_bom = async (req, res) => {
             const productCashStock = await C_Stock.findOne({
                 where: {productId: item.productId},
             })
-            const {cashQty, productQty} = splitQuantity(qty)
+            console.log(item.productId," Item Product Id???????????????????")
+            console.log(item.qty,"Item Qtys....................")
+            const {cashQty, productQty} = splitQuantity(item.qty)
             if(productStock){
                 await productStock.decrement('qty',{by: productQty})
             }

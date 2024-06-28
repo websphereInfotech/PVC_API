@@ -7,10 +7,6 @@ const salesInvoiceItem = sequelize.define("P_salesInvoiceItem", {
   productId: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    // references :{
-    //   model:'P_product',
-    //   key:'id'
-    // }
   },
   mrp: {
     type: DataTypes.FLOAT,

@@ -31,7 +31,7 @@ exports.password = function (req, res, next) {
   .required().messages({
     "string.empty": "Password Cannot Be Empty",
     "string.pattern.base": "Password cannot contain a dot (.)",
-    "any.required": "Required feild : Password",
+    "any.required": "Required Field: Password",
   });
   const { error } = passwordSchema.validate(password);
 
@@ -294,6 +294,7 @@ exports.voucherno = function (req, res, next) {
   const vouchernoSchema = Joi.number().required().messages({
     "any.required": "Required Filed : Voucher No",
     "number.empty": "Voucher No Cannot Be Empty",
+    "number.base": "Voucher must be a number",
   });
   const valueToValidate = voucherno === '' ? undefined : voucherno;
     const { error } = vouchernoSchema.validate(valueToValidate);
@@ -957,8 +958,7 @@ exports.lowstock = function (req, res, next) {
 };
 exports.purchaseprice = function (req, res, next) {
   const { purchaseprice } = req.body;
-  const purchasepriceSchema = Joi.number()
-
+  const purchasepriceSchema = Joi.number().allow(null)
     .required()
     .messages({
       "any.required": "Required Field :Purchase Price",

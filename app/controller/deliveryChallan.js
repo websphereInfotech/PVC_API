@@ -4,10 +4,12 @@ const deliverychallan = require("../models/deliverychallan");
 const deliverychallanitem = require("../models/deliverychallanitem");
 const product = require("../models/product");
 const {PRODUCT_TYPE} = require("../constant/constant");
+const User = require("../models/user");
 
 exports.create_deliverychallan = async (req, res) => {
   try {
     const { date, challanno, customerId, totalQty, items } = req.body;
+    const userId = req.user.userId;
     const numberOf = await deliverychallan.findOne({
       where: { challanno: challanno, companyId: req.user.companyId },
     });
@@ -60,6 +62,8 @@ exports.create_deliverychallan = async (req, res) => {
       customerId,
       totalQty,
       companyId: req.user.companyId,
+      createdBy: userId,
+      updatedBy: userId
     });
     const addToItem = items.map((item) => ({
       deliverychallanId: data.id,
@@ -88,6 +92,7 @@ exports.update_deliverychallan = async (req, res) => {
   try {
     const { id } = req.params;
     const { date, challanno, customerId, totalQty, items } = req.body;
+    const userId = req.user.userId;
 
     const updatechallan = await deliverychallan.findOne({
       where: { id: id, companyId: req.user.companyId },
@@ -152,6 +157,7 @@ exports.update_deliverychallan = async (req, res) => {
         customerId,
         totalQty,
         companyId: req.user.companyId,
+        updatedBy: userId
       },
       {
         where: { id: id },
@@ -244,6 +250,7 @@ exports.get_all_deliverychallan = async (req, res) => {
           include: [{ model: product, as: "DeliveryProduct" }],
         },
         { model: customer, as: "DeliveryCustomer" },
+        {model: User, as: "challanUpdateUser", attributes: ['username']},{model: User, as: "challanCreateUser", attributes: ['username']}
       ],
     });
     if (!data) {
@@ -280,6 +287,7 @@ exports.view_deliverychallan = async (req, res) => {
           model: customer,
           as: "DeliveryCustomer",
         },
+        {model: User, as: "challanUpdateUser", attributes: ['username']},{model: User, as: "challanCreateUser", attributes: ['username']}
       ],
     });
 

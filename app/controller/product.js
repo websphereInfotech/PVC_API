@@ -7,7 +7,7 @@ const {Op} = require("sequelize");
 const {PRODUCT_TYPE} = require("../constant/constant");
 
 /*=============================================================================================================
-                                          Widhout Typc C API
+                                          Without Type C API
  ============================================================================================================ */
 
 exports.create_product = async (req, res) => {
@@ -87,11 +87,14 @@ exports.create_product = async (req, res) => {
     await Stock.create({
       productId: data.id,
   })
+    const productData = await product.findByPk(data.id, {
+      include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
+    })
 
     return res.status(200).json({
       status: "true",
       message: "Product created successfully",
-      data: data,
+      data: productData,
     });
   } catch (error) {
     console.log(error);
@@ -190,6 +193,7 @@ exports.update_product = async (req, res) => {
     })
     const data = await product.findOne({
       where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true },
+      include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
     });
     return res.status(200).json({
       status: "true",
@@ -289,7 +293,7 @@ exports.get_all_product = async (req, res) => {
 };
 
 /*=============================================================================================================
-                                            Typc C API
+                                            Type C API
  ============================================================================================================ */
 
 exports.C_get_all_product = async (req, res) => {

@@ -10,7 +10,7 @@ const permissionAdd = require("../util/permissions");
 const jwt = require("jsonwebtoken");
 
 /*=============================================================================================================
-                                        Without Typc C API
+                                        Without Type C API
  ============================================================================================================ */
 
 exports.create_company = async (req, res) => {
@@ -278,9 +278,8 @@ exports.set_default_comapny = async (req, res) => {
         .json({ status: "false", message: "Company Not Found" });
     }
     const userData = await companyUser.findAll({ where: { userId: userId } });
-
     const userToUpdate = userData.find(
-      (userComapny) => userComapny.companyId === id
+      (userComapny) => userComapny.companyId === Number(id)
     );
 
     if (userToUpdate.setDefault === true) {
@@ -376,7 +375,7 @@ exports.view_single_bank_balance = async (req, res) => {
   }
 };
 /*=============================================================================================================
-                                             Typc C API
+                                             Type C API
  =========================================================================================================== */
 //single comapny balance cash
 exports.view_company_cash_balance = async (req, res) => {

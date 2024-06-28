@@ -31,7 +31,4 @@ const User = sequelize.define("P_user", {
   },
 });
 
-// companyUser.hasMany(User, { foreignKey: "defaultId", onDelete: "CASCADE" });
-// User.belongsTo(companyUser, { foreignKey: "defaultId", onDelete: "CASCADE" });
-
 module.exports = User;

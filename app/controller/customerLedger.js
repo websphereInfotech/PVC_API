@@ -9,7 +9,7 @@ const customer = require("../models/customer");
 const receiveBank = require("../models/receiveBank");
 
 /*=============================================================================================================
-                                           Typc C API
+                                           Type C API
  =========================================================================================================== */
 
 exports.C_get_customerLedger = async (req, res) => {
@@ -118,7 +118,7 @@ exports.C_get_customerLedger = async (req, res) => {
   }
 };
 /*=============================================================================================================
-                                          without Typc C API
+                                          without Type C API
 =========================================================================================================== */
 exports.get_customerLedger = async (req, res) => {
   try {

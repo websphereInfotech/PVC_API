@@ -5,6 +5,11 @@ const Stock = require("../models/stock");
 const {PRODUCT_TYPE} = require("../constant/constant");
 const {Op} = require("sequelize");
 const User = require("../models/user");
+
+/*=============================================================================================================
+                                          Without Type C API
+ ============================================================================================================ */
+
 exports.create_raw_material = async (req, res) => {
     try{
         const {
@@ -83,10 +88,14 @@ exports.create_raw_material = async (req, res) => {
             productId: data.id,
         })
 
+        const productData = await product.findByPk(data.id,{
+            include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
+        })
+
         return res.status(200).json({
             status: "true",
             message: "Raw Material created successfully",
-            data: data,
+            data: productData,
         });
     }catch(e){
         console.log(e);
@@ -95,7 +104,6 @@ exports.create_raw_material = async (req, res) => {
             .json({ status: "false", message: "Internal Server Error" });
     }
 }
-
 exports.update_raw_material = async (req, res)=>{
     try {
         const { id } = req.params;
@@ -186,6 +194,7 @@ exports.update_raw_material = async (req, res)=>{
         })
         const data = await product.findOne({
             where: { id: id, companyId: req.user.companyId, isActive: true, productType: PRODUCT_TYPE.RAW_MATERIAL },
+            include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
         });
         return res.status(200).json({
             status: "true",
@@ -199,7 +208,6 @@ exports.update_raw_material = async (req, res)=>{
             .json({ status: "false", message: "Internal server error" });
     }
 }
-
 exports.delete_raw_material = async (req, res)=>{
     try {
         const { id } = req.params;
@@ -230,7 +238,6 @@ exports.delete_raw_material = async (req, res)=>{
             .json({ status: "false", message: "Internal Server Error" });
     }
 }
-
 exports.view_single_raw_material = async (req, res)=>{
     try {
         const { id } = req.params;
@@ -256,7 +263,6 @@ exports.view_single_raw_material = async (req, res)=>{
             .json({ status: "false", message: "Internal Server Error" });
     }
 }
-
 exports.view_all_raw_material = async (req, res)=>{
     try {
         const { search } = req.query;
@@ -288,9 +294,8 @@ exports.view_all_raw_material = async (req, res)=>{
 }
 
 
-
 /*=============================================================================================================
-                                            Typc C API
+                                            Type C API
  ============================================================================================================ */
 
 exports.C_get_all_raw_material_cash = async (req, res)=>{
