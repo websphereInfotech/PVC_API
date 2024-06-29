@@ -1314,21 +1314,27 @@ exports.permissions = {
     "Salary" : {
         "Super Admin" :{
             "view_all_salary":true,
+            "salary_status": true
         },
         "Admin" :{
             "view_all_salary":true,
+            "salary_status": true
         },
         "Account" :{
             "view_all_salary":true,
+            "salary_status": true
         },
         "Employee" :{
             "view_all_salary":true,
+            "salary_status": true
         },
         "Workers" :{
             "view_all_salary":true,
+            "salary_status": true
         },
         "Other" :{
             "view_all_salary":true,
+            "salary_status": true
         }
     },
 }

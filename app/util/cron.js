@@ -10,12 +10,12 @@ const moment = require("moment");
 const company = require("../models/company");
 const User = require("../models/user");
 const {Op} = require("sequelize");
+const {SALARY_STATUS} = require("../constant/constant");
 
 exports.lowStockNotificationJob = cron.schedule('0 0 * * *', async () => {
     const productStocks = await Stock.findAll({
         include: {model: Product, as: "productStock"}
     })
-    // console.log(productStocks,"Product Stock");
     for(const product of productStocks){
         const stock = product.qty;
         const isLowStock = product.productStock.lowstock;
@@ -55,37 +55,74 @@ exports.lowStockNotificationJob = cron.schedule('0 0 * * *', async () => {
 
 exports.employeeSalaryCountJob = cron.schedule('0 0 * * *', async () => {
     const date = new Date();
-    console.log(date,"Date??????");
     const startDate = moment().startOf('month').format('YYYY-MM-DD');
-    const endDate = moment().endOf('month').format('YYYY-MM-DD');
-    console.log(startDate, "Start Date", endDate, "End Date.............")
-    const isSalaryDay = await isLastDayOfMonth()
-    console.log(isSalaryDay,"Is Salary Day of Month?")
-    if(isSalaryDay ? true: true){
-        const companies = await company.findAll({
-            include: {
-                model: User,
-                as: "users",
-                through: { attributes: [] },
-                where: {
-                    role: { [Op.ne]: "Super Admin" },
-                }
-            },
-        });
+    const daysInThisMonth = moment().daysInMonth();
+    const momentDate = moment(date);
+    const isFirstDayOfMonth = momentDate.isSame(momentDate.clone().startOf('month'), 'day');
+    const companies = await company.findAll({
+        include: {
+            model: User,
+            as: "users",
+            through: { attributes: [] },
+            where: {
+                role: { [Op.ne]: "Super Admin" },
+            }
+        },
+    });
 
+
+    if(isFirstDayOfMonth){
         for(const company of companies){
             const users = company.users;
             for(const user of users){
+                const daySalary = user.salary / daysInThisMonth
                 await Salary.create({
                     companyId: company.id,
                     userId: user.id,
-                    amount: user.salary,
+                    amount: daySalary,
                     monthStartDate: startDate,
-                    monthEndDate: endDate,
+                    monthEndDate: date,
                 })
-                console.log('Salary Counted...................??????????????????')
             }
         }
-
+    }else{
+        for(const company of companies){
+            const users = company.users;
+            for(const user of users){
+                const daySalary = user.salary / daysInThisMonth
+                let latestSalary = await Salary.findOne({
+                    where: {
+                        companyId: company.id,
+                        userId: user.id,
+                    },
+                    order: [
+                        ['monthStartDate', 'DESC']
+                    ]
+                });
+                if (!latestSalary) {
+                    await Salary.create({
+                        companyId: company.id,
+                        userId: user.id,
+                        amount: daySalary,
+                        monthStartDate: date,
+                        monthEndDate: date,
+                    });
+                } else {
+                    if (latestSalary.status === SALARY_STATUS.PENDING) {
+                        latestSalary.amount += daySalary;
+                        latestSalary.monthEndDate = date;
+                        await latestSalary.save();
+                    } else if (latestSalary.status === SALARY_STATUS.PAID || latestSalary.status === SALARY_STATUS.CANCELED) {
+                        await Salary.create({
+                            companyId: company.id,
+                            userId: user.id,
+                            amount: daySalary,
+                            monthStartDate: latestSalary.monthEndDate,
+                            monthEndDate: date,
+                        });
+                    }
+                }
+            }
+        }
     }
 })
