@@ -15,7 +15,7 @@ exports.view_all_salary = async (req, res) => {
         const salariesByMonth = {};
 
         await Promise.all(salaries.map(async (salary) => {
-            const monthName = moment(salary.monthStartDate).format('MMMM YYYY');
+            const monthName = moment(salary.monthStartDate).format('MMMM YYYY').replace(' ', '_');
 
             if (!salariesByMonth[monthName]) {
                 salariesByMonth[monthName] = [];
@@ -28,12 +28,13 @@ exports.view_all_salary = async (req, res) => {
                 amount: salary.amount,
                 monthStartDate: salary.monthStartDate,
                 monthEndDate: salary.monthEndDate,
+                status: salary.status,
                 employee: salary.employeeSalary
             });
         }));
 
         const sortedMonths = Object.keys(salariesByMonth).sort((a, b) => {
-            return moment(a, 'MMMM YYYY').valueOf() - moment(b, 'MMMM YYYY').valueOf();
+            return moment(a.replace('_', ' '), 'MMMM YYYY').valueOf() - moment(b.replace('_', ' '), 'MMMM YYYY').valueOf();
         });
 
         const sortedSalariesByMonth = {};
