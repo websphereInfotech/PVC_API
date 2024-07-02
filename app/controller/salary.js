@@ -41,6 +41,13 @@ exports.view_all_salary = async (req, res) => {
         sortedMonths.forEach(month => {
             sortedSalariesByMonth[month] = salariesByMonth[month];
         });
+        // Object.keys(sortedSalariesByMonth).forEach(month => {
+        //     const totalAmount = sortedSalariesByMonth[month].reduce((acc, record) => acc + record.amount, 0);
+        //     sortedSalariesByMonth[month] = {
+        //         total_amount: totalAmount,
+        //         records: sortedSalariesByMonth[month]
+        //     };
+        // });
 
         return res.status(200).json({
             status: "true",
