@@ -7,7 +7,7 @@ const {
   delete_item,
   view_item,
   get_all_items,
-  C_get_all_product,
+  C_get_all_item,
 } = require("../controller/item");
 
 const router = express.Router();
@@ -49,9 +49,9 @@ router.get(
  ============================================================================================================ */
 
 router.get(
-  "/C_get_all_product",
-  adminAuth("Product Cash:get_all_product_cash"),
-  C_get_all_product
+  "/C_get_all_item",
+  adminAuth("Items Cash:get_all_item_cash"),
+    C_get_all_item
 );
 
 module.exports = router;

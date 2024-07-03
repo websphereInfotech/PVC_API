@@ -1011,24 +1011,24 @@ exports.permissions = {
             "get_all_vandor_cash":true,
         },
     },
-    "Product Cash" : {
+    "Items Cash" : {
         "Super Admin" :{
-            "get_all_product_cash":true,
+            "get_all_item_cash":true,
         },
         "Admin" :{
-            "get_all_product_cash":true,
+            "get_all_item_cash":true,
         },
         "Account" :{
-            "get_all_product_cash":true,
+            "get_all_item_cash":true,
         },
         "Employee" :{
-            "get_all_product_cash":true,
+            "get_all_item_cash":true,
         },
         "Workers" :{
-            "get_all_product_cash":true,
+            "get_all_item_cash":true,
         },
         "Other" :{
-            "get_all_product_cash":true,
+            "get_all_item_cash":true,
         },
     },
     "Customer Ledger Cash" : {

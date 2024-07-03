@@ -4,6 +4,7 @@ const C_stock = require("../models/C_stock");
 const Stock = require("../models/stock");
 const User = require("../models/user");
 const {Op} = require("sequelize");
+const {ITEM_GROUP_TYPE} = require("../constant/constant");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -74,7 +75,8 @@ exports.create_item = async (req, res) => {
       lowStockQty: lowStockQty,
       lowstock: lowstock,
       companyId: req.user.companyId,
-      unit: unit
+      unit: unit,
+      itemgroup: itemgroup
     });
 
     await C_stock.create({
@@ -180,7 +182,8 @@ exports.update_item = async (req, res) => {
       productname: productname,
       lowStockQty: lowStockQty,
       lowstock: lowstock,
-      unit: unit
+      unit: unit,
+      itemgroup: itemgroup
     }, {
       where: {
         id: id
@@ -259,9 +262,16 @@ exports.view_item = async (req, res) => {
 };
 exports.get_all_items = async (req, res) => {
   try {
-    const { search } = req.query;
-    const whereClause = { companyId: req.user.companyId, isActive: true };
+    const { search, group } = req.query;
 
+    const whereClause = { companyId: req.user.companyId, isActive: true };
+    if (group) {
+      const validGroups = Object.values(ITEM_GROUP_TYPE);
+      if (!validGroups.includes(group)) {
+        return res.status(400).json({ status: "false", message: 'Invalid Item group type' });
+      }
+      whereClause.itemgroup = group;
+    }
     if (search) {
       whereClause.productname = { [Op.like]: `%${search}%` };
     }
@@ -291,7 +301,7 @@ exports.get_all_items = async (req, res) => {
                                             Type C API
  ============================================================================================================ */
 
-exports.C_get_all_product = async (req, res) => {
+exports.C_get_all_item = async (req, res) => {
   try {
     const data = await C_product.findAll({
       where: { companyId: req.user.companyId, isActive: true },

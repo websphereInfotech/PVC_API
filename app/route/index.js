@@ -23,7 +23,6 @@ router.use('/companybank', require('./companyBankdetails'))
 router.use('/bom', require('./bom'))
 router.use('/stock', require('./stock'))
 router.use('/notification', require('./notification'))
-router.use('/rawMaterial', require('./rawMaterial'))
 router.use('/salary', require('./salary'))
 
 module.exports = router;

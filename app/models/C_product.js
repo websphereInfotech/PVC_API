@@ -28,7 +28,7 @@ const C_product = sequelize.define("P_C_product", {
   },
   itemgroup: {
     type: DataTypes.ENUM,
-    values: [ITEM_GROUP_TYPE.PRODUCT, ITEM_GROUP_TYPE.RAW_MATERIAL, ITEM_GROUP_TYPE.SPARE],
+    values: [...Object.values(ITEM_GROUP_TYPE)],
     allowNull: false,
   },
 });
