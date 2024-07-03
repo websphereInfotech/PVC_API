@@ -13,7 +13,6 @@ const vendorLedger = require("../models/vendorLedger");
 const Stock = require("../models/stock");
 const C_Stock = require("../models/C_stock");
 // const {lowStockWaring} = require("../constant/common");
-const {PRODUCT_TYPE} = require("../constant/constant");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -80,7 +79,7 @@ exports.create_purchaseInvoice = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productData = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
+        where: { id: item.productId, companyId: req.user.companyId, isActive: true },
       });
       if (!productData) {
         return res
@@ -216,7 +215,7 @@ exports.update_purchaseInvoice = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productData = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
+        where: { id: item.productId, companyId: req.user.companyId, isActive: true },
       });
       if (!productData) {
         return res
@@ -338,7 +337,7 @@ exports.delete_purchaseInvoice = async (req, res) => {
     })
     for(const item of findItems){
       const productname = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
+        where: { id: item.productId, companyId: req.user.companyId, isActive: true },
       });
       if(!productname){
         return res.status(404).json({
@@ -349,7 +348,7 @@ exports.delete_purchaseInvoice = async (req, res) => {
     }
     // for(const item of findItems){
     //   const productname = await product.findOne({
-    //     where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
+    //     where: { id: item.productId, companyId: req.user.companyId, isActive: true },
     //   });
     //   if(!productname){
     //     return res.status(404).json({
@@ -502,7 +501,7 @@ exports.C_create_purchaseCash = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productData = await C_product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
+        where: { id: item.productId, companyId: req.user.companyId, isActive: true },
       });
       if (!productData) {
         return res
@@ -611,7 +610,7 @@ exports.C_update_purchaseCash = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productData = await C_product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
+        where: { id: item.productId, companyId: req.user.companyId, isActive: true },
       });
       if (!productData) {
         return res
@@ -731,7 +730,7 @@ exports.C_delete_purchaseCash = async (req, res) => {
     })
     // for(const item of findItems){
     //   const productname = await C_product.findOne({
-    //     where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
+    //     where: { id: item.productId, companyId: req.user.companyId, isActive: true },
     //   });
     //   const productId = item.productId;
     //   const qtys = findItems.reduce((acc, item) => {

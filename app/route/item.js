@@ -2,13 +2,13 @@ const express = require("express");
 const { validation } = require("../constant/validate");
 const adminAuth = require("../middleware/adminAuth");
 const {
-  create_product,
-  update_product,
-  delete_product,
-  view_product,
-  get_all_product,
+  create_item,
+  update_item,
+  delete_item,
+  view_item,
+  get_all_items,
   C_get_all_product,
-} = require("../controller/product");
+} = require("../controller/item");
 
 const router = express.Router();
 
@@ -17,31 +17,31 @@ const router = express.Router();
  ============================================================================================================ */
 
 router.post(
-  "/create_product",
-  adminAuth("Product:create_product"),
-  validation("create_product"),
-  create_product
+  "/create_item",
+  adminAuth("Items:create_item"),
+  validation("create_item"),
+    create_item
 );
 router.put(
-  "/update_product/:id",
-  adminAuth("Product:update_product"),
-  validation("update_product"),
-  update_product
+  "/update_item/:id",
+  adminAuth("Items:update_item"),
+  validation("update_item"),
+    update_item
 );
 router.delete(
-  "/delete_product/:id",
-  adminAuth("Product:delete_product"),
-  delete_product
+  "/delete_item/:id",
+  adminAuth("Items:delete_item"),
+    delete_item
 );
 router.get(
-  "/view_product/:id",
-  adminAuth("Product:view_single_product"),
-  view_product
+  "/view_item/:id",
+  adminAuth("Items:view_single_item"),
+    view_item
 );
 router.get(
-  "/get_all_product",
-  adminAuth("Product:view_all_product"),
-  get_all_product
+  "/get_all_items",
+  adminAuth("Items:view_all_item"),
+    get_all_items
 );
 
 /*=============================================================================================================

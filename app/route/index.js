@@ -9,7 +9,7 @@ router.use('/salesinvoice', require('./salesinvoiceRoute'))
 router.use('/deliverychallan', require('./DeliveryChallanRoute'));
 router.use('/payment', require('./paymentRoute'))
 router.use('/customer', require('./customer'))
-router.use('/product', require('./product'))
+router.use('/item', require('./item'))
 router.use('/purchaseinvoice', require('./purchaseInvoice'))
 router.use('/permission', require('./permissions'))
 router.use('/vendor', require('./vendor'))

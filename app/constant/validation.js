@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const {ITEM_GROUP_TYPE} = require("./constant");
 
 exports.email = function (req, res, next) {
   const { email } = req.body;
@@ -1684,6 +1685,22 @@ exports.itemUnit = async function (req,res,next){
       }).options({ allowUnknown: true })
   );
   const {error} = itemSchema.validate(items);
+  if (error) {
+    return res.status(400).json({ status: "false", message: error.message });
+  }
+  next();
+}
+
+exports.itemGroup = async function(req, res, next){
+  const {itemgroup} = req.body;
+  const schema = Joi.string()
+        .valid(...Object.values(ITEM_GROUP_TYPE))
+        .required()
+        .messages({
+          'any.required': 'The itemgroup field is required.',
+          'any.only': `The itemgroup field must be one of Product, Raw Material and Spare.`
+        })
+  const { error } = schema.validate(itemgroup);
   if (error) {
     return res.status(400).json({ status: "false", message: error.message });
   }

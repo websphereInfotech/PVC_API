@@ -6,7 +6,6 @@ const {Sequelize} = require("sequelize");
 const C_Stock = require("../models/C_stock");
 const Stock = require("../models/stock");
 const {splitQuantity, lowStockWaring} = require("../constant/common");
-const {PRODUCT_TYPE} = require("../constant/constant");
 
 exports.create_bom = async (req, res) => {
     try {
@@ -24,7 +23,6 @@ exports.create_bom = async (req, res) => {
         const productExist = await Product.findOne({where: {
             id: productId,
                 companyId: companyId,
-                productType: PRODUCT_TYPE.PRODUCT,
                 isActive: true
             }});
         if(!productExist){
@@ -38,7 +36,6 @@ exports.create_bom = async (req, res) => {
             const productExist = await Product.findOne({where: {
                     id: item.productId,
                     companyId: companyId,
-                    productType: PRODUCT_TYPE.RAW_MATERIAL,
                     isActive: true
                 }});
             if(!productExist){
@@ -59,7 +56,6 @@ exports.create_bom = async (req, res) => {
             // const cashProduct = await C_Product.findOne({
             //     id: item.productId,
             //     companyId: companyId,
-            //     productType: PRODUCT_TYPE.RAW_MATERIAL,
             //     isActive: true
             // })
             //
@@ -161,7 +157,6 @@ exports.update_bom = async (req, res) => {
         const productExist = await Product.findOne({where: {
                 id: productId,
                 companyId: companyId,
-                productType: PRODUCT_TYPE.PRODUCT,
                 isActive: true
             }});
         if(!productExist){
@@ -182,7 +177,6 @@ exports.update_bom = async (req, res) => {
             const productExist = await Product.findOne({where: {
                     id: item.productId,
                     companyId: companyId,
-                    productType: PRODUCT_TYPE.RAW_MATERIAL,
                     isActive: true
                 }});
             if(!productExist){
@@ -224,7 +218,6 @@ exports.update_bom = async (req, res) => {
             // const cashProduct = await C_Product.findOne({
             //     id: item.productId,
             //     companyId: companyId,
-            //     productType: PRODUCT_TYPE.RAW_MATERIAL,
             //     isActive: true
             // })
             // const tempQty = qtys - existingItemsQty;
@@ -464,7 +457,6 @@ exports.delete_bom = async (req,res)=>{
         //     where: {
         //         id: bomExist.productId,
         //         companyId: companyId,
-        //         productType: PRODUCT_TYPE.PRODUCT,
         //         isActive: true
         //     }
         // })
@@ -472,7 +464,6 @@ exports.delete_bom = async (req,res)=>{
         //     where: {
         //         id: bomExist.productId,
         //         companyId: companyId,
-        //         productType: PRODUCT_TYPE.PRODUCT,
         //         isActive: true
         //     }
         // })

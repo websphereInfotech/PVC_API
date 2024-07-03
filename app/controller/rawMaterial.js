@@ -2,7 +2,6 @@ const product = require("../models/product");
 const C_product = require("../models/C_product");
 const C_stock = require("../models/C_stock");
 const Stock = require("../models/stock");
-const {PRODUCT_TYPE} = require("../constant/constant");
 const {Op} = require("sequelize");
 const User = require("../models/user");
 
@@ -66,7 +65,6 @@ exports.create_raw_material = async (req, res) => {
             weight,
             lowStockQty,
             companyId: req.user.companyId,
-            productType: PRODUCT_TYPE.RAW_MATERIAL,
             createdBy: userId,
             updatedBy: userId
         });
@@ -76,7 +74,6 @@ exports.create_raw_material = async (req, res) => {
             lowStockQty: lowStockQty,
             lowstock: lowstock,
             companyId: req.user.companyId,
-            productType: PRODUCT_TYPE.RAW_MATERIAL,
             unit: unit
         });
 
@@ -134,7 +131,7 @@ exports.update_raw_material = async (req, res)=>{
         }
 
         const existingProduct = await product.findOne({
-            where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
+            where: { id: id, companyId: req.user.companyId, isActive: true },
         });
 
         if (!existingProduct) {
@@ -174,7 +171,6 @@ exports.update_raw_material = async (req, res)=>{
                 weight: weight,
                 lowStockQty: lowStockQty,
                 companyId: req.user.companyId,
-                productType: PRODUCT_TYPE.RAW_MATERIAL,
                 updatedBy: userId
             },
             {
@@ -185,7 +181,6 @@ exports.update_raw_material = async (req, res)=>{
             productname: productname,
             lowStockQty: lowStockQty,
             lowstock: lowstock,
-            productType: PRODUCT_TYPE.RAW_MATERIAL,
             unit: unit
         }, {
             where: {
@@ -193,7 +188,7 @@ exports.update_raw_material = async (req, res)=>{
             }
         })
         const data = await product.findOne({
-            where: { id: id, companyId: req.user.companyId, isActive: true, productType: PRODUCT_TYPE.RAW_MATERIAL },
+            where: { id: id, companyId: req.user.companyId, isActive: true},
             include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
         });
         return res.status(200).json({
@@ -213,10 +208,10 @@ exports.delete_raw_material = async (req, res)=>{
         const { id } = req.params;
 
         const data = await product.findOne({
-            where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
+            where: { id: id, companyId: req.user.companyId, isActive: true },
         });
         const dataCash = await C_product.findOne({
-            where: {id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true}
+            where: {id: id, companyId: req.user.companyId, isActive: true}
         })
 
         if (!data) {
@@ -243,7 +238,7 @@ exports.view_single_raw_material = async (req, res)=>{
         const { id } = req.params;
 
         const data = await product.findOne({
-            where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
+            where: { id: id, companyId: req.user.companyId, isActive: true },
         });
 
         if (!data) {
@@ -266,7 +261,7 @@ exports.view_single_raw_material = async (req, res)=>{
 exports.view_all_raw_material = async (req, res)=>{
     try {
         const { search } = req.query;
-        const whereClause = { companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true };
+        const whereClause = { companyId: req.user.companyId, isActive: true };
 
         if (search) {
             whereClause.productname = { [Op.like]: `%${search}%` };
@@ -301,7 +296,7 @@ exports.view_all_raw_material = async (req, res)=>{
 exports.C_get_all_raw_material_cash = async (req, res)=>{
     try {
         const data = await C_product.findAll({
-            where: { companyId: req.user.companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true },
+            where: { companyId: req.user.companyId, isActive: true },
         });
         if (!data) {
             return res

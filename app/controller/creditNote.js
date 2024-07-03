@@ -4,7 +4,6 @@ const creditNoteItem = require("../models/creditNoteItem");
 const customer = require("../models/customer");
 const product = require("../models/product");
 const User = require("../models/user");
-const {PRODUCT_TYPE} = require("../constant/constant");
 
 exports.create_creditNote = async (req, res) => {
   try {
@@ -89,7 +88,7 @@ exports.create_creditNote = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productname = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true },
+        where: { id: item.productId, companyId: req.user.companyId, isActive: true },
       });
       if (!productname) {
         return res
@@ -219,7 +218,7 @@ exports.update_creditNote = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productname = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true },
+        where: { id: item.productId, companyId: req.user.companyId, isActive: true },
       });
       if (!productname) {
         return res

@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const company = require("./company");
-const {PRODUCT_TYPE} = require("../constant/constant");
+const { ITEM_GROUP_TYPE} = require("../constant/constant");
 const User = require("./user");
 
 const product = sequelize.define("P_product", {
@@ -16,7 +16,9 @@ const product = sequelize.define("P_product", {
     type: DataTypes.STRING,
   },
   itemgroup: {
-    type: DataTypes.STRING,
+    type: DataTypes.ENUM,
+    values: [ITEM_GROUP_TYPE.PRODUCT, ITEM_GROUP_TYPE.RAW_MATERIAL, ITEM_GROUP_TYPE.SPARE],
+    allowNull: false,
   },
   itemcategory: {
     type: DataTypes.STRING,
@@ -53,11 +55,6 @@ const product = sequelize.define("P_product", {
   cess: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
-  },
-  productType: {
-    type: DataTypes.ENUM,
-    values: [PRODUCT_TYPE.PRODUCT, PRODUCT_TYPE.RAW_MATERIAL],
-    allowNull: false
   },
   companyId: { type: DataTypes.INTEGER },
   weight: {

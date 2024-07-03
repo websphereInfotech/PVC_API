@@ -3,7 +3,6 @@ const customer = require("../models/customer");
 const deliverychallan = require("../models/deliverychallan");
 const deliverychallanitem = require("../models/deliverychallanitem");
 const product = require("../models/product");
-const {PRODUCT_TYPE} = require("../constant/constant");
 const User = require("../models/user");
 
 exports.create_deliverychallan = async (req, res) => {
@@ -48,7 +47,7 @@ exports.create_deliverychallan = async (req, res) => {
           .json({ status: "false", message: "Qty Value Invalid" });
       }
       const productname = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true },
+        where: { id: item.productId, companyId: req.user.companyId, isActive: true },
       });
       if (!productname) {
         return res
@@ -141,7 +140,7 @@ exports.update_deliverychallan = async (req, res) => {
           .json({ status: "false", message: "Qty Value Invalid" });
       }
       const productname = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true },
+        where: { id: item.productId, companyId: req.user.companyId, isActive: true },
       });
 
       if (!productname) {

@@ -3,7 +3,6 @@ const C_Stock = require("../models/C_stock");
 const Product = require("../models/product");
 const C_Product = require("../models/C_product");
 const User = require("../models/user");
-const {PRODUCT_TYPE} = require("../constant/constant");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -13,7 +12,7 @@ exports.view_all_product_stock =async (req, res) => {
     try {
         const companyId = req.user.companyId;
         const productStock =  await Stock.findAll({
-            include: [{model: Product, as: "productStock", where: {companyId: companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true}}, {model: User, as: "stockUpdateUser", attributes: ["username"]}],
+            include: [{model: Product, as: "productStock", where: {companyId: companyId, isActive: true}}, {model: User, as: "stockUpdateUser", attributes: ["username"]}],
         })
         return res.status(200).json({
             status: "true",
@@ -36,7 +35,7 @@ exports.view_product_stock = async (req, res) => {
             where: {
                 id,
             },
-            include: [{model: Product, as: "productStock", where: {companyId: companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true}}, {model: User, as: "stockUpdateUser", attributes: ["username"]}],
+            include: [{model: Product, as: "productStock", where: {companyId: companyId, isActive: true}}, {model: User, as: "stockUpdateUser", attributes: ["username"]}],
         })
         if(!productStock){
             return res.status(404).json({
@@ -64,7 +63,7 @@ exports.update_product_stock = async (req, res) => {
         const companyId = req.user.companyId;
         const productStockExists = await Stock.findOne({
             where: {id: id},
-            include: [{model: Product, as: "productStock", where: {companyId: companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true}}],
+            include: [{model: Product, as: "productStock", where: {companyId: companyId, isActive: true}}],
         })
         if(!productStockExists){
             return res.status(404).json({
@@ -74,7 +73,7 @@ exports.update_product_stock = async (req, res) => {
         }
         console.log(productStockExists,"Product Stock")
         const productExists = await Product.findOne({
-            where: {id: productId, companyId: companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true}
+            where: {id: productId, companyId: companyId, isActive: true}
         })
         console.log(productExists,"Product Exsit")
         if(!productExists){
@@ -110,7 +109,7 @@ exports.view_all_raw_material_stock =async (req, res) => {
     try {
         const companyId = req.user.companyId;
         const productStock =  await Stock.findAll({
-            include: [{model: Product, as: "productStock", where: {companyId: companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true}}, {model: User, as: "stockUpdateUser", attributes: ["username"]}],
+            include: [{model: Product, as: "productStock", where: {companyId: companyId, isActive: true}}, {model: User, as: "stockUpdateUser", attributes: ["username"]}],
         })
         return res.status(200).json({
             status: "true",
@@ -133,7 +132,7 @@ exports.view_raw_material_stock = async (req, res) => {
             where: {
                 id,
             },
-            include: [{model: Product, as: "productStock", where: {companyId: companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true}},{model: User, as: "stockUpdateUser", attributes: ["username"]}],
+            include: [{model: Product, as: "productStock", where: {companyId: companyId, isActive: true}},{model: User, as: "stockUpdateUser", attributes: ["username"]}],
         })
         if(!productStock){
             return res.status(404).json({
@@ -161,7 +160,7 @@ exports.update_raw_material_stock = async (req, res) => {
         const companyId = req.user.companyId;
         const productStockExists = await Stock.findOne({
             where: {id: id},
-            include: [{model: Product, as: "productStock", where: {companyId: companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true}},{model: User, as: "stockUpdateUser", attributes: ["username"]}],
+            include: [{model: Product, as: "productStock", where: {companyId: companyId, isActive: true}},{model: User, as: "stockUpdateUser", attributes: ["username"]}],
         })
         if(!productStockExists){
             return res.status(404).json({
@@ -170,7 +169,7 @@ exports.update_raw_material_stock = async (req, res) => {
             })
         }
         const productExists = await Product.findOne({
-            where: {id: productId, companyId: companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true}
+            where: {id: productId, companyId: companyId, isActive: true}
         })
         if(!productExists){
             return res.status(404).json({
@@ -209,7 +208,7 @@ exports.C_view_all_product_stock = async (req, res) => {
     try {
         const companyId = req.user.companyId;
         const productCashStock =  await C_Stock.findAll({
-            include: [{model: C_Product, as: "productCashStock", where: {companyId: companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true}}, {model: User, as: "cashStockUpdateUser", attributes: ["username"]}],
+            include: [{model: C_Product, as: "productCashStock", where: {companyId: companyId, isActive: true}}, {model: User, as: "cashStockUpdateUser", attributes: ["username"]}],
         })
         return res.status(200).json({
             status: "true",
@@ -232,7 +231,7 @@ exports.C_view_product_stock = async (req, res) => {
             where: {
                 id,
             },
-            include: [{model: C_Product, as: "productCashStock", where: {companyId: companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true}}, {model: User, as: "cashStockUpdateUser", attributes: ["username"]}],
+            include: [{model: C_Product, as: "productCashStock", where: {companyId: companyId, isActive: true}}, {model: User, as: "cashStockUpdateUser", attributes: ["username"]}],
         })
         if(!productCashStock){
             return res.status(404).json({
@@ -260,7 +259,7 @@ exports.C_update_product_stock = async (req, res) => {
         const companyId = req.user.companyId;
         const productCashStockExists = await C_Stock.findOne({
             where: {id: id},
-            include: [{model: C_Product, as: "productCashStock", where: {companyId: companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true}}, {model: User, as: "cashStockUpdateUser", attributes: ["username"]}],
+            include: [{model: C_Product, as: "productCashStock", where: {companyId: companyId, isActive: true}}, {model: User, as: "cashStockUpdateUser", attributes: ["username"]}],
         })
         if(!productCashStockExists){
             return res.status(404).json({
@@ -269,7 +268,7 @@ exports.C_update_product_stock = async (req, res) => {
             })
         }
         const productExists = await C_Product.findOne({
-            where: {id: productId, companyId: companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true}
+            where: {id: productId, companyId: companyId, isActive: true}
         })
         if(!productExists){
             return res.status(404).json({
@@ -300,7 +299,7 @@ exports.C_view_all_raw_material_cash_stock = async (req, res) => {
     try {
         const companyId = req.user.companyId;
         const productCashStock =  await C_Stock.findAll({
-            include: [{model: C_Product, as: "productCashStock", where: {companyId: companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true}}, {model: User, as: "cashStockUpdateUser", attributes: ["username"]}],
+            include: [{model: C_Product, as: "productCashStock", where: {companyId: companyId, isActive: true}}, {model: User, as: "cashStockUpdateUser", attributes: ["username"]}],
         })
         return res.status(200).json({
             status: "true",
@@ -323,7 +322,7 @@ exports.C_view_raw_material_cash_stock = async (req, res) => {
             where: {
                 id,
             },
-            include: [{model: C_Product, as: "productCashStock", where: {companyId: companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true}},{model: User, as: "cashStockUpdateUser", attributes: ["username"]}],
+            include: [{model: C_Product, as: "productCashStock", where: {companyId: companyId, isActive: true}},{model: User, as: "cashStockUpdateUser", attributes: ["username"]}],
         })
         if(!productCashStock){
             return res.status(404).json({
@@ -351,7 +350,7 @@ exports.C_update_raw_material_cash_stock = async (req, res) => {
         const companyId = req.user.companyId;
         const productCashStockExists = await C_Stock.findOne({
             where: {id: id},
-            include: [{model: C_Product, as: "productCashStock", where: {companyId: companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true}}, {model: User, as: "cashStockUpdateUser", attributes: ["username"]}],
+            include: [{model: C_Product, as: "productCashStock", where: {companyId: companyId, isActive: true}}, {model: User, as: "cashStockUpdateUser", attributes: ["username"]}],
         })
         if(!productCashStockExists){
             return res.status(404).json({
@@ -360,7 +359,7 @@ exports.C_update_raw_material_cash_stock = async (req, res) => {
             })
         }
         const productExists = await C_Product.findOne({
-            where: {id: productId, companyId: companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true}
+            where: {id: productId, companyId: companyId, isActive: true}
         })
         if(!productExists){
             return res.status(404).json({
@@ -391,10 +390,10 @@ exports.C_view_total_product_stock = async (req,res)=>{
     try {
         const companyId = req.user.companyId;
         const productStocks = await Stock.findAll({
-            include: [{model: Product, as: "productStock", where: {companyId: companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true}}, {model: User, as: "stockUpdateUser", attributes: ["username"]}],
+            include: [{model: Product, as: "productStock", where: {companyId: companyId, isActive: true}}, {model: User, as: "stockUpdateUser", attributes: ["username"]}],
         })
         const productCashStock =  await C_Stock.findAll({
-            include: [{model: C_Product, as: "productCashStock", where: {companyId: companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true}}, {model: User, as: "cashStockUpdateUser", attributes: ["username"]}],
+            include: [{model: C_Product, as: "productCashStock", where: {companyId: companyId, isActive: true}}, {model: User, as: "cashStockUpdateUser", attributes: ["username"]}],
         })
             const mergedData = {};
 
@@ -447,10 +446,10 @@ exports.C_view_total_material_stock = async (req,res)=>{
     try {
         const companyId = req.user.companyId;
         const productStocks = await Stock.findAll({
-            include: [{model: Product, as: "productStock", where: {companyId: companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true}}, {model: User, as: "stockUpdateUser", attributes: ["username"]}],
+            include: [{model: Product, as: "productStock", where: {companyId: companyId, isActive: true}}, {model: User, as: "stockUpdateUser", attributes: ["username"]}],
         })
         const productCashStock =  await C_Stock.findAll({
-            include: [{model: C_Product, as: "productCashStock", where: {companyId: companyId, productType: PRODUCT_TYPE.RAW_MATERIAL, isActive: true}}, {model: User, as: "cashStockUpdateUser", attributes: ["username"]}],
+            include: [{model: C_Product, as: "productCashStock", where: {companyId: companyId, isActive: true}}, {model: User, as: "cashStockUpdateUser", attributes: ["username"]}],
         })
             const mergedData = {};
 

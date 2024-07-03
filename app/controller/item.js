@@ -1,16 +1,15 @@
 const C_product = require("../models/C_product");
-const product = require("../models/product");
+const item = require("../models/product");
 const C_stock = require("../models/C_stock");
 const Stock = require("../models/stock");
 const User = require("../models/user");
 const {Op} = require("sequelize");
-const {PRODUCT_TYPE} = require("../constant/constant");
 
 /*=============================================================================================================
                                           Without Type C API
  ============================================================================================================ */
 
-exports.create_product = async (req, res) => {
+exports.create_item = async (req, res) => {
   try {
     const {
       itemtype,
@@ -38,7 +37,7 @@ exports.create_product = async (req, res) => {
       purchaseprice = null;
     }
 
-    // const existingHSNcode = await product.findOne({
+    // const existingHSNcode = await item.findOne({
     //   where: { HSNcode: HSNcode, companyId: req.user.companyId },
     // });
     // if (existingHSNcode) {
@@ -46,7 +45,7 @@ exports.create_product = async (req, res) => {
     //     .status(400)
     //     .json({ status: "false", message: "HSN Code Already Exists" });
     // }
-    const data = await product.create({
+    const data = await item.create({
       itemtype,
       productname,
       description,
@@ -66,7 +65,6 @@ exports.create_product = async (req, res) => {
       weight,
       lowStockQty,
       companyId: req.user.companyId,
-      productType: PRODUCT_TYPE.PRODUCT,
       createdBy: userId,
       updatedBy: userId
     });
@@ -76,7 +74,6 @@ exports.create_product = async (req, res) => {
       lowStockQty: lowStockQty,
       lowstock: lowstock,
       companyId: req.user.companyId,
-      productType: PRODUCT_TYPE.PRODUCT,
       unit: unit
     });
 
@@ -87,7 +84,7 @@ exports.create_product = async (req, res) => {
     await Stock.create({
       productId: data.id,
   })
-    const productData = await product.findByPk(data.id, {
+    const productData = await item.findByPk(data.id, {
       include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
     })
 
@@ -103,7 +100,7 @@ exports.create_product = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-exports.update_product = async (req, res) => {
+exports.update_item = async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -132,8 +129,8 @@ exports.update_product = async (req, res) => {
       purchaseprice = null;
     }
 
-    const existingProduct = await product.findOne({
-      where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true },
+    const existingProduct = await item.findOne({
+      where: { id: id, companyId: req.user.companyId, isActive: true },
     });
 
     if (!existingProduct) {
@@ -143,7 +140,7 @@ exports.update_product = async (req, res) => {
     }
 
     // if (existingProduct.HSNcode !== HSNcode) {
-    //   const existingHSNcode = await product.findOne({
+    //   const existingHSNcode = await item.findOne({
     //     where: { HSNcode: HSNcode,companyId: req.user.companyId },
     //   });
     //   if (existingHSNcode) {
@@ -152,7 +149,7 @@ exports.update_product = async (req, res) => {
     //       .json({ status: "false", message: "HSN Code Already Exists" });
     //   }
     // }
-    await product.update(
+    await item.update(
       {
         itemtype: itemtype,
         productname: productname,
@@ -173,7 +170,6 @@ exports.update_product = async (req, res) => {
         weight: weight,
         lowStockQty: lowStockQty,
         companyId: req.user.companyId,
-        productType: PRODUCT_TYPE.PRODUCT,
         updatedBy: userId
       },
       {
@@ -184,15 +180,14 @@ exports.update_product = async (req, res) => {
       productname: productname,
       lowStockQty: lowStockQty,
       lowstock: lowstock,
-      productType: PRODUCT_TYPE.PRODUCT,
       unit: unit
     }, {
       where: {
         id: id
       }
     })
-    const data = await product.findOne({
-      where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true },
+    const data = await item.findOne({
+      where: { id: id, companyId: req.user.companyId, isActive: true },
       include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
     });
     return res.status(200).json({
@@ -207,15 +202,15 @@ exports.update_product = async (req, res) => {
       .json({ status: "false", message: "Internal server error" });
   }
 };
-exports.delete_product = async (req, res) => {
+exports.delete_item = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await product.findOne({
-      where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT },
+    const data = await item.findOne({
+      where: { id: id, companyId: req.user.companyId},
     });
     const dataCash = await C_product.findOne({
-      where: {id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT}
+      where: {id: id, companyId: req.user.companyId}
     })
 
     if (!data) {
@@ -237,12 +232,12 @@ exports.delete_product = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-exports.view_product = async (req, res) => {
+exports.view_item = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = await product.findOne({
-      where: { id: id, companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true },
+    const data = await item.findOne({
+      where: { id: id, companyId: req.user.companyId, isActive: true },
     });
 
     if (!data) {
@@ -262,15 +257,15 @@ exports.view_product = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-exports.get_all_product = async (req, res) => {
+exports.get_all_items = async (req, res) => {
   try {
     const { search } = req.query;
-    const whereClause = { companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true };
+    const whereClause = { companyId: req.user.companyId, isActive: true };
 
     if (search) {
       whereClause.productname = { [Op.like]: `%${search}%` };
     }
-    const data = await product.findAll({
+    const data = await item.findAll({
       where: whereClause,
       include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
     });
@@ -299,7 +294,7 @@ exports.get_all_product = async (req, res) => {
 exports.C_get_all_product = async (req, res) => {
   try {
     const data = await C_product.findAll({
-      where: { companyId: req.user.companyId, productType: PRODUCT_TYPE.PRODUCT, isActive: true },
+      where: { companyId: req.user.companyId, isActive: true },
     });
     if (!data) {
       return res

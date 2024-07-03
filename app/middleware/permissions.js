@@ -433,94 +433,94 @@ exports.permissions = {
             "view_all_customer":true,
         }
     },
-    "Product" : {
+    "Items" : {
         "Super Admin" :{
-            "create_product":true,
-            "update_product":true,
-            "delete_product":true,
-            "view_single_product":true,
-            "view_all_product":true,
+            "create_item":true,
+            "update_item":true,
+            "delete_item":true,
+            "view_single_item":true,
+            "view_all_item":true,
         },
         "Admin" :{
-            "create_product":true,
-            "update_product":true,
-            "delete_product":true,
-            "view_single_product":true,
-            "view_all_product":true,
+            "create_item":true,
+            "update_item":true,
+            "delete_item":true,
+            "view_single_item":true,
+            "view_all_item":true,
         },
         "Account" :{
-            "create_product":true,
-            "update_product":true,
-            "delete_product":true,
-            "view_single_product":true,
-            "view_all_product":true,
+            "create_item":true,
+            "update_item":true,
+            "delete_item":true,
+            "view_single_item":true,
+            "view_all_item":true,
         },
         "Employee" :{
-            "create_product":true,
-            "update_product":true,
-            "delete_product":true,
-            "view_single_product":true,
-            "view_all_product":true,
+            "create_item":true,
+            "update_item":true,
+            "delete_item":true,
+            "view_single_item":true,
+            "view_all_item":true,
         },
         "Workers" :{
-            "create_product":true,
-            "update_product":true,
-            "delete_product":true,
-            "view_single_product":true,
-            "view_all_product":true,
+            "create_item":true,
+            "update_item":true,
+            "delete_item":true,
+            "view_single_item":true,
+            "view_all_item":true,
         },
         "Other" :{
-            "create_product":true,
-            "update_product":true,
-            "delete_product":true,
-            "view_single_product":true,
-            "view_all_product":true,
+            "create_item":true,
+            "update_item":true,
+            "delete_item":true,
+            "view_single_item":true,
+            "view_all_item":true,
         }
     },
-    "Raw Material" : {
-        "Super Admin" :{
-            "create_raw_material":true,
-            "update_raw_material":true,
-            "delete_raw_material":true,
-            "view_single_raw_material":true,
-            "view_all_raw_material":true,
-        },
-        "Admin" :{
-            "create_raw_material":true,
-            "update_raw_material":true,
-            "delete_raw_material":true,
-            "view_single_raw_material":true,
-            "view_all_raw_material":true,
-        },
-        "Account" :{
-            "create_raw_material":true,
-            "update_raw_material":true,
-            "delete_raw_material":true,
-            "view_single_raw_material":true,
-            "view_all_raw_material":true,
-        },
-        "Employee" :{
-            "create_raw_material":true,
-            "update_raw_material":true,
-            "delete_raw_material":true,
-            "view_single_raw_material":true,
-            "view_all_raw_material":true,
-        },
-        "Workers" :{
-            "create_raw_material":true,
-            "update_raw_material":true,
-            "delete_raw_material":true,
-            "view_single_raw_material":true,
-            "view_all_raw_material":true,
-        },
-        "Other" :{
-            "create_raw_material":true,
-            "update_raw_material":true,
-            "delete_raw_material":true,
-            "view_single_raw_material":true,
-            "view_all_raw_material":true,
-        }
-    },
+    // "Raw Material" : {
+    //     "Super Admin" :{
+    //         "create_raw_material":true,
+    //         "update_raw_material":true,
+    //         "delete_raw_material":true,
+    //         "view_single_raw_material":true,
+    //         "view_all_raw_material":true,
+    //     },
+    //     "Admin" :{
+    //         "create_raw_material":true,
+    //         "update_raw_material":true,
+    //         "delete_raw_material":true,
+    //         "view_single_raw_material":true,
+    //         "view_all_raw_material":true,
+    //     },
+    //     "Account" :{
+    //         "create_raw_material":true,
+    //         "update_raw_material":true,
+    //         "delete_raw_material":true,
+    //         "view_single_raw_material":true,
+    //         "view_all_raw_material":true,
+    //     },
+    //     "Employee" :{
+    //         "create_raw_material":true,
+    //         "update_raw_material":true,
+    //         "delete_raw_material":true,
+    //         "view_single_raw_material":true,
+    //         "view_all_raw_material":true,
+    //     },
+    //     "Workers" :{
+    //         "create_raw_material":true,
+    //         "update_raw_material":true,
+    //         "delete_raw_material":true,
+    //         "view_single_raw_material":true,
+    //         "view_all_raw_material":true,
+    //     },
+    //     "Other" :{
+    //         "create_raw_material":true,
+    //         "update_raw_material":true,
+    //         "delete_raw_material":true,
+    //         "view_single_raw_material":true,
+    //         "view_all_raw_material":true,
+    //     }
+    // },
     "Purchase Invoice" : {
         "Super Admin" :{
             "create_purchase_Invoice":true,
@@ -1291,26 +1291,26 @@ exports.permissions = {
             "view_all_notification":true,
         }
     },
-    "Raw Material Cash" : {
-        "Super Admin" :{
-            "get_all_raw_material_cash":true,
-        },
-        "Admin" :{
-            "get_all_raw_material_cash":true,
-        },
-        "Account" :{
-            "get_all_raw_material_cash":true,
-        },
-        "Employee" :{
-            "get_all_raw_material_cash":true,
-        },
-        "Workers" :{
-            "get_all_raw_material_cash":true,
-        },
-        "Other" :{
-            "get_all_raw_material_cash":true,
-        },
-    },
+    // "Raw Material Cash" : {
+    //     "Super Admin" :{
+    //         "get_all_raw_material_cash":true,
+    //     },
+    //     "Admin" :{
+    //         "get_all_raw_material_cash":true,
+    //     },
+    //     "Account" :{
+    //         "get_all_raw_material_cash":true,
+    //     },
+    //     "Employee" :{
+    //         "get_all_raw_material_cash":true,
+    //     },
+    //     "Workers" :{
+    //         "get_all_raw_material_cash":true,
+    //     },
+    //     "Other" :{
+    //         "get_all_raw_material_cash":true,
+    //     },
+    // },
     "Salary" : {
         "Super Admin" :{
             "view_all_salary":true,
