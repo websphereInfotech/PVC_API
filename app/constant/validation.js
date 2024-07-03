@@ -1692,17 +1692,32 @@ exports.itemUnit = async function (req,res,next){
 }
 
 exports.itemGroup = async function(req, res, next){
-  const {itemgroup} = req.body;
-  const schema = Joi.string()
+  const {weight, itemgroup} = req.body;
+  const weightSchema = Joi.object({
+    itemgroup: Joi.string()
         .valid(...Object.values(ITEM_GROUP_TYPE))
         .required()
         .messages({
           'any.required': 'The itemgroup field is required.',
           'any.only': `The itemgroup field must be one of Product, Raw Material and Spare.`
-        })
-  const { error } = schema.validate(itemgroup);
+        }),
+    weight: Joi.when('itemGroup', {
+      is: ITEM_GROUP_TYPE.PRODUCT,
+      then: Joi.number().greater(0).required().messages({
+        'any.required': 'The weight field is required when itemGroup is product.',
+        'number.base': 'The weight must be a number.',
+        'number.greater': 'Weight must be greater than 0.',
+      }),
+      otherwise: Joi.optional(),
+    }),
+  });
+  const { error } = weightSchema.validate({itemgroup,weight});
   if (error) {
-    return res.status(400).json({ status: "false", message: error.message });
+    return res.status(400).json({
+      status: "false",
+      message: error.message
+    })
+  } else {
+    next();
   }
-  next();
 }

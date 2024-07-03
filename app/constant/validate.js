@@ -112,9 +112,9 @@ module.exports.validation = function (method) {
       return [ accountname, email, mobileno, contactpersonname, creditperiod, address1, pincode, state,
                city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails,validateCredit ];
     case "create_item":
-      return [ itemtype, productname, itemGroup, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice, weight ];
+      return [ itemtype, productname, itemGroup, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice ];
     case "update_item":
-      return [ itemtype, productname, itemGroup, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice, weight ];
+      return [ itemtype, productname, itemGroup, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice ];
     case "create_purchaseInvoice":
       return [duedate, invoiceno, invoicedate, qty,itemUnit, rate];
     case "update_purchaseInvoice":
