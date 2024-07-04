@@ -271,6 +271,7 @@ exports.C_delete_paymentCash = async (req, res) => {
 exports.create_payment_bank = async (req, res) => {
   try {
     const user = req.user.userId;
+    const companyId = req.user.companyId;
     const {
       voucherno,
       vendorId,
@@ -285,6 +286,17 @@ exports.create_payment_bank = async (req, res) => {
       return res
         .status(400)
         .json({ status: "false", message: "Required field: Vendor" });
+    }
+    const voucherNoExist = await paymentBank.findOne({
+      where: {
+        voucherno: voucherno,
+        companyId: companyId
+      }
+    })
+    if (voucherNoExist) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Voucher Number Already Exists" });
     }
     const vendordata = await vendor.findOne({
       where: { id: vendorId, companyId: req.user.companyId },
@@ -371,6 +383,7 @@ exports.create_payment_bank = async (req, res) => {
 exports.update_payment_bank = async (req, res) => {
   try {
     const user = req.user.userId;
+    const companyId = req.user.companyId;
     const { id } = req.params;
     const {
       voucherno,
@@ -389,6 +402,18 @@ exports.update_payment_bank = async (req, res) => {
       return res
         .status(404)
         .json({ status: "false", message: "Bank Payment Not Found" });
+    }
+    const voucherNoExist = await paymentBank.findOne({
+      where: {
+        voucherno: voucherno,
+        companyId: companyId,
+        id: { [Sequelize.Op.ne]: id },
+      }
+    })
+    if (voucherNoExist) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Voucher Number Already Exists" });
     }
     if (!vendorId || vendorId === "" || vendorId === null) {
       return res

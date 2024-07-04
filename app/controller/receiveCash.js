@@ -304,7 +304,7 @@ exports.C_delete_receiveCash = async (req, res) => {
 exports.create_receive_bank = async (req, res) => {
   try {
     const user = req.user.userId;
-
+    const companyId = req.user.companyId;
     const {
       voucherno,
       customerId,
@@ -319,6 +319,17 @@ exports.create_receive_bank = async (req, res) => {
       return res
         .status(400)
         .json({ status: "false", message: "Required field : Customer" });
+    }
+    const voucherNoExist = await receiveBank.findOne({
+      where: {
+        voucherno: voucherno,
+        companyId: companyId,
+      }
+    })
+    if (voucherNoExist) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Voucher Number Already Exists" });
     }
     const customerData = await customer.findOne({
       where: {
@@ -406,6 +417,7 @@ exports.create_receive_bank = async (req, res) => {
 exports.update_receive_bank = async (req, res) => {
   try {
     const user = req.user.userId;
+    const companyId = req.user.companyId;
     const { id } = req.params;
 
     const {
@@ -428,6 +440,18 @@ exports.update_receive_bank = async (req, res) => {
       return res
         .status(404)
         .json({ status: "false", message: "Receive Bank Not Found" });
+    }
+    const voucherNoExist = await receiveBank.findOne({
+      where: {
+        voucherno: voucherno,
+        companyId: companyId,
+        id: { [Sequelize.Op.ne]: id },
+      }
+    })
+    if (voucherNoExist) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Voucher Number Already Exists" });
     }
     if (!customerId || customerId === "" || customerId === null) {
       return res
