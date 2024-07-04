@@ -13,7 +13,8 @@ const C_salesinvoice = sequelize.define('P_C_salesInvoice', {
     },
     createdBy:{type: DataTypes.INTEGER},
     updatedBy:{type:DataTypes.INTEGER},
-    companyId:{type:DataTypes.INTEGER}
+    companyId:{type:DataTypes.INTEGER},
+    saleNo: {type: DataTypes.INTEGER, allowNull: false}
 });
 
 company.hasMany(C_salesinvoice,{foreignKey:'companyId',as:'companysalesinvcash'});

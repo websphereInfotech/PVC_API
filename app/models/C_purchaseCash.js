@@ -13,7 +13,8 @@ const C_purchaseCash = sequelize.define('P_C_purchaseCash', {
     },
     createdBy:{type: DataTypes.INTEGER},
     updatedBy:{type:DataTypes.INTEGER},
-    companyId:{type:DataTypes.INTEGER}
+    companyId:{type:DataTypes.INTEGER},
+    purchaseNo: {type: DataTypes.INTEGER, allowNull: false},
 });
 
 company.hasMany(C_purchaseCash,{foreignKey:'companyId',as:'companypurchasecash'});

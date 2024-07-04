@@ -72,7 +72,7 @@ const {
   create_bom,
   update_productStock,
   weight,
-  itemUnit, itemGroup
+  itemUnit, itemGroup, saleNo
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -130,9 +130,9 @@ module.exports.validation = function (method) {
       return [ accountname, email, contactpersonname, mobileno, creditperiod, address1, pincode, state,
                city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails,validateCredit ];
     case "C_create_salesinvoice":
-      return [date, qty,itemUnit, rate];
+      return [date, saleNo, qty,itemUnit, rate];
     case "C_update_salesinvoice":
-      return [date, qty,itemUnit, rate];
+      return [date, saleNo,qty,itemUnit, rate];
     case "C_create_purchase_Cash":
       return [date, qty, itemUnit, rate];
     case "C_update_purchase_Cash":

@@ -1721,3 +1721,19 @@ exports.itemGroup = async function(req, res, next){
     next();
   }
 }
+
+exports.saleNo = async function(req, res, next){
+  const { saleNo } = req.body;
+  const saleNoSchema = Joi.number()
+      .required()
+      .messages({
+        "number.base": "Sale Number must be a number",
+        "any.required": "Required Field : Sale Number",
+        "number.empty": "Sale Number Cannot Be Empty",
+      });
+  const { error } = saleNoSchema.validate(saleNo);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+}

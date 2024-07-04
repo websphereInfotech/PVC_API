@@ -548,12 +548,25 @@ exports.delete_salesInvoice = async (req, res) => {
 exports.C_create_salesinvoice = async (req, res) => {
   try {
     const user = req.user.userId;
-    const { customerId, date, totalMrp, items } = req.body;
+    const { saleNo, customerId, date, totalMrp, items } = req.body;
+    const companyId = req.user.companyId;
 
     if (!customerId || customerId === "" || customerId === null) {
       return res
         .status(400)
         .json({ status: "false", message: "Required filed :Customer" });
+    }
+
+    const salesNoExist = await C_salesinvoice.findOne({
+      where: {
+        saleNo: saleNo,
+        companyId: companyId
+      }
+    });
+    if(salesNoExist){
+      return res
+          .status(400)
+          .json({ status: "false", message: "Sales Number Already Exists." });
     }
     const customerData = await C_customer.findOne({
       where: { id: customerId, companyId: req.user.companyId },
@@ -602,6 +615,7 @@ exports.C_create_salesinvoice = async (req, res) => {
       customerId,
       date,
       totalMrp,
+      saleNo: saleNo,
       companyId: req.user.companyId,
       createdBy: user,
       updatedBy: user,
@@ -649,9 +663,10 @@ exports.C_create_salesinvoice = async (req, res) => {
 exports.C_update_salesinvoice = async (req, res) => {
   try {
     const user = req.user.userId;
+    const companyId = req.user.companyId
 
     const { id } = req.params;
-    const { customerId, date, totalMrp, items } = req.body;
+    const { customerId, saleNo, date, totalMrp, items } = req.body;
 
     if (!customerId || customerId === "" || customerId === null) {
       return res
@@ -666,6 +681,19 @@ exports.C_update_salesinvoice = async (req, res) => {
         status: "false",
         message: "Sales Invoice Not Found",
       });
+    }
+
+    const salesNoExist = await C_salesinvoice.findOne({
+      where: {
+        saleNo: saleNo,
+        companyId: companyId,
+        id: {[Sequelize.Op.ne]: id}
+      }
+    })
+    if(salesNoExist){
+      return res
+          .status(400)
+          .json({ status: "false", message: "Sale Number Already Exists" });
     }
     const customerData = await C_customer.findOne({
       where: { id: customerId, companyId: req.user.companyId },
@@ -737,6 +765,7 @@ exports.C_update_salesinvoice = async (req, res) => {
         customerId,
         date,
         totalMrp,
+        saleNo: saleNo,
         companyId: req.user.companyId,
         createdBy: existingInvoice.createdBy,
         updatedBy: user,
