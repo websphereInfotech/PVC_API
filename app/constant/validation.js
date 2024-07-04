@@ -1754,3 +1754,35 @@ exports.purchaseNo = async function(req, res, next){
   next();
 }
 
+exports.paymentNo = async function(req, res, next){
+  const { paymentNo } = req.body;
+  const paymentNoSchema = Joi.number()
+      .required()
+      .messages({
+        "number.base": "Purchase Number must be a number",
+        "any.required": "Required Field : Purchase Number",
+        "number.empty": "Purchase Number Cannot Be Empty",
+      });
+  const { error } = paymentNoSchema.validate(paymentNo);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+}
+
+exports.receiptNo = async function(req, res, next){
+  const { receiptNo } = req.body;
+  const receiptNoSchema = Joi.number()
+      .required()
+      .messages({
+        "number.base": "Purchase Number must be a number",
+        "any.required": "Required Field : Purchase Number",
+        "number.empty": "Purchase Number Cannot Be Empty",
+      });
+  const { error } = receiptNoSchema.validate(receiptNo);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+}
+

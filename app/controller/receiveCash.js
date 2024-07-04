@@ -13,6 +13,7 @@ const customer = require("../models/customer");
 const customerLedger = require("../models/customerLedger");
 const receiveBank = require("../models/receiveBank");
 const User = require("../models/user");
+const {Sequelize} = require("sequelize");
 
 /*=============================================================================================================
                                            Type C API
@@ -21,12 +22,24 @@ const User = require("../models/user");
 exports.C_create_receiveCash = async (req, res) => {
   try {
     const user = req.user.userId;
-    const { customerId, amount, description, date } = req.body;
+    const companyId = req.user.companyId;
+    const { customerId, receiptNo, amount, description, date } = req.body;
 
     if (!customerId || customerId === "" || customerId === null) {
       return res
         .status(400)
         .json({ status: "false", message: "Required filed :Customer" });
+    }
+    const receiptNoExist = await C_receiveCash.findOne({
+      where: {
+        receiptNo: receiptNo,
+        companyId: companyId
+      }
+    })
+    if (receiptNoExist) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Receipt Number Already Exists" });
     }
     const customerData = await C_customer.findOne({
       where: { id: customerId, companyId: req.user.companyId },
@@ -48,6 +61,7 @@ exports.C_create_receiveCash = async (req, res) => {
       amount,
       description,
       date,
+      receiptNo,
       createdBy: user,
       updatedBy: user,
       companyId: req.user.companyId,
@@ -156,13 +170,26 @@ exports.C_view_receiveCash = async (req, res) => {
 exports.C_update_receiveCash = async (req, res) => {
   try {
     const user = req.user.userId;
+    const companyId = req.user.companyId;
     const { id } = req.params;
-    const { customerId, amount, description, date } = req.body;
+    const { customerId, receiptNo,  amount, description, date } = req.body;
 
     if (!customerId || customerId === "" || customerId === null) {
       return res
         .status(400)
         .json({ status: "false", message: "Required filed :Customer" });
+    }
+    const receiptNoExist = await C_receiveCash.findOne({
+      where: {
+        receiptNo: receiptNo,
+        companyId: companyId,
+        id: { [Sequelize.Op.ne]: id }
+      }
+    })
+    if (receiptNoExist) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Receipt Number Already Exists" });
     }
     const receiveId = await C_receiveCash.findOne({
       where: { id: id, companyId: req.user.companyId },
@@ -179,6 +206,7 @@ exports.C_update_receiveCash = async (req, res) => {
         amount,
         description,
         date,
+        receiptNo,
         createdBy: receiveId.createdBy,
         updatedBy: user,
         companyId: req.user.companyId,

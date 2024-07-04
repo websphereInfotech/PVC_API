@@ -15,7 +15,8 @@ const C_receiveCash = sequelize.define('P_C_receiveCash', {
     date: {type: DataTypes.DATEONLY},
     createdBy:{type: DataTypes.INTEGER},
     updatedBy:{type:DataTypes.INTEGER},
-    companyId: {type: DataTypes.INTEGER}
+    companyId: {type: DataTypes.INTEGER},
+    receiptNo: {type: DataTypes.INTEGER, allowNull: false},
 });
 
 company.hasMany(C_receiveCash,{foreignKey:'companyId',onDelete:'CASCADE'});

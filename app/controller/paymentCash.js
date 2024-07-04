@@ -11,6 +11,7 @@ const paymentBank = require("../models/paymentBank");
 const User = require("../models/user");
 const vendor = require("../models/vendor");
 const vendorLedger = require("../models/vendorLedger");
+const {Sequelize} = require("sequelize");
 
 /*=============================================================================================================
                                          Type C API
@@ -19,12 +20,24 @@ const vendorLedger = require("../models/vendorLedger");
 exports.C_create_paymentCash = async (req, res) => {
   try {
     const user = req.user.userId;
-    const { vendorId, amount, description, date } = req.body;
+    const companyId = req.user.companyId;
+    const { vendorId,paymentNo, amount, description, date } = req.body;
 
     if (!vendorId || vendorId === "" || vendorId === null) {
       return res
         .status(400)
         .json({ status: "false", message: "Required filed :Vendor" });
+    }
+    const paymentNoExist = await C_PaymentCash.findOne({
+      where: {
+        paymentNo: paymentNo,
+        companyId: companyId
+      }
+    })
+    if (paymentNoExist) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Payment Number Already Exists" });
     }
     const vendorData = await C_vendor.findOne({
       where: { id: vendorId, companyId: req.user.companyId },
@@ -46,6 +59,7 @@ exports.C_create_paymentCash = async (req, res) => {
       amount,
       description,
       date,
+      paymentNo: paymentNo,
       createdBy: user,
       updatedBy: user,
       companyId: req.user.companyId,
@@ -137,13 +151,26 @@ exports.C_view_paymentCash = async (req, res) => {
 exports.C_update_paymentCash = async (req, res) => {
   try {
     const user = req.user.userId;
+    const companyId = req.user.companyId;
     const { id } = req.params;
-    const { vendorId, amount, description, date } = req.body;
+    const { vendorId, paymentNo, amount, description, date } = req.body
 
     if (!vendorId || vendorId === "" || vendorId === null) {
       return res
         .status(400)
         .json({ status: "false", message: "Required filed :Vendor" });
+    }
+    const paymentNoExist = await C_PaymentCash.findOne({
+      where: {
+        paymentNo: paymentNo,
+        companyId: companyId,
+        id: { [Sequelize.Op.ne]: id },
+      }
+    })
+    if (paymentNoExist) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Payment Number Already Exists" });
     }
     const vendorData = await C_vendor.findOne({
       where: { id: vendorId, companyId: req.user.companyId },
@@ -168,6 +195,7 @@ exports.C_update_paymentCash = async (req, res) => {
         amount,
         description,
         date,
+        paymentNo,
         createdBy: paymentId.createdBy,
         updatedBy: user,
         companyId: req.user.companyId,

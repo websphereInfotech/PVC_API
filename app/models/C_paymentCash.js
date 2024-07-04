@@ -17,6 +17,7 @@ const C_PaymentCash = sequelize.define("P_C_paymentCash", {
   createdBy: { type: DataTypes.INTEGER },
   updatedBy: { type: DataTypes.INTEGER },
   companyId: { type: DataTypes.INTEGER },
+  paymentNo: {type: DataTypes.INTEGER, allowNull: false},
 });
 
 company.hasMany(C_PaymentCash, {
