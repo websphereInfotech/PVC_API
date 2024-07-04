@@ -462,17 +462,30 @@ exports.view_purchaseInvoice = async (req, res) => {
 exports.C_create_purchaseCash = async (req, res) => {
   try {
     const user = req.user.userId;
-    const { vendorId, date, totalMrp, items } = req.body;
+    const { vendorId,purchaseNo, date, totalMrp, items } = req.body;
+    const companyId = req.user.companyId;
 
-    const vendorData = await C_vendor.findOne({
-      where: { id: vendorId, companyId: req.user.companyId },
-    });
+
+    const purchaseNoExist = await C_purchaseCash.findOne({
+      where: {
+        purchaseNo: purchaseNo,
+        companyId: companyId
+      }
+    })
+    if (purchaseNoExist) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Purchase Number Already Exists" });
+    }
 
     if (!vendorId || vendorId === "" || vendorId === null) {
       return res
         .status(400)
         .json({ status: "false", message: "Required filed :Vendor" });
     }
+    const vendorData = await C_vendor.findOne({
+      where: { id: vendorId, companyId: req.user.companyId },
+    });
     if (!vendorData) {
       return res
         .status(404)
@@ -513,6 +526,7 @@ exports.C_create_purchaseCash = async (req, res) => {
       vendorId,
       date,
       totalMrp,
+      purchaseNo: purchaseNo,
       companyId: req.user.companyId,
       createdBy: user,
       updatedBy: user,
@@ -560,11 +574,12 @@ exports.C_create_purchaseCash = async (req, res) => {
 };
 exports.C_update_purchaseCash = async (req, res) => {
   try {
-    const user = req.user.userId;
+    const user = req.user.userId
+    const companyId = req.user.companyId;
 
     const { id } = req.params;
 
-    const { vendorId, date, totalMrp, items } = req.body;
+    const { vendorId,purchaseNo, date, totalMrp, items } = req.body;
 
     const existingPurchase = await C_purchaseCash.findOne({
       where: { id: id, companyId: req.user.companyId },
@@ -574,6 +589,19 @@ exports.C_update_purchaseCash = async (req, res) => {
         status: "false",
         message: "Purchase Invoice Not Found",
       });
+    }
+
+    const purchaseNoExist = await C_purchaseCash.findOne({
+      where: {
+        purchaseNo: purchaseNo,
+        companyId: companyId,
+        id: { [Sequelize.Op.ne]: id },
+      }
+    })
+    if (purchaseNoExist) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Purchase Number Already Exists" });
     }
     if (!vendorId || vendorId === "" || vendorId === null) {
       return res
@@ -623,6 +651,7 @@ exports.C_update_purchaseCash = async (req, res) => {
         vendorId,
         date,
         totalMrp,
+        purchaseNo: purchaseNo,
         companyId: req.user.companyId,
         createdBy: existingPurchase.createdBy,
         updatedBy: user,

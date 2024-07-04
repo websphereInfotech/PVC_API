@@ -1737,3 +1737,20 @@ exports.saleNo = async function(req, res, next){
   }
   next();
 }
+
+exports.purchaseNo = async function(req, res, next){
+  const { purchaseNo } = req.body;
+  const purchaseNoSchema = Joi.number()
+      .required()
+      .messages({
+        "number.base": "Purchase Number must be a number",
+        "any.required": "Required Field : Purchase Number",
+        "number.empty": "Purchase Number Cannot Be Empty",
+      });
+  const { error } = purchaseNoSchema.validate(purchaseNo);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+}
+
