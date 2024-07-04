@@ -72,7 +72,7 @@ const {
   create_bom,
   update_productStock,
   weight,
-  itemUnit, itemGroup, saleNo, purchaseNo, paymentNo, receiptNo
+  itemUnit, itemGroup, saleNo, purchaseNo, paymentNo, receiptNo, paymentType
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -154,13 +154,13 @@ module.exports.validation = function (method) {
     case "update_company_bankDetails":
       return [bankname, accountnumber, ifsccode, branch];
     case "create_receive_bank":
-      return [voucherno, paymentdate, mode, referance, amount];
+      return [voucherno, paymentdate, paymentType, mode, amount];
     case "update_receive_bank":
-      return [voucherno, paymentdate, mode, referance, amount];
+      return [voucherno, paymentdate, paymentType, mode, amount];
     case "create_payment_bank":
-      return [voucherno, paymentdate, mode, referance, amount];
+      return [voucherno, paymentdate, paymentType, mode, amount];
     case "update_payment_bank":
-      return [voucherno, paymentdate, mode, referance, amount];
+      return [voucherno, paymentdate, mode, paymentType, amount];
     case "create_expense":
       return [ mobileno, voucherno, date, mobileno, email, billno, billdate, payment, expensse, description,
                taxable, mrp ];

@@ -1,5 +1,5 @@
 const Joi = require("joi");
-const {ITEM_GROUP_TYPE} = require("./constant");
+const {ITEM_GROUP_TYPE, PAYMENT_TYPE} = require("./constant");
 
 exports.email = function (req, res, next) {
   const { email } = req.body;
@@ -1786,3 +1786,22 @@ exports.receiptNo = async function(req, res, next){
   next();
 }
 
+exports.paymentType = async function(req, res, next){
+  const {paymentType} = req.body;
+  const paymentTypeSchema =  Joi.string()
+        .valid(...Object.values(PAYMENT_TYPE))
+        .required()
+        .messages({
+          'any.required': 'The Payment Type field is required.',
+          'any.only': `The Payment Type field must be one of Advance, Payment and Final Payment.`
+        })
+  const { error } = paymentTypeSchema.validate(paymentType);
+  if (error) {
+    return res.status(400).json({
+      status: "false",
+      message: error.message
+    })
+  } else {
+    next();
+  }
+}

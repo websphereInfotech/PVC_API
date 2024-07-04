@@ -4,6 +4,7 @@ const customer = require("./customer");
 const companyBankDetails = require("./companyBankDetails");
 const User = require("./user");
 const company = require("./company");
+const {PAYMENT_TYPE} = require("../constant/constant");
 
 const receiveBank = sequelize.define("P_receiveBank", {
   voucherno: { type: DataTypes.INTEGER },
@@ -23,12 +24,16 @@ const receiveBank = sequelize.define("P_receiveBank", {
       "Other"
     ),
   },
-  referance: { type: DataTypes.STRING },
   accountId: { type: DataTypes.INTEGER },
   amount: { type: DataTypes.INTEGER },
   createdBy: { type: DataTypes.INTEGER },
   updatedBy: { type: DataTypes.INTEGER },
-  companyId: {type: DataTypes.INTEGER}
+  companyId: {type: DataTypes.INTEGER},
+  paymentType: {
+    type: DataTypes.ENUM,
+    values: [...Object.values(PAYMENT_TYPE)],
+    allowNull: false
+  }
 });
 
 company.hasMany(receiveBank,{ foreignKey:'companyId',onDelete:'CASCADE'});

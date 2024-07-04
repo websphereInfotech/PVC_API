@@ -11,3 +11,9 @@ exports.ITEM_GROUP_TYPE = {
     RAW_MATERIAL: "raw_material",
     SPARE: "spare"
 }
+
+exports.PAYMENT_TYPE = {
+    ADVANCE: "advance",
+    PAYMENT: "payment",
+    FINAL_PAYMENT: "final payment"
+}

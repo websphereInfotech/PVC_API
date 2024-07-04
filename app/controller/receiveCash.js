@@ -313,6 +313,7 @@ exports.create_receive_bank = async (req, res) => {
       referance,
       accountId,
       amount,
+      paymentType
     } = req.body;
 
     if (!customerId || customerId === "" || customerId === null) {
@@ -363,6 +364,7 @@ exports.create_receive_bank = async (req, res) => {
       referance,
       accountId,
       amount,
+      paymentType,
       createdBy: user,
       updatedBy: user,
       companyId: req.user.companyId,
@@ -428,6 +430,7 @@ exports.update_receive_bank = async (req, res) => {
       referance,
       accountId,
       amount,
+      paymentType
     } = req.body;
 
     const receiveBankId = await receiveBank.findOne({
@@ -490,6 +493,7 @@ exports.update_receive_bank = async (req, res) => {
         referance,
         accountId,
         amount,
+        paymentType,
         createdBy: receiveBankId.createdBy,
         updatedBy: user,
         companyId: req.user.companyId,

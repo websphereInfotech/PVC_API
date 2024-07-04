@@ -12,6 +12,7 @@ const User = require("../models/user");
 const vendor = require("../models/vendor");
 const vendorLedger = require("../models/vendorLedger");
 const {Sequelize} = require("sequelize");
+const {paymentType} = require("../constant/validation");
 
 /*=============================================================================================================
                                          Type C API
@@ -280,6 +281,7 @@ exports.create_payment_bank = async (req, res) => {
       referance,
       accountId,
       amount,
+      paymentType
     } = req.body;
 
     if (!vendorId || vendorId === "" || vendorId === null) {
@@ -325,6 +327,7 @@ exports.create_payment_bank = async (req, res) => {
       referance,
       accountId,
       amount,
+      paymentType,
       createdBy: user,
       updatedBy: user,
       companyId: req.user.companyId,
@@ -393,6 +396,7 @@ exports.update_payment_bank = async (req, res) => {
       referance,
       accountId,
       amount,
+      paymentType
     } = req.body;
 
     const paymentdata = await paymentBank.findOne({
@@ -446,6 +450,7 @@ exports.update_payment_bank = async (req, res) => {
         referance,
         accountId,
         amount,
+        paymentType,
         createdBy: paymentdata.createdBy,
         updatedBy: user,
         companyId: req.user.companyId,
