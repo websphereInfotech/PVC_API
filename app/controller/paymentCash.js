@@ -558,17 +558,12 @@ exports.view_all_payment_bank = async (req, res) => {
       ],
     });
 
-    if (data.length > 0) {
       return res.status(200).json({
         status: "true",
         message: "Bank Payment Show Successfully",
         data: data,
       });
-    } else {
-      return res
-        .status(404)
-        .json({ status: "false", message: "Bank Payment Not Found" });
-    }
+
   } catch (error) {
     console.log(error);
     return res
