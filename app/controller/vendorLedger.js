@@ -214,6 +214,7 @@ exports.get_vendorLedger = async (req, res) => {
     const { id } = req.params;
     const { formDate, toDate } = req.query;
 
+    const companyId = req.user.companyId;
     const vendorData = await vendor.findOne({ where: { id, companyId } });
     if(!vendorData){
       return res.status(404).json({
@@ -221,7 +222,6 @@ exports.get_vendorLedger = async (req, res) => {
         message: "Vendor Not Found."
       })
     }
-    const companyId = req.user.companyId;
     const company = await Company.findOne({where: {id: companyId}})
 
     const queryData = { vendorId: id };
