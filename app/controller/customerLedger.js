@@ -181,42 +181,6 @@ exports.get_customerLedger = async (req, res) => {
       END`),
           "vchNo"
         ],
-        [
-          Sequelize.literal(`
-            (
-              SELECT
-                IFNULL(SUM(IFNULL(receiveCustomer.amount, 0) - IFNULL(invoiceCustomer.mainTotal, 0)), 0)
-              FROM
-                \`P_customerLedgers\` AS cl2
-                LEFT OUTER JOIN \`P_salesInvoices\` AS invoiceCustomer ON cl2.creditId = invoiceCustomer.id
-                LEFT OUTER JOIN \`P_receiveBanks\` AS receiveCustomer ON cl2.debitId = receiveCustomer.id
-              WHERE
-                cl2.customerId = \`P_customerLedger\`.\`customerId\`
-                AND cl2.companyId = ${companyId}
-                AND (cl2.date < \`P_customerLedger\`.\`date\` OR (cl2.date = \`P_customerLedger\`.\`date\` AND cl2.id < \`P_customerLedger\`.\`id\`))
-            )
-          `),
-          "openingBalance",
-        ],
-        [
-          Sequelize.literal(`
-            (
-              (
-                SELECT
-                  IFNULL(SUM(IFNULL(receiveCustomer.amount, 0) - IFNULL(invoiceCustomer.mainTotal, 0)), 0)
-                FROM
-                  \`P_customerLedgers\` AS cl2
-                  LEFT OUTER JOIN \`P_salesInvoices\` AS invoiceCustomer ON cl2.creditId = invoiceCustomer.id
-                  LEFT OUTER JOIN \`P_receiveBanks\` AS receiveCustomer ON cl2.debitId = receiveCustomer.id
-                WHERE
-                  cl2.customerId = \`P_customerLedger\`.\`customerId\`
-                  AND cl2.companyId = ${companyId}
-                  AND (cl2.date < \`P_customerLedger\`.\`date\` OR (cl2.date = \`P_customerLedger\`.\`date\` AND cl2.id < \`P_customerLedger\`.\`id\`))
-              ) + IFNULL(receiveCustomer.amount, 0) - IFNULL(invoiceCustomer.mainTotal, 0)
-            )
-          `),
-          "remainingBalance",
-        ],
       ],
       include: [
         {
@@ -293,13 +257,11 @@ exports.get_customerLedger = async (req, res) => {
         "customerId": +id,
         "id": null,
         "date": formDate,
-        "creditAmount": open.dataValues.openingBalance < 0 ? +Math.abs(open.dataValues.openingBalance).toFixed(2) : 0,
-        "debitAmount": open.dataValues.openingBalance > 0 ? +Math.abs(open.dataValues.openingBalance).toFixed(2) : 0,
+        "creditAmount": open.dataValues.openingBalance > 0 ? +Math.abs(open.dataValues.openingBalance).toFixed(2) : 0,
+        "debitAmount": open.dataValues.openingBalance < 0 ? +Math.abs(open.dataValues.openingBalance).toFixed(2) : 0,
         "particulars": "Opening Balance",
         "vchType": "",
         "vchNo": "",
-        "openingBalance": open.dataValues.openingBalance,
-        "remainingBalance": open.dataValues.openingBalance
       })
     }
 
