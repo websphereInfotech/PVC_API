@@ -1805,3 +1805,19 @@ exports.paymentType = async function(req, res, next){
     next();
   }
 }
+
+exports.supplyInvoiceNo = async function(req, res, next){
+  const { supplyInvoiceNo } = req.body;
+  const supplyInvoiceNoSchema = Joi.number()
+      .required()
+      .messages({
+        "number.base": "Purchase Number must be a number",
+        "any.required": "Required Field : Purchase Number",
+        "number.empty": "Purchase Number Cannot Be Empty",
+      });
+  const { error } = supplyInvoiceNoSchema.validate(supplyInvoiceNo);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+}

@@ -28,14 +28,17 @@ exports.create_item = async (req, res) => {
       salesprice,
       gstrate,
       HSNcode,
-      cess,
-      weight
+      cess
     } = req.body;
     const userId = req.user.userId
 
     let purchaseprice = req.body.purchaseprice;
+    let weight = req.body.weight;
     if (purchaseprice === "") {
       purchaseprice = null;
+    }
+    if (weight === "") {
+      weight = null;
     }
 
     // const existingHSNcode = await item.findOne({
@@ -121,14 +124,17 @@ exports.update_item = async (req, res) => {
       salesprice,
       gstrate,
       HSNcode,
-      cess,
-      weight
+      cess
     } = req.body;
     const userId = req.user.userId;
 
     let purchaseprice = req.body.purchaseprice;
+    let weight = req.body.weight;
     if (purchaseprice === "") {
       purchaseprice = null;
+    }
+    if (weight === "") {
+      weight = null;
     }
 
     const existingProduct = await item.findOne({

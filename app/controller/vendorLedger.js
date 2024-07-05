@@ -142,9 +142,10 @@ exports.C_get_vendorLedger = async (req, res) => {
         },
       ],
     })
+    console.log(open,"Open...................")
 
     const cashVendorLedgerArray = [...data]
-    if (open?.dataValues?.openingBalance ?? 0 !== 0) {
+    if (+open?.dataValues?.openingBalance ?? 0 !== 0) {
       cashVendorLedgerArray.unshift({
         "vendorId": +id,
         "id": null,
@@ -263,7 +264,7 @@ exports.get_vendorLedger = async (req, res) => {
         ],
         [
           Sequelize.literal(`CASE
-        WHEN invoiceVendor.id IS NOT NULL THEN \`invoiceVendor\`.\`invoiceno\`
+        WHEN invoiceVendor.id IS NOT NULL THEN \`invoiceVendor\`.\`voucherno\`
         WHEN paymentVendor.id IS NOT NULL THEN \`paymentVendor\`.\`voucherno\`
         ELSE ''
       END`),
@@ -340,7 +341,7 @@ exports.get_vendorLedger = async (req, res) => {
     })
 
     const vendorLedgerArray = [...data]
-    if (open?.dataValues?.openingBalance ?? 0 !== 0) {
+    if (+open?.dataValues?.openingBalance ?? 0 !== 0) {
       vendorLedgerArray.unshift({
         "vendorId": +id,
         "id": null,

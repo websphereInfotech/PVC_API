@@ -144,7 +144,7 @@ exports.C_get_customerLedger = async (req, res) => {
     })
 
     const cashCustomerLedgerArray = [...data]
-    if (open?.dataValues?.openingBalance ?? 0 !== 0) {
+    if (+open?.dataValues?.openingBalance ?? 0 !== 0) {
       cashCustomerLedgerArray.unshift({
         "customerId": +id,
         "id": null,
@@ -339,7 +339,7 @@ exports.get_customerLedger = async (req, res) => {
     })
 
     const customerLedgerArray = [...data]
-    if (open?.dataValues?.openingBalance ?? 0 !== 0) {
+    if (+open?.dataValues?.openingBalance ?? 0 !== 0) {
       customerLedgerArray.unshift({
         "customerId": +id,
         "id": null,

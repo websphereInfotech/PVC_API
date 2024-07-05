@@ -8,7 +8,8 @@ const purchaseInvoice = sequelize.define("P_purchaseInvoice", {
   vendorId: {
     type: DataTypes.INTEGER,
   },
-  invoiceno: { type: DataTypes.INTEGER },
+  supplyInvoiceNo: { type: DataTypes.INTEGER, allowNull: false },
+  voucherno: {type: DataTypes.INTEGER, allowNull: false },
   invoicedate: { type: DataTypes.DATEONLY },
   duedate: { type: DataTypes.DATEONLY },
   totalIgst: {

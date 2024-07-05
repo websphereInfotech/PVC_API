@@ -24,7 +24,6 @@ exports.create_purchaseInvoice = async (req, res) => {
     const {
       vendorId,
       duedate,
-      invoiceno,
       invoicedate,
       totalIgst,
       totalSgst,
@@ -32,15 +31,17 @@ exports.create_purchaseInvoice = async (req, res) => {
       mainTotal,
       totalQty,
       items,
+      supplyInvoiceNo,
+      voucherno
     } = req.body;
 
     const numberOf = await purchaseInvoice.findOne({
-      where: { invoiceno: invoiceno, companyId: req.user.companyId },
+      where: { voucherno: voucherno, companyId: req.user.companyId },
     });
     if (numberOf) {
       return res
         .status(400)
-        .json({ status: "false", message: "Invoice Number Already Exists" });
+        .json({ status: "false", message: "Voucher Number Already Exists" });
     }
     if (!vendorId || vendorId === "" || vendorId === null) {
       return res
@@ -90,13 +91,14 @@ exports.create_purchaseInvoice = async (req, res) => {
     const purchseData = await purchaseInvoice.create({
       vendorId,
       duedate,
-      invoiceno,
       invoicedate,
       totalIgst,
       totalSgst,
       totalMrp,
       totalQty,
       mainTotal,
+      voucherno,
+      supplyInvoiceNo,
       createdBy: user,
       updatedBy: user,
       companyId: req.user.companyId,
@@ -149,7 +151,6 @@ exports.update_purchaseInvoice = async (req, res) => {
     const {
       vendorId,
       duedate,
-      invoiceno,
       invoicedate,
       totalIgst,
       totalSgst,
@@ -157,6 +158,8 @@ exports.update_purchaseInvoice = async (req, res) => {
       mainTotal,
       totalQty,
       items,
+      supplyInvoiceNo,
+      voucherno
     } = req.body;
 
     const existingPurchase = await purchaseInvoice.findOne({
@@ -170,7 +173,7 @@ exports.update_purchaseInvoice = async (req, res) => {
     }
     const numberOf = await purchaseInvoice.findOne({
       where: {
-        invoiceno: invoiceno,
+        voucherno: voucherno,
         companyId: req.user.companyId,
         id: { [Sequelize.Op.ne]: id },
       },
@@ -178,7 +181,7 @@ exports.update_purchaseInvoice = async (req, res) => {
     if (numberOf) {
       return res
         .status(400)
-        .json({ status: "false", message: "Invoice Number Already Exists" });
+        .json({ status: "false", message: "Voucher Number Already Exists" });
     }
     if (!vendorId || vendorId === "" || vendorId === null) {
       return res
@@ -227,13 +230,14 @@ exports.update_purchaseInvoice = async (req, res) => {
       {
         vendorId,
         duedate,
-        invoiceno,
         invoicedate,
         totalIgst,
         totalSgst,
         totalMrp,
         totalQty,
         mainTotal,
+        supplyInvoiceNo,
+        voucherno,
         companyId: req.user.companyId,
         createdBy: existingPurchase.createdBy,
         updatedBy: user,
