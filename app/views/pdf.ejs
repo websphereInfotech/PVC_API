@@ -3,9 +3,1341 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sales Invioce</title>
+    <title>Ledger Account</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: 90%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .company-info,
+        .client-info {
+            width: 45%;
+        }
+
+        .company-info h1,
+        .client-info h2 {
+            margin: 0;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        .company-info p,
+        .client-info p {
+            margin: 0;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        .date-range {
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+            table-layout: fixed; /* Fix table layout to prevent overflow */
+        }
+
+        thead th {
+            border-bottom: 2px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+
+        tbody td {
+            border-bottom: 1px solid #ccc;
+            padding: 8px;
+            word-wrap: break-word; /* Ensure content wraps within cell */
+            white-space: normal; /* Prevent overflow */
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .closing-balance {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        td[colspan="4"] {
+            text-align: right;
+            padding-right: 20px;
+        }
+
+        td[colspan="4"]:last-child {
+            text-align: left;
+        }
+
+        tfoot td {
+            font-weight: bold;
+        }
+    </style>
+
 </head>
 <body>
-    
+<div class="container">
+    <div class="header">
+        <div class="company-info">
+            <h1>SHREE KRISHNA INDUSTRIES</h1>
+            <p>
+                Plot No. 120 to 123,<br>
+                Om Textiles Park-3,<br>
+                Umbhel To Parab Village Road,<br>
+                N.H.-8, Kadodara,<br>
+                Surat
+            </p>
+        </div>
+        <div class="client-info">
+            <h2>SAGAR POLYMERS</h2>
+            <p>
+                Ledger Account<br>
+                E/7, 2ND FLOOR, PARAS NAGAR<br>
+                JOGESHWARI (E)<br>
+                MUMBAI-400060
+            </p>
+        </div>
+    </div>
+    <div class="date-range">
+        <p>1-Jun-24 to 28-Jun-24</p>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Particulars</th>
+            <th>Vch Type</th>
+            <th>Vch No.</th>
+            <th>Debit</th>
+            <th>Credit</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1-Jun-24</td>
+            <td>To Opening Balance</td>
+            <td></td>
+            <td></td>
+            <td>16,12,494.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>6-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>131</td>
+            <td></td>
+            <td>2,50,000.00</td>
+        </tr>
+        <tr>
+            <td>7-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>164</td>
+            <td>3,36,734.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>8-Jun-24</td>
+            <td>By Yes Bank.....................................................................................</td>
+            <td>Receipt</td>
+            <td>137</td>
+            <td></td>
+            <td>3,50,000.00</td>
+        </tr>
+        <tr>
+            <td>10-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>168</td>
+            <td>2,35,651.90</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>10-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>146</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr>
+        <tr>
+            <td>11-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>153</td>
+            <td></td>
+            <td>30,000.00</td>
+        </tr>
+        <tr>
+            <td>11-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>154</td>
+            <td></td>
+            <td>40,000.00</td>
+        </tr>
+        <tr>
+            <td>12-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>155</td>
+            <td></td>
+            <td>1,15,000.00</td>
+        </tr>
+        <tr>
+            <td>14-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>189</td>
+            <td>4,16,927.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>19-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>190</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr>
+        <tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr><tr>
+            <td>21-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>214</td>
+            <td>3,74,992.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>22-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>204</td>
+            <td></td>
+            <td>2,00,000.00</td>
+        </tr>
+        <tr>
+            <td>25-Jun-24</td>
+            <td>By Yes Bank</td>
+            <td>Receipt</td>
+            <td>214</td>
+            <td></td>
+            <td>1,00,000.00</td>
+        </tr>
+        <tr>
+            <td>26-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>229</td>
+            <td>3,97,154.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>28-Jun-24</td>
+            <td>To SALES GST</td>
+            <td>TAX INVOICE</td>
+            <td>240</td>
+            <td>4,24,369.00</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td colspan="4"></td>
+            <td>37,98,321.90</td>
+            <td>45215236</td>
+        </tr><tr>
+            <td colspan="4" class="closing-balance">By Closing Balance</td>
+            <td>37,98,321.90</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td colspan="4"></td>
+            <td>37,98,321.90</td>
+            <td>37,98,321.90</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
 </body>
 </html>

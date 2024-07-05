@@ -17,6 +17,8 @@ exports.create_user = async (req, res) => {
       role,
       mobileno,
       salary,
+      exitTime,
+      entryTime
     } = req.body;
 
     const existingEmail = await User.findOne({ where: { email: email } });
@@ -67,6 +69,8 @@ exports.create_user = async (req, res) => {
       role: role,
       mobileno: mobileno,
       salary: salary,
+      exitTime: exitTime,
+      entryTime: entryTime
     });
 
     await companyUser.create({
@@ -178,7 +182,7 @@ exports.update_user = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { username, email, role, mobileno, salary } = req.body;
+    const { username, email, role, mobileno, salary, exitTime, entryTime } = req.body;
     const FindID = await User.findByPk(id);
     if (!FindID) {
       return res
@@ -216,6 +220,7 @@ exports.update_user = async (req, res) => {
           role: role,
           mobileno: mobileno,
           salary: salary,
+          exitTime: exitTime, entryTime: entryTime
         },
         { where: { id: id } }
       );

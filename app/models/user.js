@@ -1,4 +1,4 @@
-const { DataTypes } = require("sequelize");
+const { DataTypes, Sequelize} = require("sequelize");
 const sequelize = require("../config/index");
 
 const User = sequelize.define("P_user", {
@@ -28,6 +28,12 @@ const User = sequelize.define("P_user", {
     ),
     allowNull: false,
   },
+  entryTime: {
+    type: DataTypes.TIME,
+  },
+  exitTime: {
+    type: DataTypes.TIME,
+  }
 });
 
 module.exports = User;

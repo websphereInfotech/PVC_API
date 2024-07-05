@@ -1,4 +1,7 @@
 const { Sequelize } = require("sequelize");
+const { renderFile } = require("ejs");
+const htmlToPdf = require("html-pdf-node");
+const path = require("node:path");
 const C_PaymentCash = require("../models/C_paymentCash");
 const C_purchaseCash = require("../models/C_purchaseCash");
 const C_vendorLedger = require("../models/C_vendorLedger");
@@ -404,3 +407,194 @@ exports.get_vendorLedger = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
+exports.get_vendorLedgerPDF = async (req, res)=>{
+  const { id } = req.params;
+  const { formDate, toDate } = req.query;
+
+  const companyId = req.user.companyId;
+  const vendorData = await vendor.findOne({ where: { id, companyId } });
+  if(!vendorData){
+    return res.status(404).json({
+      status: "false",
+      message: "Vendor Not Found."
+    })
+  }
+  const company = await Company.findOne({where: {id: companyId}})
+
+  const queryData = { vendorId: id };
+
+  if (companyId) {
+    queryData.companyId = companyId;
+  }
+
+  if (formDate && toDate) {
+    queryData.date = {
+      [Sequelize.Op.between]: [formDate, toDate],
+    };
+  }
+  const data = await vendorLedger.findAll({
+    attributes: [
+      "vendorId",
+      "date",
+      "id",
+      [
+        Sequelize.literal("IFNULL(paymentVendor.amount, 0)"),
+        "debitAmount",
+      ],
+      [Sequelize.literal("IFNULL(invoiceVendor.mainTotal, 0)"), "creditAmount"],
+      [
+        Sequelize.literal(`CASE
+        WHEN invoiceVendor.id IS NOT NULL THEN 'PURCHASE GST'
+        WHEN paymentVendor.id IS NOT NULL THEN \`paymentVendor->paymentBank\`.\`bankname\`
+        ELSE ''
+      END`),
+        "particulars"
+      ],
+      [
+        Sequelize.literal(`CASE
+        WHEN invoiceVendor.id IS NOT NULL THEN 'TAX INVOICE'
+        WHEN paymentVendor.id IS NOT NULL THEN 'Payment'
+        ELSE ''
+      END`),
+        "vchType"
+      ],
+      [
+        Sequelize.literal(`CASE
+        WHEN invoiceVendor.id IS NOT NULL THEN \`invoiceVendor\`.\`voucherno\`
+        WHEN paymentVendor.id IS NOT NULL THEN \`paymentVendor\`.\`voucherno\`
+        ELSE ''
+      END`),
+        "vchNo"
+      ],
+    ],
+    include: [
+      {
+        model: purchaseInvoice,
+        as: "invoiceVendor",
+        attributes:[]
+      },
+      {
+        model: paymentBank,
+        as: "paymentVendor",
+        attributes:[],
+        include:[{model: companyBankDetails, as: "paymentBank",attributes:[]}]
+      },
+      {
+        model: vendor,
+        as: "vendorData",
+        attributes:[]
+      },
+    ],
+    where: queryData,
+    order: [
+      ["date", "ASC"],
+      ["id", "ASC"],
+    ],
+  });
+
+  const open = await vendorLedger.findOne({
+    where: {
+      id: data[0]?.id ?? 0,
+      companyId: companyId
+    },
+    attributes: [
+      [
+        Sequelize.literal(`
+        (
+          SELECT
+            IFNULL(SUM(IFNULL(invoiceVendor.mainTotal, 0)- IFNULL(paymentVendor.amount, 0)), 0)
+          FROM
+            \`P_vendorLedgers\` AS cl2
+            LEFT OUTER JOIN \`P_paymentBanks\` AS paymentVendor ON cl2.creditId = paymentVendor.id
+            LEFT OUTER JOIN \`P_purchaseInvoices\` AS invoiceVendor ON cl2.debitId = invoiceVendor.id
+          WHERE
+            cl2.vendorId = \`P_vendorLedger\`.\`vendorId\`
+            AND cl2.companyId = ${companyId}
+            AND (cl2.date < \`P_vendorLedger\`.\`date\` OR (cl2.date = \`P_vendorLedger\`.\`date\` AND cl2.id < \`P_vendorLedger\`.\`id\`))
+        )
+      `),
+        "openingBalance",
+      ]
+    ],
+    include: [
+      {
+        model: purchaseInvoice,
+        as: "invoiceVendor",
+        attributes:[]
+      },
+      {
+        model: paymentBank,
+        as: "paymentVendor",
+        attributes:[],
+        include:[{model: companyBankDetails, as: "paymentBank",attributes:[]}]
+      },
+      {
+        model: vendor,
+        as: "vendorData",
+        attributes:[]
+      },
+    ],
+  })
+
+  const vendorLedgerArray = [...data]
+  if (+open?.dataValues?.openingBalance ?? 0 !== 0) {
+    vendorLedgerArray.unshift({
+      "vendorId": +id,
+      "id": null,
+      "date": formDate,
+      "creditAmount": open.dataValues.openingBalance > 0 ? +Math.abs(open.dataValues.openingBalance).toFixed(2) : 0,
+      "debitAmount": open.dataValues.openingBalance < 0 ? +Math.abs(open.dataValues.openingBalance).toFixed(2) : 0,
+      "particulars": "Opening Balance",
+      "vchType": "",
+      "vchNo": "",
+    })
+  }
+
+  const totals = vendorLedgerArray.reduce((acc, ledger) => {
+    if (ledger.dataValues) {
+      acc.totalCredit += ledger.dataValues.creditAmount || 0;
+      acc.totalDebit += ledger.dataValues.debitAmount || 0;
+    } else {
+      acc.totalCredit += ledger.creditAmount || 0;
+      acc.totalDebit += ledger.debitAmount || 0;
+    }
+    return acc;
+  }, { totalCredit: 0, totalDebit: 0 });
+
+  const totalCredit = totals.totalCredit;
+  const totalDebit = totals.totalDebit;
+
+  const closingBalanceAmount = totalDebit -totalCredit;
+  const closingBalance = {
+    type: closingBalanceAmount < 0 ? "debit": 'credit',
+    amount: +Math.abs(closingBalanceAmount).toFixed(2),
+  }
+
+  const records = vendorLedgerArray.reduce((acc, obj) => {
+    const dateKey = obj.date;
+    const date = new Date(dateKey);
+    const formattedDate = `${date.getDate()}-${date.toLocaleString('default', { month: 'short' })}-${String(date.getFullYear()).slice(-2)}`;
+
+    if (!acc[formattedDate]) {
+      acc[formattedDate] = [];
+    }
+    acc[formattedDate].push(obj);
+    return acc;
+  }, {});
+
+  const formattedFromDate = new Date(formDate);
+  const formattedToDate = new Date(toDate);
+
+  const formDateFormat = `${formattedFromDate.getDate()}-${formattedFromDate.toLocaleString('default', { month: 'short' })}-${String(formattedFromDate.getFullYear()).slice(-2)}`;
+  const toDateFormat = `${formattedToDate.getDate()}-${formattedToDate.toLocaleString('default', { month: 'short' })}-${String(formattedToDate.getFullYear()).slice(-2)}`;
+  const html = await renderFile(path.join(__dirname, "../views/pdf.ejs"),{data:{form: company,to: vendorData, dateRange: `${formDateFormat} - ${toDateFormat}`,totals, totalAmount: totals.totalCredit < totals.totalDebit ? totals.totalDebit: totals.totalCredit,closingBalance, records: records}});
+  htmlToPdf.generatePdf({content: html},{printBackground: true, format: 'A4'}).then((pdf) => {
+    const base64String = pdf.toString("base64");
+    return res.status(200).json({
+      status: "Success",
+      message: "pdf create successFully",
+      data: base64String,
+    });
+  })
+}

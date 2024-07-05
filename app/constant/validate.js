@@ -72,7 +72,7 @@ const {
   create_bom,
   update_productStock,
   weight,
-  itemUnit, itemGroup, saleNo, purchaseNo, paymentNo, receiptNo, paymentType, supplyInvoiceNo
+  itemUnit, itemGroup, saleNo, purchaseNo, paymentNo, receiptNo, paymentType, supplyInvoiceNo, dutyTime
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -82,9 +82,9 @@ module.exports.validation = function (method) {
     case "check_user":
       return [email, mobileno];
     case "create_user":
-      return [username, email, mobileno, password, salary, role];
+      return [username, email, mobileno, password, salary, role, dutyTime];
     case "update_user":
-      return [email, mobileno, salary, role];
+      return [email, mobileno, salary, role, dutyTime];
     case "create_deliverychallan":
       return [challanno, date, qty, itemUnit];
     case "update_deliverychallan":

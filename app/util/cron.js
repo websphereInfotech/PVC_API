@@ -56,7 +56,6 @@ exports.lowStockNotificationJob = cron.schedule('0 0 * * *', async () => {
 exports.employeeSalaryCountJob = cron.schedule('0 0 * * *', async () => {
     const date = new Date();
     const startDate = moment().startOf('month').format('YYYY-MM-DD');
-    const daysInThisMonth = moment().daysInMonth();
     const momentDate = moment(date);
     const isFirstDayOfMonth = momentDate.isSame(momentDate.clone().startOf('month'), 'day');
     const companies = await company.findAll({
@@ -75,7 +74,7 @@ exports.employeeSalaryCountJob = cron.schedule('0 0 * * *', async () => {
         for(const company of companies){
             const users = company.users;
             for(const user of users){
-                const daySalary = user.salary / daysInThisMonth
+                const daySalary = user.salary
                 await Salary.create({
                     companyId: company.id,
                     userId: user.id,
@@ -89,7 +88,7 @@ exports.employeeSalaryCountJob = cron.schedule('0 0 * * *', async () => {
         for(const company of companies){
             const users = company.users;
             for(const user of users){
-                const daySalary = user.salary / daysInThisMonth
+                const daySalary = user.salary
                 let latestSalary = await Salary.findOne({
                     where: {
                         companyId: company.id,

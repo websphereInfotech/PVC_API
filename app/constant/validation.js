@@ -1821,3 +1821,36 @@ exports.supplyInvoiceNo = async function(req, res, next){
   }
   next();
 }
+
+exports.dutyTime = async function(req, res, next){
+  const {entryTime, exitTime} = req.body;
+  const timePattern = /^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/;
+  const timeSchema = Joi.object({
+    entryTime: Joi.string().pattern(timePattern).required().messages({
+      'string.pattern.base': 'Entry time must be in the format HH:mm (24-hour format)',
+      'any.required': 'Entry time is required'
+    }),
+    exitTime: Joi.string().pattern(timePattern).required().messages({
+      'string.pattern.base': 'Exit time must be in the format HH:mm (24-hour format)',
+      'any.required': 'Exit time is required'
+    }),
+  });
+  const { error, value } = timeSchema.validate({ entryTime, exitTime });
+  if (error) {
+    return res.status(400).json({
+      status: "false",
+      message: error.message
+    })
+  }
+  const [entryHours, entryMinutes] = entryTime.split(':').map(Number);
+  const [exitHours, exitMinutes] = exitTime.split(':').map(Number);
+  if (
+      entryHours > exitHours ||
+      (entryHours === exitHours && entryMinutes >= exitMinutes)
+  )
+    return res.status(400).json({
+      status: "false",
+      message: "Entry time must be before exit time."
+    })
+  next()
+}
