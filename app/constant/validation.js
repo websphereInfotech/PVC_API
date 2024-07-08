@@ -1852,5 +1852,5 @@ exports.dutyTime = async function(req, res, next){
       status: "false",
       message: "Entry time must be before exit time."
     })
-  next()
+  next();
 }

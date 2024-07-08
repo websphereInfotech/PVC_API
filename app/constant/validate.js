@@ -178,6 +178,8 @@ module.exports.validation = function (method) {
       return [ itemtype, productname, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice, weight ];
     case "update_raw_material":
       return [ itemtype, productname, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice, weight ];
+    case "add_user_bank_account":
+      return [accountname, bankname, accountnumber, ifsccode, branch];
     default:
       throw new Error("Invalid validation method");
   }

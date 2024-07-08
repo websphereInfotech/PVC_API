@@ -5,7 +5,8 @@ const admintoken = require("../models/admintoken");
 const companyUser = require("../models/companyUser");
 const company = require("../models/company");
 const C_userBalance = require("../models/C_userBalance");
-const {Op} = require("sequelize");
+const {Op, Sequelize} = require("sequelize");
+const UserBankAccount = require("../models/userBankAccount");
 
 exports.create_user = async (req, res) => {
   try {
@@ -523,4 +524,169 @@ exports.remove_company = async (req,res)=>{
     })
   }
 
+}
+exports.add_user_bank_account = async (req,res)=>{
+  try {
+    const {
+      accountname,
+      bankname,
+      accountnumber,
+      ifsccode,
+      branch,
+      userId
+    } = req.body;
+    const userData = await User.findByPk(userId);
+    if(!userData){
+      return res.status(404).json({
+        status: "false",
+        message: "User Not Found."
+      })
+    }
+    const existingAccount = await UserBankAccount.findOne({
+      where: { accountnumber: accountnumber },
+    });
+    if (existingAccount) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Account Number already Exists" });
+    }
+    const existingIfsc = await UserBankAccount.findOne({
+      where: { ifsccode: ifsccode },
+    });
+    if (existingIfsc) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "IFSC Code already Exists" });
+    }
+    const data = await UserBankAccount.create({
+      userId,
+      accountname,
+      bankname,
+      accountnumber,
+      ifsccode,
+      branch,
+    });
+    return res.status(200).json({
+      status: "true",
+      message: "Bank Details Create Successfully",
+      data: data,
+    });
+  }catch (e) {
+    console.log(e);
+    return res
+        .status(500)
+        .json({ status: "false", message: "Internal Server Error" });
+  }
+}
+exports.edit_user_bank_account = async (req, res)=>{
+ try {
+   const { accountId } = req.params;
+   const {
+     userId,
+     accountname,
+     bankname,
+     accountnumber,
+     ifsccode,
+     branch,
+   } = req.body;
+   const bankData = await UserBankAccount.findOne({
+     where: {
+       id: accountId,
+       userId: userId
+     }
+   });
+   if(!bankData){
+     return res
+         .status(404)
+         .json({ status: "false", message: "Bank Details Not Found" });
+   }
+   const userData = await User.findByPk(userId);
+   if(!userData){
+     return res.status(404).json({status: "false", message: "User Not Found."})
+   }
+   const existingAccount = await UserBankAccount.findOne({
+     where: { accountnumber: accountnumber, id: { [Sequelize.Op.ne]: accountId }, },
+   })
+   if (existingAccount) {
+     return res
+         .status(400)
+         .json({ status: "false", message: "Account Number already Exists" });
+   }
+   const existingIfsc = await UserBankAccount.findOne({
+     where: { ifsccode: ifsccode, id: { [Sequelize.Op.ne]: accountId } },
+   });
+   if (existingIfsc) {
+     return res
+         .status(400)
+         .json({ status: "false", message: "IFSC Code already Exists" });
+   }
+   const data = await UserBankAccount.update(
+       {
+         userId,
+         accountname,
+         bankname,
+         accountnumber,
+         ifsccode,
+         branch,
+       },
+       {
+         where: { id: accountId },
+         returning: true,
+       }
+   );
+   return res.status(200).json({
+     status: "true",
+     message: "Bank Details Updated Successfully",
+     data: data,
+   });
+ }catch (e) {
+   console.log(error);
+   return res
+       .status(500)
+       .json({ status: "false", message: "Internal Server Error" });
+ }
+}
+exports.delete_user_bank_account = async (req, res)=>{
+  try {
+    const { accountId } = req.params;
+    const bankData = await UserBankAccount.findByPk(accountId);
+    if(!bankData) return res.status(404).json({status: "false", message: "Bank Account Not Found."});
+
+    await UserBankAccount.destroy({
+      where: {id: accountId}
+    })
+    return res.status(200).json({status: "true", message: "Bank Account Deleted Successfully." });
+  }catch (e) {
+    console.log(e);
+    return res.status(500).json({status: "false", message: "Internal Server Error"});
+  }
+}
+exports.view_user_bank_account = async (req, res)=>{
+  try {
+    const { accountId } = req.params;
+    const bankData = await UserBankAccount.findByPk(accountId);
+    if(!bankData){
+      return res.status(404).json({status: "false", message: "Bank Account Not Found."});
+    }
+    return res.status(200).json({status: "true", message: "Bank Account Fetch Successfully.", data: bankData });
+  }catch (e) {
+    console.log(e);
+    return res.status(500).json({status: "false", message: "Internal Server Error"});
+  }
+}
+exports.view_all_user_bank_account = async (req, res)=>{
+  try {
+    const {userId} = req.params;
+    const userData = await User.findByPk(userId);
+    if(!userData) return res.status(404).json({status: "false", message: "User Not Found."});
+    const data = await UserBankAccount.findAll({
+      where: {
+        userId: userId,
+      }
+    });
+    return res.status(200).json({status: "true", message: "Bank Account Fetch Successfully."})
+  }catch (e) {
+    console.log(e);
+    return res.status(500).json({status: "false", message: "Internal Server Error."})
+  }
 }

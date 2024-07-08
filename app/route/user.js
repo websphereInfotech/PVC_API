@@ -11,7 +11,12 @@ const {
   check_user,
   add_user,
   view_all_userTOComapny,
-  remove_company
+  remove_company,
+  add_user_bank_account,
+  edit_user_bank_account,
+  delete_user_bank_account,
+  view_user_bank_account,
+  view_all_user_bank_account
 } = require("../controller/user");
 const adminAuth = require("../middleware/adminAuth");
 const { validation } = require("../constant/validate");
@@ -57,5 +62,10 @@ router.get(
 router.delete('/remove_company/:id', adminAuth("Login:remove_company"), remove_company)
 
 router.get('/view_user_balance',adminToken("Claim Cash:view_user_balance"),view_user_balance);
+router.post('/add_user_bank_account',adminToken("Login:add_user_bank_account"), validation('add_user_bank_account'),add_user_bank_account);
+router.put('/edit_user_bank_account/:accountId',adminToken("Login:edit_user_bank_account"), validation('add_user_bank_account'),edit_user_bank_account);
+router.delete('/delete_user_bank_account/:accountId',adminToken("Login:delete_user_bank_account"),delete_user_bank_account);
+router.get('/view_user_bank_account/:accountId',adminToken("Login:view_user_bank_account"),view_user_bank_account);
+router.get('/view_all_user_bank_account/:userId',adminToken("Login:view_all_user_bank_account"),view_all_user_bank_account);
 
 module.exports = router;
