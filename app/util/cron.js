@@ -56,6 +56,7 @@ exports.lowStockNotificationJob = cron.schedule('0 0 * * *', async () => {
 exports.employeeSalaryCountJob = cron.schedule('0 0 * * *', async () => {
     const date = new Date();
     const startDate = moment().startOf('month').format('YYYY-MM-DD');
+    const endDate = moment().endOf('month').format('YYYY-MM-DD');
     const momentDate = moment(date);
     const isFirstDayOfMonth = momentDate.isSame(momentDate.clone().startOf('month'), 'day');
     const companies = await company.findAll({
@@ -80,7 +81,8 @@ exports.employeeSalaryCountJob = cron.schedule('0 0 * * *', async () => {
                     userId: user.id,
                     amount: daySalary,
                     monthStartDate: startDate,
-                    monthEndDate: date,
+                    monthEndDate: endDate,
+                    payableAmount: daySalary
                 })
             }
         }
@@ -98,29 +100,32 @@ exports.employeeSalaryCountJob = cron.schedule('0 0 * * *', async () => {
                         ['monthStartDate', 'DESC']
                     ]
                 });
-                if (!latestSalary) {
-                    await Salary.create({
-                        companyId: company.id,
-                        userId: user.id,
-                        amount: daySalary,
-                        monthStartDate: date,
-                        monthEndDate: date,
-                    });
-                } else {
-                    if (latestSalary.status === SALARY_STATUS.PENDING) {
-                        latestSalary.amount += daySalary;
-                        latestSalary.monthEndDate = date;
-                        await latestSalary.save();
-                    } else if (latestSalary.status === SALARY_STATUS.PAID || latestSalary.status === SALARY_STATUS.CANCELED) {
-                        await Salary.create({
-                            companyId: company.id,
-                            userId: user.id,
-                            amount: daySalary,
-                            monthStartDate: latestSalary.monthEndDate,
-                            monthEndDate: date,
-                        });
-                    }
-                }
+                latestSalary.amount += daySalary;
+                latestSalary.payableAmount += daySalary;
+                await latestSalary.save();
+                // if (!latestSalary) {
+                //     await Salary.create({
+                //         companyId: company.id,
+                //         userId: user.id,
+                //         amount: daySalary,
+                //         monthStartDate: date,
+                //         monthEndDate: date,
+                //     });
+                // } else {
+                //     if (latestSalary.status === SALARY_STATUS.PENDING) {
+                //         latestSalary.amount += daySalary;
+                //         latestSalary.monthEndDate = date;
+                //         await latestSalary.save();
+                //     } else if (latestSalary.status === SALARY_STATUS.PAID || latestSalary.status === SALARY_STATUS.CANCELED) {
+                //         await Salary.create({
+                //             companyId: company.id,
+                //             userId: user.id,
+                //             amount: daySalary,
+                //             monthStartDate: latestSalary.monthEndDate,
+                //             monthEndDate: date,
+                //         });
+                //     }
+                // }
             }
         }
     }

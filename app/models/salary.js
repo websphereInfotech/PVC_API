@@ -2,7 +2,6 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const company = require("./company");
 const User = require("./user");
-const {SALARY_STATUS} = require("../constant/constant");
 
 const Salary = sequelize.define("P_Salary", {
     amount: {
@@ -17,12 +16,6 @@ const Salary = sequelize.define("P_Salary", {
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    status: {
-        type: DataTypes.ENUM,
-        values: [SALARY_STATUS.PAID, SALARY_STATUS.PENDING, SALARY_STATUS.CANCELED],
-        allowNull: false,
-        defaultValue: SALARY_STATUS.PENDING
-    },
     monthStartDate: {
         type: DataTypes.DATEONLY,
         allowNull: false
@@ -30,6 +23,10 @@ const Salary = sequelize.define("P_Salary", {
     monthEndDate: {
         type: DataTypes.DATEONLY,
         allowNull: false
+    },
+    payableAmount: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
     }
 });
 

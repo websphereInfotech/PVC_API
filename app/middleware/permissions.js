@@ -1255,27 +1255,45 @@ exports.permissions = {
     "Salary" : {
         "Super Admin" :{
             "view_all_salary":true,
-            "salary_status": true
+            "add_salary_payment": true,
+            "edit_salary_payment": true,
+            "delete_salary_payment": true,
+            "view_all_salary_payment": true
         },
         "Admin" :{
             "view_all_salary":true,
-            "salary_status": true
+            "add_salary_payment": true,
+            "edit_salary_payment": true,
+            "delete_salary_payment": true,
+            "view_all_salary_payment": true
         },
         "Account" :{
             "view_all_salary":true,
-            "salary_status": true
+            "add_salary_payment": true,
+            "edit_salary_payment": true,
+            "delete_salary_payment": true,
+            "view_all_salary_payment": true
         },
         "Employee" :{
             "view_all_salary":true,
-            "salary_status": true
+            "add_salary_payment": true,
+            "edit_salary_payment": true,
+            "delete_salary_payment": true,
+            "view_all_salary_payment": true
         },
         "Workers" :{
             "view_all_salary":true,
-            "salary_status": true
+            "add_salary_payment": true,
+            "edit_salary_payment": true,
+            "delete_salary_payment": true,
+            "view_all_salary_payment": true
         },
         "Other" :{
             "view_all_salary":true,
-            "salary_status": true
+            "add_salary_payment": true,
+            "edit_salary_payment": true,
+            "delete_salary_payment": true,
+            "view_all_salary_payment": true
         }
     },
 }

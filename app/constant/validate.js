@@ -72,7 +72,8 @@ const {
   create_bom,
   update_productStock,
   weight,
-  itemUnit, itemGroup, saleNo, purchaseNo, paymentNo, receiptNo, paymentType, supplyInvoiceNo, dutyTime
+  itemUnit, itemGroup, saleNo, purchaseNo, paymentNo, receiptNo, paymentType, supplyInvoiceNo, dutyTime,
+  salaryPaymentType
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -180,6 +181,8 @@ module.exports.validation = function (method) {
       return [ itemtype, productname, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice, weight ];
     case "add_user_bank_account":
       return [accountname, bankname, accountnumber, ifsccode, branch];
+    case "add_salary_payment":
+      return [amount, date, salaryPaymentType];
     default:
       throw new Error("Invalid validation method");
   }

@@ -1,5 +1,5 @@
 const Joi = require("joi");
-const {ITEM_GROUP_TYPE, PAYMENT_TYPE} = require("./constant");
+const {ITEM_GROUP_TYPE, PAYMENT_TYPE, SALARY_PAYMENT_TYPE} = require("./constant");
 
 exports.email = function (req, res, next) {
   const { email } = req.body;
@@ -1854,3 +1854,40 @@ exports.dutyTime = async function(req, res, next){
     })
   next();
 }
+
+exports.salaryPaymentType = async function(req, res, next){
+  const {paymentType, companyBankId, userBankId} = req.body;
+  const paymentTypeSchema = Joi.object({
+    paymentType: Joi.string()
+        .valid(...Object.values(SALARY_PAYMENT_TYPE))
+        .required()
+        .messages({
+          'any.required': 'The Payment Type field is required.',
+          'any.only': 'The Payment Type field must be one of Cash or Bank.'
+        }),
+    companyBankId: Joi.when('paymentType', {
+      is: SALARY_PAYMENT_TYPE.BANK,
+      then: Joi.string().required().messages({
+        'any.required': 'The Company Bank field is required when Payment Type is Bank.'
+      }),
+      otherwise: Joi.optional()
+    }),
+    userBankId: Joi.when('paymentType', {
+      is: SALARY_PAYMENT_TYPE.BANK,
+      then: Joi.string().required().messages({
+        'any.required': 'The User Bank field is required when Payment Type is Bank.'
+      }),
+      otherwise: Joi.optional()
+    })
+  });
+  const { error } = paymentTypeSchema.validate({paymentType, companyBankId, userBankId});
+  if (error) {
+    return res.status(400).json({
+      status: "false",
+      message: error.message
+    })
+  } else {
+    next();
+  }
+}
+
