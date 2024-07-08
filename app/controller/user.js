@@ -139,7 +139,7 @@ exports.view_user = async (req, res) => {
  
     const data = await User.findOne({
       where: { id: id },
-      include: [{ model: company, as: "companies", where: { id: companyId }, attributes: [] }],
+      include: [{ model: company, as: "companies", where: { id: companyId }, attributes: [] }, {model: UserBankAccount, as: "userBankAccount"}],
     });
     if (data) {
       return res.status(200).json({
