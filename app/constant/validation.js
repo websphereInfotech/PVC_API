@@ -1867,14 +1867,14 @@ exports.salaryPaymentType = async function(req, res, next){
         }),
     companyBankId: Joi.when('paymentType', {
       is: SALARY_PAYMENT_TYPE.BANK,
-      then: Joi.string().required().messages({
-        'any.required': 'The Company Bank field is required when Payment Type is Bank.'
+      then: Joi.number().required().messages({
+        'any.required': 'The Company Bank field is required when Payment Type is Bank.',
       }),
       otherwise: Joi.optional()
     }),
     userBankId: Joi.when('paymentType', {
       is: SALARY_PAYMENT_TYPE.BANK,
-      then: Joi.string().required().messages({
+      then: Joi.number().required().messages({
         'any.required': 'The User Bank field is required when Payment Type is Bank.'
       }),
       otherwise: Joi.optional()

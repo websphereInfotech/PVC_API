@@ -1,6 +1,8 @@
 const Salary = require("../models/salary");
 const User = require("../models/user");
 const SalaryPayment = require("../models/salaryPayment");
+const CompanyBank = require("../models/companyBankDetails");
+const UserBankAccount = require("../models/userBankAccount");
 const moment = require("moment");
 const {SALARY_STATUS} = require("../constant/constant");
 const {salary, amount} = require("../constant/validation");
@@ -31,6 +33,7 @@ exports.view_all_salary = async (req, res) => {
                 monthStartDate: salary.monthStartDate,
                 monthEndDate: salary.monthEndDate,
                 status: salary.status,
+                payableAmount: salary.payableAmount,
                 employee: salary.employeeSalary
             });
         }));
@@ -246,7 +249,8 @@ exports.view_all_salary_payment = async (req, res)=>{
         const data = await SalaryPayment.findAll({
             where: {
                 salaryId: salaryId
-            }
+            },
+            include: [{model: CompanyBank, as: "salaryPaymentBank"}, {model: UserBankAccount, as: "salaryPaymentUserBank"}]
         });
         return res.status(200).json({status: "true", message: "Successfully Fetch User Salary Payment.", data: data})
     }catch (e) {

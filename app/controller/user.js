@@ -684,7 +684,7 @@ exports.view_all_user_bank_account = async (req, res)=>{
         userId: userId,
       }
     });
-    return res.status(200).json({status: "true", message: "Bank Account Fetch Successfully."})
+    return res.status(200).json({status: "true", message: "Bank Account Fetch Successfully.", data: data})
   }catch (e) {
     console.log(e);
     return res.status(500).json({status: "false", message: "Internal Server Error."})
