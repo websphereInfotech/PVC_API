@@ -1296,4 +1296,24 @@ exports.permissions = {
             "view_all_salary_payment": true
         }
     },
+    "Machine" : {
+        "Super Admin" :{
+            "create_machine":true,
+        },
+        "Admin" :{
+            "create_machine":true,
+        },
+        "Account" :{
+            "create_machine":true,
+        },
+        "Employee" :{
+            "create_machine":true,
+        },
+        "Workers" :{
+            "create_machine":true,
+        },
+        "Other" :{
+            "create_machine":true,
+        }
+    },
 }

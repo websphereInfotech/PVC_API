@@ -205,10 +205,7 @@ exports.description = function (req, res, next) {
   for (const item of items) {
     const { description } = item;
     const descriptionSchema = Joi.string()
-
-      .required()
       .messages({
-        "any.required": "Required Filed : Description",
         "string.empty": "Description Cannot Be Empty",
       });
     const { error } = descriptionSchema.validate(description);
@@ -1891,3 +1888,34 @@ exports.salaryPaymentType = async function(req, res, next){
   }
 }
 
+exports.machineName = async function(req, res, next){
+  const { name } = req.body;
+  const machineNameSchema = Joi.string()
+      .required()
+      .messages({
+        "string.base": "Machine Name must be a string",
+        "any.required": "Required Field : Machine Name",
+        "number.empty": "Machine Name Cannot Be Empty",
+      });
+  const { error } = machineNameSchema.validate(name);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+}
+
+exports.machineModel = async function(req, res, next){
+  const { model } = req.body;
+  const machineModelSchema = Joi.string()
+      .required()
+      .messages({
+        "string.base": "Machine Model must be a string",
+        "any.required": "Required Field : Machine Model",
+        "number.empty": "Machine Model Cannot Be Empty",
+      });
+  const { error } = machineModelSchema.validate(name);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+}
