@@ -1299,21 +1299,33 @@ exports.permissions = {
     "Machine" : {
         "Super Admin" :{
             "create_machine":true,
+            "view_all_machine": true,
+            "view_one_machine": true
         },
         "Admin" :{
             "create_machine":true,
+            "view_all_machine": true,
+            "view_one_machine": true
         },
         "Account" :{
             "create_machine":true,
+            "view_all_machine": true,
+            "view_one_machine": true
         },
         "Employee" :{
             "create_machine":true,
+            "view_all_machine": true,
+            "view_one_machine": true
         },
         "Workers" :{
             "create_machine":true,
+            "view_all_machine": true,
+            "view_one_machine": true
         },
         "Other" :{
             "create_machine":true,
+            "view_all_machine": true,
+            "view_one_machine": true
         }
     },
 }

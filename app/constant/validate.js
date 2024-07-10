@@ -163,7 +163,7 @@ module.exports.validation = function (method) {
     case "update_payment_bank":
       return [voucherno, paymentdate, mode, paymentType, amount];
     case "create_expense":
-      return [ mobileno, voucherno, date, mobileno, email, billno, billdate, payment, expensse, description,
+      return [ mobileno, voucherno, date, mobileno, email, billno, billdate, payment, expensse,
                taxable, mrp ];
     case "create_stoke":
         return [itemname, unit, email];
@@ -184,7 +184,7 @@ module.exports.validation = function (method) {
     case "add_salary_payment":
       return [amount, date, salaryPaymentType];
     case "create_machine":
-      return [machineName, machineModel, description];
+      return [machineName, machineModel];
     default:
       throw new Error("Invalid validation method");
   }
