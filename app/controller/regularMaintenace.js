@@ -60,7 +60,8 @@ exports.view_all_regular_maintenance = async (req, res)=>{
         const data = await RegularMaintenance.findAll({
             where: {
                 companyId : companyId
-            }
+            },
+            include: [{model: Machine, as: "machineRegularMaintenance"}]
         })
         return res.status(200).json({
             status: "true",
@@ -81,7 +82,8 @@ exports.view_one_regular_maintenance = async (req, res)=>{
             where: {
                 companyId : companyId,
                 id: id
-            }
+            },
+            include: [{model: Machine, as: "machineRegularMaintenance"}]
         })
         if(!data){
             return res.status(404).json({
