@@ -1061,7 +1061,7 @@ exports.permissions = {
             "view_reciveclaim":true,
             "isapproved_claim":true,
             "view_single_claim":true,
-            "view_claimBalance_ledger":true,         
+            "view_claimBalance_ledger":true,
             "view_all_ClaimUser":true,
             "view_user_balance":true
         },
@@ -1109,7 +1109,7 @@ exports.permissions = {
             "view_reciveclaim":true,
             "isapproved_claim":true,
             "view_single_claim":true,
-            "view_claimBalance_ledger":true,    
+            "view_claimBalance_ledger":true,
             "view_all_ClaimUser":true,
             "view_user_balance":true
         },
@@ -1300,32 +1300,44 @@ exports.permissions = {
         "Super Admin" :{
             "create_machine":true,
             "view_all_machine": true,
-            "view_one_machine": true
+            "view_one_machine": true,
+            "update_machine": true,
+            "delete_machine": true
         },
         "Admin" :{
             "create_machine":true,
             "view_all_machine": true,
-            "view_one_machine": true
+            "view_one_machine": true,
+            "update_machine": true,
+            "delete_machine": true
         },
         "Account" :{
             "create_machine":true,
             "view_all_machine": true,
-            "view_one_machine": true
+            "view_one_machine": true,
+            "update_machine": true,
+            "delete_machine": true
         },
         "Employee" :{
             "create_machine":true,
             "view_all_machine": true,
-            "view_one_machine": true
+            "view_one_machine": true,
+            "update_machine": true,
+            "delete_machine": true
         },
         "Workers" :{
             "create_machine":true,
             "view_all_machine": true,
-            "view_one_machine": true
+            "view_one_machine": true,
+            "update_machine": true,
+            "delete_machine": true
         },
         "Other" :{
             "create_machine":true,
             "view_all_machine": true,
-            "view_one_machine": true
+            "view_one_machine": true,
+            "update_machine": true,
+            "delete_machine": true
         }
     },
 }
