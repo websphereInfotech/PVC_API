@@ -73,7 +73,7 @@ const {
   update_productStock,
   weight,
   itemUnit, itemGroup, saleNo, purchaseNo, paymentNo, receiptNo, paymentType, supplyInvoiceNo, dutyTime,
-  salaryPaymentType, machineName, machineModel
+  salaryPaymentType, machineName, machineNumber
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -184,7 +184,7 @@ module.exports.validation = function (method) {
     case "add_salary_payment":
       return [amount, date, salaryPaymentType];
     case "create_machine":
-      return [machineName, machineModel];
+      return [machineName, machineNumber];
     default:
       throw new Error("Invalid validation method");
   }

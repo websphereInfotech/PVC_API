@@ -6,8 +6,8 @@ const Machine = sequelize.define("P_Machine", {
         type: DataTypes.STRING,
         allowNull: false
     },
-    model: {
-        type: DataTypes.STRING,
+    machineNo: {
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     description: {

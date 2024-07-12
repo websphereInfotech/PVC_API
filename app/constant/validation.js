@@ -141,7 +141,7 @@ exports.customerId = function (req, res, next) {
 };
 exports.mrp = function (req, res, next) {
   const { items } = req.body;
- 
+
   for (const item of items) {
     const { mrp } = item;
     const mrpSchema = Joi.number()
@@ -278,7 +278,7 @@ exports.vendor = function (req, res, next) {
     "any.required": "Required Filed : Vendor",
     "string.empty": "Vendor Cannot Be Empty",
   });
-  
+
   const { error } = vendorSchema.validate(vendor);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
@@ -310,7 +310,7 @@ exports.gstrate = function (req, res, next) {
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
-  
+
   next();
 };
 exports.billno = function (req, res, next) {
@@ -1902,16 +1902,16 @@ exports.machineName = async function(req, res, next){
   next();
 }
 
-exports.machineModel = async function(req, res, next){
-  const { model } = req.body;
-  const machineModelSchema = Joi.string()
+exports.machineNumber = async function(req, res, next){
+  const { machineNo } = req.body;
+  const machineNumberSchema = Joi.number()
       .required()
       .messages({
-        "string.base": "Machine Model must be a string",
-        "any.required": "Required Field : Machine Model",
-        "string.empty": "Machine Model Cannot Be Empty",
+        "number.base": "Machine Number must be a number",
+        "any.required": "Required Field : Machine Number",
+        "number.empty": "Machine Number Cannot Be Empty",
       });
-  const { error } = machineModelSchema.validate(model);
+  const { error } = machineNumberSchema.validate(machineNo);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
