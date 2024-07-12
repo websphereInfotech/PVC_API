@@ -1,0 +1,11 @@
+const {Router} = require('express');
+const {create_regular_maintenance, update_regular_maintenance, view_all_regular_maintenance, view_one_regular_maintenance, delete_regular_maintenance} = require("../controller/regularMaintenace");
+const {validation} = require("../constant/validate");
+const adminAuth = require("../middleware/adminAuth");
+const router = new Router();
+router.post('/create_regular_maintenance',adminAuth("create_regular_maintenance"), validation('create_regular_maintenance'), create_regular_maintenance)
+router.post('/update_regular_maintenance/;id',adminAuth("update_regular_maintenance"), validation('create_regular_maintenance'), update_regular_maintenance)
+router.post('/view_all_regular_maintenance',adminAuth("view_all_regular_maintenance"), view_all_regular_maintenance)
+router.post('/view_one_regular_maintenance/:id',adminAuth("view_one_regular_maintenance"), view_one_regular_maintenance)
+router.post('/delete_regular_maintenance/:id',adminAuth("delete_regular_maintenance"), delete_regular_maintenance)
+module.exports = router;

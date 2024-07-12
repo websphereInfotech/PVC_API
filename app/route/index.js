@@ -25,5 +25,6 @@ router.use('/stock', require('./stock'))
 router.use('/notification', require('./notification'))
 router.use('/salary', require('./salary'))
 router.use('/machine', require('./Machine'))
+router.use('/regularMaintenance', require('./regularMaintenance'))
 
 module.exports = router;

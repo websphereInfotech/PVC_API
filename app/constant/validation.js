@@ -1917,3 +1917,33 @@ exports.machineNumber = async function(req, res, next){
   }
   next();
 }
+
+exports.machineId = async function(req, res, next){
+  const {machineId} = req.body;
+  const machineIdSchema = Joi.number()
+      .required()
+      .messages({
+        "number.base": "Machine Id must be a number",
+        "any.required": "Required Field : Machine Id",
+        "number.empty": "Machine id Cannot Be Empty",
+      });
+  const { error } = machineIdSchema.validate(machineId);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+}
+
+exports.cost = async function(req, res, next){
+  const { cost } = req.body;
+  const costSchema = Joi.number().allow(null)
+      .messages({
+        "number.base": "Cost must be a number",
+        "number.empty": "Cost Number Cannot Be Empty",
+      });
+  const { error } = costSchema.validate(cost);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+}

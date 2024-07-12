@@ -1340,4 +1340,48 @@ exports.permissions = {
             "delete_machine": true
         }
     },
+    "Regular Maintenance" : {
+        "Super Admin" :{
+            "create_regular_maintenance":true,
+            "update_regular_maintenance": true,
+            "view_all_regular_maintenance": true,
+            "view_one_regular_maintenance": true,
+            "delete_regular_maintenance": true
+        },
+        "Admin" :{
+            "create_regular_maintenance":true,
+            "update_regular_maintenance": true,
+            "view_all_regular_maintenance": true,
+            "view_one_regular_maintenance": true,
+            "delete_regular_maintenance": true
+        },
+        "Account" :{
+            "create_regular_maintenance":true,
+            "update_regular_maintenance": true,
+            "view_all_regular_maintenance": true,
+            "view_one_regular_maintenance": true,
+            "delete_regular_maintenance": true
+        },
+        "Employee" :{
+            "create_regular_maintenance":true,
+            "update_regular_maintenance": true,
+            "view_all_regular_maintenance": true,
+            "view_one_regular_maintenance": true,
+            "delete_regular_maintenance": true
+        },
+        "Workers" :{
+            "create_regular_maintenance":true,
+            "update_regular_maintenance": true,
+            "view_all_regular_maintenance": true,
+            "view_one_regular_maintenance": true,
+            "delete_regular_maintenance": true
+        },
+        "Other" :{
+            "create_regular_maintenance":true,
+            "update_regular_maintenance": true,
+            "view_all_regular_maintenance": true,
+            "view_one_regular_maintenance": true,
+            "delete_regular_maintenance": true
+        }
+    },
 }
