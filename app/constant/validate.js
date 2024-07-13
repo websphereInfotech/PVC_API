@@ -189,6 +189,8 @@ module.exports.validation = function (method) {
       return [machineId, date, cost];
       case "create_preventive_maintenance":
       return [machineId, lastDate, nextDate, cost];
+      case "create_breakdown_maintenance":
+      return [machineId, date, cost];
     default:
       throw new Error("Invalid validation method");
   }

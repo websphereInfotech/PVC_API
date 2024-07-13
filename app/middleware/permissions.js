@@ -1428,4 +1428,48 @@ exports.permissions = {
             "delete_preventive_maintenance": true
         }
     },
+    "Breakdown Maintenance" : {
+        "Super Admin" :{
+            "create_breakdown_maintenance":true,
+            "update_breakdown_maintenance": true,
+            "view_all_breakdown_maintenance": true,
+            "view_one_breakdown_maintenance": true,
+            "delete_breakdown_maintenance": true
+        },
+        "Admin" :{
+            "create_breakdown_maintenance":true,
+            "update_breakdown_maintenance": true,
+            "view_all_breakdown_maintenance": true,
+            "view_one_breakdown_maintenance": true,
+            "delete_breakdown_maintenance": true
+        },
+        "Account" :{
+            "create_breakdown_maintenance":true,
+            "update_breakdown_maintenance": true,
+            "view_all_breakdown_maintenance": true,
+            "view_one_breakdown_maintenance": true,
+            "delete_breakdown_maintenance": true
+        },
+        "Employee" :{
+            "create_breakdown_maintenance":true,
+            "update_breakdown_maintenance": true,
+            "view_all_breakdown_maintenance": true,
+            "view_one_breakdown_maintenance": true,
+            "delete_breakdown_maintenance": true
+        },
+        "Workers" :{
+            "create_breakdown_maintenance":true,
+            "update_breakdown_maintenance": true,
+            "view_all_breakdown_maintenance": true,
+            "view_one_breakdown_maintenance": true,
+            "delete_breakdown_maintenance": true
+        },
+        "Other" :{
+            "create_breakdown_maintenance":true,
+            "update_breakdown_maintenance": true,
+            "view_all_breakdown_maintenance": true,
+            "view_one_breakdown_maintenance": true,
+            "delete_breakdown_maintenance": true
+        }
+    },
 }

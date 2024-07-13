@@ -27,5 +27,6 @@ router.use('/salary', require('./salary'))
 router.use('/machine', require('./Machine'))
 router.use('/regularMaintenance', require('./regularMaintenance'))
 router.use('/preventiveMaintenance', require('./preventiveMaintenance'))
+router.use('/breakdownMaintenance', require('./breakdownMaintenance'))
 
 module.exports = router;
