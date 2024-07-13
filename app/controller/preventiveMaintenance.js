@@ -1,0 +1,130 @@
+const Machine = require('../models/Machine');
+const PreventiveMaintenance = require('../models/PreventiveMaintenance');
+
+exports.create_preventive_maintenance = async (req, res) => {
+    try {
+        const {machineId} = req.body;
+        const companyId = req.user.companyId;
+        const machineExists = await Machine.findOne({
+            where: {
+                id: machineId,
+                companyId: companyId
+            }
+        });
+        if(!machineExists){
+            return res.status(404).json({
+                status: "false",
+                message: "Machine Not Found."
+            })
+        }
+        const data = await PreventiveMaintenance.create({...req.body, companyId: companyId});
+        return res.status(200).json({
+            status: "true",
+            message: "Preventive Maintenance Create Successfully.",
+            data: data
+        })
+    }catch (e) {
+        console.error(e);
+        return res.status(500).json({status: "false", message: "Internal Server Error."});
+    }
+}
+exports.update_preventive_maintenance = async (req, res)=>{
+    try {
+        const {id} = req.params;
+        const companyId = req.user.companyId;
+        const maintenanceExist = await PreventiveMaintenance.findOne({
+            where: {id: id, companyId: companyId},
+        })
+        if(!maintenanceExist){
+            return res.status(404).json({
+                status: "false",
+                message: "Preventive Maintenance Not Found"
+            })
+        }
+        Object.assign(maintenanceExist, req.body);
+        await maintenanceExist.save()
+        return res.status(200).json({
+            status: "true",
+            message: "Preventive Maintenance Update Successfully.",
+        })
+    }catch (e){
+        console.error(e);
+        return res.status(500).json({status: "false", message: "Internal Server Error."})
+    }
+}
+
+exports.view_all_preventive_maintenance = async (req, res)=>{
+    try {
+        const companyId = req.user.companyId;
+        const data = await PreventiveMaintenance.findAll({
+            where: {
+                companyId : companyId
+            },
+            include: [{model: Machine, as: "machinePreventiveMaintenance"}]
+        })
+        return res.status(200).json({
+            status: "true",
+            message: "Preventive Maintenance Fetch Successfully.",
+            data: data
+        })
+    }catch (e) {
+        console.error(e);
+        return res.status(500).json({status: "false", message: "Internal Server Error."})
+    }
+}
+
+exports.view_one_preventive_maintenance = async (req, res)=>{
+    try {
+        const companyId = req.user.companyId;
+        const {id} = req.params;
+        const data = await PreventiveMaintenance.findOne({
+            where: {
+                companyId : companyId,
+                id: id
+            },
+            include: [{model: Machine, as: "machinePreventiveMaintenance"}]
+        })
+        if(!data){
+            return res.status(404).json({
+                status: "false",
+                message: "Preventive Maintenance Not Found."
+            })
+        }
+        return res.status(200).json({
+            status: "true",
+            message: "Preventive Maintenance Fetch Successfully.",
+            data: data
+        })
+    }catch (e) {
+        console.error(e);
+        return res.status(500).json({status: "false", message: "Internal Server Error."})
+    }
+}
+
+exports.delete_preventive_maintenance = async (req, res)=>{
+    try {
+        const companyId = req.user.companyId;
+        const {id} = req.params;
+        const data = await PreventiveMaintenance.findOne({
+            where: {
+                companyId : companyId,
+                id: id
+            }
+        })
+        if(!data){
+            return res.status(404).json({
+                status: "false",
+                message: "Preventive Maintenance Not Found."
+            })
+        }
+        await data.destroy()
+        return res.status(200).json({
+            status: "true",
+            message: "Preventive Maintenance Delete Successfully.",
+        })
+    }catch (e) {
+        console.error(e);
+        return res.status(500).json({status: "false", message: "Internal Server Error."})
+    }
+}
+

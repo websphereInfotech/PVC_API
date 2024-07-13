@@ -1384,4 +1384,48 @@ exports.permissions = {
             "delete_regular_maintenance": true
         }
     },
+    "Preventive Maintenance" : {
+        "Super Admin" :{
+            "create_preventive_maintenance":true,
+            "update_preventive_maintenance": true,
+            "view_all_preventive_maintenance": true,
+            "view_one_preventive_maintenance": true,
+            "delete_preventive_maintenance": true
+        },
+        "Admin" :{
+            "create_preventive_maintenance":true,
+            "update_preventive_maintenance": true,
+            "view_all_preventive_maintenance": true,
+            "view_one_preventive_maintenance": true,
+            "delete_preventive_maintenance": true
+        },
+        "Account" :{
+            "create_preventive_maintenance":true,
+            "update_preventive_maintenance": true,
+            "view_all_preventive_maintenance": true,
+            "view_one_preventive_maintenance": true,
+            "delete_preventive_maintenance": true
+        },
+        "Employee" :{
+            "create_preventive_maintenance":true,
+            "update_preventive_maintenance": true,
+            "view_all_preventive_maintenance": true,
+            "view_one_preventive_maintenance": true,
+            "delete_preventive_maintenance": true
+        },
+        "Workers" :{
+            "create_preventive_maintenance":true,
+            "update_preventive_maintenance": true,
+            "view_all_preventive_maintenance": true,
+            "view_one_preventive_maintenance": true,
+            "delete_preventive_maintenance": true
+        },
+        "Other" :{
+            "create_preventive_maintenance":true,
+            "update_preventive_maintenance": true,
+            "view_all_preventive_maintenance": true,
+            "view_one_preventive_maintenance": true,
+            "delete_preventive_maintenance": true
+        }
+    },
 }

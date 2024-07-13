@@ -1947,3 +1947,39 @@ exports.cost = async function(req, res, next){
   }
   next();
 }
+
+exports.lastDate = function (req, res, next) {
+  const { lastDate } = req.body;
+
+  const dateSchema = Joi.string().required().messages({
+    "string.empty": "Last Date Cannot Be Empty",
+    "any.required": "Required Filed : Last Date",
+    "string.base": "Last Date Must Be A String"
+  });
+  const { error } = dateSchema.validate(lastDate);
+  if (lastDate === null) {
+    return res.status(400).json({ status: "False", message: "Last Date Cannot Be Empty" });
+  }
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+};
+
+exports.nextDate = function (req, res, next) {
+  const { nextDate } = req.body;
+
+  const dateSchema = Joi.string().required().messages({
+    "string.empty": "Next Date Cannot Be Empty",
+    "any.required": "Required Filed : Next Date",
+    "string.base": "Next Date Must Be A String"
+  });
+  const { error } = dateSchema.validate(nextDate);
+  if (nextDate === null) {
+    return res.status(400).json({ status: "False", message: "Next Date Cannot Be Empty" });
+  }
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+};
