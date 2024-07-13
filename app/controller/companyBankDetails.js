@@ -178,17 +178,11 @@ exports.view_all_company_bankDetails = async (req, res) => {
     const data = await companyBankDetails.findAll({
       where: { companyId: req.user.companyId },
     });
-    if (data.length > 0) {
       return res.status(200).json({
         status: "true",
         message: "Bank Details Show successfully",
         data: data,
       });
-    } else {
-      return res
-        .status(404)
-        .json({ status: "false", message: "Bank Details Not Found" });
-    }
   } catch (error) {
     console.log(error);
     return res
@@ -336,8 +330,8 @@ exports.view_single_bankLedger = async (req, res) => {
       ],
       replacements: { companyId:req.user.companyId }
   });
-  
-  
+
+
     if (data && data.length > 0) {
       return res.status(200).json({
         status: "true",
