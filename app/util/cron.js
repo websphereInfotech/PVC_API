@@ -4,15 +4,15 @@ const C_Stock = require('../models/C_stock');
 const Product = require('../models/product');
 const C_Product = require('../models/C_product');
 const Notification = require('../models/notification');
+const RegularMaintenance = require('../models/RegularMaintenance');
+const Machine = require('../models/Machine');
 const Salary = require('../models/salary')
-const {isLastDayOfMonth} = require("../constant/common");
 const moment = require("moment");
 const company = require("../models/company");
 const User = require("../models/user");
 const {Op} = require("sequelize");
-const {SALARY_STATUS} = require("../constant/constant");
 
-exports.lowStockNotificationJob = cron.schedule('0 0 * * *', async () => {
+exports.lowStockNotificationJob = cron.schedule('0 0 * * * *', async () => {
     const productStocks = await Stock.findAll({
         include: {model: Product, as: "productStock"}
     })
@@ -23,14 +23,12 @@ exports.lowStockNotificationJob = cron.schedule('0 0 * * *', async () => {
         const productName = product.productStock.productname;
         const companyId = product.productStock.companyId
         if (isLowStock && stock <= lowStockQty) {
-            console.log("Hello this is one of use................", product.id);
             await Notification.create({
                 notification: `${productName} product is below the low stock threshold. Current stock: ${stock}`,
                 companyId: companyId
             })
         }
     }
-
 
     // For Cash
     const productCashStocks = await C_Stock.findAll({
@@ -43,13 +41,38 @@ exports.lowStockNotificationJob = cron.schedule('0 0 * * *', async () => {
         const productName = product.productCashStock.productname;
         const companyId = product.productCashStock.companyId
         if (isLowStock && stock <= lowStockQty) {
-            console.log("Hello this is one of use................", product.id);
             await Notification.create({
                 notification: `${productName} cash product is below the low stock threshold. Current stock: ${stock}`,
                 type: "C",
                 companyId: companyId
             })
         }
+    }
+
+
+    // Machine Maintenance Notification Logic......................
+    const today = new Date();
+    const nextWeek = new Date();
+    nextWeek.setDate(today.getDate() + 7);
+
+    const regularMaintenanceDates = await RegularMaintenance.findAll({
+        where: {
+            date: {
+                [Op.between]: [today, nextWeek]
+            }
+        },
+        include: [{model: Machine, as: "machineRegularMaintenance"}]
+    })
+    for(const regularMaintenanceDate of regularMaintenanceDates){
+        const machineName = regularMaintenanceDate.machineRegularMaintenance.name;
+        const date = regularMaintenanceDate.date;
+        const companyId = regularMaintenanceDate.companyId;
+        const notification = `Scheduled machine maintenance on ${machineName} will occur on ${date}. Please plan accordingly`;
+        await Notification.create({
+            notification: notification,
+            type: null,
+            companyId: companyId
+        })
     }
 });
 
