@@ -10,11 +10,7 @@ const PreventiveMaintenance = sequelize.define("P_PreventiveMaintenance", {
     description: {
         type: DataTypes.TEXT,
     },
-    lastDate: {
-        type: DataTypes.DATEONLY,
-        allowNull: false
-    },
-    nextDate: {
+    date: {
         type: DataTypes.DATEONLY,
         allowNull: false
     },

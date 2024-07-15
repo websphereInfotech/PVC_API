@@ -6,7 +6,6 @@ const {
   date,
   mrp,
   qty,
-  description,
   voucherno,
   billno,
   billdate,
@@ -64,7 +63,6 @@ const {
   org_invoicedate,
   gstrate,
   purpose,
-  referance,
   validateBankdetails,
   validateCredit,
   LoginPassword,
@@ -73,7 +71,7 @@ const {
   update_productStock,
   weight,
   itemUnit, itemGroup, saleNo, purchaseNo, paymentNo, receiptNo, paymentType, supplyInvoiceNo, dutyTime,
-  salaryPaymentType, machineName, machineNumber, machineId, cost, lastDate, nextDate
+  salaryPaymentType, machineName, machineNumber, machineId, cost
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -188,7 +186,7 @@ module.exports.validation = function (method) {
       case "create_regular_maintenance":
       return [machineId, date, cost];
       case "create_preventive_maintenance":
-      return [machineId, lastDate, nextDate, cost];
+      return [machineId, date, cost];
       case "create_breakdown_maintenance":
       return [machineId, date, cost];
     default:
