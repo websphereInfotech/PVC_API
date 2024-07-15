@@ -5,7 +5,7 @@ const User = require("../models/user");
 const {Sequelize} = require("sequelize");
 const C_Stock = require("../models/C_stock");
 const Stock = require("../models/stock");
-const {splitQuantity, lowStockWaring} = require("../constant/common");
+const {splitQuantity } = require("../constant/common");
 
 exports.create_bom = async (req, res) => {
     try {

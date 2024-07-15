@@ -31,7 +31,6 @@ exports.create_regular_maintenance = async (req, res) => {
 exports.update_regular_maintenance = async (req, res)=>{
     try {
         const {id} = req.params;
-        const {machineId} = req.body;
         const companyId = req.user.companyId;
         const maintenanceExist = await RegularMaintenance.findOne({
             where: {id: id, companyId: companyId},

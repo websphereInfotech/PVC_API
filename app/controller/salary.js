@@ -4,8 +4,6 @@ const SalaryPayment = require("../models/salaryPayment");
 const CompanyBank = require("../models/companyBankDetails");
 const UserBankAccount = require("../models/userBankAccount");
 const moment = require("moment");
-const {SALARY_STATUS} = require("../constant/constant");
-const {salary, amount} = require("../constant/validation");
 exports.view_all_salary = async (req, res) => {
     try {
         const companyId = req.user.companyId;

@@ -12,7 +12,6 @@ const User = require("../models/user");
 const vendor = require("../models/vendor");
 const vendorLedger = require("../models/vendorLedger");
 const {Sequelize} = require("sequelize");
-const {paymentType} = require("../constant/validation");
 
 /*=============================================================================================================
                                          Type C API
@@ -473,7 +472,7 @@ exports.update_payment_bank = async (req, res) => {
       },
       { where: { debitId: id } }
     );
-    
+
     await companySingleBankLedger.update(
       {
         companyId: req.user.companyId,
@@ -485,10 +484,10 @@ exports.update_payment_bank = async (req, res) => {
         const existingBalance = await companyBalance.findOne({
           where: { companyId: req.user.companyId },
           });
-          
+
           const balanceChange = amount - paymentdata.amount;
           const newBalance = existingBalance.balance - balanceChange;
-          
+
           await companyBalance.update(
             {
               balance: newBalance,
