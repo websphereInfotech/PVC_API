@@ -3,7 +3,6 @@ const {ITEM_GROUP_TYPE, PAYMENT_TYPE, SALARY_PAYMENT_TYPE} = require("./constant
 
 exports.email = function (req, res, next) {
   const { email } = req.body;
-  // console.log("email",req.body.email);
   const emailSchema = Joi.string()
     .required()
     .email({ minDomainSegments: 2, tlds: { allow: ["com", "net", "in"] } })
@@ -68,7 +67,6 @@ exports.LoginPassword = function (req, res, next) {
 
 exports.mobileno = function (req, res, next) {
   const { mobileno } = req.body;
-  // console.log("mo",mobileno);
   if ((mobileno === null || mobileno === undefined || mobileno === "")) {
     return res
       .status(400)
@@ -164,7 +162,6 @@ exports.qty = function (req, res, next) {
   const { items } = req.body;
   for (const item of items) {
     const { qty } = item;
-    // console.log("item",item);
     const qtySchema = Joi.number()
       .required()
       .messages({
@@ -273,7 +270,6 @@ exports.expirydate = function (req, res, next) {
 };
 exports.vendor = function (req, res, next) {
   const { vendor } = req.body;
-  // console.log(vendor);
   const vendorSchema = Joi.string().required().messages({
     "any.required": "Required Filed : Vendor",
     "string.empty": "Vendor Cannot Be Empty",
@@ -315,7 +311,6 @@ exports.gstrate = function (req, res, next) {
 };
 exports.billno = function (req, res, next) {
   const { billno } = req.body;
-  // console.log("bill", billno);
   const billnoSchema = Joi.string().required().messages({
     "any.required": "Required Field: Bill No.",
     "string.empty": "Bill No. Cannot Be Empty",
@@ -1264,7 +1259,6 @@ exports.accountnumber = function (req, res, next) {
 };
 exports.ifsccode = function (req, res, next) {
   const { ifsccode } = req.body;
-  // console.log("ifsc",ifsccode);
   const ifsccodeSchema = Joi.string()
 
     .required()

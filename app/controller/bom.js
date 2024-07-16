@@ -107,8 +107,6 @@ exports.create_bom = async (req, res) => {
             const productCashStock = await C_Stock.findOne({
                 where: {productId: item.productId},
             })
-            console.log(item.productId," Item Product Id???????????????????")
-            console.log(item.qty,"Item Qtys....................")
             const {cashQty, productQty} = splitQuantity(item.qty)
             if(productStock){
                 await productStock.decrement('qty',{by: productQty})
@@ -294,10 +292,8 @@ exports.update_bom = async (req, res) => {
             const productCashStock = await C_Stock.findOne({
                 where: {productId: item.productId},
             })
-            console.log(item.qty,"Item QTY")
             const {cashQty:newCashQty, productQty:newProductQty} = splitQuantity(item.qty)
             const {cashQty:previousCashQty, productQty:previousProductQty} = splitQuantity(existingItem?.qty ?? 0)
-            console.log(previousCashQty, "Previous", newCashQty,"New Cash")
             if(productStock){
                 await productStock.increment('qty',{by: previousProductQty})
                 await productStock.decrement('qty',{by: newProductQty})

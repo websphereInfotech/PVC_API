@@ -6,6 +6,9 @@ const C_receiveCash = require("../models/C_receiveCash");
 const C_userBalance = require("../models/C_userBalance");
 const companyUser = require("../models/companyUser");
 const C_customer = require("../models/C_customer");
+const Salary = require("../models/salary");
+const SalaryPayment = require("../models/salaryPayment");
+const {SALARY_PAYMENT_TYPE} = require("../constant/constant");
 
 exports.create_claim = async (req, res) => {
   try {
@@ -183,6 +186,7 @@ exports.isapproved_claim = async (req, res) => {
   try {
     const { id } = req.params;
     const { isApproved } = req.body;
+    const companyId = req.user.companyId;
 
     const data = await C_claim.findOne({
       where: {
@@ -237,7 +241,30 @@ exports.isapproved_claim = async (req, res) => {
 
       await fromUserBalance.save();
       await toUserBalance.save();
+      if(data.purpose === "Salary" || data.purpose === "Advance") {
+        const salaryData = await Salary.findOne({
+          where:{
+            userId: data.fromUserId,
+            companyId: companyId
+          },
+          order: [
+            ['monthStartDate', 'DESC']
+          ]
+        });
+        salaryData.payableAmount -= data.amount
+        await salaryData.save()
+
+        await SalaryPayment.create({
+          amount: data.amount,
+          salaryId: salaryData.id,
+          paymentType: SALARY_PAYMENT_TYPE.CASH,
+          date: data.date,
+          companyBankId: null,
+          userBankId: null
+        });
+      }
     }
+
 
     return res.status(200).json({
       status: "true",

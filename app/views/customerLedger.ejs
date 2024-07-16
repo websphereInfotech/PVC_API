@@ -91,9 +91,11 @@
             border-top: 1px solid #000;
         }
     </style>
-
 </head>
 <body>
+<% function formatNumber(number) { %>
+    <% return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number); %>
+<% } %>
 <div class="container">
     <div class="header">
         <div class="company-info">
@@ -139,25 +141,25 @@
                     <td><%= record.dataValues.particulars %></td>
                     <td><%= record.dataValues.vchType %></td>
                     <td><%= record.dataValues.vchNo %></td>
-                    <td><%= record.dataValues.debitAmount ? record.dataValues.debitAmount.toFixed(2) : '' %></td>
-                    <td><%= record.dataValues.creditAmount ? record.dataValues.creditAmount.toFixed(2) : '' %></td>
+                    <td><%= record.dataValues.debitAmount ? formatNumber(record.dataValues.debitAmount) : '' %></td>
+                    <td><%= record.dataValues.creditAmount ? formatNumber(record.dataValues.creditAmount) : '' %></td>
                 </tr>
             <% }) %>
         <% } %>
         <tr>
             <td colspan="4"></td>
-            <td class="underline"><%= data.totals.totalDebit.toFixed(2) %></td>
-            <td class="underline"><%= data.totals.totalCredit.toFixed(2) %></td>
+            <td class="underline"><%= formatNumber(data.totals.totalDebit) %></td>
+            <td class="underline"><%= formatNumber(data.totals.totalCredit) %></td>
         </tr>
         <tr>
             <td colspan="4" class="closing-balance">By Closing Balance</td>
-            <td class="underline"><%= data.closingBalance.type === "debit" ? data.closingBalance.amount.toFixed(2) : "" %></td>
-            <td class="underline"><%= data.closingBalance.type === "credit" ? data.closingBalance.amount.toFixed(2) : ""%></td>
+            <td class="underline"><%= data.closingBalance.type === "debit" ? formatNumber(data.closingBalance.amount) : "" %></td>
+            <td class="underline"><%= data.closingBalance.type === "credit" ? formatNumber(data.closingBalance.amount) : ""%></td>
         </tr>
         <tr>
             <td colspan="4"></td>
-            <td class="underline" style="border-width: 2px"><%= data.totalAmount.toFixed(2) %></td>
-            <td class="underline" style="border-width: 2px"><%= data.totalAmount.toFixed(2) %></td>
+            <td class="underline" style="border-width: 2px"><%= formatNumber(data.totalAmount) %></td>
+            <td class="underline" style="border-width: 2px"><%= formatNumber(data.totalAmount) %></td>
         </tr>
         </tbody>
     </table>

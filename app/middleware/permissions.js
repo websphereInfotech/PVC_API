@@ -573,41 +573,53 @@ exports.permissions = {
     "Customer Ledger" : {
         "Super Admin" :{
             "View_customer_Ledger":true,
+            "Pdf_Download": true
         },
         "Admin" :{
             "View_customer_Ledger":true,
+            "Pdf_Download": true
         },
         "Account" :{
             "View_customer_Ledger":true,
+            "Pdf_Download": true
         },
         "Employee" :{
             "View_customer_Ledger":true,
+            "Pdf_Download": true
         },
         "Workers" :{
             "View_customer_Ledger":true,
+            "Pdf_Download": true
         },
         "Other" :{
             "View_customer_Ledger":true,
+            "Pdf_Download": true
         },
     },
     "Vendor Ledger" : {
         "Super Admin" :{
             "View_vendor_Ledger":true,
+            "Pdf_Download": true
         },
         "Admin" :{
             "View_vendor_Ledger":true,
+            "Pdf_Download": true
         },
         "Account" :{
             "View_vendor_Ledger":true,
+            "Pdf_Download": true
         },
         "Employee" :{
             "View_vendor_Ledger":true,
+            "Pdf_Download": true
         },
         "Workers" :{
             "View_vendor_Ledger":true,
+            "Pdf_Download": true
         },
         "Other" :{
             "View_vendor_Ledger":true,
+            "Pdf_Download": true
         },
     },
     "Company Bank Details" : {
@@ -995,41 +1007,53 @@ exports.permissions = {
     "Customer Ledger Cash" : {
         "Super Admin" :{
             "View_Cash_customer_Ledger":true,
+            "Pdf_Download": true
         },
         "Admin" :{
             "View_Cash_customer_Ledger":true,
+            "Pdf_Download": true
         },
         "Account" :{
             "View_Cash_customer_Ledger":true,
+            "Pdf_Download": true
         },
         "Employee" :{
             "View_Cash_customer_Ledger":true,
+            "Pdf_Download": true
         },
         "Workers" :{
             "View_Cash_customer_Ledger":true,
+            "Pdf_Download": true
         },
         "Other" :{
             "View_Cash_customer_Ledger":true,
+            "Pdf_Download": true
         },
     },
     "Vendor Ledger Cash" : {
         "Super Admin" :{
             "View_Cash_vendor_Ledger":true,
+            "Pdf_Download": true
         },
         "Admin" :{
             "View_Cash_vendor_Ledger":true,
+            "Pdf_Download": true
         },
         "Account" :{
             "View_Cash_vendor_Ledger":true,
+            "Pdf_Download": true
         },
         "Employee" :{
             "View_Cash_vendor_Ledger":true,
+            "Pdf_Download": true
         },
         "Workers" :{
             "View_Cash_vendor_Ledger":true,
+            "Pdf_Download": true
         },
         "Other" :{
             "View_Cash_vendor_Ledger":true,
+            "Pdf_Download": true
         },
     },
     "Company Cash" : {

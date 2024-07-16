@@ -17,7 +17,7 @@ router.get(
 
 router.get(
     "/C_get_customerLedger_pdf/:id",
-    adminToken("Customer Ledger Cash:View_Cash_customer_Ledger"),
+    adminToken("Customer Ledger Cash:Pdf_Download"),
     C_get_customerLedgerPdf
 );
 
@@ -29,7 +29,7 @@ router.get(
 
 router.get(
     "/get_customerLedger_pdf/:id",
-    adminToken("Customer Ledger:View_customer_Ledger"),
+    adminToken("Customer Ledger:Pdf_Download"),
     get_customerLedgerPdf
 );
 module.exports = router;

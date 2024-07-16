@@ -17,7 +17,7 @@ router.get(
 
 router.get(
     "/C_get_vendorLedger_pdf/:id",
-    adminAuth("Vendor Ledger Cash:View_Cash_vendor_Ledger"),
+    adminAuth("Vendor Ledger Cash:Pdf_Download"),
     C_get_vendorLedgerPdf
 );
 
@@ -27,6 +27,6 @@ router.get(
   get_vendorLedger
 );
 
-router.get('/get_vendorLedger_pdf/:id',adminAuth("Vendor Ledger:View_vendor_Ledger"),get_vendorLedgerPDF)
+router.get('/get_vendorLedger_pdf/:id',adminAuth("Vendor Ledger:Pdf_Download"),get_vendorLedgerPDF)
 
 module.exports = router;

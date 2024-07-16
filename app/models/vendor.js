@@ -19,7 +19,7 @@ const vendor = sequelize.define("P_vendor", {
     type: DataTypes.BIGINT,
   },
   panno: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
   },
   creditperiod: {
     type: DataTypes.INTEGER,

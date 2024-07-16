@@ -145,7 +145,6 @@ exports.C_get_vendorLedger = async (req, res) => {
         },
       ],
     })
-    console.log(open,"Open...................")
 
     const cashVendorLedgerArray = [...data]
     if (+open?.dataValues?.openingBalance ?? 0 !== 0) {
@@ -729,7 +728,6 @@ exports.C_get_vendorLedgerPdf = async (req, res) => {
         },
       ],
     })
-    console.log(open,"Open...................")
 
     const cashVendorLedgerArray = [...data]
     if (+open?.dataValues?.openingBalance ?? 0 !== 0) {

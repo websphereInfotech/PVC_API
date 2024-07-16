@@ -71,18 +71,15 @@ exports.update_product_stock = async (req, res) => {
                 message: "Product stock not found",
             })
         }
-        console.log(productStockExists,"Product Stock")
         const productExists = await Product.findOne({
             where: {id: productId, companyId: companyId, isActive: true}
         })
-        console.log(productExists,"Product Exsit")
         if(!productExists){
             return res.status(404).json({
                 status: "false",
                 message: "Product not found",
             })
         }
-
 
         productStockExists.productId = productId
         productStockExists.qty = qty
