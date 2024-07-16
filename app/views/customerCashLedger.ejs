@@ -51,7 +51,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 0.9em;
-            table-layout: fixed; /* Fix table layout to prevent overflow */
+            table-layout: fixed;
         }
 
         thead th {
@@ -62,8 +62,8 @@
 
         tbody td {
             padding: 8px;
-            word-wrap: break-word; /* Ensure content wraps within cell */
-            white-space: normal; /* Prevent overflow */
+            word-wrap: break-word;
+            white-space: normal;
         }
 
         tbody tr:last-child td {
@@ -107,14 +107,7 @@
             </p>
         </div>
         <div class="client-info">
-            <h2><%= data.to.contactpersonname %></h2>
-            <p>
-                <%= data.to.address1 %>,<br>
-                <%= data.to.address2 %>,<br>
-                <%= data.to.city %>,<br>
-                <%= data.to.state %>,<br>
-                Pincode: <%= data.to.pincode %>
-            </p>
+            <h2><%= data.to.customername %></h2>
         </div>
     </div>
     <div class="date-range">
@@ -133,31 +126,31 @@
         </thead>
         <tbody>
         <% for (let date in data.records) { %>
-            <% data.records[date].forEach((record, index) => { %>
+            <% data.records[date].forEach((record, index) => { console.log(record,"record") %>
                 <tr>
                     <td><%= index === 0 ? date : "" %></td>
                     <td><%= record.dataValues.particulars %></td>
                     <td><%= record.dataValues.vchType %></td>
                     <td><%= record.dataValues.vchNo %></td>
-                    <td><%= record.dataValues.debitAmount ? record.dataValues.debitAmount : '' %></td>
-                    <td><%= record.dataValues.creditAmount ? record.dataValues.creditAmount : '' %></td>
+                    <td><%= record.dataValues.debitAmount ? record.dataValues.debitAmount.toFixed(2).toString() : '' %></td>
+                    <td><%= record.dataValues.creditAmount ? record.dataValues.creditAmount.toFixed(2).toString() : '' %></td>
                 </tr>
             <% }) %>
         <% } %>
         <tr>
             <td colspan="4"></td>
-            <td class="underline"><%= data.totals.totalDebit %></td>
-            <td class="underline"><%= data.totals.totalCredit %></td>
+            <td class="underline"><%= data.totals.totalDebit.toFixed(2).toString() %></td>
+            <td class="underline"><%= data.totals.totalCredit.toFixed(2).toString() %></td>
         </tr>
         <tr>
             <td colspan="4" class="closing-balance">By Closing Balance</td>
-            <td class="underline"><%= data.closingBalance.type === "debit" ? data.closingBalance.amount : "" %></td>
-            <td class="underline"><%= data.closingBalance.type === "credit" ? data.closingBalance.amount : ""%></td>
+            <td class="underline"><%= data.closingBalance.type === "debit" ? data.closingBalance.amount.toFixed(2).toString() : "" %></td>
+            <td class="underline"><%= data.closingBalance.type === "credit" ? data.closingBalance.amount.toFixed(2).toString() : ""%></td>
         </tr>
         <tr>
             <td colspan="4"></td>
-            <td class="underline" style="border-width: 2px"><%= data.totalAmount %></td>
-            <td class="underline" style="border-width: 2px"><%= data.totalAmount %></td>
+            <td class="underline" style="border-width: 2px"><%= data.totalAmount.toFixed(2).toString() %></td>
+            <td class="underline" style="border-width: 2px"><%= data.totalAmount.toFixed(2).toString() %></td>
         </tr>
         </tbody>
     </table>
