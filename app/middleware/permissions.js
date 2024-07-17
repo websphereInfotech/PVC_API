@@ -1499,21 +1499,27 @@ exports.permissions = {
     "Dashboard" : {
         "Super Admin" :{
             "total_sales":true,
+            "total_purchase": true
         },
         "Admin" :{
             "total_sales":true,
+            "total_purchase": true
         },
         "Account" :{
             "total_sales":true,
+            "total_purchase": true
         },
         "Employee" :{
             "total_sales":true,
+            "total_purchase": true
         },
         "Workers" :{
             "total_sales":true,
+            "total_purchase": true
         },
         "Other" :{
             "total_sales":true,
+            "total_purchase": true
         }
     },
 }
