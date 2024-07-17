@@ -3,12 +3,12 @@ const moment = require("moment");
 
 exports.splitQuantity = (qty)=>{
     const productRatio = 100 - CASHPRODUCTRATIO;
-    const cashQty = Math.round((qty * CASHPRODUCTRATIO) /100);
-    const productQty = Math.round((qty * productRatio) /100);
+    const cashQty = (qty * CASHPRODUCTRATIO) /100
+    const productQty = (qty * productRatio) /100
 
     return {
-        cashQty: cashQty,
-        productQty: productQty
+        cashQty: Math.round(cashQty * 100) / 100,
+        productQty: Math.round(productQty * 100) / 100
     };
 };
 

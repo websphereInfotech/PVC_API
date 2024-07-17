@@ -43,6 +43,14 @@ exports.create_purchaseInvoice = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Voucher Number Already Exists" });
     }
+    const supplyInvoiceNoExist = await purchaseInvoice.findOne({
+      where: { supplyInvoiceNo: supplyInvoiceNo, companyId: req.user.companyId },
+    })
+    if (supplyInvoiceNoExist) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Supply Number Already Exists" });
+    }
     if (!vendorId || vendorId === "" || vendorId === null) {
       return res
         .status(400)
@@ -182,6 +190,19 @@ exports.update_purchaseInvoice = async (req, res) => {
       return res
         .status(400)
         .json({ status: "false", message: "Voucher Number Already Exists" });
+    }
+
+    const supplyInvoiceNoExist = await purchaseInvoice.findOne({
+      where: {
+        supplyInvoiceNo: supplyInvoiceNo,
+        companyId: req.user.companyId,
+        id: { [Sequelize.Op.ne]: id },
+      },
+    });
+    if (supplyInvoiceNoExist) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Supply Number Already Exists" });
     }
     if (!vendorId || vendorId === "" || vendorId === null) {
       return res
@@ -726,7 +747,7 @@ exports.C_update_purchaseCash = async (req, res) => {
       },
       { where: { debitId:id } }
     );
-  
+
     const data = await C_purchaseCash.findOne({
       where: { id: id, companyId: req.user.companyId },
       include: [{ model: C_purchaseCashItem, as: "items" }],

@@ -5,7 +5,7 @@ const Product = require("./product");
 
 const BomItem = sequelize.define("P_BomItem", {
     productId: { type: DataTypes.INTEGER, allowNull: false },
-    qty: { type: DataTypes.INTEGER, allowNull: false },
+    qty: { type: DataTypes.FLOAT, allowNull: false },
     bomId: { type: DataTypes.INTEGER, allowNull: false },
     unit: {type: DataTypes.STRING, allowNull: false,},
 });

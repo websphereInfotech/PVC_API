@@ -12,6 +12,7 @@ const paymentBank = require("../models/paymentBank");
 const vendor = require("../models/vendor");
 const companyBankDetails = require("../models/companyBankDetails");
 const Company = require("../models/company");
+const User = require("../models/user");
 
 /*=============================================================================================================
                                            Type C API
@@ -29,7 +30,11 @@ exports.C_get_vendorLedger = async (req, res) => {
         message: "Cash Vendor Not Found."
       })
     }
-    const company = await Company.findOne({where: {id: companyId}})
+    const superAdminUser = await User.findOne({
+      where: {
+        role: "Super Admin"
+      }
+    })
 
     const quaryData = { vendorId: id };
 
@@ -200,7 +205,7 @@ exports.C_get_vendorLedger = async (req, res) => {
     return res.status(200).json({
       status: "true",
       message: "Vendor Cash Ledger Data Fetch Successfully",
-      data: {form: company,to: cashVendorData, dateRange: `${formDateFormat} - ${toDateFormat}`,totals, totalAmount: totals.totalCredit < totals.totalDebit ? totals.totalDebit: totals.totalCredit,closingBalance, records: records},
+      data: {form: superAdminUser,to: cashVendorData, dateRange: `${formDateFormat} - ${toDateFormat}`,totals, totalAmount: totals.totalCredit < totals.totalDebit ? totals.totalDebit: totals.totalCredit,closingBalance, records: records},
     });
   } catch (error) {
     console.log(error);
@@ -492,6 +497,11 @@ exports.get_vendorLedgerPDF = async (req, res)=>{
     ],
   });
 
+  const outputArray = data.map(item => {
+    const { dataValues, ...rest } = item;
+    return { ...dataValues, ...rest };
+  });
+
   const open = await vendorLedger.findOne({
     where: {
       id: data[0]?.id ?? 0,
@@ -536,10 +546,9 @@ exports.get_vendorLedgerPDF = async (req, res)=>{
     ],
   })
 
-  const vendorLedgerArray = [...data]
+  const vendorLedgerArray = [...outputArray]
   if (+open?.dataValues?.openingBalance ?? 0 !== 0) {
     vendorLedgerArray.unshift({
-      dataValues: {
         "vendorId": +id,
         "id": null,
         "date": formDate,
@@ -548,7 +557,6 @@ exports.get_vendorLedgerPDF = async (req, res)=>{
         "particulars": "Opening Balance",
         "vchType": "",
         "vchNo": "",
-      }
     })
   }
 
@@ -612,7 +620,11 @@ exports.C_get_vendorLedgerPdf = async (req, res) => {
         message: "Cash Vendor Not Found."
       })
     }
-    const company = await Company.findOne({where: {id: companyId}})
+    const superAdminUser = await User.findOne({
+      where: {
+        role: "Super Admin"
+      }
+    })
 
     const quaryData = { vendorId: id };
 
@@ -728,11 +740,13 @@ exports.C_get_vendorLedgerPdf = async (req, res) => {
         },
       ],
     })
-
-    const cashVendorLedgerArray = [...data]
+    const outputArray = data.map(item => {
+      const { dataValues, ...rest } = item;
+      return { ...dataValues, ...rest };
+    });
+    const cashVendorLedgerArray = [...outputArray]
     if (+open?.dataValues?.openingBalance ?? 0 !== 0) {
       cashVendorLedgerArray.unshift({
-        dataValues: {
           "vendorId": +id,
           "id": null,
           "date": formDate,
@@ -741,7 +755,6 @@ exports.C_get_vendorLedgerPdf = async (req, res) => {
           "particulars": "Opening Balance",
           "vchType": "",
           "vchNo": "",
-        }
       })
     }
 
@@ -767,9 +780,9 @@ exports.C_get_vendorLedgerPdf = async (req, res) => {
 
     const records = cashVendorLedgerArray.reduce((acc, obj) => {
       const dateKey = obj.date;
+
       const date = new Date(dateKey);
       const formattedDate = `${date.getDate()}-${date.toLocaleString('default', { month: 'short' })}-${String(date.getFullYear()).slice(-2)}`;
-
       if (!acc[formattedDate]) {
         acc[formattedDate] = [];
       }
@@ -782,7 +795,7 @@ exports.C_get_vendorLedgerPdf = async (req, res) => {
     const formDateFormat = `${formattedFromDate.getDate()}-${formattedFromDate.toLocaleString('default', { month: 'short' })}-${String(formattedFromDate.getFullYear()).slice(-2)}`;
     const toDateFormat = `${formattedToDate.getDate()}-${formattedToDate.toLocaleString('default', { month: 'short' })}-${String(formattedToDate.getFullYear()).slice(-2)}`;
 
-    const html = await renderFile(path.join(__dirname, "../views/vendorCashLedger.ejs"),{data:{form: company,to: cashVendorData, dateRange: `${formDateFormat} - ${toDateFormat}`,totals, totalAmount: totals.totalCredit < totals.totalDebit ? totals.totalDebit: totals.totalCredit,closingBalance, records: records}});
+    const html = await renderFile(path.join(__dirname, "../views/vendorCashLedger.ejs"),{data:{form: superAdminUser,to: cashVendorData, dateRange: `${formDateFormat} - ${toDateFormat}`,totals, totalAmount: totals.totalCredit < totals.totalDebit ? totals.totalDebit: totals.totalCredit,closingBalance, records: records}});
     htmlToPdf.generatePdf({content: html},{printBackground: true, format: 'A4'}).then((pdf) => {
       const base64String = pdf.toString("base64");
       return res.status(200).json({

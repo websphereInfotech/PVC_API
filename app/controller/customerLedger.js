@@ -12,6 +12,7 @@ const CompanyBankDetails = require("../models/companyBankDetails");
 const {renderFile} = require("ejs");
 const path = require("node:path");
 const htmlToPdf = require("html-pdf-node");
+const User = require("../models/user");
 
 /*=============================================================================================================
                                            Type C API
@@ -30,7 +31,12 @@ exports.C_get_customerLedger = async (req, res) => {
         message: "Customer Cash Not Found."
       })
     }
-    const company = await Company.findOne({where: {id: companyId}})
+    const superAdminUser = await User.findOne({
+      where: {
+        role: "Super Admin"
+      },
+      attributes: ['username']
+    })
 
     const queryData = { customerId: id };
 
@@ -199,7 +205,7 @@ exports.C_get_customerLedger = async (req, res) => {
       return res.status(200).json({
         status: "true",
         message: "Customer Ledger Data Fetch Successfully",
-        data: {form: company,to:CashCustomerData,dateRange: `${formDateFormat} - ${toDateFormat}`,totals, totalAmount: totals.totalCredit < totals.totalDebit ? totals.totalDebit: totals.totalCredit,closingBalance, records: records},
+        data: {form: superAdminUser,to:CashCustomerData,dateRange: `${formDateFormat} - ${toDateFormat}`,totals, totalAmount: totals.totalCredit < totals.totalDebit ? totals.totalDebit: totals.totalCredit,closingBalance, records: records},
       })
 
   } catch (error) {
@@ -533,10 +539,14 @@ exports.get_customerLedgerPdf = async (req, res) => {
       ],
     })
 
-    const customerLedgerArray = [...data]
+    const outputArray = data.map(item => {
+      const { dataValues, ...rest } = item;
+      return { ...dataValues, ...rest };
+    });
+
+    const customerLedgerArray = [...outputArray]
     if (+open?.dataValues?.openingBalance ?? 0 !== 0) {
       customerLedgerArray.unshift({
-        dataValues: {
           "customerId": +id,
           "id": null,
           "date": formDate,
@@ -545,7 +555,6 @@ exports.get_customerLedgerPdf = async (req, res) => {
           "particulars": "Opening Balance",
           "vchType": "",
           "vchNo": "",
-        }
       })
     }
 
@@ -615,7 +624,12 @@ exports.C_get_customerLedgerPdf = async (req, res)=>{
         message: "Customer Cash Not Found."
       })
     }
-    const company = await Company.findOne({where: {id: companyId}})
+    const superAdminUser = await User.findOne({
+      where: {
+        role: "Super Admin"
+      },
+      attributes: ['username']
+    })
 
     const queryData = { customerId: id };
 
@@ -731,10 +745,14 @@ exports.C_get_customerLedgerPdf = async (req, res)=>{
       ],
     })
 
-    const cashCustomerLedgerArray = [...data]
+    const outputArray = data.map(item => {
+      const { dataValues, ...rest } = item;
+      return { ...dataValues, ...rest };
+    });
+
+    const cashCustomerLedgerArray = [...outputArray]
     if (+open?.dataValues?.openingBalance ?? 0 !== 0) {
       cashCustomerLedgerArray.unshift({
-        dataValues: {
           "customerId": +id,
           "id": null,
           "date": formDate,
@@ -743,7 +761,6 @@ exports.C_get_customerLedgerPdf = async (req, res)=>{
           "particulars": "Opening Balance",
           "vchType": "",
           "vchNo": "",
-        }
       })
     }
     const totals = cashCustomerLedgerArray.reduce((acc, ledger) => {
@@ -783,7 +800,7 @@ exports.C_get_customerLedgerPdf = async (req, res)=>{
     const formDateFormat = `${formattedFromDate.getDate()}-${formattedFromDate.toLocaleString('default', { month: 'short' })}-${String(formattedFromDate.getFullYear()).slice(-2)}`;
     const toDateFormat = `${formattedToDate.getDate()}-${formattedToDate.toLocaleString('default', { month: 'short' })}-${String(formattedToDate.getFullYear()).slice(-2)}`;
 
-    const html = await renderFile(path.join(__dirname, "../views/customerCashLedger.ejs"),{data:{form: company,to:CashCustomerData,dateRange: `${formDateFormat} - ${toDateFormat}`,totals, totalAmount: totals.totalCredit < totals.totalDebit ? totals.totalDebit: totals.totalCredit,closingBalance, records: records}});
+    const html = await renderFile(path.join(__dirname, "../views/customerCashLedger.ejs"),{data:{form: superAdminUser,to:CashCustomerData,dateRange: `${formDateFormat} - ${toDateFormat}`,totals, totalAmount: totals.totalCredit < totals.totalDebit ? totals.totalDebit: totals.totalCredit,closingBalance, records: records}});
     htmlToPdf.generatePdf({content: html},{printBackground: true, format: 'A4'}).then((pdf) => {
       const base64String = pdf.toString("base64");
       return res.status(200).json({
