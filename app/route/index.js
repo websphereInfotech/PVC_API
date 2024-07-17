@@ -28,5 +28,6 @@ router.use('/machine', require('./Machine'))
 router.use('/regularMaintenance', require('./regularMaintenance'))
 router.use('/preventiveMaintenance', require('./preventiveMaintenance'))
 router.use('/breakdownMaintenance', require('./breakdownMaintenance'))
+router.use('/dashboard', require('./dashboard'))
 
 module.exports = router;

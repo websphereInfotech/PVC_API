@@ -1496,4 +1496,24 @@ exports.permissions = {
             "delete_breakdown_maintenance": true
         }
     },
+    "Dashboard" : {
+        "Super Admin" :{
+            "total_sales":true,
+        },
+        "Admin" :{
+            "total_sales":true,
+        },
+        "Account" :{
+            "total_sales":true,
+        },
+        "Employee" :{
+            "total_sales":true,
+        },
+        "Workers" :{
+            "total_sales":true,
+        },
+        "Other" :{
+            "total_sales":true,
+        }
+    },
 }
