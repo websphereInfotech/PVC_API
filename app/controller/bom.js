@@ -26,7 +26,7 @@ exports.create_bom = async (req, res) => {
         if(!productExist){
             return res.status(404).json({
                 status: "false",
-                message: "Product Not Found.",
+                message: "Product Item Not Found.",
             })
         }
 
@@ -39,7 +39,7 @@ exports.create_bom = async (req, res) => {
             if(!productExist){
                 return res.status(404).json({
                     status: "false",
-                    message: "Raw Material Not Found.",
+                    message: "Product Item Not Found.",
                 })
             }
         }
@@ -125,7 +125,7 @@ exports.update_bom = async (req, res) => {
         if(!productExist){
             return res.status(404).json({
                 status: "false",
-                message: "Product Not Found.",
+                message: "Product Item Not Found.",
             })
         }
         const existingItems = await BomItem.findAll({
@@ -141,7 +141,7 @@ exports.update_bom = async (req, res) => {
             if(!productExist){
                 return res.status(404).json({
                     status: "false",
-                    message: "Raw Material Not Found.",
+                    message: "Product Item Not Found.",
                 })
             }
             if(item.id){

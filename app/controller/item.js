@@ -1,8 +1,8 @@
-const C_product = require("../models/C_product");
 const item = require("../models/product");
-const C_stock = require("../models/C_stock");
 const Stock = require("../models/stock");
 const User = require("../models/user");
+const ItemGroup = require("../models/ItemGroup");
+const ItemCategory = require("../models/ItemCategory");
 const {Op} = require("sequelize");
 const {ITEM_GROUP_TYPE} = require("../constant/constant");
 
@@ -16,8 +16,7 @@ exports.create_item = async (req, res) => {
       itemtype,
       productname,
       description,
-      itemgroup,
-      itemcategory,
+      itemGroupId, itemCategoryId,
       unit,
       bankdetail,
       openingstock,
@@ -31,6 +30,7 @@ exports.create_item = async (req, res) => {
       cess
     } = req.body;
     const userId = req.user.userId
+    const companyId = req.user.companyId;
 
     let purchaseprice = req.body.purchaseprice;
     let weight = req.body.weight;
@@ -40,21 +40,37 @@ exports.create_item = async (req, res) => {
     if (weight === "") {
       weight = null;
     }
-
-    // const existingHSNcode = await item.findOne({
-    //   where: { HSNcode: HSNcode, companyId: req.user.companyId },
-    // });
-    // if (existingHSNcode) {
-    //   return res
-    //     .status(400)
-    //     .json({ status: "false", message: "HSN Code Already Exists" });
-    // }
+    const itemGroupExist = await ItemGroup.findOne({
+      where: {
+        id: itemGroupId,
+        companyId: companyId,
+      }
+    })
+    if(!itemGroupExist){
+      return res.status(404).json({
+        status: "false",
+        message: "Item Group not Found."
+      })
+    }
+    const itemCategoryItemExist = await ItemCategory.findOne({
+      where: {
+        id: itemCategoryId,
+        itemGroupId: itemGroupId,
+        companyId: companyId,
+      }
+    });
+    if(!itemCategoryItemExist){
+      return res.status(404).json({
+        status: "false",
+        message: "Item Category Not Found."
+      })
+    }
     const data = await item.create({
       itemtype,
       productname,
       description,
-      itemgroup,
-      itemcategory,
+      itemGroupId,
+      itemCategoryId,
       unit,
       bankdetail,
       openingstock,
@@ -72,19 +88,6 @@ exports.create_item = async (req, res) => {
       createdBy: userId,
       updatedBy: userId
     });
-    const cashProduct = await C_product.create({
-      id: data.id,
-      productname: productname,
-      lowStockQty: lowStockQty,
-      lowstock: lowstock,
-      companyId: req.user.companyId,
-      unit: unit,
-      itemgroup: itemgroup
-    });
-
-    await C_stock.create({
-      productId: cashProduct.id
-    })
 
     await Stock.create({
       productId: data.id,
@@ -95,7 +98,7 @@ exports.create_item = async (req, res) => {
 
     return res.status(200).json({
       status: "true",
-      message: "Product created successfully",
+      message: "Item created successfully",
       data: productData,
     });
   } catch (error) {
@@ -112,8 +115,7 @@ exports.update_item = async (req, res) => {
       itemtype,
       productname,
       description,
-      itemgroup,
-      itemcategory,
+      itemGroupId, itemCategoryId,
       unit,
       bankdetail,
       openingstock,
@@ -127,6 +129,7 @@ exports.update_item = async (req, res) => {
       cess
     } = req.body;
     const userId = req.user.userId;
+    const companyId = req.user.companyId;
 
     let purchaseprice = req.body.purchaseprice;
     let weight = req.body.weight;
@@ -144,26 +147,42 @@ exports.update_item = async (req, res) => {
     if (!existingProduct) {
       return res
         .status(404)
-        .json({ status: "false", message: "Product Not Found" });
+        .json({ status: "false", message: "Item Not Found" });
     }
 
-    // if (existingProduct.HSNcode !== HSNcode) {
-    //   const existingHSNcode = await item.findOne({
-    //     where: { HSNcode: HSNcode,companyId: req.user.companyId },
-    //   });
-    //   if (existingHSNcode) {
-    //     return res
-    //       .status(400)
-    //       .json({ status: "false", message: "HSN Code Already Exists" });
-    //   }
-    // }
+    const itemGroupExist = await ItemGroup.findOne({
+      where: {
+        id: itemGroupId,
+        companyId: companyId,
+      }
+    })
+    if(!itemGroupExist){
+      return res.status(404).json({
+        status: "false",
+        message: "Item Group not Found."
+      })
+    }
+    const itemCategoryItemExist = await ItemCategory.findOne({
+      where: {
+        id: itemCategoryId,
+        itemGroupId: itemGroupId,
+        companyId: companyId,
+      }
+    });
+    if(!itemCategoryItemExist){
+      return res.status(404).json({
+        status: "false",
+        message: "Item Category Not Found."
+      })
+    }
+
     await item.update(
       {
         itemtype: itemtype,
         productname: productname,
         description: description,
-        itemgroup: itemgroup,
-        itemcategory: itemcategory,
+        itemGroupId: itemGroupId,
+        itemCategoryId: itemCategoryId,
         unit: unit,
         bankdetail: bankdetail,
         openingstock: openingstock,
@@ -184,24 +203,13 @@ exports.update_item = async (req, res) => {
         where: { id: id },
       }
     );
-    await C_product.update({
-      productname: productname,
-      lowStockQty: lowStockQty,
-      lowstock: lowstock,
-      unit: unit,
-      itemgroup: itemgroup
-    }, {
-      where: {
-        id: id
-      }
-    })
     const data = await item.findOne({
       where: { id: id, companyId: req.user.companyId, isActive: true },
       include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
     });
     return res.status(200).json({
       status: "true",
-      message: "Product Updated Successfully",
+      message: "Item Updated Successfully",
       data: data,
     });
   } catch (error) {
@@ -218,22 +226,17 @@ exports.delete_item = async (req, res) => {
     const data = await item.findOne({
       where: { id: id, companyId: req.user.companyId},
     });
-    const dataCash = await C_product.findOne({
-      where: {id: id, companyId: req.user.companyId}
-    })
 
     if (!data) {
       return res
         .status(400)
-        .json({ status: "false", message: "Product Not Found" });
+        .json({ status: "false", message: "Item Not Found" });
     }
     data.isActive = false;
-    dataCash.isActive = false
     await data.save()
-    await dataCash.save()
       return res
         .status(200)
-        .json({ status: "true", message: "Product Delete Successfully" });
+        .json({ status: "true", message: "Item Delete Successfully" });
   } catch (error) {
     console.log(error);
     return res
@@ -247,6 +250,7 @@ exports.view_item = async (req, res) => {
 
     const data = await item.findOne({
       where: { id: id, companyId: req.user.companyId, isActive: true },
+      include: [{model: ItemGroup, as: "itemGroup"}, {model: ItemCategory, as: "itemCategory"}]
     });
 
     if (!data) {
@@ -288,11 +292,11 @@ exports.get_all_items = async (req, res) => {
     if (!data) {
       return res
         .status(404)
-        .json({ status: "false", message: "Product Not Found" });
+        .json({ status: "false", message: "Item Not Found" });
     }
     return res.status(200).json({
       status: "true",
-      message: "Product Data Fetch Successfully",
+      message: "Item Data Fetch Successfully",
       data: data,
     });
   } catch (error) {
@@ -309,17 +313,17 @@ exports.get_all_items = async (req, res) => {
 
 exports.C_get_all_item = async (req, res) => {
   try {
-    const data = await C_product.findAll({
+    const data = await item.findAll({
       where: { companyId: req.user.companyId, isActive: true },
     });
     if (!data) {
       return res
         .status(404)
-        .json({ status: "false", message: "Product Not Found" });
+        .json({ status: "false", message: "Item Not Found" });
     }
     return res.status(200).json({
       status: "true",
-      message: "Product Data Fetch Successfully",
+      message: "Item Data Fetch Successfully",
       data: data,
     });
   } catch (error) {

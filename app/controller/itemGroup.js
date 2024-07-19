@@ -10,7 +10,7 @@ exports.create_itemGroup = async (req, res) => {
             companyId: companyId
         }
     });
-    if (!existingGroup) {
+    if (existingGroup) {
       return res
         .status(400)
         .json({ status: "false", message: "Item Group already exists" });

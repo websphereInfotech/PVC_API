@@ -1,5 +1,4 @@
 const { Sequelize } = require("sequelize");
-const C_product = require("../models/C_product");
 const C_purchaseCash = require("../models/C_purchaseCash");
 const C_purchaseCashItem = require("../models/C_purchseCashItem");
 const C_vendor = require("../models/C_vendor");
@@ -11,8 +10,6 @@ const User = require("../models/user");
 const vendor = require("../models/vendor");
 const vendorLedger = require("../models/vendorLedger");
 const Stock = require("../models/stock");
-const C_Stock = require("../models/C_stock");
-// const {lowStockWaring} = require("../constant/common");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -93,7 +90,7 @@ exports.create_purchaseInvoice = async (req, res) => {
       if (!productData) {
         return res
           .status(404)
-          .json({ status: "false", message: "Raw Material Not Found" });
+          .json({ status: "false", message: "Product Item Not Found" });
       }
     }
     const purchseData = await purchaseInvoice.create({
@@ -244,7 +241,7 @@ exports.update_purchaseInvoice = async (req, res) => {
       if (!productData) {
         return res
           .status(404)
-          .json({ status: "false", message: "Raw Material Not Found" });
+          .json({ status: "false", message: "Product Item Not Found" });
       }
     }
     await purchaseInvoice.update(
@@ -371,27 +368,6 @@ exports.delete_purchaseInvoice = async (req, res) => {
         })
       }
     }
-    // for(const item of findItems){
-    //   const productname = await product.findOne({
-    //     where: { id: item.productId, companyId: req.user.companyId, isActive: true },
-    //   });
-    //   if(!productname){
-    //     return res.status(404).json({
-    //       status: "false",
-    //       message: `Product Not Found`,
-    //     })
-    //   }
-    //   const productId = item.productId;
-    //   const qtys = findItems.reduce((acc, item) => {
-    //     if (item.productId === productId) {
-    //       return acc + item.qty;
-    //     }
-    //     return acc;
-    //   }, 0);
-    //   const productStock = await Stock.findOne({where: {productId: item.productId}})
-    //   const totalProductQty = productStock?.qty ?? 0;
-    //   const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, qtys, totalProductQty, productname.nagativeqty)
-    //   if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     // }
     for(const item of findItems){
       const productId = item.productId;
@@ -538,13 +514,13 @@ exports.C_create_purchaseCash = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Rate Value Invalid" });
       }
-      const productData = await C_product.findOne({
+      const productData = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId, isActive: true },
       });
       if (!productData) {
         return res
           .status(404)
-          .json({ status: "false", message: "Raw Material Not Found" });
+          .json({ status: "false", message: "Product Item Not Found" });
       }
     }
     const purchseData = await C_purchaseCash.create({
@@ -573,11 +549,11 @@ exports.C_create_purchaseCash = async (req, res) => {
     for(const item of items){
       const productId = item.productId;
       const qty = item.qty;
-      const productCashStock = await C_Stock.findOne({
+      const productStock = await Stock.findOne({
         where: {productId}
       })
-      if(productCashStock){
-        await productCashStock.increment('qty',{by: qty})
+      if(productStock){
+        await productStock.increment('qty',{by: qty})
       }
     }
 
@@ -662,13 +638,13 @@ exports.C_update_purchaseCash = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Rate Value Invalid" });
       }
-      const productData = await C_product.findOne({
+      const productData = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId, isActive: true },
       });
       if (!productData) {
         return res
           .status(404)
-          .json({ status: "false", message: "Raw Material Not Found" });
+          .json({ status: "false", message: "Item Not Found" });
       }
     }
     await C_purchaseCash.update(
@@ -713,12 +689,12 @@ exports.C_update_purchaseCash = async (req, res) => {
       const productId = item.productId;
       const previousQty = existingItem?.qty ?? 0;
       const newQty = item.qty;
-      const productCashStock = await C_Stock.findOne({
+      const productStock = await Stock.findOne({
         where: {productId}
       })
-      if(productCashStock){
-        await productCashStock.decrement('qty',{by: previousQty})
-        await productCashStock.increment('qty',{by: newQty})
+      if(productStock){
+        await productStock.decrement('qty',{by: previousQty})
+        await productStock.increment('qty',{by: newQty})
       }
     }
     const updatedProductIds = items.map((item) => item.id);
@@ -731,11 +707,11 @@ exports.C_update_purchaseCash = async (req, res) => {
       const productId = item.productId;
       const qty = item.qty;
       console.log(item,"Item...........")
-      const productCashStock = await C_Stock.findOne({
+      const productStock = await Stock.findOne({
         where: {productId}
       })
-      if(productCashStock){
-      await productCashStock.decrement('qty',{by: qty})
+      if(productStock){
+      await productStock.decrement('qty',{by: qty})
       }
       await C_purchaseCashItem.destroy({ where: { id: item.id } });
     }
@@ -782,31 +758,15 @@ exports.C_delete_purchaseCash = async (req, res) => {
     const findItems = await C_purchaseCashItem.findAll({
       where: { PurchaseId: billId.id },
     })
-    // for(const item of findItems){
-    //   const productname = await C_product.findOne({
-    //     where: { id: item.productId, companyId: req.user.companyId, isActive: true },
-    //   });
-    //   const productId = item.productId;
-    //   const qtys = findItems.reduce((acc, item) => {
-    //     if (item.productId === productId) {
-    //       return acc + item.qty;
-    //     }
-    //     return acc;
-    //   }, 0);
-    //   const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
-    //   const totalProductQty = productCashStock?.qty ?? 0;
-    //   console.log(productname.lowStockQty,"Low staok QTY.................")
-    //   const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, qtys, totalProductQty, productname.nagativeqty)
-    //   if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
-    // }
+
     for(const item of findItems){
       const productId = item.productId;
       const qty = item.qty;
-      const productCashStock = await C_Stock.findOne({
+      const productStock = await Stock.findOne({
         where: {productId}
       })
-      if(productCashStock){
-        await productCashStock.decrement('qty',{by: qty})
+      if(productStock){
+        await productStock.decrement('qty',{by: qty})
       }
     }
 
@@ -829,7 +789,7 @@ exports.C_get_all_purchaseCash = async (req, res) => {
         {
           model: C_purchaseCashItem,
           as: "items",
-          include: [{ model: C_product, as: "ProductPurchase" }],
+          include: [{ model: product, as: "ProductPurchase" }],
         },
         { model: C_vendor, as: "VendorPurchase" },
         { model: User, as: "purchaseCreateUser", attributes: ["username"] },
@@ -864,7 +824,7 @@ exports.C_view_purchaseCash = async (req, res) => {
         {
           model: C_purchaseCashItem,
           as: "items",
-          include: [{ model: C_product, as: "ProductPurchase" }],
+          include: [{ model: product, as: "ProductPurchase" }],
         },
         { model: C_vendor, as: "VendorPurchase" },
       ],

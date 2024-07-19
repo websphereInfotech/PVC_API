@@ -1,5 +1,5 @@
 const Joi = require("joi");
-const {ITEM_GROUP_TYPE, PAYMENT_TYPE, SALARY_PAYMENT_TYPE} = require("./constant");
+const {PAYMENT_TYPE, SALARY_PAYMENT_TYPE} = require("./constant");
 
 exports.email = function (req, res, next) {
   const { email } = req.body;
@@ -1537,8 +1537,7 @@ exports.validateCredit = function(req, res, next) {
 
 exports.weight = function (req, res, next){
   const {weight} = req.body;
-  const weightSchema = Joi.number().greater(0).required().messages({
-    'any.required': 'The weight field is required.',
+  const weightSchema = Joi.number().greater(0).allow(null).messages({
     'number.base': 'The weight must be a number.',
     "number.greater": "Weight must be greater than 0.",
   });
@@ -1605,9 +1604,9 @@ exports.create_bom = function(req, res, next) {
             'number.base': 'The id must be a number or null.'
           }),
           unit: Joi.string().required().messages({
-            'any.required': 'The raw material unit field is required.',
-            'string.base': 'The raw material unit must be a string.',
-            'string.empty': 'The raw material unit cannot be empty.'
+            'any.required': 'The Recipe Item unit field is required.',
+            'string.base': 'The Recipe Item unit must be a string.',
+            'string.empty': 'The Recipe Item unit cannot be empty.'
           }),
         })
     ).min(1).required().messages({
@@ -1683,36 +1682,6 @@ exports.itemUnit = async function (req,res,next){
     return res.status(400).json({ status: "false", message: error.message });
   }
   next();
-}
-
-exports.itemGroup = async function(req, res, next){
-  const {weight, itemgroup} = req.body;
-  const weightSchema = Joi.object({
-    itemgroup: Joi.string()
-        .required()
-        .messages({
-          'any.required': 'The itemgroup field is required.',
-          'any.only': `The itemgroup field must be one of Product, Raw Material and Spare.`
-        }),
-    weight: Joi.when('itemGroup', {
-      is: ITEM_GROUP_TYPE.PRODUCT,
-      then: Joi.number().greater(0).required().messages({
-        'any.required': 'The weight field is required when itemGroup is product.',
-        'number.base': 'The weight must be a number.',
-        'number.greater': 'Weight must be greater than 0.',
-      }),
-      otherwise: Joi.optional(),
-    }),
-  });
-  const { error } = weightSchema.validate({itemgroup,weight});
-  if (error) {
-    return res.status(400).json({
-      status: "false",
-      message: error.message
-    })
-  } else {
-    next();
-  }
 }
 
 exports.saleNo = async function(req, res, next){
@@ -1967,6 +1936,19 @@ exports.itemGroupId = async function(req, res, next){
     "any.required": "Required Field : Item Group",
   })
   const {error} = iteGroupIdSchema.validate(itemGroupId);
+  if(error){
+    return res.status(400).json({status: "false", message: error.message})
+  }
+  return next()
+}
+
+exports.itemCategoryId = async function(req, res, next){
+  const {itemCategoryId} = req.body;
+  const iteCategoryIdSchema = Joi.number().required().messages({
+    "number.base": "Item Category must be a number",
+    "any.required": "Required Field : Item Category",
+  })
+  const {error} = iteCategoryIdSchema.validate(itemCategoryId);
   if(error){
     return res.status(400).json({status: "false", message: error.message})
   }

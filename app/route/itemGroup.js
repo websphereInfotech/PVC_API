@@ -11,7 +11,7 @@ const {
 const router = express.Router();
 
 router.post(
-  "/create_itemgroup",
+  "/create_itemGroup",
   adminAuth("Item Group:create_itemGroup"),
   validation("create_itemGroup"),
     create_itemGroup

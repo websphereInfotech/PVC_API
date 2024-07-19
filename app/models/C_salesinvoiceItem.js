@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
-const C_product = require('./C_product');
+const Product = require('./product');
 const C_salesinvoice = require('./C_salesinvoice');
 
 const C_salesinvoiceItem = sequelize.define('P_C_salesInvoiceItem', {
@@ -18,10 +18,10 @@ const C_salesinvoiceItem = sequelize.define('P_C_salesInvoiceItem', {
         type: DataTypes.STRING,
         allowNull: false,
     },
-});
+})
 
-C_product.hasMany(C_salesinvoiceItem, {foreignKey:'productId',onDelete:'CASCADE', as:'CashProduct'});
-C_salesinvoiceItem.belongsTo(C_product, {foreignKey:'productId', onDelete:'CASCADE',as:'CashProduct'});
+Product.hasMany(C_salesinvoiceItem, {foreignKey:'productId',onDelete:'CASCADE', as:'CashProduct'});
+C_salesinvoiceItem.belongsTo(Product, {foreignKey:'productId', onDelete:'CASCADE',as:'CashProduct'});
 
 C_salesinvoice.hasMany(C_salesinvoiceItem, {foreignKey:'invoiceId', onDelete:'CASCADE', as:'items'});
 C_salesinvoiceItem.belongsTo(C_salesinvoice, {foreignKey:'invoiceId', onDelete:'CASCADE', as:'items'});

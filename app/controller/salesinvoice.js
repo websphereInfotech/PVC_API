@@ -1,7 +1,6 @@
 const { Sequelize } = require("sequelize");
 const C_customer = require("../models/C_customer");
 const C_customerLedger = require("../models/C_customerLedger");
-const C_product = require("../models/C_product");
 const C_salesinvoice = require("../models/C_salesinvoice");
 const C_salesinvoiceItem = require("../models/C_salesinvoiceItem");
 const ProFormaInvoice = require("../models/ProFormaInvoice");
@@ -12,8 +11,6 @@ const salesInvoice = require("../models/salesInvoice");
 const salesInvoiceItem = require("../models/salesInvoiceitem");
 const User = require("../models/user");
 const Stock = require("../models/stock");
-const C_Stock = require("../models/C_stock");
-// const {lowStockWaring} = require("../constant/common");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -127,18 +124,6 @@ exports.create_salesInvoice = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Product Not Found" });
       }
-      // const productId = productname.id;
-      //
-      // const qtys = items.reduce((acc, item) => {
-      //   if (item.productId === productId) {
-      //     return acc + item.qty;
-      //   }
-      //   return acc;
-      // }, 0);
-      // const productStock = await Stock.findOne({where: {productId: item.productId}})
-      // const totalProductQty = productStock?.qty ?? 0;
-      // const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, qtys, totalProductQty, productname.nagativeqty)
-      // if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
 
     const data = await salesInvoice.create({
@@ -377,28 +362,6 @@ exports.update_salesInvoice = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Product Not Found" });
       }
-
-      // const productId = item.productId;
-      // const qtys = items.reduce((acc, item) => {
-      //   if (item.productId === productId) {
-      //     return acc + item.qty;
-      //   }
-      //   return acc;
-      // }, 0);
-      //
-      //
-      // const existingItemsQty = filteredExistingItems.reduce((acc, item) => {
-      //   if (item.productId === productId) {
-      //     return acc + item.qty;
-      //   }
-      //   return acc;
-      // }, 0);
-      //
-      // const productStock = await Stock.findOne({where: {productId: item.productId}})
-      // const totalProductQty = productStock?.qty ?? 0;
-      // const tempQty = qtys - existingItemsQty;
-      // const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, tempQty, totalProductQty, productname.nagativeqty)
-      // if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
     await salesInvoice.update(
       {
@@ -598,7 +561,7 @@ exports.C_create_salesinvoice = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Rate Value Invalid" });
       }
-      const productData = await C_product.findOne({
+      const productData = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId, isActive: true },
       });
       if (!productData) {
@@ -606,10 +569,6 @@ exports.C_create_salesinvoice = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Product Not Found" });
       }
-      // const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
-      // const totalProductQty = productCashStock?.qty ?? 0;
-      // const isLawStock = await lowStockWaring(productData.lowstock, productData.lowStockQty, item.qty, totalProductQty, productData.nagativeqty)
-      // if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productData.productname} Product`});
     }
     const salesInvoiceData = await C_salesinvoice.create({
       customerId,
@@ -636,11 +595,11 @@ exports.C_create_salesinvoice = async (req, res) => {
     for(const item of items){
       const productId = item.productId;
       const qty = item.qty;
-      const productCashStock = await C_Stock.findOne({
+      const productStock = await Stock.findOne({
         where: {productId}
       })
-      if(productCashStock){
-        await productCashStock.decrement('qty',{by: qty})
+      if(productStock){
+        await productStock.decrement('qty',{by: qty})
       }
     }
 
@@ -732,7 +691,7 @@ exports.C_update_salesinvoice = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Rate Value Invalid" });
       }
-      const productData = await C_product.findOne({
+      const productData = await product.findOne({
         where: { id: item.productId, companyId: req.user.companyId, isActive: true },
       });
       if (!productData) {
@@ -740,25 +699,6 @@ exports.C_update_salesinvoice = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Product Not Found" });
       }
-
-      // const productId = item.productId;
-      // const qtys = items.reduce((acc, item) => {
-      //   if (item.productId === productId) {
-      //     return acc + item.qty;
-      //   }
-      //   return acc;
-      // }, 0);
-      // const existingItemsQty = filteredExistingItems.reduce((acc, item) => {
-      //   if (item.productId === productId) {
-      //     return acc + item.qty;
-      //   }
-      //   return acc;
-      // }, 0);
-      // const productCashStock = await C_Stock.findOne({where: {productId: item.productId}})
-      // const totalProductQty = productCashStock?.qty ?? 0;
-      // const tempQty = qtys - existingItemsQty;
-      // const isLawStock = await lowStockWaring(productData.lowstock, productData.lowStockQty, tempQty, totalProductQty, productData.nagativeqty)
-      // if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productData.productname} Product`});
     }
     await C_salesinvoice.update(
       {
@@ -800,12 +740,12 @@ exports.C_update_salesinvoice = async (req, res) => {
       const productId = item.productId;
       const previousQty = existingItem?.qty ?? 0;
       const newQty = item.qty;
-      const productCashStock = await C_Stock.findOne({
+      const productStock = await Stock.findOne({
         where: {productId}
       })
-      if(productCashStock){
-        await productCashStock.increment('qty',{by: previousQty})
-        await productCashStock.decrement('qty',{by: newQty})
+      if(productStock){
+        await productStock.increment('qty',{by: previousQty})
+        await productStock.decrement('qty',{by: newQty})
       }
     }
     const updatedProductIds = items.map((item) => item.id);
@@ -817,11 +757,11 @@ exports.C_update_salesinvoice = async (req, res) => {
     for (const item of itemsToDelete) {
       const productId = item.productId;
       const qty = item.qty;
-      const productCashStock = await C_Stock.findOne({
+      const productStock = await Stock.findOne({
         where: {productId}
       })
-      if(productCashStock) await productCashStock.increment('qty',{by: qty})
-      await 
+      if(productStock) await productStock.increment('qty',{by: qty})
+      await
       C_salesinvoiceItem.destroy({ where: { id: item.id } });
     }
     await C_customerLedger.update(
@@ -858,7 +798,7 @@ exports.C_get_all_salesInvoice = async (req, res) => {
         {
           model: C_salesinvoiceItem,
           as: "items",
-          include: [{ model: C_product, as: "CashProduct" }],
+          include: [{ model: product, as: "CashProduct" }],
         },
         { model: C_customer, as: "CashCustomer" },
         { model: User, as: "salesInvoiceCreate", attributes: ["username"] },
@@ -892,7 +832,7 @@ exports.C_view_salesInvoice = async (req, res) => {
         {
           model: C_salesinvoiceItem,
           as: "items",
-          include: [{ model: C_product, as: "CashProduct" }],
+          include: [{ model: product, as: "CashProduct" }],
         },
         { model: C_customer, as: "CashCustomer" },
       ],
@@ -932,10 +872,10 @@ exports.C_delete_salesInvoice = async (req, res) => {
     for(const item of findItems){
       const productId = item.productId;
       const qty = item.qty;
-      const productCashStock = await C_Stock.findOne({
+      const productStock = await Stock.findOne({
         where: {productId}
       })
-      if(productCashStock) await productCashStock.increment('qty',{by: qty})
+      if(productStock) await productStock.increment('qty',{by: qty})
     }
     await C_salesinvoiceItem.destroy({ where: { invoiceId: id } })
     await data.destroy()

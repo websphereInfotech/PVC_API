@@ -4,7 +4,6 @@ const ProFormaInvoiceItem = require("../models/ProFormaInvoiceItem");
 const customer = require("../models/customer");
 const product = require("../models/product");
 const User = require("../models/user");
-// const {lowStockWaring} = require("../constant/common");
 
 exports.create_ProFormaInvoice = async (req, res) => {
   try {
@@ -62,7 +61,7 @@ exports.create_ProFormaInvoice = async (req, res) => {
       if (!item.productId || item.productId === "") {
         return res
           .status(400)
-          .json({ status: "false", message: "Required filed :Product" });
+          .json({ status: "false", message: "Required filed :Product Item" });
       }
       if (item.qty === 0) {
         return res
@@ -81,12 +80,8 @@ exports.create_ProFormaInvoice = async (req, res) => {
       if (!productname) {
         return res
           .status(404)
-          .json({ status: "false", message: "Product Not Found" });
+          .json({ status: "false", message: "Product Item Not Found" });
       }
-      // const productStock = await Stock.findOne({where: {productId: item.productId}})
-      // const totalProductQty = productStock?.qty ?? 0;
-      // const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, item.qty, totalProductQty, productname.nagativeqty)
-      // if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
     const createdInvoice = await ProFormaInvoice.create({
       ProFormaInvoice_no,
@@ -271,7 +266,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
 
     for (const item of items) {
       if (!item.productId || item.productId === "") {
-        return res.status(400).json({ status: false, message: "Required field: Product" });
+        return res.status(400).json({ status: false, message: "Required field: Product Item" });
       }
       if (item.qty === 0) {
         return res.status(400).json({ status: false, message: "Qty Value Invalid" });
@@ -283,15 +278,8 @@ exports.update_ProFormaInvoice = async (req, res) => {
         where: { id: item.productId, companyId: req.user.companyId, isActive: true },
       });
       if (!productname) {
-        return res.status(404).json({ status: false, message: "Product Not Found" });
+        return res.status(404).json({ status: false, message: "Product Item Not Found" });
       }
-
-      // const existingItem = existingItems.find((ei) => ei.id === item.id);
-      // const productStock = await Stock.findOne({where: {productId: item.productId}})
-      // const totalProductQty = productStock?.qty ?? 0;
-      // const tempQty = item.qty - existingItem.qty;
-      // const isLawStock = await lowStockWaring(productname.lowstock, productname.lowStockQty, tempQty, totalProductQty, productname.nagativeqty)
-      // if(isLawStock) return res.status(400).json({status: "false", message: `Low Stock in ${productname.productname} Product`});
     }
 
     await ProFormaInvoice.update(

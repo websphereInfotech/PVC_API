@@ -70,8 +70,8 @@ const {
   create_bom,
   update_productStock,
   weight,
-  itemUnit, itemGroup, saleNo, purchaseNo, paymentNo, receiptNo, paymentType, supplyInvoiceNo, dutyTime,
-  salaryPaymentType, machineName, machineNumber, machineId, cost, name, itemGroupId
+  itemUnit, saleNo, purchaseNo, paymentNo, receiptNo, paymentType, supplyInvoiceNo, dutyTime,
+  salaryPaymentType, machineName, machineNumber, machineId, cost, name, itemGroupId, itemCategoryId
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -111,9 +111,9 @@ module.exports.validation = function (method) {
       return [ accountname, email, mobileno, contactpersonname, creditperiod, address1, pincode, state,
                city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails,validateCredit ];
     case "create_item":
-      return [ itemtype, productname, itemGroup, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice ];
+      return [ itemtype, productname, itemGroupId, itemCategoryId, weight, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice ];
     case "update_item":
-      return [ itemtype, productname, itemGroup, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice ];
+      return [ itemtype, productname, itemGroupId, itemCategoryId, weight, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice ];
     case "create_purchaseInvoice":
       return [duedate, voucherno, supplyInvoiceNo, invoicedate, qty,itemUnit, rate];
     case "update_purchaseInvoice":

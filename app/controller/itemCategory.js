@@ -12,7 +12,7 @@ exports.create_itemCategory = async (req, res) => {
             itemGroupId: itemGroupId
         }
     });
-    if (!existingItemCategory) {
+    if (existingItemCategory) {
       return res
         .status(404)
         .json({ status: "false", message: "Item Category already exists." });
