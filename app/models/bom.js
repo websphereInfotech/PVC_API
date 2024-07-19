@@ -14,6 +14,7 @@ const Bom = sequelize.define("P_Bom", {
     productId: {type: DataTypes.INTEGER, allowNull: false },
     qty: { type: DataTypes.INTEGER, allowNull: false },
     unit: {type: DataTypes.STRING, allowNull: false},
+    totalQty: {type: DataTypes.FLOAT, allowNull: false}
 });
 
 User.hasMany(Bom, { foreignKey: "updatedBy", as: "bomUpdatedUser" });

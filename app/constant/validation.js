@@ -1580,6 +1580,11 @@ exports.create_bom = function(req, res, next) {
       'number.base': 'The qty must be a number.',
       "number.greater": "Qty must be greater than 0.",
     }),
+    totalQty: Joi.number().greater(0).required().messages({
+      'any.required': 'Total Qty field is required.',
+      'number.base': 'Total Qty must be a number.',
+      "number.greater": "Total Qty must be greater than 0.",
+    }),
     unit: Joi.string().required().messages({
       'any.required': 'The product unit field is required.',
       'string.base': 'The product unit must be a string.',
