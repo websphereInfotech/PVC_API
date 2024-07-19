@@ -1,39 +1,46 @@
-// const itemcategory = require("../models/itemcategory");
-// const product = require("../models/product");
+const ItemCategory = require("../models/ItemCategory");
+const ItemGroup = require("../models/ItemGroup");
 
-// exports.create_itemcategory = async (req, res) => {
-//   try {
-//     const { category, remarks, productId } = req.body;
-//     const existingProduct = await product.findByPk(productId);
-//     if (!existingProduct) {
-//       return res
-//         .status(404)
-//         .json({ status: "false", message: "Product not found" });
-//     }
-//     const data = await itemcategory.create({
-//       productId,
-//       category,
-//       remarks,
-//     });
-//     return res
-//       .status(200)
-//       .json({
-//         status: "true",
-//         message: "Item category created successfully",
-//         data: data,
-//       });
-//   } catch (error) {
-//     console.log(error);
-//     return res
-//       .status(500)
-//       .json({ status: "false", message: "Internal Server Error" });
-//   }
-// };
+exports.create_itemCategory = async (req, res) => {
+  try {
+    const { name, itemGroupId } = req.body;
+    const companyId = req.user.companyId
+    const existingItemCategory = await ItemCategory.findOne({
+        where: {
+            name: name,
+            companyId: companyId,
+            itemGroupId: itemGroupId
+        }
+    });
+    if (!existingItemCategory) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Item Category already exists." });
+    }
+    const data = await ItemCategory.create({
+        name: name,
+        companyId: companyId,
+        itemGroupId: itemGroupId
+    });
+    return res
+      .status(200)
+      .json({
+        status: "true",
+        message: "Item category created successfully.",
+        data: data,
+      });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
 // exports.update_itemcategory = async (req, res) => {
 //   try {
 //     const { id } = req.params;
 //     const { category, remarks } = req.body;
-
+//
 //     const item = await itemcategory.findByPk(id);
 //     if (!item) {
 //       return res.status(400).json({ message: "Item category not Found" });
@@ -47,7 +54,7 @@
 //         where: { id: id },
 //       }
 //     );
-
+//
 //     const data = await itemcategory.findByPk(id);
 //     return res
 //       .status(200)
@@ -63,53 +70,72 @@
 //       .json({ status: "false", message: "Internal Server Error" });
 //   }
 // };
-// exports.view_itemcategory = async (req, res) => {
-//   try {
-//     const { id } = req.params;
+exports.view_itemCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.user.companyId
 
-//     const data = await itemcategory.findOne({
-//       where: { id },
-//     });
+    const data = await ItemCategory.findOne({
+      where: { id, companyId: companyId },
+    });
 
-//     if (!data) {
-//       return res
-//         .status(404)
-//         .json({ status: "false", message: "Item category Not Found" });
-//     }
-//     return res
-//       .status(200)
-//       .json({
-//         status: "true",
-//         message: "Item category data fetch successfully",
-//         data: data,
-//       });
-//   } catch (error) {
-//     console.log(error);
-//     return res
-//       .status(500)
-//       .json({ status: "false", message: "Internal Server Error" });
-//   }
-// };
-// exports.get_all_itemcategory = async (req, res) => {
-//   try {
-//     const data = await itemcategory.findAll();
-//     if (data) {
-//       return res
-//         .status(200)
-//         .json({
-//           status: "true",
-//           message: "All Item Category Show Successfully",
-//           data: data,
-//         });
-//     } else {
-//       return res
-//         .status(404)
-//         .json({ status: "false", message: "Item Category Not Found" });
-//     }
-//   } catch (error) {
-//     console.log(error.message);
-//     return res
-//       .status(500)
-//       .json({ status: "false", message: "Internal Server Error" });
-//   }
-// };
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Item category Not Found." });
+    }
+    return res
+      .status(200)
+      .json({
+        status: "true",
+        message: "Item category data fetch successfully",
+        data: data,
+      });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+exports.get_all_itemCategoryGroup = async (req, res) => {
+  try {
+      const {groupId} = req.params;
+      const companyId = req.user.companyId;
+      const itemGroup = await ItemGroup.findOne({
+          where: {
+              id: groupId,
+              companyId: companyId
+          }
+      });
+      if(!itemGroup){
+          return res
+              .status(404)
+              .json({ status: "false", message: "Item Group Not Found." });
+      }
+    const data = await ItemCategory.findAll({
+        where: {
+            companyId: companyId,
+            itemGroupId: itemGroup.id
+        }
+    });
+    if (data) {
+      return res
+        .status(200)
+        .json({
+          status: "true",
+          message: "All Item Category Fetch Successfully.",
+          data: data,
+        });
+    } else {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Item Category Not Found" });
+    }
+  } catch (error) {
+    console.log(error.message);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};

@@ -1522,7 +1522,7 @@ exports.permissions = {
             "total_purchase": true
         }
     },
-    "Item Groupv" : {
+    "Item Group" : {
         "Super Admin" :{
             "create_itemGroup":true,
             "view_single_itemGroup": true,
@@ -1552,6 +1552,38 @@ exports.permissions = {
             "create_itemGroup":true,
             "view_single_itemGroup": true,
             "view_all_itemGroup": true
+        }
+    },
+    "Item Category" : {
+        "Super Admin" :{
+            "create_itemCategory":true,
+            "view_single_itemCategory": true,
+            "view_all_itemCategory_group": true
+        },
+        "Admin" :{
+            "create_itemCategory":true,
+            "view_single_itemCategory": true,
+            "view_all_itemCategory_group": true
+        },
+        "Account" :{
+            "create_itemCategory":true,
+            "view_single_itemCategory": true,
+            "view_all_itemCategory_group": true
+        },
+        "Employee" :{
+            "create_itemCategory":true,
+            "view_single_itemCategory": true,
+            "view_all_itemCategory_group": true
+        },
+        "Workers" :{
+            "create_itemCategory":true,
+            "view_single_itemCategory": true,
+            "view_all_itemCategory_group": true
+        },
+        "Other" :{
+            "create_itemCategory":true,
+            "view_single_itemCategory": true,
+            "view_all_itemCategory_group": true
         }
     },
 }

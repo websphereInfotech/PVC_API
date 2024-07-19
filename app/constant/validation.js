@@ -1959,3 +1959,16 @@ exports.name = async function(req, res, next){
   }
   return next()
 }
+
+exports.itemGroupId = async function(req, res, next){
+  const {itemGroupId} = req.body;
+  const iteGroupIdSchema = Joi.number().required().messages({
+    "number.base": "Item Group must be a number",
+    "any.required": "Required Field : Item Group",
+  })
+  const {error} = iteGroupIdSchema.validate(itemGroupId);
+  if(error){
+    return res.status(400).json({status: "false", message: error.message})
+  }
+  return next()
+}

@@ -30,5 +30,6 @@ router.use('/preventiveMaintenance', require('./preventiveMaintenance'))
 router.use('/breakdownMaintenance', require('./breakdownMaintenance'))
 router.use('/dashboard', require('./dashboard'))
 router.use('/itemGroup', require('./itemGroup'))
+router.use('/itemCategory', require('./itemCategory'))
 
 module.exports = router;
