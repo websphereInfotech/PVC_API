@@ -1522,4 +1522,36 @@ exports.permissions = {
             "total_purchase": true
         }
     },
+    "Item Groupv" : {
+        "Super Admin" :{
+            "create_itemGroup":true,
+            "view_single_itemGroup": true,
+            "view_all_itemGroup": true
+        },
+        "Admin" :{
+            "create_itemGroup":true,
+            "view_single_itemGroup": true,
+            "view_all_itemGroup": true
+        },
+        "Account" :{
+            "create_itemGroup":true,
+            "view_single_itemGroup": true,
+            "view_all_itemGroup": true
+        },
+        "Employee" :{
+            "create_itemGroup":true,
+            "view_single_itemGroup": true,
+            "view_all_itemGroup": true
+        },
+        "Workers" :{
+            "create_itemGroup":true,
+            "view_single_itemGroup": true,
+            "view_all_itemGroup": true
+        },
+        "Other" :{
+            "create_itemGroup":true,
+            "view_single_itemGroup": true,
+            "view_all_itemGroup": true
+        }
+    },
 }

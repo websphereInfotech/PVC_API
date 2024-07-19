@@ -1689,7 +1689,6 @@ exports.itemGroup = async function(req, res, next){
   const {weight, itemgroup} = req.body;
   const weightSchema = Joi.object({
     itemgroup: Joi.string()
-        .valid(...Object.values(ITEM_GROUP_TYPE))
         .required()
         .messages({
           'any.required': 'The itemgroup field is required.',
@@ -1945,4 +1944,18 @@ exports.cost = async function(req, res, next){
     return res.status(400).json({ status: "False", message: error.message });
   }
   next();
+}
+
+exports.name = async function(req, res, next){
+  const {name} = req.body;
+  const nameSchema = Joi.string().required().messages({
+    "string.base": "Name must be a string",
+    "any.required": "Required Field : Name",
+    "string.empty": "Name Cannot Be Empty",
+  })
+  const {error} = nameSchema.validate(name);
+  if(error){
+    return res.status(400).json({status: "false", message: error.message})
+  }
+  return next()
 }

@@ -1,8 +1,9 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const company = require("./company");
-const { ITEM_GROUP_TYPE} = require("../constant/constant");
 const User = require("./user");
+const ItemGroup = require("./ItemGroup");
+const ItemCategory = require("./ItemCategory");
 
 const product = sequelize.define("P_product", {
   itemtype: {
@@ -15,13 +16,13 @@ const product = sequelize.define("P_product", {
   description: {
     type: DataTypes.STRING,
   },
-  itemgroup: {
-    type: DataTypes.ENUM,
-    values: [...Object.values(ITEM_GROUP_TYPE)],
+  itemGroupId: {
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
-  itemcategory: {
-    type: DataTypes.STRING,
+  itemCategoryId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
   },
   unit: {
     type: DataTypes.STRING,
@@ -77,5 +78,11 @@ product.belongsTo(User, { foreignKey: "updatedBy", as: "productUpdateUser" });
 
 User.hasMany(product, { foreignKey: "createdBy", as: "productCreateUser" });
 product.belongsTo(User, { foreignKey: "createdBy", as: "productCreateUser" });
+
+ItemGroup.hasMany(product, {foreignKey: "itemGroupId", as: "itemGroup", onDelete: "CASCADE"});
+product.belongsTo(ItemGroup, {foreignKey: "itemGroupId", as: "itemGroup", onDelete: "CASCADE"});
+
+ItemCategory.hasMany(product, {foreignKey: "itemCategoryId", as: "itemCategory", onDelete: "CASCADE"});
+product.belongsTo(ItemCategory, {foreignKey: "itemCategoryId", as: "itemCategory", onDelete: "CASCADE"});
 
 module.exports = product;
