@@ -68,6 +68,12 @@ exports.create_bom = async (req, res) => {
             // const isLawStockCash = await lowStockWaring(cashProduct.lowstock, cashProduct.lowStockQty, cashQty, totalProductCashQty, cashProduct.nagativeqty)
             // if(isLawStock || isLawStockCash) return res.status(400).json({status: "false", message: `Low Stock in ${productExist.productname} Product`});
         }
+        const totalWeight = qty * weight;
+        const totalRecipeWeight = items.reduce((acc, item) => {
+            acc += item.qty;
+            return acc;
+        }, 0)
+        const dividedWeight = Math.round((totalWeight / totalRecipeWeight) * 100) / 100;
 
         const createBOM = await Bom.create({
             bomNo: bomNo,
@@ -80,6 +86,7 @@ exports.create_bom = async (req, res) => {
             companyId,
             unit: unit
         })
+
         const productStock = await Stock.findOne({
             where: {productId}
         })
@@ -95,7 +102,7 @@ exports.create_bom = async (req, res) => {
         }
 
         for(const item of items){
-
+            const totalQty = item.qty * dividedWeight;
             await BomItem.create({
                 ...item,
                 bomId: createBOM.id
@@ -107,7 +114,7 @@ exports.create_bom = async (req, res) => {
             const productCashStock = await C_Stock.findOne({
                 where: {productId: item.productId},
             })
-            const {cashQty, productQty} = splitQuantity(item.qty)
+            const {cashQty, productQty} = splitQuantity(totalQty)
             if(productStock){
                 await productStock.decrement('qty',{by: productQty})
             }
@@ -228,6 +235,21 @@ exports.update_bom = async (req, res) => {
             // const isLawStockCash = await lowStockWaring(cashProduct.lowstock, cashProduct.lowStockQty, cashQty, totalProductCashQty, cashProduct.nagativeqty)
             // if(isLawStock || isLawStockCash) return res.status(400).json({status: "false", message: `Low Stock in ${productExist.productname} Product`});
         }
+        const totalWeight = qty * weight;
+        const totalRecipeWeight = items.reduce((acc, item) => {
+            acc += item.qty;
+            return acc;
+        }, 0)
+
+        const dividedWeight = Math.round((totalWeight / totalRecipeWeight) * 100) / 100;
+
+        const oldTotalWeight = bomExist.qty * bomExist.weight;
+        const oldTotalRecipeWeight = existingItems.reduce((acc, item) => {
+            acc += item.qty;
+            return acc;
+        },0);
+        const oldDividedWeight = Math.round((oldTotalWeight / oldTotalRecipeWeight) * 100) / 100;
+
 
         await  Bom.update(
             {
@@ -286,14 +308,18 @@ exports.update_bom = async (req, res) => {
                     bomId: bomExist.id
                 })
             }
+            const exitingQty = existingItem?.qty ?? 0
+            const oldTotalQty = exitingQty * oldDividedWeight;
+            const totalQty = item.qty * dividedWeight;
+
             const productStock = await Stock.findOne({
                 where: {productId: item.productId},
             })
             const productCashStock = await C_Stock.findOne({
                 where: {productId: item.productId},
             })
-            const {cashQty:newCashQty, productQty:newProductQty} = splitQuantity(item.qty)
-            const {cashQty:previousCashQty, productQty:previousProductQty} = splitQuantity(existingItem?.qty ?? 0)
+            const {cashQty:newCashQty, productQty:newProductQty} = splitQuantity(totalQty)
+            const {cashQty:previousCashQty, productQty:previousProductQty} = splitQuantity(oldTotalQty)
             if(productStock){
                 await productStock.increment('qty',{by: previousProductQty})
                 await productStock.decrement('qty',{by: newProductQty})
@@ -309,13 +335,14 @@ exports.update_bom = async (req, res) => {
             (item) => !updatedProductIds.includes(item.id)
         );
         for (const item of itemsToDelete) {
+            const oldTotalQty = item.qty * oldDividedWeight;
             const productStock = await Stock.findOne({
                 where: {productId: item.productId},
             })
             const productCashStock = await C_Stock.findOne({
                 where: {productId: item.productId},
             })
-            const {cashQty:previousCashQty, productQty:previousProductQty} = splitQuantity(item?.qty ?? 0)
+            const {cashQty:previousCashQty, productQty:previousProductQty} = splitQuantity(oldTotalQty)
             if(productStock){
                 await productStock.increment('qty',{by: previousProductQty})
             }
@@ -463,6 +490,17 @@ exports.delete_bom = async (req,res)=>{
         //         isActive: true
         //     }
         // })
+
+        const existingItems = await BomItem.findAll({
+            where: { bomId: bomExist.id },
+        });
+
+        const oldTotalWeight = bomExist.qty * bomExist.weight;
+        const oldTotalRecipeWeight = existingItems.reduce((acc, item) => {
+            acc += item.qty;
+            return acc;
+        },0);
+        const oldDividedWeight = Math.round((oldTotalWeight / oldTotalRecipeWeight) * 100) / 100;
         const productStock = await Stock.findOne({
             where: {productId: bomExist.productId},
         })
@@ -481,17 +519,17 @@ exports.delete_bom = async (req,res)=>{
         //
         // if(isLawStock || isLawStockCash) return res.status(400).json({status: "false", message: `Low Stock in ${bomProduct.productname} Product`});
 
-        const existingItems = await BomItem.findAll({
-            where: { bomId: bomExist.id },
-        });
+
         for(const item of existingItems){
+            const exitingQty = item?.qty ?? 0
+            const oldTotalQty = exitingQty * oldDividedWeight;
             const productStock = await Stock.findOne({
                 where: {productId: item.productId},
             })
             const productCashStock = await C_Stock.findOne({
                 where: {productId: item.productId},
             })
-            const {cashQty:previousCashQty, productQty:previousProductQty} = splitQuantity(item?.qty ?? 0)
+            const {cashQty:previousCashQty, productQty:previousProductQty} = splitQuantity(oldTotalQty)
             if(productStock){
                 await productStock.increment('qty',{by: previousProductQty})
             }
