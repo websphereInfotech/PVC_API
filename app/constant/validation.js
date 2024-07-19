@@ -1935,7 +1935,8 @@ exports.itemGroupId = async function(req, res, next){
     "number.base": "Item Group must be a number",
     "any.required": "Required Field : Item Group",
   })
-  const {error} = iteGroupIdSchema.validate(itemGroupId);
+  const valueToValidate = itemGroupId === '' ? undefined : itemGroupId
+  const {error} = iteGroupIdSchema.validate(valueToValidate);
   if(error){
     return res.status(400).json({status: "false", message: error.message})
   }
@@ -1948,7 +1949,8 @@ exports.itemCategoryId = async function(req, res, next){
     "number.base": "Item Category must be a number",
     "any.required": "Required Field : Item Category",
   })
-  const {error} = iteCategoryIdSchema.validate(itemCategoryId);
+  const valueToValidate = itemCategoryId === '' ? undefined : itemCategoryId;
+  const {error} = iteCategoryIdSchema.validate(valueToValidate);
   if(error){
     return res.status(400).json({status: "false", message: error.message})
   }
