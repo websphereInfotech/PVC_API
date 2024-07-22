@@ -11,7 +11,7 @@ exports.view_all_product_stock =async (req, res) => {
     try {
         const companyId = req.user.companyId;
         const productStock =  await Stock.findAll({
-            include: [{model: Product, as: "productStock", where: {companyId: companyId, isActive: true, itemgroup: ITEM_GROUP_TYPE.PRODUCT}}, {model: User, as: "stockUpdateUser", attributes: ["username"]}],
+            include: [{model: Product, as: "productStock", where: {companyId: companyId, isActive: true}}, {model: User, as: "stockUpdateUser", attributes: ["username"]}],
         })
         return res.status(200).json({
             status: "true",
