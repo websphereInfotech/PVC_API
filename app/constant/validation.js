@@ -1541,7 +1541,8 @@ exports.weight = function (req, res, next){
     'number.base': 'The weight must be a number.',
     "number.greater": "Weight must be greater than 0.",
   });
-  const { error } = weightSchema.validate(weight);
+  const valueToValidate = weight === '' ? undefined : weight
+  const { error } = weightSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({
       status: "false",

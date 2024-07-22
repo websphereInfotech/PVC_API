@@ -142,7 +142,7 @@
                     <td><%= record.vchType %></td>
                     <td><%= record.vchNo %></td>
                     <td><%= record.debitAmount ? formatNumber(record.debitAmount) : '' %></td>
-                    <td><%= record.dataValues.creditAmount ? formatNumber(record.creditAmount) : '' %></td>
+                    <td><%= record.creditAmount ? formatNumber(record.creditAmount) : '' %></td>
                 </tr>
             <% }) %>
         <% } %>
