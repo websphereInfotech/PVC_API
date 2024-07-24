@@ -176,7 +176,8 @@ exports.update_bom = async (req, res) => {
                 productId,
                 qty,
                 unit,
-                updatedBy: req.user.userId
+                updatedBy: req.user.userId,
+                totalQty
             },
             {
                 where: {

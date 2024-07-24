@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ledger Account</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: 90%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: center;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .company-info,
+        .client-info {
+            width: 45%;
+        }
+
+        .company-info h1,
+        .client-info h2 {
+            margin: 0;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        .company-info p,
+        .client-info p {
+            margin: 0;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        .date-range {
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+            table-layout: fixed;
+        }
+
+        thead th {
+            border-bottom: 2px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+
+        tbody td {
+            padding: 8px;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .closing-balance {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        td[colspan="4"] {
+            text-align: right;
+            padding-right: 20px;
+        }
+
+        td[colspan="4"]:last-child {
+            text-align: left;
+        }
+
+        tfoot td {
+            font-weight: bold;
+        }
+        .underline {
+            border-top: 1px solid #000;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="company-info">
+            <h1><%= data.CashCustomer.customername %></h1>
+            <p>
+               Sale No.: <%= data.saleNo %><br>
+               Date: <%= data.date %><br>
+            </p>
+        </div>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>Product/Service</th>
+            <th>Qty</th>
+            <th>Unit</th>
+            <th>Rate(₹)</th>
+            <th>MRP(₹)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% for (const item of data.items) { %>
+            <tr>
+                <td><%= item.CashProduct.productname %></td>
+                <td><%= item.qty %></td>
+                <td><%= item.unit %></td>
+                <td><%= item.rate %></td>
+                <td><%= item.mrp %></td>
+            </tr>
+        <% } %>
+        <tr>
+            <td colspan="4" class="closing-balance">Total Amount</td>
+            <td class="underline"><%= data.totalMrp %></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
