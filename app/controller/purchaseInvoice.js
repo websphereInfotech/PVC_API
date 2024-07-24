@@ -10,6 +10,9 @@ const User = require("../models/user");
 const vendor = require("../models/vendor");
 const vendorLedger = require("../models/vendorLedger");
 const Stock = require("../models/stock");
+const {renderFile} = require("ejs");
+const path = require("node:path");
+const htmlToPdf = require("html-pdf-node");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -847,3 +850,37 @@ exports.C_view_purchaseCash = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
+exports.C_view_purchaseCash_pdf = async (req, res)=>{
+  try {
+    const { id } = req.params;
+    const data = await C_purchaseCash.findOne({
+      where: { id: id, companyId: req.user.companyId },
+      include: [
+        {
+          model: C_purchaseCashItem,
+          as: "items",
+          include: [{ model: product, as: "ProductPurchase" }],
+        },
+        { model: C_vendor, as: "VendorPurchase" },
+      ],
+    });
+    if (!data) {
+      return res
+          .status(404)
+          .json({ status: "false", message: "Purchase Cash Not Found" });
+    }
+    const html = await renderFile(path.join(__dirname, "../views/purchaseCash.ejs"),{data})
+    htmlToPdf.generatePdf({content: html},{printBackground: true, format: 'A4'}).then((pdf) => {
+      const base64String = pdf.toString("base64");
+      return res.status(200).json({
+        status: "Success",
+        message: "pdf create successFully",
+        data: base64String,
+      });
+    })
+  }catch (e) {
+    console.error(e);
+    return res.status(500).json({status: "false", message: "Internal Server Error."})
+  }
+}

@@ -912,42 +912,48 @@ exports.permissions = {
             "update_purchase_cash":true,
             "delete_purchase_cash":true,
             "view_purchase_cash":true,
-            "view_all_purchase_cash":true
+            "view_all_purchase_cash":true,
+            "view_purchase_cash_pdf": true
         },
         "Admin" :{
             "create_purchase_cash":true,
             "update_purchase_cash":true,
             "delete_purchase_cash":true,
             "view_purchase_cash":true,
-            "view_all_purchase_cash":true
+            "view_all_purchase_cash":true,
+            "view_purchase_cash_pdf": true
         },
         "Account" :{
             "create_purchase_cash":true,
             "update_purchase_cash":true,
             "delete_purchase_cash":true,
             "view_purchase_cash":true,
-            "view_all_purchase_cash":true
+            "view_all_purchase_cash":true,
+            "view_purchase_cash_pdf": true
         },
         "Employee" :{
             "create_purchase_cash":true,
             "update_purchase_cash":true,
             "delete_purchase_cash":true,
             "view_purchase_cash":true,
-            "view_all_purchase_cash":true
+            "view_all_purchase_cash":true,
+            "view_purchase_cash_pdf": true
         },
         "Workers" :{
             "create_purchase_cash":true,
             "update_purchase_cash":true,
             "delete_purchase_cash":true,
             "view_purchase_cash":true,
-            "view_all_purchase_cash":true
+            "view_all_purchase_cash":true,
+            "view_purchase_cash_pdf": true
         },
         "Other" :{
             "create_purchase_cash":true,
             "update_purchase_cash":true,
             "delete_purchase_cash":true,
             "view_purchase_cash":true,
-            "view_all_purchase_cash":true
+            "view_all_purchase_cash":true,
+            "view_purchase_cash_pdf": true
         },
     },
     "Customer Cash" : {

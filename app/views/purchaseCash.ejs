@@ -96,10 +96,10 @@
 <div class="container">
     <div class="header">
         <div class="company-info">
-            <h1><%= data.CashCustomer.customername %></h1>
+            <h1><%= data.VendorPurchase.vendorname %></h1>
             <p>
-               Sale No.: <%= data.saleNo %><br>
-               Date: <%= data.date %><br>
+                Purchase No.: <%= data.purchaseNo %><br>
+                Date: <%= data.date %><br>
             </p>
         </div>
     </div>
@@ -116,7 +116,7 @@
         <tbody>
         <% for (const item of data.items) { %>
             <tr>
-                <td><%= item.CashProduct.productname %></td>
+                <td><%= item.ProductPurchase.productname %></td>
                 <td><%= item.qty %></td>
                 <td><%= item.unit %></td>
                 <td><%= item.rate %></td>
