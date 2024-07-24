@@ -163,11 +163,11 @@ exports.update_bom = async (req, res) => {
         }
         const totalWeight = qty * weight;
 
-        const dividedWeight = Math.round((totalWeight / totalQty) * 100) / 100;
+        const dividedWeight = Math.floor((totalWeight / totalQty) * 100) / 100;
 
         const oldTotalWeight = bomExist.qty * bomExist.weight;
         const oldTotalRecipeWeight = bomExist?.totalQty ?? 0;
-        const oldDividedWeight = Math.round((oldTotalWeight / oldTotalRecipeWeight) * 100) / 100;
+        const oldDividedWeight = Math.floor((oldTotalWeight / oldTotalRecipeWeight) * 100) / 100;
 
 
         await  Bom.update(
@@ -220,8 +220,8 @@ exports.update_bom = async (req, res) => {
                 })
             }
             const exitingQty = existingItem?.qty ?? 0
-            const oldTotalQty = exitingQty * oldDividedWeight;
-            const totalQty = item.qty * dividedWeight;
+            const oldTotalQty = Math.floor((exitingQty * oldDividedWeight) * 100) / 100;;
+            const totalQty = Math.floor((item.qty * dividedWeight)*100)/100
 
             const productStock = await Stock.findOne({
                 where: {productId: item.productId},
@@ -237,7 +237,7 @@ exports.update_bom = async (req, res) => {
             (item) => !updatedProductIds.includes(item.id)
         );
         for (const item of itemsToDelete) {
-            const oldTotalQty = item.qty * oldDividedWeight;
+            const oldTotalQty = Math.floor((item.qty * oldDividedWeight)*100)/100;
             const productStock = await Stock.findOne({
                 where: {productId: item.productId},
             })
@@ -378,14 +378,14 @@ exports.delete_bom = async (req,res)=>{
 
         const oldTotalWeight = bomExist.qty * bomExist.weight;
         const oldTotalRecipeWeight = bomExist.totalQty;
-        const oldDividedWeight = Math.round((oldTotalWeight / oldTotalRecipeWeight) * 100) / 100;
+        const oldDividedWeight = Math.floor((oldTotalWeight / oldTotalRecipeWeight) * 100) / 100;
         const productStock = await Stock.findOne({
             where: {productId: bomExist.productId},
         })
 
         for(const item of existingItems){
             const exitingQty = item?.qty ?? 0
-            const oldTotalQty = exitingQty * oldDividedWeight;
+            const oldTotalQty = Math.floor((exitingQty * oldDividedWeight)*100)/100;
             const productStock = await Stock.findOne({
                 where: {productId: item.productId},
             })
