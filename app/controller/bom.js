@@ -19,7 +19,7 @@ exports.create_bom = async (req, res) => {
             })
         }
         const productExist = await Product.findOne({where: {
-            id: productId,
+                id: productId,
                 companyId: companyId,
                 isActive: true
             }});
@@ -44,7 +44,7 @@ exports.create_bom = async (req, res) => {
             }
         }
         const totalWeight = qty * weight;
-        const dividedWeight = Math.round((totalWeight / totalQty) * 100) / 100;
+        const dividedWeight = Math.floor((totalWeight / totalQty) * 100) / 100;
 
         const createBOM = await Bom.create({
             bomNo: bomNo,
@@ -67,7 +67,7 @@ exports.create_bom = async (req, res) => {
         }
 
         for(const item of items){
-            const totalQty = item.qty * dividedWeight;
+            const totalQty = Math.floor((item.qty * dividedWeight) * 100) / 100;
             await BomItem.create({
                 ...item,
                 bomId: createBOM.id
@@ -78,6 +78,8 @@ exports.create_bom = async (req, res) => {
             })
             if(productStock){
                 await productStock.decrement('qty',{by: totalQty})
+                // productStock.qty -= totalQty;
+                // await productStock.save()
             }
         }
 

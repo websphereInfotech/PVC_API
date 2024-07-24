@@ -9,7 +9,7 @@ const stock = sequelize.define("P_stock", {
         allowNull: false
     },
     qty: {
-        type: DataTypes.FLOAT,
+        type: DataTypes.DECIMAL(10,2),
         defaultValue: 0,
         allowNull: false
     },
