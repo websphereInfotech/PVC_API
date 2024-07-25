@@ -6,6 +6,8 @@ const { permissions } = require("../middleware/permissions");
 const companyBalance = require("../models/companyBalance");
 const C_userBalance = require("../models/C_userBalance");
 const C_companyBalance = require("../models/C_companyBalance");
+const Group = require("../models/Group");
+const {GROUPS_TYPE} = require("../constant/constant");
 
 const existingData = async () => {
   try {
@@ -60,7 +62,7 @@ const existingData = async () => {
       await C_userBalance.create({
         userId: existingUser.id,
         companyId: existingCompany.id,
-        balance:0 
+        balance:0
       });
     }
     const existingComapnyBalance = await C_companyBalance.findOne({
@@ -69,12 +71,12 @@ const existingData = async () => {
     if(!existingComapnyBalance) {
       await C_companyBalance.create({
         companyId: existingCompany.id,
-        balance:0 
+        balance:0
       });
     }
 
     const balanceExists = await companyBalance.findOne({
-      where:{companyId: existingCompany.id},   
+      where:{companyId: existingCompany.id},
     });
     if(!balanceExists) {
       await companyBalance.create({
@@ -86,6 +88,38 @@ const existingData = async () => {
     console.log(error);
   }
 };
+
+const exisingGroup = async ()=>{
+  try {
+    const allCompany = await company.findAll();
+    const groupList = Object.values(GROUPS_TYPE);
+    for(const company of allCompany) {
+    const existingGroups = await Group.findAll({ where: { companyId: company.id } });
+      for(const group of groupList){
+        const groupExist = await Group.findOne({
+          where: {
+            name: group,
+            companyId: company.id,
+          }
+        });
+        if(!groupExist){
+          await Group.create({
+            name: group,
+            companyId: company.id,
+          })
+        }
+      }
+
+      for (const existingGroup of existingGroups) {
+        if (!groupList.includes(existingGroup.name)) {
+          await existingGroup.destroy();
+        }
+      }
+    }
+  }catch (e) {
+    console.error(e);
+  }
+}
 
 
 const existingPermission = async () => {
@@ -157,4 +191,4 @@ const existingPermission = async () => {
   }
 };
 
-module.exports = { existingData, existingPermission };
+module.exports = { existingData, existingPermission, exisingGroup };

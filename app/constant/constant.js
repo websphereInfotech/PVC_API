@@ -8,3 +8,17 @@ exports.SALARY_PAYMENT_TYPE = {
     CASH: "cash",
     BANK: "bank"
 }
+
+exports.GROUPS_TYPE = {
+    BANK_ACCOUNT: "Bank Account",
+    DUTIES_AND_TAXES: "Duties & Taxes",
+    EXPENSE_DIRECT: "Expenses (Direct)",
+    EXPENSE_INDIRECT: "Expenses (Indirect)",
+    INCOME_DIRECT: "Income (Direct)",
+    INCOME_INDIRECT: "Income (Indirect)",
+    LOAN_AND_ADVANCE: "Loans & Advances (Asset)",
+    LOANS: "Loans (Liability)",
+    SUNDRY_CREDITORS: "Sundry Creditors",
+    SUNDRY_DEBTORS: "Sundry Debtors",
+    UNSECURED_LOANS: "Unsecured Loans",
+}
