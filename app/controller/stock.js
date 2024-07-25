@@ -71,7 +71,7 @@ exports.view_item_stock = async (req, res) => {
 exports.update_item_stock = async (req, res) => {
     try {
         const { id } = req.params;
-        const {productId, qty} = req.body;
+        const {itemId, qty} = req.body;
         const companyId = req.user.companyId;
         const itemStockExists = await Stock.findOne({
             where: {id: id},
@@ -84,7 +84,7 @@ exports.update_item_stock = async (req, res) => {
             })
         }
         const itemExists = await Product.findOne({
-            where: {id: productId, companyId: companyId, isActive: true}
+            where: {id: itemId, companyId: companyId, isActive: true}
         })
         if(!itemExists){
             return res.status(404).json({
@@ -93,7 +93,7 @@ exports.update_item_stock = async (req, res) => {
             })
         }
 
-        itemStockExists.productId = productId
+        itemStockExists.productId = itemId
         itemStockExists.qty = qty
         itemStockExists.updatedBy = req.user.userId
         await itemStockExists.save();
