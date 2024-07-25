@@ -167,11 +167,11 @@ exports.create_salesInvoice = async (req, res) => {
     for(const item of items){
       const productId = item.productId;
       const qty = item.qty;
-      const productStock = await Stock.findOne({
+      const itemStock = await Stock.findOne({
         where: {productId}
       })
-      if(productStock){
-        await productStock.decrement('qty',{by: qty})
+      if(itemStock){
+        await itemStock.decrement('qty',{by: qty})
       }
     }
 
@@ -431,12 +431,12 @@ exports.update_salesInvoice = async (req, res) => {
       const productId = item.productId;
       const previousQty = existingItem?.qty ?? 0;
       const newQty = item.qty;
-      const productStock = await Stock.findOne({
+      const itemStock = await Stock.findOne({
         where: {productId}
       })
-      if(productStock){
-        await productStock.increment('qty',{by: previousQty})
-        await productStock.decrement('qty',{by: newQty})
+      if(itemStock){
+        await itemStock.increment('qty',{by: previousQty})
+        await itemStock.decrement('qty',{by: newQty})
       }
     }
     const updatedProductIds = items.map((item) => item.id);
@@ -448,10 +448,10 @@ exports.update_salesInvoice = async (req, res) => {
     for (const item of itemsToDelete) {
       const productId = item.productId;
       const qty = item.qty;
-      const productStock = await Stock.findOne({
+      const itemStock = await Stock.findOne({
         where: {productId}
       })
-      if(productStock) await productStock.increment('qty',{by: qty})
+      if(itemStock) await itemStock.increment('qty',{by: qty})
       await salesInvoiceItem.destroy({ where: { id: item.id } });
     }
 
@@ -489,10 +489,10 @@ exports.delete_salesInvoice = async (req, res) => {
     for(const item of findItems){
       const productId = item.productId;
       const qty = item.qty;
-      const productStock = await Stock.findOne({
+      const itemStock = await Stock.findOne({
         where: {productId}
       })
-      if(productStock) await productStock.increment('qty',{by: qty})
+      if(itemStock) await itemStock.increment('qty',{by: qty})
     }
     await salesInvoiceItem.destroy({ where: { salesInvoiceId: id } })
     await data.destroy()
@@ -598,11 +598,11 @@ exports.C_create_salesinvoice = async (req, res) => {
     for(const item of items){
       const productId = item.productId;
       const qty = item.qty;
-      const productStock = await Stock.findOne({
+      const itemStock = await Stock.findOne({
         where: {productId}
       })
-      if(productStock){
-        await productStock.decrement('qty',{by: qty})
+      if(itemStock){
+        await itemStock.decrement('qty',{by: qty})
       }
     }
 
@@ -743,12 +743,12 @@ exports.C_update_salesinvoice = async (req, res) => {
       const productId = item.productId;
       const previousQty = existingItem?.qty ?? 0;
       const newQty = item.qty;
-      const productStock = await Stock.findOne({
+      const itemStock = await Stock.findOne({
         where: {productId}
       })
-      if(productStock){
-        await productStock.increment('qty',{by: previousQty})
-        await productStock.decrement('qty',{by: newQty})
+      if(itemStock){
+        await itemStock.increment('qty',{by: previousQty})
+        await itemStock.decrement('qty',{by: newQty})
       }
     }
     const updatedProductIds = items.map((item) => item.id);
@@ -760,10 +760,10 @@ exports.C_update_salesinvoice = async (req, res) => {
     for (const item of itemsToDelete) {
       const productId = item.productId;
       const qty = item.qty;
-      const productStock = await Stock.findOne({
+      const itemStock = await Stock.findOne({
         where: {productId}
       })
-      if(productStock) await productStock.increment('qty',{by: qty})
+      if(itemStock) await itemStock.increment('qty',{by: qty})
       await
       C_salesinvoiceItem.destroy({ where: { id: item.id } });
     }
@@ -875,10 +875,10 @@ exports.C_delete_salesInvoice = async (req, res) => {
     for(const item of findItems){
       const productId = item.productId;
       const qty = item.qty;
-      const productStock = await Stock.findOne({
+      const itemStock = await Stock.findOne({
         where: {productId}
       })
-      if(productStock) await productStock.increment('qty',{by: qty})
+      if(itemStock) await itemStock.increment('qty',{by: qty})
     }
     await C_salesinvoiceItem.destroy({ where: { invoiceId: id } })
     await data.destroy()

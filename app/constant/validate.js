@@ -68,7 +68,7 @@ const {
   LoginPassword,
   purchaseinvoicedate,
   create_bom,
-  update_productStock,
+  update_itemStock,
   weight,
   itemUnit, saleNo, purchaseNo, paymentNo, receiptNo, paymentType, supplyInvoiceNo, dutyTime,
   salaryPaymentType, machineName, machineNumber, machineId, cost, name, itemGroupId, itemCategoryId
@@ -172,7 +172,7 @@ module.exports.validation = function (method) {
     case "update_bom":
       return [create_bom];
     case "update_stock":
-      return [update_productStock];
+      return [update_itemStock];
     case "create_raw_material":
       return [ itemtype, productname, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice, weight ];
     case "update_raw_material":

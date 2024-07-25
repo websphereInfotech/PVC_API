@@ -35,12 +35,6 @@ exports.create_claim = async (req, res) => {
       purpose,
       companyId: req.user.companyId,
     });
-    // const claim =  await C_claimBalance.create({
-    //   receiveId:data.fromUserId,
-    //   claimId:data.toUserId,
-    //   date: new Date()
-    // });
-    // console.log("claim>>>>>>>>",claim);
     return res.status(200).json({
       status: "true",
       message: "Claim Created Successfully",

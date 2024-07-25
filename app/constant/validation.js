@@ -1644,14 +1644,14 @@ exports.proFormaNo = function (req, res, next) {
   next();
 };
 
-exports.update_productStock = function (req,res,next){
-  const {productId, qty} = req.body;
-  const ProductStockSchema = Joi.object({
-    productId: Joi.number()
+exports.update_itemStock = function (req,res,next){
+  const {itemId, qty} = req.body;
+  const itemStockSchema = Joi.object({
+    itemId: Joi.number()
         .required()
         .messages({
-          "any.required": "Required Filed : Product",
-          "number.empty": "Product Cannot Be Empty",
+          "any.required": "Required Filed : Item",
+          "number.empty": "Item Cannot Be Empty",
         }),
     qty: Joi.number().required().messages({
       "any.required": "Required Filed : Qty",
@@ -1660,7 +1660,7 @@ exports.update_productStock = function (req,res,next){
     })
   })
 
-  const {error} = ProductStockSchema.validate({productId, qty});
+  const {error} = itemStockSchema.validate({itemId, qty});
   if (error) {
     return res.status(400).json({ status: "false", message: error.message });
   }

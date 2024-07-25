@@ -59,11 +59,11 @@ exports.create_bom = async (req, res) => {
             unit: unit
         })
 
-        const productStock = await Stock.findOne({
+        const itemStock = await Stock.findOne({
             where: {productId}
         })
-        if(productStock){
-            await productStock.increment('qty',{by: qty})
+        if(itemStock){
+            await itemStock.increment('qty',{by: qty})
         }
 
         for(const item of items){
@@ -73,13 +73,11 @@ exports.create_bom = async (req, res) => {
                 bomId: createBOM.id
             })
 
-            const productStock = await Stock.findOne({
+            const itemStock = await Stock.findOne({
                 where: {productId: item.productId},
             })
-            if(productStock){
-                await productStock.decrement('qty',{by: totalQty})
-                // productStock.qty -= totalQty;
-                // await productStock.save()
+            if(itemStock){
+                await itemStock.decrement('qty',{by: totalQty})
             }
         }
 
@@ -188,12 +186,12 @@ exports.update_bom = async (req, res) => {
             }
         );
 
-        const productStock = await Stock.findOne({
+        const itemStock = await Stock.findOne({
             where: {productId: productId},
         })
-        if(productStock){
-            await productStock.decrement('qty',{by: bomExist?.qty ?? 0})
-            await productStock.increment('qty',{by: qty})
+        if(itemStock){
+            await itemStock.decrement('qty',{by: bomExist?.qty ?? 0})
+            await itemStock.increment('qty',{by: qty})
         }
 
         for(const item of items){
@@ -223,12 +221,12 @@ exports.update_bom = async (req, res) => {
             const oldTotalQty = Math.floor((exitingQty * oldDividedWeight) * 100) / 100;;
             const totalQty = Math.floor((item.qty * dividedWeight)*100)/100
 
-            const productStock = await Stock.findOne({
+            const itemStock = await Stock.findOne({
                 where: {productId: item.productId},
             })
-            if(productStock){
-                await productStock.increment('qty',{by: oldTotalQty})
-                await productStock.decrement('qty',{by: totalQty})
+            if(itemStock){
+                await itemStock.increment('qty',{by: oldTotalQty})
+                await itemStock.decrement('qty',{by: totalQty})
             }
         }
 
@@ -238,11 +236,11 @@ exports.update_bom = async (req, res) => {
         );
         for (const item of itemsToDelete) {
             const oldTotalQty = Math.floor((item.qty * oldDividedWeight)*100)/100;
-            const productStock = await Stock.findOne({
+            const itemStock = await Stock.findOne({
                 where: {productId: item.productId},
             })
-            if(productStock){
-                await productStock.increment('qty',{by: oldTotalQty})
+            if(itemStock){
+                await itemStock.increment('qty',{by: oldTotalQty})
             }
             await BomItem.destroy({ where: { id: item.id } });
         }
@@ -379,23 +377,23 @@ exports.delete_bom = async (req,res)=>{
         const oldTotalWeight = bomExist.qty * bomExist.weight;
         const oldTotalRecipeWeight = bomExist.totalQty;
         const oldDividedWeight = Math.floor((oldTotalWeight / oldTotalRecipeWeight) * 100) / 100;
-        const productStock = await Stock.findOne({
+        const itemStock = await Stock.findOne({
             where: {productId: bomExist.productId},
         })
 
         for(const item of existingItems){
             const exitingQty = item?.qty ?? 0
             const oldTotalQty = Math.floor((exitingQty * oldDividedWeight)*100)/100;
-            const productStock = await Stock.findOne({
+            const itemStock = await Stock.findOne({
                 where: {productId: item.productId},
             })
-            if(productStock){
-                await productStock.increment('qty',{by: oldTotalQty})
+            if(itemStock){
+                await itemStock.increment('qty',{by: oldTotalQty})
             }
         }
 
-        if(productStock){
-            await productStock.decrement('qty',{by: bomExist?.qty ?? 0})
+        if(itemStock){
+            await itemStock.decrement('qty',{by: bomExist?.qty ?? 0})
         }
         await bomExist.destroy()
         return res.status(200).json({

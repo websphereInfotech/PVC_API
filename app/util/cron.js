@@ -12,18 +12,18 @@ const User = require("../models/user");
 const {Op} = require("sequelize");
 
 exports.lowStockNotificationJob = cron.schedule('0 0 * * *', async () => {
-    const productStocks = await Stock.findAll({
-        include: {model: Product, as: "productStock"}
+    const itemStocks = await Stock.findAll({
+        include: {model: Product, as: "itemStock"}
     })
-    for(const product of productStocks){
-        const stock = product.qty;
-        const isLowStock = product.productStock.lowstock;
-        const lowStockQty = product.productStock.lowStockQty;
-        const productName = product.productStock.productname;
-        const companyId = product.productStock.companyId
+    for(const item of itemStocks){
+        const stock = item.qty;
+        const isLowStock = item.itemStock.lowstock;
+        const lowStockQty = item.itemStock.lowStockQty;
+        const itemName = item.itemStock.productname;
+        const companyId = item.itemStock.companyId
         if (isLowStock && stock <= lowStockQty) {
             await Notification.create({
-                notification: `${productName} product is below the low stock threshold. Current stock: ${stock}`,
+                notification: `${itemName} product is below the low stock threshold. Current stock: ${stock}`,
                 companyId: companyId
             })
         }

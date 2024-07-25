@@ -120,8 +120,8 @@
         </tr>
         </thead>
         <tbody>
-        <% for (let date in data.records) { console.log(data.records, "Data Recors.............................") %>
-            <% data.records[date].forEach((record, index) => { console.log(date, "Date data....................................................") %>
+        <% for (let date in data.records) { %>
+            <% data.records[date].forEach((record, index) => { %>
                 <tr>
                     <td><%= index === 0 ? date : "" %></td>
                     <td><%= record.particulars %></td>

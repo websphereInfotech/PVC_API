@@ -16,8 +16,8 @@ const stock = sequelize.define("P_stock", {
     updatedBy: { type: DataTypes.INTEGER }
 });
 
-Product.hasOne(stock, {foreignKey: "productId", as: "productStock" });
-stock.belongsTo(Product, {foreignKey: "productId", as: "productStock" });
+Product.hasOne(stock, {foreignKey: "productId", as: "itemStock" });
+stock.belongsTo(Product, {foreignKey: "productId", as: "itemStock" });
 
 User.hasMany(stock, { foreignKey: "updatedBy", as: "stockUpdateUser" });
 stock.belongsTo(User, { foreignKey: "updatedBy", as: "stockUpdateUser" });
