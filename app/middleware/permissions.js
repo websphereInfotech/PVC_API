@@ -1518,4 +1518,24 @@ exports.permissions = {
             "view_all_itemCategory_group": true
         }
     },
+    "Account" : {
+        "Super Admin" :{
+            "view_all_account_group":true,
+        },
+        "Admin" :{
+            "view_all_account_group":true,
+        },
+        "Account" :{
+            "view_all_account_group":true,
+        },
+        "Employee" :{
+            "view_all_account_group":true,
+        },
+        "Workers" :{
+            "view_all_account_group":true,
+        },
+        "Other" :{
+            "view_all_account_group":true,
+        }
+    },
 }

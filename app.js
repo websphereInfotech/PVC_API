@@ -6,7 +6,6 @@ const initRoutes = require("./app/route");
 const app = express();
 const port = process.env.PORT;
 require('./app/util/cron');
-require('./app/models/Group')
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "app", "views"));
 app.use(cors());

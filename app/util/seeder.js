@@ -6,8 +6,8 @@ const { permissions } = require("../middleware/permissions");
 const companyBalance = require("../models/companyBalance");
 const C_userBalance = require("../models/C_userBalance");
 const C_companyBalance = require("../models/C_companyBalance");
-const Group = require("../models/Group");
-const {GROUPS_TYPE} = require("../constant/constant");
+const AccountGroup = require("../models/AccountGroup");
+const { ACCOUNT_GROUPS_TYPE} = require("../constant/constant");
 
 const existingData = async () => {
   try {
@@ -89,24 +89,22 @@ const existingData = async () => {
   }
 };
 
-const exisingGroup = async ()=>{
+const exisingGroup = async () => {
   try {
-    const allCompany = await company.findAll();
-    const groupList = Object.values(GROUPS_TYPE);
-    for(const company of allCompany) {
-    const existingGroups = await Group.findAll({ where: { companyId: company.id } });
-      for(const group of groupList){
-        const groupExist = await Group.findOne({
-          where: {
+    const allCompanies = await company.findAll();
+    const groupList = Object.values(ACCOUNT_GROUPS_TYPE);
+
+    for (const company of allCompanies) {
+      const existingGroups = await AccountGroup.findAll({ where: { companyId: company.id } });
+
+      const existingGroupMap = new Map(existingGroups.map(group => [group.name, group]));
+
+      for (const group of groupList) {
+        if (!existingGroupMap.has(group)) {
+          await AccountGroup.create({
             name: group,
             companyId: company.id,
-          }
-        });
-        if(!groupExist){
-          await Group.create({
-            name: group,
-            companyId: company.id,
-          })
+          });
         }
       }
 
@@ -116,10 +114,10 @@ const exisingGroup = async ()=>{
         }
       }
     }
-  }catch (e) {
+  } catch (e) {
     console.error(e);
   }
-}
+};
 
 
 const existingPermission = async () => {

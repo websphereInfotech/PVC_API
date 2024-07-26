@@ -9,7 +9,7 @@ exports.SALARY_PAYMENT_TYPE = {
     BANK: "bank"
 }
 
-exports.GROUPS_TYPE = {
+exports.ACCOUNT_GROUPS_TYPE = {
     BANK_ACCOUNT: "Bank Account",
     DUTIES_AND_TAXES: "Duties & Taxes",
     EXPENSE_DIRECT: "Expenses (Direct)",

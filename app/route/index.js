@@ -31,5 +31,6 @@ router.use('/breakdownMaintenance', require('./breakdownMaintenance'))
 router.use('/dashboard', require('./dashboard'))
 router.use('/itemGroup', require('./itemGroup'))
 router.use('/itemCategory', require('./itemCategory'))
+router.use('/account', require('./account'))
 
 module.exports = router;

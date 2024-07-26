@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const company = require("./company");
 
-const Group = sequelize.define("P_Group", {
+const AccountGroup = sequelize.define("P_AccountGroup", {
     name: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -13,7 +13,7 @@ const Group = sequelize.define("P_Group", {
     }
 });
 
-company.hasMany(Group, { foreignKey: "companyId", onDelete: "CASCADE" });
-Group.belongsTo(company, { foreignKey: "companyId", onDelete: "CASCADE" });
+company.hasMany(AccountGroup, { foreignKey: "companyId", onDelete: "CASCADE" });
+AccountGroup.belongsTo(company, { foreignKey: "companyId", onDelete: "CASCADE" });
 
-module.exports = Group;
+module.exports = AccountGroup;
