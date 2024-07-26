@@ -1,5 +1,6 @@
 const Joi = require("joi");
-const {PAYMENT_TYPE, SALARY_PAYMENT_TYPE} = require("./constant");
+const {PAYMENT_TYPE, SALARY_PAYMENT_TYPE, ACCOUNT_GROUPS_TYPE} = require("./constant");
+const AccountGroup = require("../models/AccountGroup");
 
 exports.email = function (req, res, next) {
   const { email } = req.body;
@@ -1955,5 +1956,286 @@ exports.itemCategoryId = async function(req, res, next){
   if(error){
     return res.status(400).json({status: "false", message: error.message})
   }
+  return next()
+}
+
+exports.create_account = async function(req, res, next){
+  const { accountGroupId, ...createPayload } = req.body
+  const companyId = req.user.companyId;
+  const accountGroupExist = await AccountGroup.findOne({
+    where: {
+      id: accountGroupId,
+      companyId: companyId
+    }
+  });
+  if(!accountGroupExist) return res.status(404).json({status: "false", message: "Account Group Not Found"})
+  const groupName = accountGroupExist.name;
+
+  const createAccountSchema = Joi.object({
+    accountGroupId: Joi.number().required().messages({
+      'number.base': 'Account Group ID must be a number',
+      'any.required': 'Account Group is required'
+    }),
+    accountName: Joi.string().required().messages({
+      'string.base': 'Account Name must be a string',
+      'any.required': 'Account Name is required',
+      'string.empty': 'Account Name cannot be an empty string',
+    }),
+    shortName: Joi.string().allow(null, '').required().messages({
+      'string.base': 'Short Name must be a string',
+      'any.required': 'Short Name is required'
+    }),
+    contactPersonName: Joi.string().required().messages({
+      'string.base': 'Contact Person Name must be a string',
+      'any.required': 'Contact Person Name is required',
+      'string.empty': 'Contact Person Name cannot be an empty string',
+    }),
+    accountDetail: Joi.object({
+      email: Joi.string().email().when(Joi.ref('$groupName'), {
+        is: Joi.valid(
+            ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
+            ACCOUNT_GROUPS_TYPE.UNSECURED_LOANS,
+            ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS
+        ),
+        then: Joi.required(),
+        otherwise: Joi.forbidden()
+      }).messages({
+        'string.email': 'Email must be a valid email address.',
+        'any.required': 'Email is required field.',
+        'any.unknown': 'Email is not required.',
+        'string.empty': 'Email cannot be an empty string',
+        'string.base': "Email must be string."
+      }),
+      mobileNo: Joi.number().integer().min(1000000000)
+          .max(9999999999).when(Joi.ref('$groupName'), {
+        is: Joi.valid(
+            ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
+            ACCOUNT_GROUPS_TYPE.UNSECURED_LOANS,
+            ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS
+        ),
+        then: Joi.required(),
+        otherwise: Joi.forbidden()
+      }).messages({
+        'number.base': 'Mobile Number must be a number',
+        'number.min': 'Mobile Number Must Have At Least 10 Digits',
+        'number.max': 'Mobile Number Cannot Have More Then 10 Digits',
+        'any.required': 'Mobile Number is required field.',
+        'any.unknown': 'Mobile Number is not required.'
+      }),
+      panNo: Joi.string().pattern(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/).when(Joi.ref('$groupName'), {
+        is: Joi.valid(
+            ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
+            ACCOUNT_GROUPS_TYPE.UNSECURED_LOANS,
+            ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS
+        ),
+        then: Joi.allow(null, ''),
+        otherwise: Joi.forbidden()
+      }).messages({
+        'string.pattern.base': 'PAN No. must be a valid PAN Number.',
+        'any.unknown': 'PAN No. is not required.',
+        'string.base': "PAN No. must be string."
+      }),
+      address1: Joi.string().when(Joi.ref('$groupName'), {
+        is: Joi.valid(
+            ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
+            ACCOUNT_GROUPS_TYPE.UNSECURED_LOANS,
+            ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS
+        ),
+        then: Joi.required(),
+        otherwise: Joi.forbidden()
+      }).messages({
+        'any.required': 'Address 1 is required field.',
+        'any.unknown': 'Address 1 is not required.',
+        'string.empty': 'Address 1 cannot be an empty string',
+        'string.base': "Address 1 must be string."
+      }),
+      address2: Joi.string().when(Joi.ref('$groupName'), {
+        is: Joi.valid(
+            ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
+            ACCOUNT_GROUPS_TYPE.UNSECURED_LOANS,
+            ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS
+        ),
+        then: Joi.allow(null, ''),
+        otherwise: Joi.forbidden()
+      }).messages({
+        'any.unknown': 'Address 2. is not required.',
+        'string.base': "Address 2 must be string."
+      }),
+      pincode: Joi.number().when(Joi.ref('$groupName'), {
+        is: Joi.valid(
+            ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
+            ACCOUNT_GROUPS_TYPE.UNSECURED_LOANS,
+            ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS
+        ),
+        then: Joi.required(),
+        otherwise: Joi.forbidden()
+      }).messages({
+        'any.required': 'Pincode is required field.',
+        'any.unknown': 'Pincode is not required.',
+        'number.base': "Pincode must be number."
+      }),
+      state: Joi.string().when(Joi.ref('$groupName'), {
+        is: Joi.valid(
+            ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
+            ACCOUNT_GROUPS_TYPE.UNSECURED_LOANS,
+            ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS
+        ),
+        then: Joi.required(),
+        otherwise: Joi.forbidden()
+      }).messages({
+        'any.required': 'State is required field.',
+        'any.unknown': 'State is not required.',
+        'string.empty': 'State cannot be an empty string',
+        'string.base': "State must be string."
+      }),
+      city: Joi.string().when(Joi.ref('$groupName'), {
+        is: Joi.valid(
+            ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
+            ACCOUNT_GROUPS_TYPE.UNSECURED_LOANS,
+            ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS
+        ),
+        then: Joi.required(),
+        otherwise: Joi.forbidden()
+      }).messages({
+        'any.required': 'City is required field.',
+        'any.unknown': 'City is not required.',
+        'string.empty': 'City cannot be an empty string',
+        'string.base': "City must be string."
+      }),
+      bankDetail: Joi.boolean().when(Joi.ref('$groupName'), {
+        is: Joi.valid(
+            ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
+            ACCOUNT_GROUPS_TYPE.UNSECURED_LOANS,
+            ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS
+        ),
+        then: Joi.required(),
+        otherwise: Joi.forbidden()
+      }).messages({
+        'any.required': 'Bank Detail is required field.',
+        'any.unknown': 'Bank Detail is not required.',
+      }),
+      gstNumber: Joi.string().pattern(/^([0-9]){2}([a-zA-Z]){5}([0-9]){4}([a-zA-Z]){1}([0-9]){1}([a-zA-Z]){1}([0-9]){1}?$/).when(Joi.ref('$groupName'), {
+        is: Joi.valid(
+            ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
+            ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS
+        ),
+        then: Joi.required(),
+        otherwise: Joi.forbidden()
+      }).messages({
+        'string.pattern.base': 'GST Number must be in the format XX0000000000X.',
+        'any.required': 'GST Number is required field.',
+        'any.unknown': 'GST Number is not required.',
+        'string.empty': 'GST Number cannot be an empty string',
+        'string.base': "GST Number must be string."
+      }),
+      accountNumber: Joi.alternatives().conditional(Joi.ref('$groupName'), {
+        is: Joi.valid(ACCOUNT_GROUPS_TYPE.BANK_ACCOUNT),
+        then: Joi.string().required(),
+        otherwise: Joi.alternatives().conditional('bankDetail', {
+          is: true,
+          then: Joi.string().required(),
+          otherwise: Joi.forbidden()
+        })
+      }).messages({
+        'any.required': 'Account number is required field.',
+        'any.unknown': 'Account number is not required.',
+        'string.empty': 'Account number cannot be an empty string',
+        'string.base': "Account number must be string."
+      }),
+      ifscCode: Joi.alternatives().conditional(Joi.ref('$groupName'), {
+        is: Joi.valid(ACCOUNT_GROUPS_TYPE.BANK_ACCOUNT),
+        then: Joi.string().required(),
+        otherwise: Joi.alternatives().conditional('bankDetail', {
+          is: true,
+          then: Joi.string().required(),
+          otherwise: Joi.forbidden()
+        })
+      }).messages({
+        'any.required': 'IFSC code is required field.',
+        'any.unknown': 'IFSC code is not required.',
+        'string.empty': 'IFSC code cannot be an empty string',
+        'string.base': "IFSC code must be string."
+      }),
+      bankName: Joi.alternatives().conditional(Joi.ref('$groupName'), {
+        is: Joi.valid(ACCOUNT_GROUPS_TYPE.BANK_ACCOUNT),
+        then: Joi.string().required(),
+        otherwise: Joi.alternatives().conditional('bankDetail', {
+          is: true,
+          then: Joi.string().required(),
+          otherwise: Joi.forbidden()
+        })
+      }).messages({
+        'any.required': 'Bank name is required field.',
+        'any.unknown': 'Bank name is not required.',
+        'string.empty': 'Bank name cannot be an empty string',
+        'string.base': "Bank name must be string."
+      }),
+      accountHolderName: Joi.alternatives().conditional(Joi.ref('$groupName'), {
+        is: Joi.valid(ACCOUNT_GROUPS_TYPE.BANK_ACCOUNT),
+        then: Joi.string().required(),
+        otherwise: Joi.alternatives().conditional('bankDetail', {
+          is: true,
+          then: Joi.string().required(),
+          otherwise: Joi.forbidden()
+        })
+      }).messages({
+        'any.required': 'Account holder name is required field.',
+        'any.unknown': 'Account holder name is not required.',
+        'string.empty': 'Account holder name cannot be an empty string',
+        'string.base': "Account holder name must be string."
+      }),
+      creditLimit: Joi.boolean().when(Joi.ref('$groupName'), {
+        is: Joi.valid(
+            ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
+            ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS
+        ),
+        then: Joi.required(),
+        otherwise: Joi.forbidden()
+      }).messages({
+        'any.required': 'Credit limit is required field.',
+        'any.unknown': 'Credit limit is not required.',
+      }),
+      totalCredit: Joi.number().when('creditLimit', {
+        is: true,
+        then: Joi.required(),
+        otherwise: Joi.forbidden()
+      }).messages({
+        'any.required': 'Total credit is required field.',
+        'any.unknown': 'Total credit is not required.',
+        'number.base': "Total credit must be number."
+      }),
+      balance: Joi.number().when(Joi.ref('$groupName'), {
+        is: Joi.valid(
+            ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
+            ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS
+        ),
+        then: Joi.required(),
+        otherwise: Joi.forbidden()
+      }).messages({
+        'any.required': 'Opening balance is required field.',
+        'any.unknown': 'Opening balance is not required.',
+        'number.base': "Opening balance must be number."
+      }),
+      creditPeriod: Joi.number().when(Joi.ref('$groupName'), {
+        is: Joi.valid(
+            ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
+            ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS
+        ),
+        then: Joi.required(),
+        otherwise: Joi.forbidden()
+      }).messages({
+        'any.required': 'Credit period is required field.',
+        'any.unknown': 'Credit period is not required.',
+        'number.base': "Credit period must be number."
+      }),
+    }).messages({
+      'object.base': 'Account Detail must be an object'
+    })
+  });
+  const { error, value } = createAccountSchema.validate(
+      { accountGroupId, ...createPayload },
+      { context: { groupName } }
+  );
+  if(error) return res.status(400).json({status: "false", message: error.message});
   return next()
 }

@@ -119,7 +119,6 @@ const exisingGroup = async () => {
   }
 };
 
-
 const existingPermission = async () => {
   try {
     const allCompany = await company.findAll();
