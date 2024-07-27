@@ -94,9 +94,9 @@ module.exports.validation = function (method) {
     case "update_ProFormaInvoice":
       return [ProFormaInvoice_no, accountId, terms, date, validtill, qty, itemUnit, rate];
     case "create_salesinvoice":
-      return [invoiceno, terms, invoicedate, rate, qty, proFormaNo, itemUnit];
+      return [invoiceno,accountId, terms, invoicedate, rate, qty, proFormaNo, itemUnit];
     case "update_salesinvoice":
-      return [invoiceno, terms, invoicedate, rate, qty, proFormaNo, itemUnit];
+      return [invoiceno, accountId, terms, invoicedate, rate, qty, proFormaNo, itemUnit];
     case "create_debitNote":
       return [debitnoteno, purchaseinvoicedate, debitdate, qty, mrp, rate, itemUnit];
     case "update_debitNote":
@@ -130,9 +130,9 @@ module.exports.validation = function (method) {
       return [ accountname, email, contactpersonname, mobileno, creditperiod, address1, pincode, state,
                city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails,validateCredit ];
     case "C_create_salesinvoice":
-      return [date, saleNo, qty,itemUnit, rate];
+      return [accountId, date, saleNo, qty,itemUnit, rate];
     case "C_update_salesinvoice":
-      return [date, saleNo,qty,itemUnit, rate];
+      return [accountId, date, saleNo,qty,itemUnit, rate];
     case "C_create_purchase_Cash":
       return [date, purchaseNo, qty, itemUnit, rate];
     case "C_update_purchase_Cash":

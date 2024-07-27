@@ -1,8 +1,8 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
-const customer = require("./customer");
 const User = require("./user");
 const company = require("./company");
+const Account = require("./Account");
 
 const salesInvoice = sequelize.define("P_salesInvoice", {
   dispatchno: {
@@ -22,7 +22,7 @@ const salesInvoice = sequelize.define("P_salesInvoice", {
   destination: { type: DataTypes.STRING },
   LL_RR_no: { type: DataTypes.INTEGER },
   motorVehicleNo: { type: DataTypes.STRING },
-  customerId: {
+  accountId: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
@@ -50,15 +50,15 @@ salesInvoice.belongsTo(User, { foreignKey: "createdBy", as: "createUser" });
 User.hasMany(salesInvoice, { foreignKey: "updatedBy", as: "updateUser" });
 salesInvoice.belongsTo(User, { foreignKey: "updatedBy", as: "updateUser" });
 
-customer.hasMany(salesInvoice, {
-  foreignKey: "customerId",
+Account.hasMany(salesInvoice, {
+  foreignKey: "accountId",
   onDelete: "CASCADE",
-  as: "InvioceCustomer",
+  as: "accountInvoice",
 });
-salesInvoice.belongsTo(customer, {
-  foreignKey: "customerId",
+salesInvoice.belongsTo(Account, {
+  foreignKey: "accountId",
   onDelete: "CASCADE",
-  as: "InvioceCustomer",
+  as: "accountInvoice",
 });
 
 module.exports = salesInvoice;

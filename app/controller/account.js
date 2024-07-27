@@ -92,7 +92,7 @@ exports.update_account = async (req, res)=>{
         if(await isUnique('gstNumber', gstNumber, companyId, accountId)) return res.status(400).json({status: "false", message: "Gst Number already exists"});
         await Account.update({...accountsInfo}, {
             where: {
-                id: companyId,
+                id: accountId,
                 companyId: companyId
             }
         })
