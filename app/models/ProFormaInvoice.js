@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
-const customer = require("./customer");
+const Account = require("./Account");
 const User = require("./user");
 const Company = require("./company")
 const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
@@ -14,7 +14,7 @@ const ProFormaInvoice = sequelize.define("P_ProFormaInvoice", {
   validtill: {
     type: DataTypes.DATEONLY,
   },
-  customerId: {
+  accountId: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
@@ -69,15 +69,15 @@ ProFormaInvoice.belongsTo(User, {
   as: "proUpdateUser",
 });
 
-customer.hasMany(ProFormaInvoice, {
-  foreignKey: "customerId",
+Account.hasMany(ProFormaInvoice, {
+  foreignKey: "accountId",
   onDelete: "CASCADE",
-  as: "customer",
+  as: "accountProForma",
 });
-ProFormaInvoice.belongsTo(customer, {
-  foreignKey: "customerId",
+ProFormaInvoice.belongsTo(Account, {
+  foreignKey: "accountId",
   onDelete: "CASCADE",
-  as: "customer",
+  as: "accountProForma",
 });
 
 module.exports = ProFormaInvoice;

@@ -18,6 +18,11 @@ const Account = sequelize.define("P_Account", {
     },
     companyId: {type: DataTypes.INTEGER, allowNull: false},
     accountGroupId: {type: DataTypes.INTEGER, allowNull: false},
+    isActive: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+    }
 });
 
 company.hasMany(Account, {foreignKey:'companyId',onDelete:'CASCADE'});

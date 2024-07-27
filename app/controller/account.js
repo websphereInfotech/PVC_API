@@ -51,7 +51,8 @@ exports.view_one_account = async (req, res) => {
         const account = await Account.findOne({
             where: {
                 companyId: companyId,
-                id: accountId
+                id: accountId,
+                isActive: true
             },
             include: [
                 {
@@ -81,7 +82,8 @@ exports.update_account = async (req, res)=>{
         const accountExist = await Account.findOne({
             where: {
                 companyId: companyId,
-                id: accountId
+                id: accountId,
+                isActive: true
             }
         })
         if(!accountExist) return res.status(404).json({status: "false", message: "Account Not Found"});
@@ -100,14 +102,14 @@ exports.update_account = async (req, res)=>{
             }, {
                 where: {
                     accountId: accountId,
-                    companyId: companyId,
                 }
             });
         }
         const account = await Account.findOne({
             where: {
                 companyId: companyId,
-                id: accountId
+                id: accountId,
+                isActive: true
             },
             include: [
                 {
@@ -134,6 +136,7 @@ exports.view_all_account = async (req, res) => {
         const accounts = await Account.findAll({
             where: {
                 companyId: companyId,
+                isActive: true
             },
             include: [
                 {
@@ -147,6 +150,26 @@ exports.view_all_account = async (req, res) => {
             ]
         })
         return res.status(200).json({status: "true", message: "Successfully Fetch All Account", data: accounts})
+    }catch (e) {
+        console.error(e);
+        return res.status(500).json({status: "false", message: "Internal Server Error."})
+    }
+}
+exports.delete_account = async (req, res) => {
+    try {
+        const companyId = req.user.companyId;
+        const { accountId } = req.params;
+        const account = await Account.findOne({
+            where: {
+                companyId: companyId,
+                isActive: true,
+                id: accountId
+            }
+        })
+        if(!account) return res.status(404).json({status: "false", message: "Account Not Found"});
+        account.isActive = false;
+        await account.save();
+        return res.status(200).json({status: "true", message: "Successfully Delete Account"})
     }catch (e) {
         console.error(e);
         return res.status(500).json({status: "false", message: "Internal Server Error."})

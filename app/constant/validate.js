@@ -72,7 +72,7 @@ const {
   weight,
   itemUnit, saleNo, purchaseNo, paymentNo, receiptNo, paymentType, supplyInvoiceNo, dutyTime,
   salaryPaymentType, machineName, machineNumber, machineId, cost, name, itemGroupId, itemCategoryId,
-  account_validation
+  account_validation, accountId
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -90,9 +90,9 @@ module.exports.validation = function (method) {
     case "update_deliverychallan":
       return [challanno, date, qty, itemUnit];
     case "create_ProFormaInvoice":
-      return [ProFormaInvoice_no, terms, date, validtill, qty, itemUnit, rate];
+      return [ProFormaInvoice_no, accountId, terms, date, validtill, qty, itemUnit, rate];
     case "update_ProFormaInvoice":
-      return [ProFormaInvoice_no, terms, date, validtill, qty, itemUnit, rate];
+      return [ProFormaInvoice_no, accountId, terms, date, validtill, qty, itemUnit, rate];
     case "create_salesinvoice":
       return [invoiceno, terms, invoicedate, rate, qty, proFormaNo, itemUnit];
     case "update_salesinvoice":

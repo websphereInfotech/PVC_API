@@ -2239,3 +2239,18 @@ exports.account_validation = async function(req, res, next){
   if(error) return res.status(400).json({status: "false", message: error.message});
   return next()
 }
+
+
+exports.accountId = async function(req, res, next){
+  const {accountId} = req.body;
+  const accountIdSchema = Joi.number().required().messages({
+    "number.base": "Account Id must be a number",
+    "any.required": "Required Field : Account",
+  })
+
+  const {error} = accountIdSchema.validate(accountId);
+  if(error){
+    return res.status(400).json({status: "false", message: error.message})
+  }
+  return next()
+}
