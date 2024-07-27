@@ -1522,32 +1522,44 @@ exports.permissions = {
         "Super Admin" :{
             "view_all_account_group":true,
             "create_account": true,
-            "view_one_account": true
+            "view_one_account": true,
+            "update_account": true,
+            "view_all_account": true
         },
         "Admin" :{
             "view_all_account_group":true,
             "create_account": true,
-            "view_one_account": true
+            "view_one_account": true,
+            "update_account": true,
+            "view_all_account": true
         },
         "Account" :{
             "view_all_account_group":true,
             "create_account": true,
-            "view_one_account": true
+            "view_one_account": true,
+            "update_account": true,
+            "view_all_account": true
         },
         "Employee" :{
             "view_all_account_group":true,
             "create_account": true,
-            "view_one_account": true
+            "view_one_account": true,
+            "update_account": true,
+            "view_all_account": true
         },
         "Workers" :{
             "view_all_account_group":true,
             "create_account": true,
-            "view_one_account": true
+            "view_one_account": true,
+            "update_account": true,
+            "view_all_account": true
         },
         "Other" :{
             "view_all_account_group":true,
             "create_account": true,
-            "view_one_account": true
+            "view_one_account": true,
+            "update_account": true,
+            "view_all_account": true
         }
     },
 }
