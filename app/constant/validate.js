@@ -72,7 +72,7 @@ const {
   weight,
   itemUnit, saleNo, purchaseNo, paymentNo, receiptNo, paymentType, supplyInvoiceNo, dutyTime,
   salaryPaymentType, machineName, machineNumber, machineId, cost, name, itemGroupId, itemCategoryId,
-  create_account
+  account_validation
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -194,8 +194,8 @@ module.exports.validation = function (method) {
       return [name];
       case "create_itemCategory":
       return [name, itemGroupId];
-    case "create_account":
-      return [create_account]
+    case "account_validation":
+      return [account_validation]
     default:
       throw new Error("Invalid validation method");
   }

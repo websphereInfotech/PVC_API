@@ -1959,7 +1959,7 @@ exports.itemCategoryId = async function(req, res, next){
   return next()
 }
 
-exports.create_account = async function(req, res, next){
+exports.account_validation = async function(req, res, next){
   const { accountGroupId, ...createPayload } = req.body
   const companyId = req.user.companyId;
   const accountGroupExist = await AccountGroup.findOne({
@@ -1971,7 +1971,7 @@ exports.create_account = async function(req, res, next){
   if(!accountGroupExist) return res.status(404).json({status: "false", message: "Account Group Not Found"})
   const groupName = accountGroupExist.name;
 
-  const createAccountSchema = Joi.object({
+  const accountSchema = Joi.object({
     accountGroupId: Joi.number().required().messages({
       'number.base': 'Account Group ID must be a number',
       'any.required': 'Account Group is required'
@@ -2004,7 +2004,7 @@ exports.create_account = async function(req, res, next){
         'any.required': 'Email is required field.',
         'any.unknown': 'Email is not required.',
         'string.empty': 'Email cannot be an empty string',
-        'string.base': "Email must be string."
+        'string.base': "Email must be string.",
       }),
       mobileNo: Joi.number().integer().min(1000000000)
           .max(9999999999).when(Joi.ref('$groupName'), {
@@ -2232,7 +2232,7 @@ exports.create_account = async function(req, res, next){
       'object.base': 'Account Detail must be an object'
     })
   });
-  const { error, value } = createAccountSchema.validate(
+  const { error, value } = accountSchema.validate(
       { accountGroupId, ...createPayload },
       { context: { groupName } }
   );

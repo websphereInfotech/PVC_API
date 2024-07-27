@@ -1,6 +1,7 @@
 const AccountGroup = require('../models/AccountGroup');
 const Account = require('../models/Account');
 const AccountDetail = require('../models/AccountDetail');
+const {isUnique} = require("../constant/common");
 
 exports.view_all_account_group = async (req, res) => {
     try {
@@ -23,6 +24,10 @@ exports.create_account = async (req, res) => {
     try {
         const companyId = req.user.companyId;
         const {accountDetail, ...accountsInfo} = req.body;
+        const {email, mobileNo, gstNumber} = accountDetail;
+        if(await isUnique('email', email, companyId)) return res.status(400).json({status: "false", message: "Email already exists"});
+        if(await isUnique('mobileNo', mobileNo, companyId)) return res.status(400).json({status: "false", message: "Mobile No. already exists"});
+        if(await isUnique('gstNumber', gstNumber, companyId)) return res.status(400).json({status: "false", message: "Gst Number already exists"});
         const accountCreate = await Account.create({...accountsInfo, companyId: companyId})
         if(Object.keys(accountDetail ?? {}).length){
             const accountId = accountCreate.id;
@@ -61,6 +66,87 @@ exports.view_one_account = async (req, res) => {
         })
         if(!account) return res.status(404).json({status: "false", message: "Account Not Found"});
         return res.status(200).json({status: "true", message: "Successfully Fetch Account", data: account})
+    }catch (e) {
+        console.error(e);
+        return res.status(500).json({status: "false", message: "Internal Server Error."})
+    }
+}
+
+exports.update_account = async (req, res)=>{
+    try {
+        const companyId = req.user.companyId;
+        const {accountId} = req.params;
+        const {accountDetail, ...accountsInfo} = req.body;
+        const {email, mobileNo, gstNumber} = accountDetail;
+        const accountExist = await Account.findOne({
+            where: {
+                companyId: companyId,
+                id: accountId
+            }
+        })
+        if(!accountExist) return res.status(404).json({status: "false", message: "Account Not Found"});
+        if(await isUnique('email', email, companyId, accountId)) return res.status(400).json({status: "false", message: "Email already exists"});
+        if(await isUnique('mobileNo', mobileNo, companyId, accountId)) return res.status(400).json({status: "false", message: "Mobile No. already exists"});
+        if(await isUnique('gstNumber', gstNumber, companyId, accountId)) return res.status(400).json({status: "false", message: "Gst Number already exists"});
+        await Account.update({...accountsInfo}, {
+            where: {
+                id: companyId,
+                companyId: companyId
+            }
+        })
+        if(Object.keys(accountDetail ?? {}).length){
+            await AccountDetail.update({
+                ...accountDetail,
+            }, {
+                where: {
+                    accountId: accountId,
+                    companyId: companyId,
+                }
+            });
+        }
+        const account = await Account.findOne({
+            where: {
+                companyId: companyId,
+                id: accountId
+            },
+            include: [
+                {
+                    model: AccountGroup,
+                    as: "accountGroup"
+                },
+                {
+                    model: AccountDetail,
+                    as: "accountDetail"
+                }
+            ]
+        })
+        return res.status(200).json({status: "true", message: "Successfully Updated Account.", data: account});
+    }catch (e) {
+        console.error(e);
+        return res.status(500).json({status: "false", message: "Internal Server Error"});
+    }
+}
+
+
+exports.view_all_account = async (req, res) => {
+    try {
+        const companyId = req.user.companyId;
+        const accounts = await Account.findAll({
+            where: {
+                companyId: companyId,
+            },
+            include: [
+                {
+                    model: AccountGroup,
+                    as: "accountGroup"
+                },
+                {
+                    model: AccountDetail,
+                    as: "accountDetail"
+                }
+            ]
+        })
+        return res.status(200).json({status: "true", message: "Successfully Fetch All Account", data: accounts})
     }catch (e) {
         console.error(e);
         return res.status(500).json({status: "false", message: "Internal Server Error."})
