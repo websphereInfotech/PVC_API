@@ -1,14 +1,12 @@
 const { Sequelize } = require("sequelize");
 const C_purchaseCash = require("../models/C_purchaseCash");
 const C_purchaseCashItem = require("../models/C_purchseCashItem");
-const C_vendor = require("../models/C_vendor");
-const C_vendorLedger = require("../models/C_vendorLedger");
 const product = require("../models/product");
+const Account = require("../models/Account");
+const Ledger = require("../models/Ledger");
 const purchaseInvoice = require("../models/purchaseInvoice");
 const purchaseInvoiceItem = require("../models/purchaseInvoiceItem");
 const User = require("../models/user");
-const vendor = require("../models/vendor");
-const vendorLedger = require("../models/vendorLedger");
 const Stock = require("../models/stock");
 const {renderFile} = require("ejs");
 const path = require("node:path");
@@ -21,8 +19,9 @@ const htmlToPdf = require("html-pdf-node");
 exports.create_purchaseInvoice = async (req, res) => {
   try {
     const user = req.user.userId;
+    const companyId = req.user.companyId;
     const {
-      vendorId,
+      accountId,
       duedate,
       invoicedate,
       totalIgst,
@@ -36,7 +35,7 @@ exports.create_purchaseInvoice = async (req, res) => {
     } = req.body;
 
     const numberOf = await purchaseInvoice.findOne({
-      where: { voucherno: voucherno, companyId: req.user.companyId },
+      where: { voucherno: voucherno, companyId: companyId },
     });
     if (numberOf) {
       return res
@@ -44,17 +43,12 @@ exports.create_purchaseInvoice = async (req, res) => {
         .json({ status: "false", message: "Voucher Number Already Exists" });
     }
     const supplyInvoiceNoExist = await purchaseInvoice.findOne({
-      where: { supplyInvoiceNo: supplyInvoiceNo, companyId: req.user.companyId },
+      where: { supplyInvoiceNo: supplyInvoiceNo, companyId: companyId },
     })
     if (supplyInvoiceNoExist) {
       return res
           .status(400)
           .json({ status: "false", message: "Supply Number Already Exists" });
-    }
-    if (!vendorId || vendorId === "" || vendorId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required filed :Vendor" });
     }
 
     if (!items || items.length === 0) {
@@ -62,13 +56,13 @@ exports.create_purchaseInvoice = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Required Field Of Items" });
     }
-    const vendorData = await vendor.findOne({
-      where: { id: vendorId, companyId: req.user.companyId },
+    const accountExist = await Account.findOne({
+      where: { id: accountId, companyId: companyId, isActive: true },
     });
-    if (!vendorData) {
+    if (!accountExist) {
       return res
         .status(404)
-        .json({ status: "false", message: "Vendor Not Found" });
+        .json({ status: "false", message: "Account Not Found" });
     }
 
     for (const item of items) {
@@ -88,7 +82,7 @@ exports.create_purchaseInvoice = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productData = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, isActive: true },
+        where: { id: item.productId, companyId: companyId, isActive: true },
       });
       if (!productData) {
         return res
@@ -97,7 +91,7 @@ exports.create_purchaseInvoice = async (req, res) => {
       }
     }
     const purchseData = await purchaseInvoice.create({
-      vendorId,
+      accountId,
       duedate,
       invoicedate,
       totalIgst,
@@ -109,15 +103,15 @@ exports.create_purchaseInvoice = async (req, res) => {
       supplyInvoiceNo,
       createdBy: user,
       updatedBy: user,
-      companyId: req.user.companyId,
+      companyId: companyId,
     });
 
-    await vendorLedger.create({
-      vendorId,
-      debitId: purchseData.id,
-      companyId: req.user.companyId,
-      date: invoicedate,
-    });
+    await Ledger.create({
+      accountId: accountId,
+      companyId: companyId,
+      purchaseInvId: purchseData.id,
+      date: invoicedate
+    })
     const addToItem = items.map((item) => ({
       purchasebillId: purchseData.id,
       ...item,
@@ -137,7 +131,7 @@ exports.create_purchaseInvoice = async (req, res) => {
     }
 
     const data = await purchaseInvoice.findOne({
-      where: { id: purchseData.id, companyId: req.user.companyId },
+      where: { id: purchseData.id, companyId: companyId },
       include: [{ model: purchaseInvoiceItem, as: "items" }],
     });
     return res.status(200).json({
@@ -156,8 +150,9 @@ exports.update_purchaseInvoice = async (req, res) => {
   try {
     const user = req.user.userId;
     const { id } = req.params;
+    const companyId = req.user.companyId;
     const {
-      vendorId,
+      accountId,
       duedate,
       invoicedate,
       totalIgst,
@@ -171,7 +166,7 @@ exports.update_purchaseInvoice = async (req, res) => {
     } = req.body;
 
     const existingPurchase = await purchaseInvoice.findOne({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: companyId },
     });
     if (!existingPurchase) {
       return res.status(404).json({
@@ -182,7 +177,7 @@ exports.update_purchaseInvoice = async (req, res) => {
     const numberOf = await purchaseInvoice.findOne({
       where: {
         voucherno: voucherno,
-        companyId: req.user.companyId,
+        companyId: companyId,
         id: { [Sequelize.Op.ne]: id },
       },
     });
@@ -195,7 +190,7 @@ exports.update_purchaseInvoice = async (req, res) => {
     const supplyInvoiceNoExist = await purchaseInvoice.findOne({
       where: {
         supplyInvoiceNo: supplyInvoiceNo,
-        companyId: req.user.companyId,
+        companyId: companyId,
         id: { [Sequelize.Op.ne]: id },
       },
     });
@@ -204,18 +199,13 @@ exports.update_purchaseInvoice = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Supply Number Already Exists" });
     }
-    if (!vendorId || vendorId === "" || vendorId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required filed :Vendor" });
-    }
-    const vendorData = await vendor.findOne({
-      where: { id: vendorId, companyId: req.user.companyId },
+    const accountExist = await Account.findOne({
+      where: { id: accountId, companyId: companyId, isActive: true },
     });
-    if (!vendorData) {
+    if (!accountExist) {
       return res
         .status(404)
-        .json({ status: "false", message: "Vendor Not Found" });
+        .json({ status: "false", message: "Account Not Found" });
     }
     if (!items || items.length === 0) {
       return res
@@ -239,7 +229,7 @@ exports.update_purchaseInvoice = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productData = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, isActive: true },
+        where: { id: item.productId, companyId: companyId, isActive: true },
       });
       if (!productData) {
         return res
@@ -249,7 +239,7 @@ exports.update_purchaseInvoice = async (req, res) => {
     }
     await purchaseInvoice.update(
       {
-        vendorId,
+        accountId,
         duedate,
         invoicedate,
         totalIgst,
@@ -259,21 +249,23 @@ exports.update_purchaseInvoice = async (req, res) => {
         mainTotal,
         supplyInvoiceNo,
         voucherno,
-        companyId: req.user.companyId,
+        companyId: companyId,
         createdBy: existingPurchase.createdBy,
         updatedBy: user,
       },
       { where: { id } }
     );
 
-    await vendorLedger.update(
-      {
-        vendorId,
-        date: invoicedate,
-        companyId: req.user.companyId,
-      },
-      { where: { debitId: id } }
-    );
+    await Ledger.update({
+      accountId: accountId,
+      purchaseInvId: id,
+      date: invoicedate
+    }, {
+      where: {
+        purchaseInvId: id,
+        companyId: companyId,
+      }
+    })
     const existingItems = await purchaseInvoiceItem.findAll({
       where: { purchasebillId: id },
     });
@@ -329,7 +321,7 @@ exports.update_purchaseInvoice = async (req, res) => {
       await purchaseInvoiceItem.destroy({ where: { id: item.id } });
     }
     const data = await purchaseInvoice.findOne({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: companyId },
       include: [{ model: purchaseInvoiceItem, as: "items" }],
     });
     return res.status(200).json({
@@ -347,8 +339,9 @@ exports.update_purchaseInvoice = async (req, res) => {
 exports.delete_purchaseInvoice = async (req, res) => {
   try {
     const { id } = req.params;
+    const companyId = req.user.companyId;
     const billId = await purchaseInvoice.findOne({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: companyId },
     });
 
     if (!billId) {
@@ -362,7 +355,7 @@ exports.delete_purchaseInvoice = async (req, res) => {
     })
     for(const item of findItems){
       const productname = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, isActive: true },
+        where: { id: item.productId, companyId: companyId, isActive: true },
       });
       if(!productname){
         return res.status(404).json({
@@ -395,15 +388,16 @@ exports.delete_purchaseInvoice = async (req, res) => {
 };
 exports.get_all_purchaseInvoice = async (req, res) => {
   try {
+    const companyId = req.user.companyId;
     const data = await purchaseInvoice.findAll({
-      where: { companyId: req.user.companyId },
+      where: { companyId: companyId },
       include: [
         {
           model: purchaseInvoiceItem,
           as: "items",
           include: [{ model: product, as: "purchseProduct" }],
         },
-        { model: vendor, as: "purchseVendor" },
+        { model: Account, as: "accountPurchaseInv" },
         { model: User, as: "salesCreateUser", attributes: ["username"] },
         { model: User, as: "salesUpdateUser", attributes: ["username"] },
       ],
@@ -429,15 +423,16 @@ exports.get_all_purchaseInvoice = async (req, res) => {
 exports.view_purchaseInvoice = async (req, res) => {
   try {
     const { id } = req.params;
+    const companyId = req.user.companyId;
     const data = await purchaseInvoice.findOne({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: companyId },
       include: [
         {
           model: purchaseInvoiceItem,
           as: "items",
           include: [{ model: product, as: "purchseProduct" }],
         },
-        { model: vendor, as: "purchseVendor" },
+        { model: Account, as: "accountPurchaseInv" },
       ],
     });
     if (data) {
@@ -466,7 +461,7 @@ exports.view_purchaseInvoice = async (req, res) => {
 exports.C_create_purchaseCash = async (req, res) => {
   try {
     const user = req.user.userId;
-    const { vendorId,purchaseNo, date, totalMrp, items } = req.body;
+    const { accountId,purchaseNo, date, totalMrp, items } = req.body;
     const companyId = req.user.companyId;
 
 
@@ -482,18 +477,13 @@ exports.C_create_purchaseCash = async (req, res) => {
           .json({ status: "false", message: "Purchase Number Already Exists" });
     }
 
-    if (!vendorId || vendorId === "" || vendorId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required filed :Vendor" });
-    }
-    const vendorData = await C_vendor.findOne({
-      where: { id: vendorId, companyId: req.user.companyId },
+    const accountExist = await Account.findOne({
+      where: { id: accountId, companyId: companyId, isActive: true },
     });
-    if (!vendorData) {
+    if (!accountExist) {
       return res
         .status(404)
-        .json({ status: "false", message: "Vendor Not Found" });
+        .json({ status: "false", message: "Account Not Found" });
     }
     if (!items || items.length === 0) {
       return res
@@ -518,7 +508,7 @@ exports.C_create_purchaseCash = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productData = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, isActive: true },
+        where: { id: item.productId, companyId: companyId, isActive: true },
       });
       if (!productData) {
         return res
@@ -527,21 +517,21 @@ exports.C_create_purchaseCash = async (req, res) => {
       }
     }
     const purchseData = await C_purchaseCash.create({
-      vendorId,
+      accountId,
       date,
       totalMrp,
       purchaseNo: purchaseNo,
-      companyId: req.user.companyId,
+      companyId: companyId,
       createdBy: user,
       updatedBy: user,
     });
 
-    await C_vendorLedger.create({
-      vendorId,
-      companyId: req.user.companyId,
-      debitId: purchseData.id,
-      date,
-    });
+    // await C_vendorLedger.create({
+    //   vendorId,
+    //   companyId: req.user.companyId,
+    //   debitId: purchseData.id,
+    //   date,
+    // });
 
     const addToItem = items.map((item) => ({
       PurchaseId: purchseData.id,
@@ -583,10 +573,10 @@ exports.C_update_purchaseCash = async (req, res) => {
 
     const { id } = req.params;
 
-    const { vendorId,purchaseNo, date, totalMrp, items } = req.body;
+    const { accountId,purchaseNo, date, totalMrp, items } = req.body;
 
     const existingPurchase = await C_purchaseCash.findOne({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: companyId },
     });
     if (!existingPurchase) {
       return res.status(404).json({
@@ -607,18 +597,13 @@ exports.C_update_purchaseCash = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Purchase Number Already Exists" });
     }
-    if (!vendorId || vendorId === "" || vendorId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required filed :Vendor" });
-    }
-    const vendorData = await C_vendor.findOne({
-      where: { id: vendorId, companyId: req.user.companyId },
+    const accountExist = await Account.findOne({
+      where: { id: accountId, companyId: companyId, isActive: true },
     });
-    if (!vendorData) {
+    if (!accountExist) {
       return res
         .status(404)
-        .json({ status: "false", message: "Vendor Not Found" });
+        .json({ status: "false", message: "Account Not Found" });
     }
     if (!items || items.length === 0) {
       return res
@@ -642,7 +627,7 @@ exports.C_update_purchaseCash = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productData = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, isActive: true },
+        where: { id: item.productId, companyId: companyId, isActive: true },
       });
       if (!productData) {
         return res
@@ -652,11 +637,11 @@ exports.C_update_purchaseCash = async (req, res) => {
     }
     await C_purchaseCash.update(
       {
-        vendorId,
+        accountId,
         date,
         totalMrp,
         purchaseNo: purchaseNo,
-        companyId: req.user.companyId,
+        companyId: companyId,
         createdBy: existingPurchase.createdBy,
         updatedBy: user,
       },
@@ -716,17 +701,17 @@ exports.C_update_purchaseCash = async (req, res) => {
       }
       await C_purchaseCashItem.destroy({ where: { id: item.id } });
     }
-    await C_vendorLedger.update(
-      {
-        companyId: req.user.companyId,
-        vendorId,
-        date,
-      },
-      { where: { debitId:id } }
-    );
+    // await C_vendorLedger.update(
+    //   {
+    //     companyId: req.user.companyId,
+    //     vendorId,
+    //     date,
+    //   },
+    //   { where: { debitId:id } }
+    // );
 
     const data = await C_purchaseCash.findOne({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: companyId },
       include: [{ model: C_purchaseCashItem, as: "items" }],
     });
     return res.status(200).json({
@@ -744,9 +729,10 @@ exports.C_update_purchaseCash = async (req, res) => {
 exports.C_delete_purchaseCash = async (req, res) => {
   try {
     const { id } = req.params;
+    const companyId = req.user.companyId;
 
     const billId = await C_purchaseCash.findOne({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: companyId },
     });
 
     if (!billId) {
@@ -784,31 +770,27 @@ exports.C_delete_purchaseCash = async (req, res) => {
 };
 exports.C_get_all_purchaseCash = async (req, res) => {
   try {
+    const companyId = req.user.companyId;
     const data = await C_purchaseCash.findAll({
-      where: { companyId: req.user.companyId },
+      where: { companyId: companyId },
       include: [
         {
           model: C_purchaseCashItem,
           as: "items",
           include: [{ model: product, as: "ProductPurchase" }],
         },
-        { model: C_vendor, as: "VendorPurchase" },
+        { model: Account, as: "accountPurchaseCash" },
         { model: User, as: "purchaseCreateUser", attributes: ["username"] },
         { model: User, as: "purchaseUpdateUser", attributes: ["username"] },
       ],
     });
 
-    if (data) {
       return res.status(200).json({
         status: "true",
         message: "All Purchase Cash show Successfully",
         data: data,
       });
-    } else {
-      return res
-        .status(404)
-        .json({ status: "false", message: "Purchase Cash Not Found" });
-    }
+
   } catch (error) {
     console.log(error);
     return res
@@ -819,15 +801,16 @@ exports.C_get_all_purchaseCash = async (req, res) => {
 exports.C_view_purchaseCash = async (req, res) => {
   try {
     const { id } = req.params;
+    const companyId = req.user.companyId;
     const data = await C_purchaseCash.findOne({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: companyId },
       include: [
         {
           model: C_purchaseCashItem,
           as: "items",
           include: [{ model: product, as: "ProductPurchase" }],
         },
-        { model: C_vendor, as: "VendorPurchase" },
+        { model: Account, as: "accountPurchaseCash" },
       ],
     });
     if (data) {
@@ -852,15 +835,16 @@ exports.C_view_purchaseCash = async (req, res) => {
 exports.C_view_purchaseCash_pdf = async (req, res)=>{
   try {
     const { id } = req.params;
+    const companyId = req.user.companyId;
     const data = await C_purchaseCash.findOne({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: companyId },
       include: [
         {
           model: C_purchaseCashItem,
           as: "items",
           include: [{ model: product, as: "ProductPurchase" }],
         },
-        { model: C_vendor, as: "VendorPurchase" },
+        { model: Account, as: "accountPurchaseCash" },
       ],
     });
     if (!data) {

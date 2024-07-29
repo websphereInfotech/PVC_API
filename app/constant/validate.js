@@ -116,9 +116,9 @@ module.exports.validation = function (method) {
     case "update_item":
       return [ itemtype, productname, itemGroupId, itemCategoryId, weight, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice ];
     case "create_purchaseInvoice":
-      return [duedate, voucherno, supplyInvoiceNo, invoicedate, qty,itemUnit, rate];
+      return [accountId, duedate, voucherno, supplyInvoiceNo, invoicedate, qty,itemUnit, rate];
     case "update_purchaseInvoice":
-      return [duedate, voucherno, supplyInvoiceNo, invoicedate, qty, itemUnit, rate];
+      return [accountId, duedate, voucherno, supplyInvoiceNo, invoicedate, qty, itemUnit, rate];
     case "create_company":
       return [ companyname, gstnumber, email, mobileno, address1, pincode, state, city ];
     case "update_company":

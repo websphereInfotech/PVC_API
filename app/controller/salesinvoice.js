@@ -2,9 +2,8 @@ const { Sequelize } = require("sequelize");
 const C_salesinvoice = require("../models/C_salesinvoice");
 const C_salesinvoiceItem = require("../models/C_salesinvoiceItem");
 const ProFormaInvoice = require("../models/ProFormaInvoice");
-const customer = require("../models/customer");
-const customerLedger = require("../models/customerLedger");
 const Account = require("../models/Account");
+const Ledger = require("../models/Ledger");
 const product = require("../models/product");
 const salesInvoice = require("../models/salesInvoice");
 const salesInvoiceItem = require("../models/salesInvoiceitem");
@@ -62,7 +61,7 @@ exports.create_salesInvoice = async (req, res) => {
         .json({ status: "false", message: "Invoice Number Already Exists" });
     }
     const accountExist = await Account.findOne({
-      where: { id: accountId, companyId: companyId },
+      where: { id: accountId, companyId: companyId, isActive: true },
     });
     if (!accountExist) {
       return res
@@ -127,19 +126,13 @@ exports.create_salesInvoice = async (req, res) => {
       updatedBy: userID,
       companyId: companyId,
     });
-    await customerLedger.create({
-      customerId,
-      companyId: req.user.companyId,
-      creditId: data.id,
-      date: invoicedate,
-    });
 
-    // await customerLedger.create({
-    //   customerId,
-    //   companyId: req.user.companyId,
-    //   creditId: data.id,
-    //   date: invoicedate,
-    // });
+    await Ledger.create({
+      accountId: accountId,
+      companyId: companyId,
+      saleInvId: data.id,
+      date: invoicedate
+    })
     const addToItem = items.map((item) => ({
       salesInvoiceId: data.id,
       ...item,
@@ -186,7 +179,7 @@ exports.get_all_salesInvoice = async (req, res) => {
           as: "items",
           include: [{ model: product, as: "InvoiceProduct" }],
         },
-        { model: Account, as: "accountInvoice" },
+        { model: Account, as: "accountSaleInv" },
         { model: User, as: "createUser", attributes: ["username"] },
         { model: User, as: "updateUser", attributes: ["username"] },
       ],
@@ -221,7 +214,7 @@ exports.view_salesInvoice = async (req, res) => {
           as: "items",
           include: [{ model: product, as: "InvoiceProduct" }],
         },
-        { model: Account, as: "accountInvoice" },
+        { model: Account, as: "accountSaleInv" },
       ],
     });
 
@@ -292,7 +285,7 @@ exports.update_salesInvoice = async (req, res) => {
         .json({ status: "false", message: "Invoice Number Already Exists" });
     }
     const accountExist = await Account.findOne({
-      where: { id: accountId, companyId: companyId },
+      where: { id: accountId, companyId: companyId, isActive: true },
     });
     if (!accountExist) {
       return res
@@ -319,9 +312,6 @@ exports.update_salesInvoice = async (req, res) => {
       where: { salesInvoiceId: id },
     });
 
-    // const filteredExistingItems = existingItems.filter(existingItem =>
-    //     items.some(insertItem => insertItem.id === existingItem.id)
-    // );
     for (const item of items) {
       if (!item.productId || item.productId === "") {
         return res
@@ -374,24 +364,16 @@ exports.update_salesInvoice = async (req, res) => {
         where: { id: id },
       }
     );
-
-    await customerLedger.update(
-      {
-        customerId,
-        companyId: req.user.companyId,
-        date: invoicedate,
-      },
-      { where: { creditId: id } }
-    );
-
-    // await customerLedger.update(
-    //     {
-    //       customerId,
-    //       companyId: req.user.companyId,
-    //       date: invoicedate,
-    //     },
-    //     { where: { creditId: id } }
-    // );
+    await Ledger.update({
+      accountId: accountId,
+      saleInvId: id,
+      date: invoicedate
+    }, {
+      where: {
+        saleInvId: id,
+        companyId: companyId,
+      }
+    })
 
     for (const item of items) {
       const existingItem = existingItems.find((ei) => ei.id === item.id);
@@ -519,7 +501,7 @@ exports.C_create_salesinvoice = async (req, res) => {
           .json({ status: "false", message: "Sales Number Already Exists." });
     }
     const accountExist = await Account.findOne({
-      where: { id: accountId, companyId: companyId },
+      where: { id: accountId, companyId: companyId, isActive: true },
     });
 
     if (!accountExist) {
@@ -630,7 +612,7 @@ exports.C_update_salesinvoice = async (req, res) => {
           .json({ status: "false", message: "Sale Number Already Exists" });
     }
     const accountExist = await Account.findOne({
-      where: { id: accountId, companyId: companyId },
+      where: { id: accountId, companyId: companyId, isActive: true },
     });
 
     if (!accountExist) {
@@ -764,7 +746,7 @@ exports.C_get_all_salesInvoice = async (req, res) => {
           as: "items",
           include: [{ model: product, as: "CashProduct" }],
         },
-        { model: Account, as: "accountCashSale" },
+        { model: Account, as: "accountSaleCash" },
         { model: User, as: "salesInvoiceCreate", attributes: ["username"] },
         { model: User, as: "salesInvoiceUpdate", attributes: ["username"] },
       ],
@@ -799,7 +781,7 @@ exports.C_view_salesInvoice = async (req, res) => {
           as: "items",
           include: [{ model: product, as: "CashProduct" }],
         },
-        { model: Account, as: "accountCashSale" },
+        { model: Account, as: "accountSaleCash" },
       ],
     });
 
@@ -868,7 +850,7 @@ exports.C_view_salesInvoice_pdf = async (req, res)=>{
           as: "items",
           include: [{ model: product, as: "CashProduct" }],
         },
-        { model: Account, as: "accountCashSale" },
+        { model: Account, as: "accountSaleCash" },
       ],
     });
 

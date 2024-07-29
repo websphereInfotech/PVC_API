@@ -26,7 +26,7 @@ C_salesinvoice.belongsTo(User,{foreignKey:'createdBy', as:'salesInvoiceCreate'})
 User.hasMany(C_salesinvoice,{foreignKey:'updatedBy', as:'salesInvoiceUpdate'});
 C_salesinvoice.belongsTo(User,{foreignKey:'updatedBy', as:'salesInvoiceUpdate'});
 
-Account.hasMany(C_salesinvoice, {foreignKey:'accountId', onDelete:'CASCADE',as:'cashAccountSale'});
-C_salesinvoice.belongsTo(Account, {foreignKey:'accountId', onDelete:'CASCADE',as:'cashAccountSale'});
+Account.hasMany(C_salesinvoice, {foreignKey:'accountId', onDelete:'CASCADE',as:'accountSaleCash'});
+C_salesinvoice.belongsTo(Account, {foreignKey:'accountId', onDelete:'CASCADE',as:'accountSaleCash'});
 
 module.exports = C_salesinvoice;

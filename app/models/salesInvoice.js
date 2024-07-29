@@ -53,12 +53,12 @@ salesInvoice.belongsTo(User, { foreignKey: "updatedBy", as: "updateUser" });
 Account.hasMany(salesInvoice, {
   foreignKey: "accountId",
   onDelete: "CASCADE",
-  as: "accountInvoice",
+  as: "accountSaleInv",
 });
 salesInvoice.belongsTo(Account, {
   foreignKey: "accountId",
   onDelete: "CASCADE",
-  as: "accountInvoice",
+  as: "accountSaleInv",
 });
 
 module.exports = salesInvoice;

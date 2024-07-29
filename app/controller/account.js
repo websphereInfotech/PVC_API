@@ -2,6 +2,7 @@ const AccountGroup = require('../models/AccountGroup');
 const Account = require('../models/Account');
 const AccountDetail = require('../models/AccountDetail');
 const {isUnique} = require("../constant/common");
+const {Op} = require("sequelize");
 
 exports.view_all_account_group = async (req, res) => {
     try {
@@ -86,6 +87,15 @@ exports.update_account = async (req, res)=>{
                 isActive: true
             }
         })
+        if(accountDetail?.bankDetail === false){
+            accountDetail['accountNumber'] = null;
+            accountDetail['ifscCode'] = null;
+            accountDetail['bankName'] = null;
+            accountDetail['accountHolderName']= null;
+        }
+        if(accountDetail?.creditLimit === false){
+            accountDetail['totalCredit'] = null;
+        }
         if(!accountExist) return res.status(404).json({status: "false", message: "Account Not Found"});
         if(await isUnique('email', email, companyId, accountId)) return res.status(400).json({status: "false", message: "Email already exists"});
         if(await isUnique('mobileNo', mobileNo, companyId, accountId)) return res.status(400).json({status: "false", message: "Mobile No. already exists"});
@@ -133,11 +143,13 @@ exports.update_account = async (req, res)=>{
 exports.view_all_account = async (req, res) => {
     try {
         const companyId = req.user.companyId;
+        const { search } = req.query;
+        const whereClause = { companyId: companyId, isActive: true };
+        if (search) {
+            whereClause.accountName = { [Op.like]: `%${search}%` };
+        }
         const accounts = await Account.findAll({
-            where: {
-                companyId: companyId,
-                isActive: true
-            },
+            where: whereClause,
             include: [
                 {
                     model: AccountGroup,

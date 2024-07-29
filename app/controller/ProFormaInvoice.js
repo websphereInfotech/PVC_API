@@ -245,7 +245,7 @@ exports.update_ProFormaInvoice = async (req, res) => {
     }
 
     const accountExist = await Account.findOne({
-      where: { id: accountId, companyId: companyId },
+      where: { id: accountId, companyId: companyId, isActive: true },
     });
 
     if (!accountExist) {

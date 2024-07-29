@@ -1,12 +1,13 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
-const vendor = require("./vendor");
+const Account = require("./Account");
 const User = require("./user");
 const company = require("./company");
 
 const purchaseInvoice = sequelize.define("P_purchaseInvoice", {
-  vendorId: {
+  accountId: {
     type: DataTypes.INTEGER,
+    allowNull: false
   },
   supplyInvoiceNo: { type: DataTypes.STRING, allowNull: false },
   voucherno: {type: DataTypes.INTEGER, allowNull: false },
@@ -46,7 +47,7 @@ purchaseInvoice.belongsTo(User,{foreignKey:'createdBy', as:'salesCreateUser'});
 User.hasMany(purchaseInvoice,{foreignKey:'updatedBy', as:'salesUpdateUser'});
 purchaseInvoice.belongsTo(User,{foreignKey:'updatedBy', as:'salesUpdateUser'});
 
-vendor.hasMany(purchaseInvoice,{foreignKey:'vendorId', onDelete:'CASCADE',as:'purchseVendor'});
-purchaseInvoice.belongsTo(vendor, {foreignKey:'vendorId', onDelete:'CASCADE',as:'purchseVendor'});
+Account.hasMany(purchaseInvoice,{foreignKey:'accountId', onDelete:'CASCADE',as:'accountPurchaseInv'});
+purchaseInvoice.belongsTo(Account, {foreignKey:'accountId', onDelete:'CASCADE',as:'accountPurchaseInv'});
 
 module.exports = purchaseInvoice;

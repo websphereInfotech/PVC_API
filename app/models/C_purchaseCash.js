@@ -1,11 +1,11 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
-const C_vendor = require('./C_vendor');
+const Account = require('./Account');
 const User = require('./user');
 const company = require('./company');
 
 const C_purchaseCash = sequelize.define('P_C_purchaseCash', {
-    vendorId: { type : DataTypes.INTEGER},
+    accountId: { type : DataTypes.INTEGER, allowNull: false},
     date : { type: DataTypes.DATEONLY},
     totalMrp: {
         type : DataTypes.INTEGER,
@@ -26,7 +26,7 @@ C_purchaseCash.belongsTo(User,{foreignKey:'createdBy', as:'purchaseCreateUser'})
 User.hasMany(C_purchaseCash,{foreignKey:'updatedBy', as:'purchaseUpdateUser'});
 C_purchaseCash.belongsTo(User,{foreignKey:'updatedBy', as:'purchaseUpdateUser'});
 
-C_vendor.hasMany(C_purchaseCash, {foreignKey:'vendorId', onDelete:'CASCADE', as:'VendorPurchase'});
-C_purchaseCash.belongsTo(C_vendor, {foreignKey:'vendorId', onDelete:'CASCADE',as:'VendorPurchase'});
+Account.hasMany(C_purchaseCash, {foreignKey:'accountId', onDelete:'CASCADE', as:'accountPurchaseCash'});
+C_purchaseCash.belongsTo(Account, {foreignKey:'accountId', onDelete:'CASCADE',as:'accountPurchaseCash'});
 
 module.exports = C_purchaseCash;
