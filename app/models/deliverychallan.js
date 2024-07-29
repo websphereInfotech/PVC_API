@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
-const customer = require("./customer");
+const Account = require("./Account");
 const User = require("./user");
 
 const deliverychallan = sequelize.define("P_deliverychallan", {
@@ -12,7 +12,7 @@ const deliverychallan = sequelize.define("P_deliverychallan", {
     type: DataTypes.DATEONLY,
     allowNull: false,
   },
-  customerId: { type: DataTypes.INTEGER,
+  accountId: { type: DataTypes.INTEGER,
     allowNull:false
    },
    totalQty: {
@@ -23,8 +23,8 @@ const deliverychallan = sequelize.define("P_deliverychallan", {
     createdBy: { type: DataTypes.INTEGER }
 });
 
-customer.hasMany(deliverychallan,{ foreignKey:'customerId', onDelete:'CASCADE',as:'DeliveryCustomer'});
-deliverychallan.belongsTo(customer,{ foreignKey:'customerId', onDelete:'CASCADE', as:'DeliveryCustomer'});
+Account.hasMany(deliverychallan,{ foreignKey:'accountId', onDelete:'CASCADE',as:'accountDelivery'});
+deliverychallan.belongsTo(Account,{ foreignKey:'accountId', onDelete:'CASCADE', as:'accountDelivery'});
 
 User.hasMany(deliverychallan, { foreignKey: "updatedBy", as: "challanUpdateUser" });
 deliverychallan.belongsTo(User, { foreignKey: "updatedBy", as: "challanUpdateUser" });

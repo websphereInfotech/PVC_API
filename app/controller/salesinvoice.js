@@ -12,6 +12,7 @@ const Stock = require("../models/stock");
 const {renderFile} = require("ejs");
 const path = require("node:path");
 const htmlToPdf = require("html-pdf-node");
+const AccountDetail = require("../models/AccountDetail");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -214,7 +215,7 @@ exports.view_salesInvoice = async (req, res) => {
           as: "items",
           include: [{ model: product, as: "InvoiceProduct" }],
         },
-        { model: Account, as: "accountSaleInv" },
+        { model: Account, as: "accountSaleInv", include: {model: AccountDetail, as: "accountDetail"} },
       ],
     });
 

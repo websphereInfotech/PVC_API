@@ -3,12 +3,13 @@ const creditNote = require("../models/creditNote");
 const creditNoteItem = require("../models/creditNoteItem");
 const customer = require("../models/customer");
 const product = require("../models/product");
+const Account = require("../models/Account");
 const User = require("../models/user");
 
 exports.create_creditNote = async (req, res) => {
   try {
     const {
-      customerId,
+      accountId,
       creditnoteNo,
       creditdate,
       org_invoicedate,
@@ -24,30 +25,9 @@ exports.create_creditNote = async (req, res) => {
       totalQty,
       items,
     } = req.body;
-    if (!customerId || customerId === "" || customerId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required filed :Customer" });
-    }
-    // for (const item of items) {
-    //     const mrp = item.qty * item.rate;
-    //     if (item.mrp !== mrp) {
-    //       return res.status(400).json({
-    //         status: "false",
-    //         message: `MRP for item ${item.productId} does not match the calculated value`,
-    //       });
-    //     }
-    //   }
-    //   const totalMrpFromItems = items.reduce((total, item) => {
-    //     return total + (item.qty * item.rate);
-    //   }, 0);
+    const companyId = req.user.companyId;
+    const userId = req.user.userId;
 
-    //   if (totalMrp !== totalMrpFromItems) {
-    //     return res.status(400).json({
-    //       status: "false",
-    //       message: "Total MRP Not Match",
-    //     });
-    //   }
     const numberOf = await creditNote.findOne({
       where: { creditnoteNo: creditnoteNo, companyId: req.user.companyId },
     });
@@ -63,13 +43,13 @@ exports.create_creditNote = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Required Field oF items" });
     }
-    const customerData = await customer.findOne({
-      where: { id: customerId, companyId: req.user.companyId },
+    const accountExist = await Account.findOne({
+      where: { id: accountId, companyId: companyId, isActive: true },
     });
-    if (!customerData) {
+    if (!accountExist) {
       return res
         .status(404)
-        .json({ status: "false", message: "Customer Not Found" });
+        .json({ status: "false", message: "Account Not Found" });
     }
     for (const item of items) {
       if (!item.productId || item.productId === "") {
@@ -88,7 +68,7 @@ exports.create_creditNote = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productname = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, isActive: true },
+        where: { id: item.productId, companyId: companyId, isActive: true },
       });
       if (!productname) {
         return res
@@ -97,7 +77,7 @@ exports.create_creditNote = async (req, res) => {
       }
     }
     const creditData = await creditNote.create({
-      customerId,
+      accountId,
       creditnoteNo,
       creditdate,
       org_invoiceno,
@@ -111,9 +91,9 @@ exports.create_creditNote = async (req, res) => {
       totalMrp,
       totalQty,
       mainTotal,
-      companyId: req.user.companyId,
-      createdBy: req.user.userId,
-      updatedBy: req.user.userId,
+      companyId: companyId,
+      createdBy: userId,
+      updatedBy: userId,
     });
 
     const addToProduct = items.map((item) => ({
@@ -123,7 +103,7 @@ exports.create_creditNote = async (req, res) => {
     await creditNoteItem.bulkCreate(addToProduct);
 
     const data = await creditNote.findOne({
-      where: { id: creditData.id, companyId: req.user.companyId },
+      where: { id: creditData.id, companyId: companyId },
       include: [{ model: creditNoteItem, as: "items" }],
     });
     return res.status(200).json({
@@ -141,9 +121,10 @@ exports.create_creditNote = async (req, res) => {
 exports.update_creditNote = async (req, res) => {
   try {
     const { id } = req.params;
-
+    const companyId = req.user.companyId;
+    const userId = req.user.userId;
     const {
-      customerId,
+      accountId,
       creditnoteNo,
       creditdate,
       org_invoicedate,
@@ -161,7 +142,7 @@ exports.update_creditNote = async (req, res) => {
     } = req.body;
 
     const existingCredit = await creditNote.findOne({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: companyId },
     });
 
     if (!existingCredit) {
@@ -172,7 +153,7 @@ exports.update_creditNote = async (req, res) => {
     const numberOf = await creditNote.findOne({
       where: {
         creditnoteNo: creditnoteNo,
-        companyId: req.user.companyId,
+        companyId: companyId,
         id: { [Sequelize.Op.ne]: id },
       },
     });
@@ -183,18 +164,13 @@ exports.update_creditNote = async (req, res) => {
       });
     }
 
-    if (!customerId || customerId === "" || customerId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required filed :Customer" });
-    }
-    const customerData = await customer.findOne({
-      where: { id: customerId, companyId: req.user.companyId },
+    const accountExist = await Account.findOne({
+      where: { id: accountId, companyId: companyId },
     });
-    if (!customerData) {
+    if (!accountExist) {
       return res
         .status(404)
-        .json({ status: "false", message: "Customer Not Found" });
+        .json({ status: "false", message: "Account Not Found" });
     }
     if (!items || items.length === 0) {
       return res
@@ -218,7 +194,7 @@ exports.update_creditNote = async (req, res) => {
           .json({ status: "false", message: "Rate Value Invalid" });
       }
       const productname = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, isActive: true },
+        where: { id: item.productId, companyId: companyId, isActive: true },
       });
       if (!productname) {
         return res
@@ -228,7 +204,7 @@ exports.update_creditNote = async (req, res) => {
     }
     await creditNote.update(
       {
-        customerId,
+        accountId,
         creditnoteNo,
         creditdate,
         org_invoiceno,
@@ -242,9 +218,9 @@ exports.update_creditNote = async (req, res) => {
         totalMrp,
         totalQty,
         mainTotal,
-        companyId: req.user.companyId,
+        companyId: companyId,
         createdBy: existingCredit.createdBy,
-        updatedBy: req.user.userId,
+        updatedBy: userId,
       },
       { where: { id } }
     );
@@ -288,7 +264,7 @@ exports.update_creditNote = async (req, res) => {
       await creditNoteItem.destroy({ where: { id: item.id } });
     }
     const data = await creditNote.findOne({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: companyId },
       include: [{ model: creditNoteItem, as: "items" }],
     });
 
@@ -306,31 +282,25 @@ exports.update_creditNote = async (req, res) => {
 };
 exports.get_all_creditNote = async (req, res) => {
   try {
+    const companyId = req.user.companyId;
     const data = await creditNote.findAll({
-      where: { companyId: req.user.companyId },
+      where: { companyId: companyId },
       include: [
         {
           model: creditNoteItem,
           as: "items",
           include: [{ model: product, as: "CreditProduct" }],
         },
-        { model: customer, as: "CreditCustomer" },
+        { model: Account, as: "accountCreditNo" },
         { model: User, as: "creditCreateUser", attributes: ["username"] },
         { model: User, as: "creditUpdateUser", attributes: ["username"] },
       ],
     });
-    if (data) {
       return res.status(200).json({
         status: "true",
         message: "Credit Note Data fetch successfully",
         data: data,
       });
-    } else {
-      return res.status(404).json({
-        status: "true",
-        message: "Credit Note Not Found",
-      });
-    }
   } catch (error) {
     console.log(error);
     return res
@@ -341,16 +311,16 @@ exports.get_all_creditNote = async (req, res) => {
 exports.view_single_creditNote = async (req, res) => {
   try {
     const { id } = req.params;
-
+    const companyId = req.user.companyId;
     const data = await creditNote.findOne({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: companyId },
       include: [
         {
           model: creditNoteItem,
           as: "items",
           include: [{ model: product, as: "CreditProduct" }],
         },
-        { model: customer, as: "CreditCustomer" },
+        { model: Account, as: "accountCreditNo" },
       ],
     });
     if (!data) {
@@ -375,8 +345,9 @@ exports.view_single_creditNote = async (req, res) => {
 exports.delete_creditNote = async (req, res) => {
   try {
     const { id } = req.params;
+    const {companyId} = req.user;
     const data = await creditNote.destroy({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: companyId },
     });
 
     if (data) {

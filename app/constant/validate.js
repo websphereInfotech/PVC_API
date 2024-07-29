@@ -86,9 +86,9 @@ module.exports.validation = function (method) {
     case "update_user":
       return [email, mobileno, salary, role, dutyTime];
     case "create_deliverychallan":
-      return [challanno, date, qty, itemUnit];
+      return [accountId, challanno, date, qty, itemUnit];
     case "update_deliverychallan":
-      return [challanno, date, qty, itemUnit];
+      return [accountId, challanno, date, qty, itemUnit];
     case "create_ProFormaInvoice":
       return [ProFormaInvoice_no, accountId, terms, date, validtill, qty, itemUnit, rate];
     case "update_ProFormaInvoice":
@@ -102,9 +102,9 @@ module.exports.validation = function (method) {
     case "update_debitNote":
       return [debitnoteno, purchaseinvoicedate, debitdate, qty, mrp, rate, itemUnit];
     case "create_creditNote":
-      return [ creditnoteNo, creditdate, org_invoiceno, org_invoicedate, rate, qty, itemUnit ];
+      return [ accountId, creditnoteNo, creditdate, org_invoiceno, org_invoicedate, rate, qty, itemUnit ];
     case "update_creditNote":
-      return [ creditnoteNo, creditdate, org_invoiceno, org_invoicedate, rate, qty, itemUnit ];
+      return [ accountId, creditnoteNo, creditdate, org_invoiceno, org_invoicedate, rate, qty, itemUnit ];
     case "create_customer":
       return [ accountname, email, mobileno, contactpersonname, creditperiod, address1, pincode, state,
                city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails,validateCredit ];

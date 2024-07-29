@@ -1,10 +1,10 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
-const customer = require("./customer");
 const User = require("./user");
+const Account = require("./Account");
 
 const creditNote = sequelize.define("P_creditNote", {
-  customerId: {
+  accountId: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
@@ -65,15 +65,15 @@ creditNote.belongsTo(User, {
   as: "creditUpdateUser",
 });
 
-customer.hasMany(creditNote, {
-  foreignKey: "customerId",
+Account.hasMany(creditNote, {
+  foreignKey: "accountId",
   onDelete: "CASCADE",
-  as: "CreditCustomer",
+  as: "accountCreditNo",
 });
-creditNote.belongsTo(customer, {
-  foreignKey: "customerId",
+creditNote.belongsTo(Account, {
+  foreignKey: "accountId",
   onDelete: "CASCADE",
-  as: "CreditCustomer",
+  as: "accountCreditNo",
 });
 
 module.exports = creditNote;

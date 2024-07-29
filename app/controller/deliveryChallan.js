@@ -1,5 +1,5 @@
 const { Sequelize } = require("sequelize");
-const customer = require("../models/customer");
+const Account = require("../models/Account");
 const deliverychallan = require("../models/deliverychallan");
 const deliverychallanitem = require("../models/deliverychallanitem");
 const product = require("../models/product");
@@ -7,33 +7,29 @@ const User = require("../models/user");
 
 exports.create_deliverychallan = async (req, res) => {
   try {
-    const { date, challanno, customerId, totalQty, items } = req.body;
+    const { date, challanno, accountId, totalQty, items } = req.body;
     const userId = req.user.userId;
+    const companyId = req.user.companyId;
     const numberOf = await deliverychallan.findOne({
-      where: { challanno: challanno, companyId: req.user.companyId },
+      where: { challanno: challanno, companyId: companyId },
     });
     if (numberOf) {
       return res
         .status(400)
         .json({ status: "false", message: "Challan Number Already Exists" });
     }
-    if (!customerId || customerId === "" || customerId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required filed :Customer" });
-    }
     if (!items || items.length === 0) {
       return res
         .status(400)
         .json({ status: "false", message: "Required Field oF items" });
     }
-    const customerData = await customer.findOne({
-      where: { id: customerId, companyId: req.user.companyId },
+    const accountExist = await Account.findOne({
+      where: { id: accountId, companyId: companyId, isActive: true },
     });
-    if (!customerData) {
+    if (!accountExist) {
       return res
         .status(404)
-        .json({ status: "false", message: "Customer Not Found" });
+        .json({ status: "false", message: "Account Not Found" });
     }
     for (const item of items) {
       if (!item.productId || item.productId === "" || item.productId === null) {
@@ -47,7 +43,7 @@ exports.create_deliverychallan = async (req, res) => {
           .json({ status: "false", message: "Qty Value Invalid" });
       }
       const productname = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, isActive: true },
+        where: { id: item.productId, companyId: companyId, isActive: true },
       });
       if (!productname) {
         return res
@@ -58,9 +54,9 @@ exports.create_deliverychallan = async (req, res) => {
     const data = await deliverychallan.create({
       date,
       challanno,
-      customerId,
+      accountId,
       totalQty,
-      companyId: req.user.companyId,
+      companyId: companyId,
       createdBy: userId,
       updatedBy: userId
     });
@@ -72,7 +68,7 @@ exports.create_deliverychallan = async (req, res) => {
     await deliverychallanitem.bulkCreate(addToItem);
 
     const deliveryChallan = await deliverychallan.findOne({
-      where: { id: data.id, companyId: req.user.companyId },
+      where: { id: data.id, companyId: companyId },
       include: [{ model: deliverychallanitem, as: "items" }],
     });
     return res.status(200).json({
@@ -90,11 +86,12 @@ exports.create_deliverychallan = async (req, res) => {
 exports.update_deliverychallan = async (req, res) => {
   try {
     const { id } = req.params;
-    const { date, challanno, customerId, totalQty, items } = req.body;
+    const { date, challanno, accountId, totalQty, items } = req.body;
     const userId = req.user.userId;
+    const companyId = req.user.companyId;
 
     const updatechallan = await deliverychallan.findOne({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: companyId },
     });
 
     if (!updatechallan) {
@@ -102,21 +99,16 @@ exports.update_deliverychallan = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Delivery challan Not Found" });
     }
-    if (!customerId || customerId === "" || customerId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required filed :Customer" });
-    }
-    const customerData = await customer.findOne({
-      where: { id: customerId, companyId: req.user.companyId },
+    const accountExist = await Account.findOne({
+      where: { id: accountId, companyId: companyId, isActive: true },
     });
-    if (!customerData) {
+    if (!accountExist) {
       return res
         .status(404)
-        .json({ status: "false", message: "Customer Not Found" });
+        .json({ status: "false", message: "Account Not Found" });
     }
     const numberOf = await deliverychallan.findOne({
-      where: { challanno: challanno, companyId: req.user.companyId, id: { [Sequelize.Op.ne]: id },},
+      where: { challanno: challanno, companyId: companyId, id: { [Sequelize.Op.ne]: id },},
     });
     if (numberOf) {
       return res
@@ -140,7 +132,7 @@ exports.update_deliverychallan = async (req, res) => {
           .json({ status: "false", message: "Qty Value Invalid" });
       }
       const productname = await product.findOne({
-        where: { id: item.productId, companyId: req.user.companyId, isActive: true },
+        where: { id: item.productId, companyId: companyId, isActive: true },
       });
 
       if (!productname) {
@@ -153,9 +145,9 @@ exports.update_deliverychallan = async (req, res) => {
       {
         challanno,
         date,
-        customerId,
+        accountId,
         totalQty,
-        companyId: req.user.companyId,
+        companyId: companyId,
         updatedBy: userId
       },
       {
@@ -198,7 +190,7 @@ exports.update_deliverychallan = async (req, res) => {
       await deliverychallanitem.destroy({ where: { id: item.id } });
     }
     const data = await deliverychallan.findOne({
-      where: { id, companyId: req.user.companyId },
+      where: { id, companyId: companyId },
       include: [{ model: deliverychallanitem, as: "items" }],
     });
     return res.status(200).json({
@@ -216,9 +208,10 @@ exports.update_deliverychallan = async (req, res) => {
 exports.delete_deliverychallan = async (req, res) => {
   try {
     const { id } = req.params;
+    const companyId = req.user.companyId;
 
     const data = await deliverychallan.destroy({
-      where: { id: id, companyId: req.user.companyId },
+      where: { id: id, companyId: companyId },
     });
 
     if (!data) {
@@ -240,29 +233,24 @@ exports.delete_deliverychallan = async (req, res) => {
 };
 exports.get_all_deliverychallan = async (req, res) => {
   try {
+    const companyId = req.user.companyId;
     const data = await deliverychallan.findAll({
-      where: { companyId: req.user.companyId },
+      where: { companyId: companyId },
       include: [
         {
           model: deliverychallanitem,
           as: "items",
           include: [{ model: product, as: "DeliveryProduct" }],
         },
-        { model: customer, as: "DeliveryCustomer" },
+        { model: Account, as: "accountDelivery" },
         {model: User, as: "challanUpdateUser", attributes: ['username']},{model: User, as: "challanCreateUser", attributes: ['username']}
       ],
     });
-    if (!data) {
-      return res
-        .status(404)
-        .json({ status: "false", message: "Delivery Challan Not Found" });
-    } else {
       return res.status(200).json({
         status: "true",
         message: "Delivery Challan Data Fetch Successfully",
         data: data,
       });
-    }
   } catch (error) {
     console.log(error);
     return res
@@ -283,8 +271,8 @@ exports.view_deliverychallan = async (req, res) => {
           include: [{ model: product, as: "DeliveryProduct" }],
         },
         {
-          model: customer,
-          as: "DeliveryCustomer",
+          model: Account,
+          as: "accountDelivery",
         },
         {model: User, as: "challanUpdateUser", attributes: ['username']},{model: User, as: "challanCreateUser", attributes: ['username']}
       ],

@@ -3,6 +3,7 @@ const C_purchaseCash = require("../models/C_purchaseCash");
 const C_purchaseCashItem = require("../models/C_purchseCashItem");
 const product = require("../models/product");
 const Account = require("../models/Account");
+const AccountDetail = require("../models/AccountDetail");
 const Ledger = require("../models/Ledger");
 const purchaseInvoice = require("../models/purchaseInvoice");
 const purchaseInvoiceItem = require("../models/purchaseInvoiceItem");
@@ -432,7 +433,7 @@ exports.view_purchaseInvoice = async (req, res) => {
           as: "items",
           include: [{ model: product, as: "purchseProduct" }],
         },
-        { model: Account, as: "accountPurchaseInv" },
+        { model: Account, as: "accountPurchaseInv", include: {model: AccountDetail, as: "accountDetail"} },
       ],
     });
     if (data) {
