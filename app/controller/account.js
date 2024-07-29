@@ -3,6 +3,7 @@ const Account = require('../models/Account');
 const AccountDetail = require('../models/AccountDetail');
 const {isUnique} = require("../constant/common");
 const {Op} = require("sequelize");
+const {ACCOUNT_GROUPS_TYPE} = require("../constant/constant");
 
 exports.view_all_account_group = async (req, res) => {
     try {
@@ -182,6 +183,34 @@ exports.delete_account = async (req, res) => {
         account.isActive = false;
         await account.save();
         return res.status(200).json({status: "true", message: "Successfully Delete Account"})
+    }catch (e) {
+        console.error(e);
+        return res.status(500).json({status: "false", message: "Internal Server Error."})
+    }
+}
+
+exports.C_view_all_account = async (req, res) => {
+    try {
+        const companyId = req.user.companyId;
+        const accounts = await Account.findAll({
+            where: { companyId: companyId, isActive: true },
+            include: [
+                {
+                    model: AccountGroup,
+                    where: {
+                        name: {
+                            [Op.ne]: ACCOUNT_GROUPS_TYPE.CASH_IN_HAND
+                        }
+                    },
+                    as: "accountGroup"
+                },
+                {
+                    model: AccountDetail,
+                    as: "accountDetail"
+                }
+            ]
+        })
+        return res.status(200).json({status: "true", message: "Successfully Fetch All Account", data: accounts})
     }catch (e) {
         console.error(e);
         return res.status(500).json({status: "false", message: "Internal Server Error."})

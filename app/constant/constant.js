@@ -21,4 +21,5 @@ exports.ACCOUNT_GROUPS_TYPE = {
     SUNDRY_CREDITORS: "Sundry Creditors",
     SUNDRY_DEBTORS: "Sundry Debtors",
     UNSECURED_LOANS: "Unsecured Loans",
+    CASH_IN_HAND: "Cash In Hand",
 }
