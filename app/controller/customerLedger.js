@@ -1,6 +1,6 @@
 const { Sequelize, Op } = require("sequelize");
 const C_customerLedger = require("../models/C_customerLedger");
-const C_receiveCash = require("../models/C_receiveCash");
+const C_receiveCash = require("../models/C_Receipt");
 const C_salesinvoice = require("../models/C_salesinvoice");
 const C_customer = require("../models/C_customer");
 const customerLedger = require("../models/customerLedger");

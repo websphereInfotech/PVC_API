@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
-const C_receiveCash = require("./C_receiveCash");
+const C_receiveCash = require("./C_Receipt");
 const C_claim = require("./C_claim");
 const User = require("./user");
 const company = require("./company");

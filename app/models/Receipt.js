@@ -36,7 +36,7 @@ const Receipt = sequelize.define("P_Receipt", {
 });
 
 company.hasMany(Receipt,{ foreignKey:'companyId',onDelete:'CASCADE'});
-Receipt.hasMany(company,{ foreignKey:'companyId',onDelete:'CASCADE'});
+Receipt.belongsTo(company,{ foreignKey:'companyId',onDelete:'CASCADE'});
 
 User.hasMany(Receipt, { foreignKey: "createdBy", as: "bankCreateUser" });
 Receipt.belongsTo(User, { foreignKey: "createdBy", as: "bankCreateUser" });

@@ -2,7 +2,7 @@ const C_claimLedger = require("../models/C_claimLedger");
 const C_companyBalance = require("../models/C_companyBalance");
 const C_customer = require("../models/C_customer");
 const C_customerLedger = require("../models/C_customerLedger");
-const C_receiveCash = require("../models/C_receiveCash");
+const C_Receipt = require("../models/C_Receipt");
 const C_userBalance = require("../models/C_userBalance");
 const companyBalance = require("../models/companyBalance");
 const companyBankDetails = require("../models/companyBankDetails");
@@ -25,14 +25,9 @@ exports.C_create_receiveCash = async (req, res) => {
   try {
     const user = req.user.userId;
     const companyId = req.user.companyId;
-    const { customerId, receiptNo, amount, description, date } = req.body;
+    const { accountId, receiptNo, amount, description, date } = req.body;
 
-    if (!customerId || customerId === "" || customerId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required filed :Customer" });
-    }
-    const receiptNoExist = await C_receiveCash.findOne({
+    const receiptNoExist = await C_Receipt.findOne({
       where: {
         receiptNo: receiptNo,
         companyId: companyId
@@ -43,13 +38,13 @@ exports.C_create_receiveCash = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Receipt Number Already Exists" });
     }
-    const customerData = await C_customer.findOne({
-      where: { id: customerId, companyId: req.user.companyId },
+    const accountExist = await Account.findOne({
+      where: { id: accountId, companyId: companyId },
     });
-    if (!customerData) {
+    if (!accountExist) {
       return res
         .status(404)
-        .json({ status: "false", message: "Customer Not Found" });
+        .json({ status: "false", message: "Account Not Found" });
     }
 
     if (description.length > 20) {
@@ -58,33 +53,33 @@ exports.C_create_receiveCash = async (req, res) => {
         message: "Description Cannot Have More Then 20 Characters",
       });
     }
-    const data = await C_receiveCash.create({
-      customerId,
+    const data = await C_Receipt.create({
+      accountId,
       amount,
       description,
       date,
       receiptNo,
       createdBy: user,
       updatedBy: user,
-      companyId: req.user.companyId,
+      companyId: companyId,
     });
 
-    await C_customerLedger.create({
-      companyId: req.user.companyId,
-      debitId: data.id,
-      customerId,
-      date,
-    });
-
-    await C_claimLedger.create({
-      companyId: req.user.companyId,
-      receiveId: data.id,
-      userId: user,
-      date,
-    });
+    // await C_customerLedger.create({
+    //   companyId: req.user.companyId,
+    //   debitId: data.id,
+    //   customerId,
+    //   date,
+    // });
+    //
+    // await C_claimLedger.create({
+    //   companyId: req.user.companyId,
+    //   receiveId: data.id,
+    //   userId: user,
+    //   date,
+    // });
 
     let userBalance = await C_userBalance.findOne({
-      where: { userId: user, companyId: req.user.companyId },
+      where: { userId: user, companyId: companyId },
     });
 
     if (userBalance) {
@@ -93,7 +88,7 @@ exports.C_create_receiveCash = async (req, res) => {
     }
 
     const existingBalance = await C_companyBalance.findOne({
-      where: { companyId: req.user.companyId },
+      where: { companyId: companyId },
     });
     if (existingBalance) {
       existingBalance.balance += amount;
@@ -102,7 +97,7 @@ exports.C_create_receiveCash = async (req, res) => {
 
     return res.status(200).json({
       status: "true",
-      message: "Receive Cash Create Successfully",
+      message: "Receipt Cash Create Successfully.",
       data: data,
     });
   } catch (error) {
@@ -115,26 +110,21 @@ exports.C_create_receiveCash = async (req, res) => {
 
 exports.C_get_all_receiveCash = async (req, res) => {
   try {
-    const data = await C_receiveCash.findAll({
-      where: { companyId: req.user.companyId },
+    const {companyId} = req.user;
+    const data = await C_Receipt.findAll({
+      where: { companyId: companyId },
       include: [
-        { model: C_customer, as: "ReceiveCustomer" },
+        { model: Account, as: "accountReceiptCash" },
         { model: User, as: "receiveCreate", attributes: ["username"] },
         { model: User, as: "receiveUpdate", attributes: ["username"] },
       ],
       order: [["createdAt", "DESC"]],
     });
-    if (data) {
       return res.status(200).json({
         status: "true",
-        message: "Receive Cash Data Fetch Successfully",
+        message: "Receipt Cash Data Fetch Successfully",
         data: data,
       });
-    } else {
-      return res
-        .status(404)
-        .json({ status: "false", message: "Receive Cash not found" });
-    }
   } catch (error) {
     console.log(error);
     return res
@@ -146,20 +136,21 @@ exports.C_get_all_receiveCash = async (req, res) => {
 exports.C_view_receiveCash = async (req, res) => {
   try {
     const { id } = req.params;
-    const data = await C_receiveCash.findOne({
-      where: { id: id, companyId: req.user.companyId },
-      include: [{ model: C_customer, as: "ReceiveCustomer" }],
+    const {companyId} = req.user;
+    const data = await C_Receipt.findOne({
+      where: { id: id, companyId: companyId },
+      include: [{ model: Account, as: "accountReceiptCash" }],
     });
     if (data) {
       return res.status(200).json({
         status: "true",
-        message: "Receive Cash Data Fetch Successfully",
+        message: "Receipt Cash Data Fetch Successfully",
         data: data,
       });
     } else {
       return res
         .status(404)
-        .json({ status: "false", message: "Receive Cash not found" });
+        .json({ status: "false", message: "Receipt Cash not found" });
     }
   } catch (error) {
     console.log(error);
@@ -174,14 +165,10 @@ exports.C_update_receiveCash = async (req, res) => {
     const user = req.user.userId;
     const companyId = req.user.companyId;
     const { id } = req.params;
-    const { customerId, receiptNo,  amount, description, date } = req.body;
+    const { accountId, receiptNo,  amount, description, date } = req.body;
 
-    if (!customerId || customerId === "" || customerId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required filed :Customer" });
-    }
-    const receiptNoExist = await C_receiveCash.findOne({
+
+    const receiptNoExist = await C_Receipt.findOne({
       where: {
         receiptNo: receiptNo,
         companyId: companyId,
@@ -193,8 +180,8 @@ exports.C_update_receiveCash = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Receipt Number Already Exists" });
     }
-    const receiveId = await C_receiveCash.findOne({
-      where: { id: id, companyId: req.user.companyId },
+    const receiveId = await C_Receipt.findOne({
+      where: { id: id, companyId: companyId },
     });
     if (!receiveId) {
       return res
@@ -202,52 +189,61 @@ exports.C_update_receiveCash = async (req, res) => {
         .json({ status: "false", message: "Receive Cash Not Found" });
     }
 
-    await C_receiveCash.update(
+    const accountExist = await Account.findOne({
+      where: { id: accountId, companyId: companyId },
+    });
+    if (!accountExist) {
+      return res
+          .status(404)
+          .json({ status: "false", message: "Account Not Found" });
+    }
+
+    await C_Receipt.update(
       {
-        customerId,
+        accountId,
         amount,
         description,
         date,
         receiptNo,
         createdBy: receiveId.createdBy,
         updatedBy: user,
-        companyId: req.user.companyId,
+        companyId: companyId,
       },
       { where: { id: id } }
     );
 
-    await C_customerLedger.update(
-      {
-        companyId: req.user.companyId,
-        customerId,
-        date,
-      },
-      { where: { debitId: id } }
-    );
-    await C_claimLedger.update(
-      {
-        companyId: req.user.companyId,
-        date,
-      },
-      { where: { receiveId: id } }
-    );
+    // await C_customerLedger.update(
+    //   {
+    //     companyId: req.user.companyId,
+    //     customerId,
+    //     date,
+    //   },
+    //   { where: { debitId: id } }
+    // );
+    // await C_claimLedger.update(
+    //   {
+    //     companyId: req.user.companyId,
+    //     date,
+    //   },
+    //   { where: { receiveId: id } }
+    // );
 
-    const existsingBalance = await C_userBalance.findOne({
-      where: { userId: user, companyId: req.user.companyId },
-    });
+    // const existsingBalance = await C_userBalance.findOne({
+    //   where: { userId: user, companyId: req.user.companyId },
+    // });
+    //
+    // const balanceChange = amount - receiveId.amount;
+    // const newBalance = existsingBalance.balance + balanceChange;
 
-    const balanceChange = amount - receiveId.amount;
-    const newBalance = existsingBalance.balance + balanceChange;
-
-    await C_userBalance.update(
-      {
-        balance: newBalance,
-      },
-      { where: { userId: user, companyId: req.user.companyId } }
-    );
+    // await C_userBalance.update(
+    //   {
+    //     balance: newBalance,
+    //   },
+    //   { where: { userId: user, companyId: req.user.companyId } }
+    // );
 
     const balanceExists = await C_companyBalance.findOne({
-      where: { companyId: req.user.companyId },
+      where: { companyId: companyId },
     });
 
     const changeBalance = amount - receiveId.amount;
@@ -257,15 +253,15 @@ exports.C_update_receiveCash = async (req, res) => {
       {
         balance: balanceNew,
       },
-      { where: { companyId: req.user.companyId } }
+      { where: { companyId: companyId } }
     );
-    const data = await C_receiveCash.findOne({
-      where: { id: id, companyId: req.user.companyId },
+    const data = await C_Receipt.findOne({
+      where: { id: id, companyId: companyId },
     });
 
     return res.status(200).json({
       status: "true",
-      message: "Receive Cash Updated Successfully",
+      message: "Receipt Cash Updated Successfully",
       data: data,
     });
   } catch (error) {
@@ -279,18 +275,19 @@ exports.C_update_receiveCash = async (req, res) => {
 exports.C_delete_receiveCash = async (req, res) => {
   try {
     const { id } = req.params;
+    const {companyId} = req.user;
 
-    const data = await C_receiveCash.destroy({
-      where: { id: id, companyId: req.user.companyId },
+    const data = await C_Receipt.destroy({
+      where: { id: id, companyId: companyId },
     });
     if (data) {
       return res
         .status(200)
-        .json({ status: "true", message: "Receive Cash Deleted Successfully" });
+        .json({ status: "true", message: "Receipt Cash Deleted Successfully" });
     } else {
       return res
         .status(404)
-        .json({ status: "false", message: "Receive Cash Not Found" });
+        .json({ status: "false", message: "Receipt Cash Not Found" });
     }
   } catch (error) {
     console.log(error);
@@ -389,7 +386,7 @@ exports.create_receive_bank = async (req, res) => {
     //   date: paymentdate,
     // });
     const existsingBalance = await companyBalance.findOne({
-      where: { companyId: req.user.companyId },
+      where: { companyId: companyId },
     });
     if (existsingBalance) {
       existsingBalance.balance += amount;
@@ -435,7 +432,7 @@ exports.update_receive_bank = async (req, res) => {
     const receiveBankId = await Receipt.findOne({
       where: {
         id: id,
-        companyId: req.user.companyId,
+        companyId: companyId,
       },
     });
     if (!receiveBankId) {
@@ -523,7 +520,7 @@ exports.update_receive_bank = async (req, res) => {
     //   { where: { creditId: id } }
     // );
     const existsingBalance = await companyBalance.findOne({
-      where: { companyId: req.user.companyId },
+      where: { companyId: companyId },
     });
 
     const balanceChange = amount - receiveBankId.amount;
@@ -533,7 +530,7 @@ exports.update_receive_bank = async (req, res) => {
       {
         balance: newBalance,
       },
-      { where: { companyId: req.user.companyId } }
+      { where: { companyId: companyId } }
     );
     // const balanceExists = await companySingleBank.findOne({
     //   where: { accountId: accountId, companyId: req.user.companyId },
