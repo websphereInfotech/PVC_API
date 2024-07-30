@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const customer = require("./customer");
 const salesInvoice = require("./salesInvoice");
-const receiveBank = require("./receiveBank");
+const receiveBank = require("./Receipt");
 const company = require("./company");
 
 const customerLedger = sequelize.define("P_customerLedger", {

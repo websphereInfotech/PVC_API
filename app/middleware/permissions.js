@@ -660,94 +660,93 @@ exports.permissions = {
             "view_single_bankLedger":true
         },
     },
-    "Receive Bank" : {
+    "Receipt" : {
         "Super Admin" :{
-            "create_receive_bank":true,
-            "update_receive_bank":true,
-            "delete_receive_bank":true,
-            "view_receive_bank":true,
-            "get_all_receive_bank":true
+            "create_receipt":true,
+            "update_receipt":true,
+            "delete_receipt":true,
+            "view_receipt":true,
+            "get_all_receipt":true
 
         },
         "Admin" :{
-            "create_receive_bank":true,
-            "update_receive_bank":true,
-            "delete_receive_bank":true,
-            "view_receive_bank":true,
-            "get_all_receive_bank":true
+            "create_receipt":true,
+            "update_receipt":true,
+            "delete_receipt":true,
+            "view_receipt":true,
+            "get_all_receipt":true
         },
         "Account" :{
-            "create_receive_bank":true,
-            "update_receive_bank":true,
-            "delete_receive_bank":true,
-            "view_receive_bank":true,
-            "get_all_receive_bank":true
+            "create_receipt":true,
+            "update_receipt":true,
+            "delete_receipt":true,
+            "view_receipt":true,
+            "get_all_receipt":true
         },
         "Employee" :{
-            "create_receive_bank":true,
-            "update_receive_bank":true,
-            "delete_receive_bank":true,
-            "view_receive_bank":true,
-            "get_all_receive_bank":true
+            "create_receipt":true,
+            "update_receipt":true,
+            "delete_receipt":true,
+            "view_receipt":true,
+            "get_all_receipt":true
         },
         "Workers" :{
-            "create_receive_bank":true,
-            "update_receive_bank":true,
-            "delete_receive_bank":true,
-            "view_receive_bank":true,
-            "get_all_receive_bank":true
+            "create_receipt":true,
+            "update_receipt":true,
+            "delete_receipt":true,
+            "view_receipt":true,
+            "get_all_receipt":true
         },
         "Other" :{
-            "create_receive_bank":true,
-            "update_receive_bank":true,
-            "delete_receive_bank":true,
-            "view_receive_bank":true,
-            "get_all_receive_bank":true
+            "create_receipt":true,
+            "update_receipt":true,
+            "delete_receipt":true,
+            "view_receipt":true,
+            "get_all_receipt":true
         },
     },
-    "Payment Bank" : {
+    "Payment" : {
         "Super Admin" :{
-            "create_payment_bank":true,
-            "update_payment_bank":true,
-            "delete_payment_bank":true,
-            "view_payment_bank":true,
-            "view_all_payment_bank":true
-
+            "create_payment":true,
+            "update_payment":true,
+            "delete_payment":true,
+            "view_payment":true,
+            "view_all_payment":true
         },
         "Admin" :{
-            "create_payment_bank":true,
-            "update_payment_bank":true,
-            "delete_payment_bank":true,
-            "view_payment_bank":true,
-            "view_all_payment_bank":true
+            "create_payment":true,
+            "update_payment":true,
+            "delete_payment":true,
+            "view_payment":true,
+            "view_all_payment":true
         },
         "Account" :{
-            "create_payment_bank":true,
-            "update_payment_bank":true,
-            "delete_payment_bank":true,
-            "view_payment_bank":true,
-            "view_all_payment_bank":true
+            "create_payment":true,
+            "update_payment":true,
+            "delete_payment":true,
+            "view_payment":true,
+            "view_all_payment":true
         },
         "Employee" :{
-            "create_payment_bank":true,
-            "update_payment_bank":true,
-            "delete_payment_bank":true,
-            "view_payment_bank":true,
-            "view_all_payment_bank":true
+            "create_payment":true,
+            "update_payment":true,
+            "delete_payment":true,
+            "view_payment":true,
+            "view_all_payment":true
         },
         "Workers" :{
-            "create_payment_bank":true,
-            "update_payment_bank":true,
-            "delete_payment_bank":true,
-            "view_payment_bank":true,
-            "view_all_payment_bank":true
+            "create_payment":true,
+            "update_payment":true,
+            "delete_payment":true,
+            "view_payment":true,
+            "view_all_payment":true
         },
         "Other" :{
-            "create_payment_bank":true,
-            "update_payment_bank":true,
-            "delete_payment_bank":true,
-            "view_payment_bank":true,
-            "view_all_payment_bank":true
+            "create_payment":true,
+            "update_payment":true,
+            "delete_payment":true,
+            "view_payment":true,
+            "view_all_payment":true
         },
     },
     "Sales Cash" : {
@@ -800,92 +799,92 @@ exports.permissions = {
             "view_sales_cash_pdf": true
         },
     },
-    "Receive Cash" : {
+    "Receipt Cash" : {
         "Super Admin" :{
-            "create_receive_Cash":true,
-            "update_receive_Cash":true,
-            "delete_receive_Cash":true,
-            "view_receive_Cash":true,
-            "view_all_receive_Cash":true
+            "create_receipt":true,
+            "view_all_receipt":true,
+            "view_receipt":true,
+            "update_receipt":true,
+            "delete_receipt":true
         },
         "Admin" :{
-            "create_receive_Cash":true,
-            "update_receive_Cash":true,
-            "delete_receive_Cash":true,
-            "view_receive_Cash":true,
-            "view_all_receive_Cash":true
+            "create_receipt":true,
+            "view_all_receipt":true,
+            "view_receipt":true,
+            "update_receipt":true,
+            "delete_receipt":true
         },
         "Account" :{
-            "create_receive_Cash":true,
-            "update_receive_Cash":true,
-            "delete_receive_Cash":true,
-            "view_receive_Cash":true,
-            "view_all_receive_Cash":true
+            "create_receipt":true,
+            "view_all_receipt":true,
+            "view_receipt":true,
+            "update_receipt":true,
+            "delete_receipt":true
         },
         "Employee" :{
-            "create_receive_Cash":true,
-            "update_receive_Cash":true,
-            "delete_receive_Cash":true,
-            "view_receive_Cash":true,
-            "view_all_receive_Cash":true
+            "create_receipt":true,
+            "view_all_receipt":true,
+            "view_receipt":true,
+            "update_receipt":true,
+            "delete_receipt":true
         },
         "Workers" :{
-            "create_receive_Cash":true,
-            "update_receive_Cash":true,
-            "delete_receive_Cash":true,
-            "view_receive_Cash":true,
-            "view_all_receive_Cash":true
+            "create_receipt":true,
+            "view_all_receipt":true,
+            "view_receipt":true,
+            "update_receipt":true,
+            "delete_receipt":true
         },
         "Other" :{
-            "create_receive_Cash":true,
-            "update_receive_Cash":true,
-            "delete_receive_Cash":true,
-            "view_receive_Cash":true,
-            "view_all_receive_Cash":true
+            "create_receipt":true,
+            "view_all_receipt":true,
+            "view_receipt":true,
+            "update_receipt":true,
+            "delete_receipt":true
         },
     },
     "Payment Cash" : {
         "Super Admin" :{
-            "create_payment_Cash":true,
-            "update_payment_Cash":true,
-            "delete_payment_Cash":true,
-            "view_payment_Cash":true,
-            "view_all_payment_Cash":true
+            "create_payment":true,
+            "update_payment":true,
+            "delete_payment":true,
+            "view_payment":true,
+            "view_all_payment":true
         },
         "Admin" :{
-            "create_payment_Cash":true,
-            "update_payment_Cash":true,
-            "delete_payment_Cash":true,
-            "view_payment_Cash":true,
-            "view_all_payment_Cash":true
+            "create_payment":true,
+            "update_payment":true,
+            "delete_payment":true,
+            "view_payment":true,
+            "view_all_payment":true
         },
         "Account" :{
-            "create_payment_Cash":true,
-            "update_payment_Cash":true,
-            "delete_payment_Cash":true,
-            "view_payment_Cash":true,
-            "view_all_payment_Cash":true
+            "create_payment":true,
+            "update_payment":true,
+            "delete_payment":true,
+            "view_payment":true,
+            "view_all_payment":true
         },
         "Employee" :{
-            "create_payment_Cash":true,
-            "update_payment_Cash":true,
-            "delete_payment_Cash":true,
-            "view_payment_Cash":true,
-            "view_all_payment_Cash":true
+            "create_payment":true,
+            "update_payment":true,
+            "delete_payment":true,
+            "view_payment":true,
+            "view_all_payment":true
         },
         "Workers" :{
-            "create_payment_Cash":true,
-            "update_payment_Cash":true,
-            "delete_payment_Cash":true,
-            "view_payment_Cash":true,
-            "view_all_payment_Cash":true
+            "create_payment":true,
+            "update_payment":true,
+            "delete_payment":true,
+            "view_payment":true,
+            "view_all_payment":true
         },
         "Other" :{
-            "create_payment_Cash":true,
-            "update_payment_Cash":true,
-            "delete_payment_Cash":true,
-            "view_payment_Cash":true,
-            "view_all_payment_Cash":true
+            "create_payment":true,
+            "update_payment":true,
+            "delete_payment":true,
+            "view_payment":true,
+            "view_all_payment":true
         },
     },
     "Purchase Cash" : {
@@ -1525,7 +1524,8 @@ exports.permissions = {
             "view_one_account": true,
             "update_account": true,
             "view_all_account": true,
-            "delete_account": true
+            "delete_account": true,
+            "view_all_bank_account": true
         },
         "Admin" :{
             "view_all_account_group":true,
@@ -1533,7 +1533,8 @@ exports.permissions = {
             "view_one_account": true,
             "update_account": true,
             "view_all_account": true,
-            "delete_account": true
+            "delete_account": true,
+            "view_all_bank_account": true
         },
         "Account" :{
             "view_all_account_group":true,
@@ -1541,7 +1542,8 @@ exports.permissions = {
             "view_one_account": true,
             "update_account": true,
             "view_all_account": true,
-            "delete_account": true
+            "delete_account": true,
+            "view_all_bank_account": true
         },
         "Employee" :{
             "view_all_account_group":true,
@@ -1549,7 +1551,8 @@ exports.permissions = {
             "view_one_account": true,
             "update_account": true,
             "view_all_account": true,
-            "delete_account": true
+            "delete_account": true,
+            "view_all_bank_account": true
         },
         "Workers" :{
             "view_all_account_group":true,
@@ -1557,7 +1560,8 @@ exports.permissions = {
             "view_one_account": true,
             "update_account": true,
             "view_all_account": true,
-            "delete_account": true
+            "delete_account": true,
+            "view_all_bank_account": true
         },
         "Other" :{
             "view_all_account_group":true,
@@ -1565,7 +1569,8 @@ exports.permissions = {
             "view_one_account": true,
             "update_account": true,
             "view_all_account": true,
-            "delete_account": true
+            "delete_account": true,
+            "view_all_bank_account": true
         }
     },
     "Account Cash" : {

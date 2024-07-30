@@ -4,7 +4,7 @@ const {Sequelize} = require("sequelize");
 const Ledger = require("../models/Ledger");
 const purchaseInvoice = require("../models/purchaseInvoice");
 const salesInvoice = require("../models/salesInvoice");
-const receiveBank = require("../models/receiveBank");
+const receiveBank = require("../models/Receipt");
 const paymentBank = require("../models/Payment");
 exports.normal_ledger = async (req, res) => {
     try {

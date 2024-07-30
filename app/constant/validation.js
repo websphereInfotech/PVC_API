@@ -2269,3 +2269,17 @@ exports.paymentAccountId = async function(req, res, next){
   return next()
 }
 
+exports.receiptAccountId = async function(req, res, next){
+  const {receiptAccountId} = req.body;
+  const receiptAccountIdSchema = Joi.number().required().messages({
+    "number.base": "Receipt Account Id must be a number",
+    "any.required": "Required Field : Receipt Account",
+  })
+
+  const {error} = receiptAccountIdSchema.validate(receiptAccountId);
+  if(error){
+    return res.status(400).json({status: "false", message: error.message})
+  }
+  return next()
+}
+

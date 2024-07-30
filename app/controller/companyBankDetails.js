@@ -3,7 +3,7 @@ const company = require("../models/company");
 const companyBankDetails = require("../models/companyBankDetails");
 const companyBankLedger = require("../models/companyBankLedger");
 const paymentBank = require("../models/Payment");
-const receiveBank = require("../models/receiveBank");
+const receiveBank = require("../models/Receipt");
 const companySingleBank = require("../models/companySingleBank");
 const companySingleBankLedger = require("../models/companySingleBankLedger");
 

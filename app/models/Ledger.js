@@ -4,7 +4,7 @@ const SalesInvoice = require("./salesInvoice");
 const PurchaseInvoice = require("./purchaseInvoice");
 const company = require("./company");
 const Payment = require("./Payment");
-const Receipt = require("./receiveBank");
+const Receipt = require("./Receipt");
 const Account = require("./Account");
 
 const Ledger = sequelize.define("P_Ledger", {

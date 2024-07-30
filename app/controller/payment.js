@@ -346,9 +346,19 @@ exports.create_payment_bank = async (req, res) => {
     //   date: paymentdate,
     //   accountId: accountId,
     // });
-
+    // For Account
     await Ledger.create({
-
+      accountId: accountId,
+      companyId: companyId,
+      paymentId: data.id,
+      date: paymentdate
+    })
+    // For Payment Account...
+    await Ledger.create({
+      accountId: paymentAccountId,
+      companyId: companyId,
+      paymentId: data.id,
+      date: paymentdate
     })
 
     const existsingBalance = await companyBalance.findOne({
