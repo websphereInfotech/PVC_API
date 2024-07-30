@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 const receiveBank = require('./receiveBank');
 const company = require('./company');
-const paymentBank = require('./paymentBank');
+const paymentBank = require('./Payment');
 
 const companyBankLedger = sequelize.define('P_companyBankLedger',{
     companyId: {type :DataTypes.INTEGER},

@@ -2254,3 +2254,18 @@ exports.accountId = async function(req, res, next){
   }
   return next()
 }
+
+exports.paymentAccountId = async function(req, res, next){
+  const {paymentAccountId} = req.body;
+  const paymentAccountIdSchema = Joi.number().required().messages({
+    "number.base": "Payment Account Id must be a number",
+    "any.required": "Required Field : Payment Account",
+  })
+
+  const {error} = paymentAccountIdSchema.validate(paymentAccountId);
+  if(error){
+    return res.status(400).json({status: "false", message: error.message})
+  }
+  return next()
+}
+

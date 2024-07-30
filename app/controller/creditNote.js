@@ -5,6 +5,7 @@ const customer = require("../models/customer");
 const product = require("../models/product");
 const Account = require("../models/Account");
 const User = require("../models/user");
+const AccountDetail = require("../models/AccountDetail");
 
 exports.create_creditNote = async (req, res) => {
   try {
@@ -291,7 +292,7 @@ exports.get_all_creditNote = async (req, res) => {
           as: "items",
           include: [{ model: product, as: "CreditProduct" }],
         },
-        { model: Account, as: "accountCreditNo" },
+        { model: Account, as: "accountCreditNo", include: {model: AccountDetail, as: "accountDetail"} },
         { model: User, as: "creditCreateUser", attributes: ["username"] },
         { model: User, as: "creditUpdateUser", attributes: ["username"] },
       ],
@@ -320,7 +321,7 @@ exports.view_single_creditNote = async (req, res) => {
           as: "items",
           include: [{ model: product, as: "CreditProduct" }],
         },
-        { model: Account, as: "accountCreditNo" },
+        { model: Account, as: "accountCreditNo", include: {model: AccountDetail, as: "accountDetail"} },
       ],
     });
     if (!data) {

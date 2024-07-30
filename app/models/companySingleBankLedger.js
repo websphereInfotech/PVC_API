@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 const receiveBank = require('./receiveBank');
 const company = require('./company');
-const paymentBank = require('./paymentBank');
+const paymentBank = require('./Payment');
 const companyBankDetails = require('./companyBankDetails');
 
 const companySingleBankLedger = sequelize.define('P_companySingleBankLedger',{

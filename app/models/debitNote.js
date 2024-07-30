@@ -1,12 +1,12 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
-const customer = require("./customer");
 const purchaseInvoice = require("./purchaseInvoice");
 const company = require("./company");
 const User = require("./user");
+const Account = require("./Account");
 
 const debitNote = sequelize.define("P_debitNote", {
-  customerId: {
+  accountId: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
@@ -58,11 +58,10 @@ debitNote.belongsTo(User, {
 company.hasMany(debitNote, {foreignKey:'companyId',onDelete:'CASCADE'});
 debitNote.belongsTo(company, {foreignKey:'companyId',onDelete:'CASCADE'});
 
-customer.hasMany(debitNote, {foreignKey:'customerId', onDelete:'CASCADE', as:'DebitCustomer'});
-debitNote.belongsTo(customer, {foreignKey:'customerId', onDelete:'CASCADE', as:'DebitCustomer'});
+Account.hasMany(debitNote, {foreignKey:'accountId', onDelete:'CASCADE', as:'accountDebitNo'});
+debitNote.belongsTo(Account, {foreignKey:'accountId', onDelete:'CASCADE', as:'accountDebitNo'});
 
 purchaseInvoice.hasMany(debitNote, {foreignKey:'invoiceId', onDelete:'CASCADE',as:'purchaseData'});
 debitNote.belongsTo(purchaseInvoice, {foreignKey:'invoiceId',onDelete:'CASCADE',as:'purchaseData'});
-
 
 module.exports = debitNote;

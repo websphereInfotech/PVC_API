@@ -7,9 +7,11 @@ const companyBankDetails = require("../models/companyBankDetails");
 const companyBankLedger = require("../models/companyBankLedger");
 const companySingleBank = require("../models/companySingleBank");
 const companySingleBankLedger = require("../models/companySingleBankLedger");
-const paymentBank = require("../models/paymentBank");
+const Payment = require("../models/Payment");
 const User = require("../models/user");
+const Ledger = require("../models/Ledger");
 const vendor = require("../models/vendor");
+const Account = require("../models/Account");
 const vendorLedger = require("../models/vendorLedger");
 const {Sequelize} = require("sequelize");
 
@@ -274,21 +276,15 @@ exports.create_payment_bank = async (req, res) => {
     const companyId = req.user.companyId;
     const {
       voucherno,
-      vendorId,
       paymentdate,
       mode,
       referance,
       accountId,
+      paymentAccountId,
       amount,
       paymentType
     } = req.body;
-
-    if (!vendorId || vendorId === "" || vendorId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required field: Vendor" });
-    }
-    const voucherNoExist = await paymentBank.findOne({
+    const voucherNoExist = await Payment.findOne({
       where: {
         voucherno: voucherno,
         companyId: companyId
@@ -299,61 +295,64 @@ exports.create_payment_bank = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Voucher Number Already Exists" });
     }
-    const vendordata = await vendor.findOne({
-      where: { id: vendorId, companyId: req.user.companyId },
+    const accountExist = await Account.findOne({
+      where: { id: accountId, companyId: companyId, isActive: true },
     });
-    if (!vendordata) {
+    if (!accountExist) {
       return res
         .status(404)
-        .json({ status: "false", message: "Vendor Not Found" });
+        .json({ status: "false", message: "Account Not Found" });
     }
 
-    const accountData = await companyBankDetails.findOne({
-      where: { id: accountId, companyId: req.user.companyId },
+    const paymentAccountExist = await Account.findOne({
+      where: { id: paymentAccountId, companyId: companyId, isActive: true },
     });
-
-    if (!accountData) {
+    if (!paymentAccountExist) {
       return res
-        .status(404)
-        .json({ status: "false", message: "Bank Account Not Found" });
+          .status(404)
+          .json({ status: "false", message: "Payment Account Not Found" });
     }
 
-    const data = await paymentBank.create({
+    const data = await Payment.create({
       voucherno,
-      vendorId,
+      accountId,
+      paymentAccountId,
       paymentdate,
       mode,
       referance,
-      accountId,
       amount,
       paymentType,
       createdBy: user,
       updatedBy: user,
-      companyId: req.user.companyId,
+      companyId: companyId,
     });
 
-    await vendorLedger.create({
-      vendorId,
-      creditId: data.id,
-      date: paymentdate,
-      companyId: req.user.companyId,
-    });
+    // await vendorLedger.create({
+    //   vendorId,
+    //   creditId: data.id,
+    //   date: paymentdate,
+    //   companyId: req.user.companyId,
+    // });
 
-    await companyBankLedger.create({
-      companyId: req.user.companyId,
-      debitId: data.id,
-      date: paymentdate,
-    });
+    // await companyBankLedger.create({
+    //   companyId: req.user.companyId,
+    //   debitId: data.id,
+    //   date: paymentdate,
+    // });
 
-    await companySingleBankLedger.create({
-      companyId: req.user.companyId,
-      debitId: data.id,
-      date: paymentdate,
-      accountId: accountId,
-    });
+    // await companySingleBankLedger.create({
+    //   companyId: req.user.companyId,
+    //   debitId: data.id,
+    //   date: paymentdate,
+    //   accountId: accountId,
+    // });
+
+    await Ledger.create({
+
+    })
 
     const existsingBalance = await companyBalance.findOne({
-      where: { companyId: req.user.companyId },
+      where: { companyId: companyId },
     });
 
     if (existsingBalance) {
@@ -361,14 +360,14 @@ exports.create_payment_bank = async (req, res) => {
       await existsingBalance.save();
     }
 
-    const balanceExists = await companySingleBank.findOne({
-      where: { companyId: req.user.companyId, accountId: accountId },
-    });
-
-    if (balanceExists) {
-      balanceExists.balance -= amount;
-      await balanceExists.save();
-    }
+    // const balanceExists = await companySingleBank.findOne({
+    //   where: { companyId: companyId, accountId: accountId },
+    // });
+    //
+    // if (balanceExists) {
+    //   balanceExists.balance -= amount;
+    //   await balanceExists.save();
+    // }
 
     return res.status(200).json({
       status: "true",
@@ -389,16 +388,16 @@ exports.update_payment_bank = async (req, res) => {
     const { id } = req.params;
     const {
       voucherno,
-      vendorId,
       paymentdate,
       mode,
       referance,
       accountId,
       amount,
-      paymentType
+      paymentType,
+      paymentAccountId
     } = req.body;
 
-    const paymentdata = await paymentBank.findOne({
+    const paymentdata = await Payment.findOne({
       where: { id: id, companyId: req.user.companyId },
     });
     if (!paymentdata) {
@@ -406,7 +405,7 @@ exports.update_payment_bank = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Bank Payment Not Found" });
     }
-    const voucherNoExist = await paymentBank.findOne({
+    const voucherNoExist = await Payment.findOne({
       where: {
         voucherno: voucherno,
         companyId: companyId,
@@ -418,32 +417,26 @@ exports.update_payment_bank = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Voucher Number Already Exists" });
     }
-    if (!vendorId || vendorId === "" || vendorId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required filed :Vendor" });
-    }
-    const vendordata = await vendor.findOne({
-      where: { id: vendorId, companyId: req.user.companyId },
+    const accountExist = await Account.findOne({
+      where: { id: accountId, companyId: companyId, isActive: true },
     });
-    if (!vendordata) {
+    if (!accountExist) {
       return res
-        .status(404)
-        .json({ status: "false", message: "Vendor Not Found" });
+          .status(404)
+          .json({ status: "false", message: "Account Not Found" });
     }
-
-    const accountData = await companyBankDetails.findOne({
-      where: { id: accountId, companyId: req.user.companyId },
+    const paymentAccountExist = await Account.findOne({
+      where: { id: paymentAccountId, companyId: companyId, isActive: true },
     });
-    if (!accountData) {
+    if (!paymentAccountExist) {
       return res
-        .status(404)
-        .json({ status: "false", message: "Bank Account Not Found" });
+          .status(404)
+          .json({ status: "false", message: "Payment Account Not Found" });
     }
-    await paymentBank.update(
+    await Payment.update(
       {
         voucherno,
-        vendorId,
+        paymentAccountId,
         paymentdate,
         mode,
         referance,
@@ -452,37 +445,37 @@ exports.update_payment_bank = async (req, res) => {
         paymentType,
         createdBy: paymentdata.createdBy,
         updatedBy: user,
-        companyId: req.user.companyId,
+        companyId: companyId,
       },
       { where: { id } }
     );
 
-    await vendorLedger.update(
-      {
-        vendorId,
-        date: paymentdate,
-      },
-      { where: { creditId: id } }
-    );
-
-    await companyBankLedger.update(
-      {
-        companyId: req.user.companyId,
-        date: paymentdate,
-      },
-      { where: { debitId: id } }
-    );
-
-    await companySingleBankLedger.update(
-      {
-        companyId: req.user.companyId,
-        accountId: accountId,
-        date: paymentdate,
-        },
-        { where: { debitId: id } }
-        );
+    // await vendorLedger.update(
+    //   {
+    //     vendorId,
+    //     date: paymentdate,
+    //   },
+    //   { where: { creditId: id } }
+    // );
+    //
+    // await companyBankLedger.update(
+    //   {
+    //     companyId: req.user.companyId,
+    //     date: paymentdate,
+    //   },
+    //   { where: { debitId: id } }
+    // );
+    //
+    // await companySingleBankLedger.update(
+    //   {
+    //     companyId: req.user.companyId,
+    //     accountId: accountId,
+    //     date: paymentdate,
+    //     },
+    //     { where: { debitId: id } }
+    //     );
         const existingBalance = await companyBalance.findOne({
-          where: { companyId: req.user.companyId },
+          where: { companyId: companyId },
           });
 
           const balanceChange = amount - paymentdata.amount;
@@ -492,22 +485,22 @@ exports.update_payment_bank = async (req, res) => {
             {
               balance: newBalance,
             },
-            { where: { companyId: req.user.companyId } }
+            { where: { companyId: companyId } }
           );
-    const balanceExists = await companySingleBank.findOne({
-      where: { accountId: accountId, companyId: req.user.companyId },
-    });
-
-    const changeBalance = amount - paymentdata.amount;
-    const balanceNew = balanceExists.balance - changeBalance;
-
-    await companySingleBank.update(
-      {
-        balance: balanceNew,
-      },
-      { where: { companyId: req.user.companyId, accountId: accountId } }
-    );
-    const data = await paymentBank.findOne({
+    // const balanceExists = await companySingleBank.findOne({
+    //   where: { accountId: accountId, companyId: companyId },
+    // });
+    //
+    // const changeBalance = amount - paymentdata.amount;
+    // const balanceNew = balanceExists.balance - changeBalance;
+    //
+    // await companySingleBank.update(
+    //   {
+    //     balance: balanceNew,
+    //   },
+    //   { where: { companyId: req.user.companyId, accountId: accountId } }
+    // );
+    const data = await Payment.findOne({
       where: { id: id, companyId: req.user.companyId },
     });
 
@@ -526,9 +519,10 @@ exports.update_payment_bank = async (req, res) => {
 exports.delete_payment_bank = async (req, res) => {
   try {
     const { id } = req.params;
+    const {companyId} = req.user;
 
-    const data = await paymentBank.destroy({
-      where: { id: id, companyId: req.user.companyId },
+    const data = await Payment.destroy({
+      where: { id: id, companyId: companyId },
     });
     if (data) {
       return res
@@ -549,25 +543,20 @@ exports.delete_payment_bank = async (req, res) => {
 exports.view_payment_bank = async (req, res) => {
   try {
     const { id } = req.params;
-    const data = await paymentBank.findOne({
-      where: { id: id, companyId: req.user.companyId },
+    const {companyId} = req.user;
+    const data = await Payment.findOne({
+      where: { id: id, companyId: companyId },
       include: [
-        { model: vendor, as: "paymentData" },
-        { model: companyBankDetails, as: "paymentBank" },
+        { model: Account, as: "accountPayment" },
+        { model: Account, as: "paymentAccount" },
       ],
     });
 
-    if (data) {
       return res.status(200).json({
         status: "true",
         message: "Bank Payment Show Successfully",
         data: data,
       });
-    } else {
-      return res
-        .status(404)
-        .json({ status: "false", message: "Bank Payment Not Found" });
-    }
   } catch (error) {
     console.log(error);
     return res
@@ -577,11 +566,11 @@ exports.view_payment_bank = async (req, res) => {
 };
 exports.view_all_payment_bank = async (req, res) => {
   try {
-    const data = await paymentBank.findAll({
+    const data = await Payment.findAll({
       where: { companyId: req.user.companyId },
       include: [
-        { model: vendor, as: "paymentData" },
-        { model: companyBankDetails, as: "paymentBank" },
+        { model: Account, as: "accountPayment" },
+        { model: Account, as: "paymentAccount" },
         { model: User, as: "paymentCreateUser", attributes: ["username"] },
         { model: User, as: "paymentUpdateUser", attributes: ["username"] },
       ],

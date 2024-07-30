@@ -3,7 +3,7 @@ const sequelize = require("../config/index");
 const SalesInvoice = require("./salesInvoice");
 const PurchaseInvoice = require("./purchaseInvoice");
 const company = require("./company");
-const Payment = require("./paymentBank");
+const Payment = require("./Payment");
 const Receipt = require("./receiveBank");
 const Account = require("./Account");
 

@@ -5,7 +5,7 @@ const Ledger = require("../models/Ledger");
 const purchaseInvoice = require("../models/purchaseInvoice");
 const salesInvoice = require("../models/salesInvoice");
 const receiveBank = require("../models/receiveBank");
-const paymentBank = require("../models/paymentBank");
+const paymentBank = require("../models/Payment");
 exports.normal_ledger = async (req, res) => {
     try {
         const { id } = req.params;

@@ -1,14 +1,13 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
-const vendor = require("./vendor");
-const companyBankDetails = require("./companyBankDetails");
+const Account = require("./Account");
 const User = require("./user");
 const company = require("./company");
 const { PAYMENT_TYPE} = require("../constant/constant");
 
-const paymentBank = sequelize.define("P_paymentBank", {
+const Payment = sequelize.define("P_Payment", {
   voucherno: { type: DataTypes.INTEGER },
-  vendorId: { type: DataTypes.INTEGER },
+  paymentAccountId: { type: DataTypes.INTEGER, allowNull: false },
   paymentdate: { type: DataTypes.DATEONLY },
   mode: {
     type: DataTypes.ENUM(
@@ -24,7 +23,7 @@ const paymentBank = sequelize.define("P_paymentBank", {
       "Other"
     ),
   },
-  accountId: { type: DataTypes.INTEGER },
+  accountId: { type: DataTypes.INTEGER, allowNull: false },
   amount: { type: DataTypes.INTEGER },
   createdBy: { type: DataTypes.INTEGER },
   updatedBy: { type: DataTypes.INTEGER },
@@ -36,44 +35,44 @@ const paymentBank = sequelize.define("P_paymentBank", {
   }
 });
 
-company.hasMany(paymentBank, { foreignKey: "companyId", onDelete: "CASCADE" });
-paymentBank.belongsTo(company, {
+company.hasMany(Payment, { foreignKey: "companyId", onDelete: "CASCADE" });
+Payment.belongsTo(company, {
   foreignKey: "companyId",
   onDelete: "CASCADE",
 });
 
-User.hasMany(paymentBank, { foreignKey: "createdBy", as: "paymentCreateUser" });
-paymentBank.belongsTo(User, {
+User.hasMany(Payment, { foreignKey: "createdBy", as: "paymentCreateUser" });
+Payment.belongsTo(User, {
   foreignKey: "createdBy",
   as: "paymentCreateUser",
 });
 
-User.hasMany(paymentBank, { foreignKey: "updatedBy", as: "paymentUpdateUser" });
-paymentBank.belongsTo(User, {
+User.hasMany(Payment, { foreignKey: "updatedBy", as: "paymentUpdateUser" });
+Payment.belongsTo(User, {
   foreignKey: "updatedBy",
   as: "paymentUpdateUser",
 });
 
-vendor.hasMany(paymentBank, {
-  foreignKey: "vendorId",
-  onDelete: "CASCADE",
-  as: "paymentData",
-});
-paymentBank.belongsTo(vendor, {
-  foreignKey: "vendorId",
-  onDelete: "CASCADE",
-  as: "paymentData",
-});
-
-companyBankDetails.hasMany(paymentBank, {
+Account.hasMany(Payment, {
   foreignKey: "accountId",
   onDelete: "CASCADE",
-  as: "paymentBank",
+  as: "accountPayment",
 });
-paymentBank.belongsTo(companyBankDetails, {
+Payment.belongsTo(Account, {
   foreignKey: "accountId",
   onDelete: "CASCADE",
-  as: "paymentBank",
+  as: "accountPayment",
 });
 
-module.exports = paymentBank;
+Account.hasMany(Payment, {
+  foreignKey: "paymentAccountId",
+  onDelete: "CASCADE",
+  as: "paymentAccount",
+});
+Payment.belongsTo(Account, {
+  foreignKey: "paymentAccountId",
+  onDelete: "CASCADE",
+  as: "paymentAccount",
+});
+
+module.exports = Payment;
