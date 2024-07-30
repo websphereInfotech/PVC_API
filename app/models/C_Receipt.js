@@ -28,8 +28,7 @@ C_Receipt.belongsTo(User,{foreignKey:'createdBy', as:'receiveCreate'});
 User.hasMany(C_Receipt,{foreignKey:'updatedBy', as:'receiveUpdate'});
 C_Receipt.belongsTo(User,{foreignKey:'updatedBy', as:'receiveUpdate'});
 
-Account.hasMany(C_Receipt, {foreignKey:'customerId',onDelete:'CASCADE', as:'accountReceiptCash'});
-C_Receipt.belongsTo(Account, {foreignKey:'customerId', onDelete:'CASCADE', as:'accountReceiptCash'});
-
+Account.hasMany(C_Receipt, {foreignKey:'accountId',onDelete:'CASCADE', as:'accountReceiptCash'});
+C_Receipt.belongsTo(Account, {foreignKey:'accountId', onDelete:'CASCADE', as:'accountReceiptCash'});
 
 module.exports = C_Receipt;

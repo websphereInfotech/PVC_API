@@ -1,18 +1,10 @@
 const C_companyBalance = require("../models/C_companyBalance");
-const C_PaymentCash = require("../models/C_paymentCash");
-const C_vendor = require("../models/C_vendor");
-const C_vendorLedger = require("../models/C_vendorLedger");
+const C_Payment = require("../models/C_Payment");
 const companyBalance = require("../models/companyBalance");
-const companyBankDetails = require("../models/companyBankDetails");
-const companyBankLedger = require("../models/companyBankLedger");
-const companySingleBank = require("../models/companySingleBank");
-const companySingleBankLedger = require("../models/companySingleBankLedger");
 const Payment = require("../models/Payment");
 const User = require("../models/user");
 const Ledger = require("../models/Ledger");
-const vendor = require("../models/vendor");
 const Account = require("../models/Account");
-const vendorLedger = require("../models/vendorLedger");
 const {Sequelize} = require("sequelize");
 
 /*=============================================================================================================
@@ -23,14 +15,9 @@ exports.C_create_paymentCash = async (req, res) => {
   try {
     const user = req.user.userId;
     const companyId = req.user.companyId;
-    const { vendorId,paymentNo, amount, description, date } = req.body;
+    const { accountId,paymentNo, amount, description, date } = req.body;
 
-    if (!vendorId || vendorId === "" || vendorId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required filed :Vendor" });
-    }
-    const paymentNoExist = await C_PaymentCash.findOne({
+    const paymentNoExist = await C_Payment.findOne({
       where: {
         paymentNo: paymentNo,
         companyId: companyId
@@ -41,13 +28,13 @@ exports.C_create_paymentCash = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Payment Number Already Exists" });
     }
-    const vendorData = await C_vendor.findOne({
-      where: { id: vendorId, companyId: req.user.companyId },
+    const accountExist = await Account.findOne({
+      where: { id: accountId, companyId: companyId, isActive: true },
     });
-    if (!vendorData) {
+    if (!accountExist) {
       return res
         .status(404)
-        .json({ status: "false", message: "Vendor Not Found" });
+        .json({ status: "false", message: "Account Not Found" });
     }
 
     if (description.length > 20) {
@@ -56,26 +43,26 @@ exports.C_create_paymentCash = async (req, res) => {
         message: "Description Cannot Have More Then 20 Characters",
       });
     }
-    const data = await C_PaymentCash.create({
-      vendorId,
+    const data = await C_Payment.create({
+      accountId,
       amount,
       description,
       date,
       paymentNo: paymentNo,
       createdBy: user,
       updatedBy: user,
-      companyId: req.user.companyId,
+      companyId: companyId,
     });
 
-    await C_vendorLedger.create({
-      vendorId,
-      creditId: data.id,
-      date,
-      companyId: req.user.companyId,
-    });
+    // await C_vendorLedger.create({
+    //   vendorId,
+    //   creditId: data.id,
+    //   date,
+    //   companyId: req.user.companyId,
+    // });
 
     const existingBalance = await C_companyBalance.findOne({
-      where: { companyId: req.user.companyId },
+      where: { companyId: companyId },
     });
     if (existingBalance) {
       existingBalance.balance -= amount;
@@ -96,26 +83,21 @@ exports.C_create_paymentCash = async (req, res) => {
 
 exports.C_get_all_paymentCash = async (req, res) => {
   try {
-    const data = await C_PaymentCash.findAll({
-      where: { companyId: req.user.companyId },
+    const {companyId} = req.user;
+    const data = await C_Payment.findAll({
+      where: { companyId: companyId },
       include: [
-        { model: C_vendor, as: "PaymentVendor" },
+        { model: Account, as: "accountPaymentCash" },
         { model: User, as: "paymentCreate", attributes: ["username"] },
         { model: User, as: "paymentUpdate", attributes: ["username"] },
       ],
       order: [["createdAt", "DESC"]],
     });
-    if (data) {
       return res.status(200).json({
         status: "true",
         message: "Payment Cash Data Fetch Successfully",
         data: data,
       });
-    } else {
-      return res
-        .status(404)
-        .json({ status: "false", message: "Payment Cash not found" });
-    }
   } catch (error) {
     console.log(error);
     return res
@@ -127,9 +109,10 @@ exports.C_get_all_paymentCash = async (req, res) => {
 exports.C_view_paymentCash = async (req, res) => {
   try {
     const { id } = req.params;
-    const data = await C_PaymentCash.findOne({
-      where: { id: id, companyId: req.user.companyId },
-      include: [{ model: C_vendor, as: "PaymentVendor" }],
+    const {companyId} = req.user;
+    const data = await C_Payment.findOne({
+      where: { id: id, companyId: companyId },
+      include: [{ model: Account, as: "accountPaymentCash" }],
     });
     if (data) {
       return res.status(200).json({
@@ -155,14 +138,8 @@ exports.C_update_paymentCash = async (req, res) => {
     const user = req.user.userId;
     const companyId = req.user.companyId;
     const { id } = req.params;
-    const { vendorId, paymentNo, amount, description, date } = req.body
-
-    if (!vendorId || vendorId === "" || vendorId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required filed :Vendor" });
-    }
-    const paymentNoExist = await C_PaymentCash.findOne({
+    const { accountId, paymentNo, amount, description, date } = req.body
+    const paymentNoExist = await C_Payment.findOne({
       where: {
         paymentNo: paymentNo,
         companyId: companyId,
@@ -174,16 +151,16 @@ exports.C_update_paymentCash = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Payment Number Already Exists" });
     }
-    const vendorData = await C_vendor.findOne({
-      where: { id: vendorId, companyId: req.user.companyId },
+    const accountExist = await Account.findOne({
+      where: { id: accountId, companyId: companyId, isActive: true },
     });
-    if (!vendorData) {
+    if (!accountExist) {
       return res
         .status(404)
-        .json({ status: "false", message: "Vendor Not Found" });
+        .json({ status: "false", message: "Account Not Found" });
     }
-    const paymentId = await C_PaymentCash.findOne({
-      where: { id: id, companyId: req.user.companyId },
+    const paymentId = await C_Payment.findOne({
+      where: { id: id, companyId: companyId },
     });
     if (!paymentId) {
       return res
@@ -191,30 +168,30 @@ exports.C_update_paymentCash = async (req, res) => {
         .json({ status: "false", message: "Payment Cash Not Found" });
     }
 
-    await C_PaymentCash.update(
+    await C_Payment.update(
       {
-        vendorId,
+        accountId,
         amount,
         description,
         date,
         paymentNo,
         createdBy: paymentId.createdBy,
         updatedBy: user,
-        companyId: req.user.companyId,
+        companyId: companyId,
       },
       { where: { id: id } }
     );
 
-    await C_vendorLedger.update(
-      {
-        vendorId,
-        date,
-      },
-      { where: { creditId: id } }
-    );
+    // await C_vendorLedger.update(
+    //   {
+    //     vendorId,
+    //     date,
+    //   },
+    //   { where: { creditId: id } }
+    // );
 
     const existingBalance = await C_companyBalance.findOne({
-      where: { companyId: req.user.companyId },
+      where: { companyId: companyId },
     });
 
     const balanceChange = amount - paymentId.amount;
@@ -224,10 +201,10 @@ exports.C_update_paymentCash = async (req, res) => {
       {
         balance: newBalance,
       },
-      { where: { companyId: req.user.companyId } }
+      { where: { companyId: companyId } }
     );
-    const data = await C_PaymentCash.findOne({
-      where: { id: id, companyId: req.user.companyId },
+    const data = await C_Payment.findOne({
+      where: { id: id, companyId: companyId },
     });
 
     return res.status(200).json({
@@ -246,9 +223,10 @@ exports.C_update_paymentCash = async (req, res) => {
 exports.C_delete_paymentCash = async (req, res) => {
   try {
     const { id } = req.params;
+    const {companyId} = req.user;
 
-    const data = await C_PaymentCash.destroy({
-      where: { id: id, companyId: req.user.companyId },
+    const data = await C_Payment.destroy({
+      where: { id: id, companyId: companyId },
     });
     if (data) {
       return res
@@ -381,7 +359,7 @@ exports.create_payment_bank = async (req, res) => {
 
     return res.status(200).json({
       status: "true",
-      message: "Bank Payment Create Successfully",
+      message: "Payment Create Successfully",
       data: data,
     });
   } catch (error) {
@@ -413,7 +391,7 @@ exports.update_payment_bank = async (req, res) => {
     if (!paymentdata) {
       return res
         .status(404)
-        .json({ status: "false", message: "Bank Payment Not Found" });
+        .json({ status: "false", message: "Payment Not Found" });
     }
     const voucherNoExist = await Payment.findOne({
       where: {
@@ -516,7 +494,7 @@ exports.update_payment_bank = async (req, res) => {
 
     return res.status(200).json({
       status: "true",
-      message: "Bank Payment Updated Successfully",
+      message: "Payment Updated Successfully",
       data: data,
     });
   } catch (error) {
@@ -537,11 +515,11 @@ exports.delete_payment_bank = async (req, res) => {
     if (data) {
       return res
         .status(200)
-        .json({ status: "true", message: "Bank Payment Deleted Successfully" });
+        .json({ status: "true", message: "Payment Deleted Successfully" });
     } else {
       return res
         .status(404)
-        .json({ status: "false", message: "Bank Payment Not Found" });
+        .json({ status: "false", message: "Payment Not Found" });
     }
   } catch (error) {
     console.log(error);
@@ -564,7 +542,7 @@ exports.view_payment_bank = async (req, res) => {
 
       return res.status(200).json({
         status: "true",
-        message: "Bank Payment Show Successfully",
+        message: "Payment Show Successfully",
         data: data,
       });
   } catch (error) {
@@ -588,7 +566,7 @@ exports.view_all_payment_bank = async (req, res) => {
 
       return res.status(200).json({
         status: "true",
-        message: "Bank Payment Show Successfully",
+        message: "Payment Show Successfully",
         data: data,
       });
 

@@ -572,7 +572,7 @@ exports.C_create_salesinvoice = async (req, res) => {
     });
     return res.status(200).json({
       status: "true",
-      message: "Sales Invoice Created Successfully",
+      message: "Sales Cash Created Successfully",
       data: data,
     });
   } catch (error) {
@@ -596,7 +596,7 @@ exports.C_update_salesinvoice = async (req, res) => {
     if (!existingInvoice) {
       return res.status(404).json({
         status: "false",
-        message: "Sales Invoice Not Found",
+        message: "Sales Cash Not Found",
       });
     }
 
@@ -726,7 +726,7 @@ exports.C_update_salesinvoice = async (req, res) => {
 
     return res.status(200).json({
       status: "true",
-      message: "Sales Invoice Updated Successfully",
+      message: "Sales Cash Updated Successfully",
       data: updatedInvoice,
     });
   } catch (error) {
@@ -755,11 +755,11 @@ exports.C_get_all_salesInvoice = async (req, res) => {
     if (!data) {
       return res
         .status(404)
-        .json({ status: "false", message: "Sales Invoice Not Found" });
+        .json({ status: "false", message: "Sales Cash Not Found" });
     }
     return res.status(200).json({
       status: "true",
-      message: "Sales Invoice Data Fetch Successfully",
+      message: "Sales Cash Data Fetch Successfully",
       data: data,
     });
   } catch (error) {
@@ -789,7 +789,7 @@ exports.C_view_salesInvoice = async (req, res) => {
     if (!data) {
       return res
         .status(404)
-        .json({ status: "false", message: "Sales Invoice Not Found" });
+        .json({ status: "false", message: "Sales Cash Not Found" });
     }
     return res.status(200).json({
       status: "ture",
@@ -858,7 +858,7 @@ exports.C_view_salesInvoice_pdf = async (req, res)=>{
     if (!data) {
       return res
           .status(404)
-          .json({ status: "false", message: "Sales Invoice Not Found" });
+          .json({ status: "false", message: "Sales Cash Not Found" });
     }
     const html = await renderFile(path.join(__dirname, "../views/salesCash.ejs"),{data})
     htmlToPdf.generatePdf({content: html},{printBackground: true, format: 'A4'}).then((pdf) => {

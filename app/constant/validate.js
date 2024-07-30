@@ -142,9 +142,9 @@ module.exports.validation = function (method) {
     case "update_receiveCash":
       return [accountId, date, receiptNo, amount];
     case "create_paymentCash":
-      return [date, paymentNo, amount];
+      return [accountId, date, paymentNo, amount];
     case "update_paymentCash":
-      return [date, paymentNo, amount];
+      return [accountId, date, paymentNo, amount];
     case "create_claim":
       return [amount, purpose];
     case "update_claim":
