@@ -2,6 +2,7 @@ const { Sequelize } = require("sequelize");
 const ProFormaInvoice = require("../models/ProFormaInvoice");
 const ProFormaInvoiceItem = require("../models/ProFormaInvoiceItem");
 const Account = require("../models/Account");
+const AccountDetail = require("../models/AccountDetail");
 const product = require("../models/product");
 const User = require("../models/user");
 
@@ -137,17 +138,11 @@ exports.get_all_ProFormaInvoice = async (req, res) => {
           as: "items",
           include: [{ model: product, as: "product" }],
         },
-        { model: Account, as: "accountProForma" },
+        { model: Account, as: "accountProForma", include: {model: AccountDetail, as: "accountDetail"} },
         { model: User, as: "proCreateUser", attributes: ["username"] },
         { model: User, as: "proUpdateUser", attributes: ["username"] },
       ],
     });
-
-    if (!allInvoice) {
-      return res
-        .status(404)
-        .json({ status: "false", message: "ProForma Invoice Data not Found" });
-    }
     return res.status(200).json({
       status: "true",
       message: "ProForma Invoice data fetch successfully",
@@ -173,7 +168,7 @@ exports.view_ProFormaInvoice = async (req, res) => {
           as: "items",
           include: [{ model: product, as: "product" }],
         },
-        { model: Account, as: "accountProForma" },
+        { model: Account, as: "accountProForma", include: {model: AccountDetail, as: "accountDetail"} },
       ],
     });
     if (!data) {
