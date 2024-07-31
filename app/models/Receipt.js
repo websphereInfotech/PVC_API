@@ -4,10 +4,11 @@ const User = require("./user");
 const company = require("./company");
 const {PAYMENT_TYPE} = require("../constant/constant");
 const Account = require("./Account");
+const CompanyBankDetails = require("./companyBankDetails");
 
 const Receipt = sequelize.define("P_Receipt", {
   voucherno: { type: DataTypes.INTEGER },
-  receiptAccountId: { type: DataTypes.INTEGER, allowNull: false },
+  bankAccountId: { type: DataTypes.INTEGER, allowNull: false },
   paymentdate: { type: DataTypes.DATEONLY },
   mode: {
     type: DataTypes.ENUM(
@@ -55,15 +56,15 @@ Receipt.belongsTo(Account, {
   as: "accountReceipt",
 });
 
-Account.hasMany(Receipt, {
-  foreignKey: "receiptAccountId",
+CompanyBankDetails.hasMany(Receipt, {
+  foreignKey: "bankAccountId",
   onDelete: "CASCADE",
-  as: "receiptAccount",
+  as: "receiptBankAccount",
 });
-Receipt.belongsTo(Account, {
-  foreignKey: "receiptAccountId",
+Receipt.belongsTo(CompanyBankDetails, {
+  foreignKey: "bankAccountId",
   onDelete: "CASCADE",
-  as: "receiptAccount",
+  as: "receiptBankAccount",
 });
 
 module.exports = Receipt;

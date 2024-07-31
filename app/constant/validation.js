@@ -1960,7 +1960,16 @@ exports.itemCategoryId = async function(req, res, next){
 }
 
 exports.account_validation = async function(req, res, next){
-  const { accountGroupId, ...createPayload } = req.body
+  const { accountGroupId, ...createPayload } = req.body;
+  const accountGroupIdSchema = Joi.number().required().messages({
+    'number.base': 'Account Group is required.',
+    'any.required': 'Account Group is required.'
+  });
+
+  const accountError = accountGroupIdSchema.validate(accountGroupId);
+  if(accountError.error) return res.status(400).json({status: true, message: accountError.error.message});
+
+
   const companyId = req.user.companyId;
   const accountGroupExist = await AccountGroup.findOne({
     where: {
@@ -2114,7 +2123,7 @@ exports.account_validation = async function(req, res, next){
         'any.required': 'Bank Detail is required field.',
         'any.unknown': 'Bank Detail is not required.',
       }),
-      gstNumber: Joi.string().pattern(/^([0-9]){2}([a-zA-Z]){5}([0-9]){4}([a-zA-Z]){1}([0-9]){1}([a-zA-Z]){1}([0-9]){1}?$/).when(Joi.ref('$groupName'), {
+      gstNumber: Joi.string().pattern(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/).when(Joi.ref('$groupName'), {
         is: Joi.valid(
             ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
             ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS
@@ -2244,7 +2253,7 @@ exports.account_validation = async function(req, res, next){
 exports.accountId = async function(req, res, next){
   const {accountId} = req.body;
   const accountIdSchema = Joi.number().required().messages({
-    "number.base": "Account Id must be a number",
+    "number.base": "Required Field : Account.",
     "any.required": "Required Field : Account",
   })
 
@@ -2269,14 +2278,14 @@ exports.paymentAccountId = async function(req, res, next){
   return next()
 }
 
-exports.receiptAccountId = async function(req, res, next){
-  const {receiptAccountId} = req.body;
-  const receiptAccountIdSchema = Joi.number().required().messages({
-    "number.base": "Receipt Account Id must be a number",
-    "any.required": "Required Field : Receipt Account",
+exports.bankAccountId = async function(req, res, next){
+  const {bankAccountId} = req.body;
+  const bankAccountIdSchema = Joi.number().required().messages({
+    "number.base": "Bank Account Id must be a number",
+    "any.required": "Required Field : Bank Account",
   })
 
-  const {error} = receiptAccountIdSchema.validate(receiptAccountId);
+  const {error} = bankAccountIdSchema.validate(bankAccountId);
   if(error){
     return res.status(400).json({status: "false", message: error.message})
   }

@@ -72,7 +72,7 @@ const {
   weight,
   itemUnit, saleNo, purchaseNo, paymentNo, receiptNo, paymentType, supplyInvoiceNo, dutyTime,
   salaryPaymentType, machineName, machineNumber, machineId, cost, name, itemGroupId, itemCategoryId,
-  account_validation, accountId, paymentAccountId, receiptAccountId
+  account_validation, accountId, paymentAccountId, bankAccountId
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -134,9 +134,9 @@ module.exports.validation = function (method) {
     case "C_update_salesinvoice":
       return [accountId, date, saleNo,qty,itemUnit, rate];
     case "C_create_purchase_Cash":
-      return [date, purchaseNo, qty, itemUnit, rate];
+      return [accountId, date, purchaseNo, qty, itemUnit, rate];
     case "C_update_purchase_Cash":
-      return [date, purchaseNo, qty, itemUnit, rate];
+      return [accountId, date, purchaseNo, qty, itemUnit, rate];
     case "create_receiveCash":
       return [accountId, date, receiptNo, amount];
     case "update_receiveCash":
@@ -154,9 +154,9 @@ module.exports.validation = function (method) {
     case "update_company_bankDetails":
       return [bankname, accountnumber, ifsccode, branch];
     case "create_receive_bank":
-      return [accountId, voucherno, receiptAccountId, paymentdate, paymentType, mode, amount];
+      return [accountId, voucherno, bankAccountId, paymentdate, paymentType, mode, amount];
     case "update_receive_bank":
-      return [voucherno, voucherno, receiptAccountId, paymentdate, paymentType, mode, amount];
+      return [voucherno, voucherno, bankAccountId, paymentdate, paymentType, mode, amount];
     case "create_payment_bank":
       return [accountId, voucherno, paymentAccountId, paymentdate, paymentType, mode, amount];
     case "update_payment_bank":
