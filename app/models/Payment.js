@@ -4,10 +4,10 @@ const Account = require("./Account");
 const User = require("./user");
 const company = require("./company");
 const { PAYMENT_TYPE} = require("../constant/constant");
-
+const CompanyBankDetails = require("./companyBankDetails");
 const Payment = sequelize.define("P_Payment", {
   voucherno: { type: DataTypes.INTEGER },
-  paymentAccountId: { type: DataTypes.INTEGER, allowNull: false },
+  bankAccountId: { type: DataTypes.INTEGER, allowNull: false },
   paymentdate: { type: DataTypes.DATEONLY },
   mode: {
     type: DataTypes.ENUM(
@@ -64,15 +64,15 @@ Payment.belongsTo(Account, {
   as: "accountPayment",
 });
 
-Account.hasMany(Payment, {
-  foreignKey: "paymentAccountId",
+CompanyBankDetails.hasMany(Payment, {
+  foreignKey: "bankAccountId",
   onDelete: "CASCADE",
-  as: "paymentAccount",
+  as: "paymentBankAccount",
 });
-Payment.belongsTo(Account, {
-  foreignKey: "paymentAccountId",
+Payment.belongsTo(CompanyBankDetails, {
+  foreignKey: "bankAccountId",
   onDelete: "CASCADE",
-  as: "paymentAccount",
+  as: "paymentBankAccount",
 });
 
 module.exports = Payment;

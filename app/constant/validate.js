@@ -72,7 +72,7 @@ const {
   weight,
   itemUnit, saleNo, purchaseNo, paymentNo, receiptNo, paymentType, supplyInvoiceNo, dutyTime,
   salaryPaymentType, machineName, machineNumber, machineId, cost, name, itemGroupId, itemCategoryId,
-  account_validation, accountId, paymentAccountId, bankAccountId
+  account_validation, accountId, bankAccountId
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -158,9 +158,9 @@ module.exports.validation = function (method) {
     case "update_receive_bank":
       return [voucherno, voucherno, bankAccountId, paymentdate, paymentType, mode, amount];
     case "create_payment_bank":
-      return [accountId, voucherno, paymentAccountId, paymentdate, paymentType, mode, amount];
+      return [accountId, voucherno, bankAccountId, paymentdate, paymentType, mode, amount];
     case "update_payment_bank":
-      return [accountId, voucherno, paymentAccountId, paymentdate, mode, paymentType, amount];
+      return [accountId, voucherno, bankAccountId, paymentdate, mode, paymentType, amount];
     case "create_expense":
       return [ mobileno, voucherno, date, mobileno, email, billno, billdate, payment, expensse,
                taxable, mrp ];

@@ -6,6 +6,7 @@ const User = require("../models/user");
 const Ledger = require("../models/Ledger");
 const Account = require("../models/Account");
 const {Sequelize} = require("sequelize");
+const companyBankDetails = require("../models/companyBankDetails");
 
 /*=============================================================================================================
                                          Type C API
@@ -257,7 +258,7 @@ exports.create_payment_bank = async (req, res) => {
       mode,
       referance,
       accountId,
-      paymentAccountId,
+      bankAccountId,
       amount,
       paymentType
     } = req.body;
@@ -281,19 +282,22 @@ exports.create_payment_bank = async (req, res) => {
         .json({ status: "false", message: "Account Not Found" });
     }
 
-    const paymentAccountExist = await Account.findOne({
-      where: { id: paymentAccountId, companyId: companyId, isActive: true },
+    const accountData = await companyBankDetails.findOne({
+      where: {
+        id: bankAccountId,
+        companyId: companyId,
+      },
     });
-    if (!paymentAccountExist) {
+    if (!accountData) {
       return res
           .status(404)
-          .json({ status: "false", message: "Payment Account Not Found" });
+          .json({ status: "false", message: "Bank Account Not Found" });
     }
 
     const data = await Payment.create({
       voucherno,
       accountId,
-      paymentAccountId,
+      bankAccountId,
       paymentdate,
       mode,
       referance,
@@ -326,13 +330,6 @@ exports.create_payment_bank = async (req, res) => {
     // For Account
     await Ledger.create({
       accountId: accountId,
-      companyId: companyId,
-      paymentId: data.id,
-      date: paymentdate
-    })
-    // For Payment Account...
-    await Ledger.create({
-      accountId: paymentAccountId,
       companyId: companyId,
       paymentId: data.id,
       date: paymentdate
@@ -381,7 +378,7 @@ exports.update_payment_bank = async (req, res) => {
       accountId,
       amount,
       paymentType,
-      paymentAccountId
+      bankAccountId
     } = req.body;
 
     const paymentdata = await Payment.findOne({
@@ -412,18 +409,21 @@ exports.update_payment_bank = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Account Not Found" });
     }
-    const paymentAccountExist = await Account.findOne({
-      where: { id: paymentAccountId, companyId: companyId, isActive: true },
+    const accountData = await companyBankDetails.findOne({
+      where: {
+        id: bankAccountId,
+        companyId: companyId,
+      },
     });
-    if (!paymentAccountExist) {
+    if (!accountData) {
       return res
           .status(404)
-          .json({ status: "false", message: "Payment Account Not Found" });
+          .json({ status: "false", message: "Bank Account Not Found" });
     }
     await Payment.update(
       {
         voucherno,
-        paymentAccountId,
+        bankAccountId,
         paymentdate,
         mode,
         referance,
@@ -535,7 +535,7 @@ exports.view_payment_bank = async (req, res) => {
       where: { id: id, companyId: companyId },
       include: [
         { model: Account, as: "accountPayment" },
-        { model: Account, as: "paymentAccount" },
+        { model: companyBankDetails, as: "paymentBankAccount" },
       ],
     });
 
@@ -557,7 +557,7 @@ exports.view_all_payment_bank = async (req, res) => {
       where: { companyId: req.user.companyId },
       include: [
         { model: Account, as: "accountPayment" },
-        { model: Account, as: "paymentAccount" },
+        { model: companyBankDetails, as: "paymentBankAccount" },
         { model: User, as: "paymentCreateUser", attributes: ["username"] },
         { model: User, as: "paymentUpdateUser", attributes: ["username"] },
       ],
@@ -568,7 +568,6 @@ exports.view_all_payment_bank = async (req, res) => {
         message: "Payment Show Successfully",
         data: data,
       });
-
   } catch (error) {
     console.log(error);
     return res
