@@ -6,6 +6,7 @@ const Account = require("../models/Account");
 const Receipt = require("../models/Receipt");
 const User = require("../models/user");
 const {Sequelize} = require("sequelize");
+const companyBankDetails = require("../models/companyBankDetails");
 
 /*=============================================================================================================
                                            Type C API
@@ -33,8 +34,8 @@ exports.C_create_receiveCash = async (req, res) => {
     });
     if (!accountExist) {
       return res
-        .status(404)
-        .json({ status: "false", message: "Account Not Found" });
+          .status(404)
+          .json({ status: "false", message: "Account Not Found" });
     }
 
     if (description.length > 20) {
@@ -93,8 +94,8 @@ exports.C_create_receiveCash = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res
-      .status(500)
-      .json({ status: "false", message: "Internal Server Error" });
+        .status(500)
+        .json({ status: "false", message: "Internal Server Error" });
   }
 };
 
@@ -109,16 +110,16 @@ exports.C_get_all_receiveCash = async (req, res) => {
         { model: User, as: "receiveUpdate", attributes: ["username"] },
       ],
     });
-      return res.status(200).json({
-        status: "true",
-        message: "Receipt Cash Data Fetch Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Receipt Cash Data Fetch Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
-      .status(500)
-      .json({ status: "false", message: "Internal Server Error" });
+        .status(500)
+        .json({ status: "false", message: "Internal Server Error" });
   }
 };
 
@@ -138,14 +139,14 @@ exports.C_view_receiveCash = async (req, res) => {
       });
     } else {
       return res
-        .status(404)
-        .json({ status: "false", message: "Receipt Cash not found" });
+          .status(404)
+          .json({ status: "false", message: "Receipt Cash not found" });
     }
   } catch (error) {
     console.log(error);
     return res
-      .status(500)
-      .json({ status: "false", message: "Internal Server Error" });
+        .status(500)
+        .json({ status: "false", message: "Internal Server Error" });
   }
 };
 
@@ -174,8 +175,8 @@ exports.C_update_receiveCash = async (req, res) => {
     });
     if (!receiveId) {
       return res
-        .status(404)
-        .json({ status: "false", message: "Receive Cash Not Found" });
+          .status(404)
+          .json({ status: "false", message: "Receive Cash Not Found" });
     }
 
     const accountExist = await Account.findOne({
@@ -188,17 +189,17 @@ exports.C_update_receiveCash = async (req, res) => {
     }
 
     await C_Receipt.update(
-      {
-        accountId,
-        amount,
-        description,
-        date,
-        receiptNo,
-        createdBy: receiveId.createdBy,
-        updatedBy: user,
-        companyId: companyId,
-      },
-      { where: { id: id } }
+        {
+          accountId,
+          amount,
+          description,
+          date,
+          receiptNo,
+          createdBy: receiveId.createdBy,
+          updatedBy: user,
+          companyId: companyId,
+        },
+        { where: { id: id } }
     );
 
     // await C_customerLedger.update(
@@ -239,10 +240,10 @@ exports.C_update_receiveCash = async (req, res) => {
     const balanceNew = balanceExists.balance + changeBalance;
 
     await C_companyBalance.update(
-      {
-        balance: balanceNew,
-      },
-      { where: { companyId: companyId } }
+        {
+          balance: balanceNew,
+        },
+        { where: { companyId: companyId } }
     );
     const data = await C_Receipt.findOne({
       where: { id: id, companyId: companyId },
@@ -256,8 +257,8 @@ exports.C_update_receiveCash = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res
-      .status(500)
-      .json({ status: "false", message: "Internal Server Error" });
+        .status(500)
+        .json({ status: "false", message: "Internal Server Error" });
   }
 };
 
@@ -271,18 +272,18 @@ exports.C_delete_receiveCash = async (req, res) => {
     });
     if (data) {
       return res
-        .status(200)
-        .json({ status: "true", message: "Receipt Cash Deleted Successfully" });
+          .status(200)
+          .json({ status: "true", message: "Receipt Cash Deleted Successfully" });
     } else {
       return res
-        .status(404)
-        .json({ status: "false", message: "Receipt Cash Not Found" });
+          .status(404)
+          .json({ status: "false", message: "Receipt Cash Not Found" });
     }
   } catch (error) {
     console.log(error);
     return res
-      .status(500)
-      .json({ status: "false", message: "Internal Server Error" });
+        .status(500)
+        .json({ status: "false", message: "Internal Server Error" });
   }
 };
 
@@ -295,7 +296,7 @@ exports.create_receive_bank = async (req, res) => {
     const companyId = req.user.companyId;
     const {
       voucherno,
-      receiptAccountId,
+      bankAccountId,
       paymentdate,
       mode,
       referance,
@@ -324,26 +325,25 @@ exports.create_receive_bank = async (req, res) => {
     });
     if (!accountExist) {
       return res
-        .status(404)
-        .json({ status: "false", message: "Account Not Found" });
+          .status(404)
+          .json({ status: "false", message: "Account Not Found" });
     }
-    const receiptAccountExist = await Account.findOne({
+    const accountData = await companyBankDetails.findOne({
       where: {
-        id: receiptAccountId,
+        id: bankAccountId,
         companyId: companyId,
-        isActive: true
       },
     });
-    if (!receiptAccountExist) {
+    if (!accountData) {
       return res
           .status(404)
-          .json({ status: "false", message: "Receipt Account Not Found" });
+          .json({ status: "false", message: "Bank Account Not Found" });
     }
 
 
     const data = await Receipt.create({
       voucherno,
-      receiptAccountId,
+      bankAccountId,
       paymentdate,
       mode,
       referance,
@@ -397,8 +397,8 @@ exports.create_receive_bank = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res
-      .status(500)
-      .json({ status: "false", message: "Internal Server Error" });
+        .status(500)
+        .json({ status: "false", message: "Internal Server Error" });
   }
 };
 exports.update_receive_bank = async (req, res) => {
@@ -409,7 +409,7 @@ exports.update_receive_bank = async (req, res) => {
 
     const {
       voucherno,
-      receiptAccountId,
+      bankAccountId,
       paymentdate,
       mode,
       referance,
@@ -426,8 +426,8 @@ exports.update_receive_bank = async (req, res) => {
     });
     if (!receiveBankId) {
       return res
-        .status(404)
-        .json({ status: "false", message: "Receipt Not Found" });
+          .status(404)
+          .json({ status: "false", message: "Receipt Not Found" });
     }
     const voucherNoExist = await Receipt.findOne({
       where: {
@@ -453,34 +453,33 @@ exports.update_receive_bank = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Account Not Found" });
     }
-    const receiptAccountExist = await Account.findOne({
+    const accountData = await companyBankDetails.findOne({
       where: {
-        id: receiptAccountId,
+        id: bankAccountId,
         companyId: companyId,
-        isActive: true
       },
     });
-    if (!receiptAccountExist) {
+    if (!accountData) {
       return res
           .status(404)
-          .json({ status: "false", message: "Receipt Account Not Found" });
+          .json({ status: "false", message: "Bank Account Not Found" });
     }
 
     await Receipt.update(
-      {
-        voucherno,
-        receiptAccountId,
-        paymentdate,
-        mode,
-        referance,
-        accountId,
-        amount,
-        paymentType,
-        createdBy: receiveBankId.createdBy,
-        updatedBy: user,
-        companyId: companyId,
-      },
-      { where: { id } }
+        {
+          voucherno,
+          bankAccountId,
+          paymentdate,
+          mode,
+          referance,
+          accountId,
+          amount,
+          paymentType,
+          createdBy: receiveBankId.createdBy,
+          updatedBy: user,
+          companyId: companyId,
+        },
+        { where: { id } }
     );
 
     // await customerLedger.update(
@@ -516,10 +515,10 @@ exports.update_receive_bank = async (req, res) => {
     const newBalance = existsingBalance.balance + balanceChange;
 
     await companyBalance.update(
-      {
-        balance: newBalance,
-      },
-      { where: { companyId: companyId } }
+        {
+          balance: newBalance,
+        },
+        { where: { companyId: companyId } }
     );
     // const balanceExists = await companySingleBank.findOne({
     //   where: { accountId: accountId, companyId: req.user.companyId },
@@ -545,8 +544,8 @@ exports.update_receive_bank = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res
-      .status(500)
-      .json({ status: "false", message: "Internal Server Error" });
+        .status(500)
+        .json({ status: "false", message: "Internal Server Error" });
   }
 };
 exports.delete_receive_bank = async (req, res) => {
@@ -560,18 +559,18 @@ exports.delete_receive_bank = async (req, res) => {
 
     if (data) {
       return res
-        .status(200)
-        .json({ status: "true", message: "Receipt Delete Successfully" });
+          .status(200)
+          .json({ status: "true", message: "Receipt Delete Successfully" });
     } else {
       return res
-        .status(404)
-        .json({ status: "false", message: "Receipt Not Found" });
+          .status(404)
+          .json({ status: "false", message: "Receipt Not Found" });
     }
   } catch (error) {
     console.log(error);
     return res
-      .status(500)
-      .json({ status: "false", message: "Internal Server Error" });
+        .status(500)
+        .json({ status: "false", message: "Internal Server Error" });
   }
 };
 exports.view_receive_bank = async (req, res) => {
@@ -583,7 +582,7 @@ exports.view_receive_bank = async (req, res) => {
       where: { id: id, companyId: companyId },
       include: [
         { model: Account, as: "accountReceipt" },
-        { model: Account, as: "receiptAccount" },
+        { model: companyBankDetails, as: "receiptBankAccount" },
       ],
     });
     if (data) {
@@ -594,14 +593,14 @@ exports.view_receive_bank = async (req, res) => {
       });
     } else {
       return res
-        .status(404)
-        .json({ status: "false", message: "Receipt Not Found" });
+          .status(404)
+          .json({ status: "false", message: "Receipt Not Found" });
     }
   } catch (error) {
     console.log(error);
     return res
-      .status(500)
-      .json({ status: "false", message: "Internal Server Error" });
+        .status(500)
+        .json({ status: "false", message: "Internal Server Error" });
   }
 };
 exports.get_all_receive_bank = async (req, res) => {
@@ -611,21 +610,21 @@ exports.get_all_receive_bank = async (req, res) => {
       where: { companyId: companyId },
       include: [
         { model: Account, as: "accountReceipt" },
-        { model: Account, as: "receiptAccount" },
+        { model: companyBankDetails, as: "receiptBankAccount" },
         { model: User, as: "bankCreateUser", attributes: ["username"] },
         { model: User, as: "bankUpdateUser", attributes: ["username"] },
       ],
     });
 
-      return res.status(200).json({
-        status: "true",
-        message: "Receive Bank Show Successfully",
-        data: data,
-      });
+    return res.status(200).json({
+      status: "true",
+      message: "Receive Bank Show Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
-      .status(500)
-      .json({ status: "false", message: "Internal Server Error" });
+        .status(500)
+        .json({ status: "false", message: "Internal Server Error" });
   }
 };
