@@ -91,7 +91,6 @@ exports.C_get_all_paymentCash = async (req, res) => {
         { model: User, as: "paymentCreate", attributes: ["username"] },
         { model: User, as: "paymentUpdate", attributes: ["username"] },
       ],
-      order: [["createdAt", "DESC"]],
     });
       return res.status(200).json({
         status: "true",

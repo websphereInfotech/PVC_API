@@ -108,7 +108,6 @@ exports.C_get_all_receiveCash = async (req, res) => {
         { model: User, as: "receiveCreate", attributes: ["username"] },
         { model: User, as: "receiveUpdate", attributes: ["username"] },
       ],
-      order: [["createdAt", "DESC"]],
     });
       return res.status(200).json({
         status: "true",

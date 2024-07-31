@@ -4,7 +4,6 @@ const User = require("../models/user");
 const ItemGroup = require("../models/ItemGroup");
 const ItemCategory = require("../models/ItemCategory");
 const {Op} = require("sequelize");
-const {ITEM_GROUP_TYPE} = require("../constant/constant");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -272,16 +271,9 @@ exports.view_item = async (req, res) => {
 };
 exports.get_all_items = async (req, res) => {
   try {
-    const { search, group } = req.query;
+    const { search } = req.query;
 
     const whereClause = { companyId: req.user.companyId, isActive: true };
-    if (group) {
-      const validGroups = Object.values(ITEM_GROUP_TYPE);
-      if (!validGroups.includes(group)) {
-        return res.status(400).json({ status: "false", message: 'Invalid Item group type' });
-      }
-      whereClause.itemgroup = group;
-    }
     if (search) {
       whereClause.productname = { [Op.like]: `%${search}%` };
     }
