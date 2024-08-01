@@ -2140,11 +2140,10 @@ exports.account_validation = async function(req, res, next){
             REGISTRATION_TYPE.REGULAR
         ),
         then: Joi.required(),
-        otherwise: Joi.forbidden()
+        otherwise: Joi.allow(null,'')
       }).messages({
         'string.pattern.base': 'GST Number must be in the format XX0000000000X.',
         'any.required': 'GST Number is required field.',
-        'any.unknown': 'GST Number is not required.',
         'string.empty': 'GST Number cannot be an empty string',
         'string.base': "GST Number must be string."
       }),
