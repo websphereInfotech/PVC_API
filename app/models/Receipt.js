@@ -8,7 +8,7 @@ const CompanyBankDetails = require("./companyBankDetails");
 
 const Receipt = sequelize.define("P_Receipt", {
   voucherno: { type: DataTypes.INTEGER },
-  bankAccountId: { type: DataTypes.INTEGER, allowNull: true },
+  bankAccountId: { type: DataTypes.INTEGER, allowNull: true, defaultValue: null },
   paymentdate: { type: DataTypes.DATEONLY },
   mode: {
     type: DataTypes.ENUM(
@@ -23,7 +23,8 @@ const Receipt = sequelize.define("P_Receipt", {
       "Credit card",
       "Other"
     ),
-    allowNull: true
+    allowNull: true,
+    defaultValue: null
   },
   accountId: { type: DataTypes.INTEGER },
   amount: { type: DataTypes.INTEGER, allowNull: false },

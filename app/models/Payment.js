@@ -7,7 +7,7 @@ const { PAYMENT_TYPE, TRANSACTION_TYPE} = require("../constant/constant");
 const CompanyBankDetails = require("./companyBankDetails");
 const Payment = sequelize.define("P_Payment", {
   voucherno: { type: DataTypes.INTEGER },
-  bankAccountId: { type: DataTypes.INTEGER, allowNull: true },
+  bankAccountId: { type: DataTypes.INTEGER, allowNull: true, defaultValue: null },
   paymentdate: { type: DataTypes.DATEONLY },
   mode: {
     type: DataTypes.ENUM(
@@ -22,7 +22,8 @@ const Payment = sequelize.define("P_Payment", {
       "Credit card",
       "Other"
     ),
-    allowNull: true
+    allowNull: true,
+    defaultValue: null
   },
   accountId: { type: DataTypes.INTEGER, allowNull: false },
   amount: { type: DataTypes.INTEGER },
