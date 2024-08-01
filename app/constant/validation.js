@@ -1,5 +1,5 @@
 const Joi = require("joi");
-const {PAYMENT_TYPE, SALARY_PAYMENT_TYPE, ACCOUNT_GROUPS_TYPE} = require("./constant");
+const {PAYMENT_TYPE, SALARY_PAYMENT_TYPE, ACCOUNT_GROUPS_TYPE, REGISTRATION_TYPE} = require("./constant");
 const AccountGroup = require("../models/AccountGroup");
 
 exports.email = function (req, res, next) {
@@ -2123,10 +2123,21 @@ exports.account_validation = async function(req, res, next){
         'any.required': 'Bank Detail is required field.',
         'any.unknown': 'Bank Detail is not required.',
       }),
-      gstNumber: Joi.string().pattern(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/).when(Joi.ref('$groupName'), {
+      registrationType: Joi.string().valid(...Object.values(REGISTRATION_TYPE)).when(Joi.ref('$groupName'), {
         is: Joi.valid(
             ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
             ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS
+        ),
+        then: Joi.required(),
+        otherwise: Joi.forbidden()
+      }).messages({
+        'any.required': 'Registration Type is required field.',
+        'any.unknown': 'Registration Type is not required.',
+        'any.only': 'Invalid Registration Type provided.'
+      }),
+      gstNumber: Joi.string().pattern(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/).when('registrationType', {
+        is: Joi.valid(
+            REGISTRATION_TYPE.REGULAR
         ),
         then: Joi.required(),
         otherwise: Joi.forbidden()

@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const Account = require("./Account");
+const {REGISTRATION_TYPE} = require("../constant/constant");
 
 const AccountDetails = sequelize.define("P_AccountDetails", {
     email: {
@@ -72,6 +73,11 @@ const AccountDetails = sequelize.define("P_AccountDetails", {
         type : DataTypes.BIGINT,
         defaultValue: null,
         allowNull: true
+    },
+    registrationType: {
+        type: DataTypes.ENUM(...Object.values(REGISTRATION_TYPE)),
+        allowNull: true,
+        defaultValue: null
     },
     accountId: {
         type: DataTypes.INTEGER,

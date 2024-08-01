@@ -23,3 +23,20 @@ exports.ACCOUNT_GROUPS_TYPE = {
     UNSECURED_LOANS: "Unsecured Loans",
     CASH_IN_HAND: "Cash In Hand",
 }
+
+exports.MACHINE_SCHEDULE_TYPE = {
+    REGULAR: "Regular",
+    PREVENTIVE: "Preventive"
+}
+
+exports.MACHINE_SCHEDULE_FREQUENCY= {
+    DAILY: "Daily",
+    WEEKLY: "Weekly",
+    MONTHLY: "Monthly"
+}
+
+exports.REGISTRATION_TYPE = {
+    COMPOSITION: "Composition",
+    REGULAR: "Regular",
+    UNREGISTERED: "Unregistered",
+}
