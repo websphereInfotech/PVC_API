@@ -302,7 +302,8 @@ exports.create_receive_bank = async (req, res) => {
       referance,
       accountId,
       amount,
-      paymentType
+      paymentType,
+      transactionType
     } = req.body;
 
     const voucherNoExist = await Receipt.findOne({
@@ -349,6 +350,7 @@ exports.create_receive_bank = async (req, res) => {
       referance,
       accountId,
       amount,
+      transactionType,
       paymentType,
       createdBy: user,
       updatedBy: user,
@@ -415,7 +417,8 @@ exports.update_receive_bank = async (req, res) => {
       referance,
       accountId,
       amount,
-      paymentType
+      paymentType,
+      transactionType
     } = req.body;
 
     const receiveBankId = await Receipt.findOne({
@@ -475,6 +478,7 @@ exports.update_receive_bank = async (req, res) => {
           accountId,
           amount,
           paymentType,
+          transactionType,
           createdBy: receiveBankId.createdBy,
           updatedBy: user,
           companyId: companyId,

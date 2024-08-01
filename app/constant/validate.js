@@ -72,7 +72,7 @@ const {
   weight,
   itemUnit, saleNo, purchaseNo, paymentNo, receiptNo, paymentType, supplyInvoiceNo, dutyTime,
   salaryPaymentType, machineName, machineNumber, machineId, cost, name, itemGroupId, itemCategoryId,
-  account_validation, accountId, bankAccountId
+  account_validation, accountId, bankAccountId, machine_schedule_validation, transactionType
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -154,13 +154,13 @@ module.exports.validation = function (method) {
     case "update_company_bankDetails":
       return [bankname, accountnumber, ifsccode, branch];
     case "create_receive_bank":
-      return [accountId, voucherno, bankAccountId, paymentdate, paymentType, mode, amount];
+      return [accountId, voucherno, transactionType, paymentdate, paymentType, amount];
     case "update_receive_bank":
-      return [voucherno, voucherno, bankAccountId, paymentdate, paymentType, mode, amount];
+      return [voucherno, voucherno, transactionType, paymentdate, paymentType, amount];
     case "create_payment_bank":
-      return [accountId, voucherno, bankAccountId, paymentdate, paymentType, mode, amount];
+      return [accountId, voucherno, transactionType, paymentdate, paymentType, amount];
     case "update_payment_bank":
-      return [accountId, voucherno, bankAccountId, paymentdate, mode, paymentType, amount];
+      return [accountId, voucherno, transactionType, paymentdate, paymentType, amount];
     case "create_expense":
       return [ mobileno, voucherno, date, mobileno, email, billno, billdate, payment, expensse,
                taxable, mrp ];
@@ -196,6 +196,8 @@ module.exports.validation = function (method) {
       return [name, itemGroupId];
     case "account_validation":
       return [account_validation]
+    case "machine_schedule_validation":
+      return [machine_schedule_validation]
     default:
       throw new Error("Invalid validation method");
   }

@@ -40,3 +40,8 @@ exports.REGISTRATION_TYPE = {
     REGULAR: "Regular",
     UNREGISTERED: "Unregistered",
 }
+
+exports.TRANSACTION_TYPE = {
+    BANK: "Bank",
+    CASH: "Cash"
+}

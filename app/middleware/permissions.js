@@ -1593,4 +1593,24 @@ exports.permissions = {
             "view_all_account": true,
         }
     },
+    "Machine Schedule" : {
+        "Super Admin" :{
+            "create_machine_schedule":true,
+        },
+        "Admin" :{
+            "create_machine_schedule":true,
+        },
+        "Account" :{
+            "create_machine_schedule":true,
+        },
+        "Employee" :{
+            "create_machine_schedule":true,
+        },
+        "Workers" :{
+            "create_machine_schedule":true,
+        },
+        "Other" :{
+            "create_machine_schedule":true,
+        }
+    },
 }

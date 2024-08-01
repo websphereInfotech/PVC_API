@@ -1,5 +1,7 @@
 const Joi = require("joi");
-const {PAYMENT_TYPE, SALARY_PAYMENT_TYPE, ACCOUNT_GROUPS_TYPE, REGISTRATION_TYPE, MACHINE_SCHEDULE_FREQUENCY, MACHINE_SCHEDULE_TYPE} = require("./constant");
+const {PAYMENT_TYPE, SALARY_PAYMENT_TYPE, ACCOUNT_GROUPS_TYPE, REGISTRATION_TYPE, MACHINE_SCHEDULE_FREQUENCY, MACHINE_SCHEDULE_TYPE,
+  TRANSACTION_TYPE
+} = require("./constant");
 const AccountGroup = require("../models/AccountGroup");
 
 exports.email = function (req, res, next) {
@@ -2320,6 +2322,38 @@ exports.machine_schedule_validation = async (req, res, next)=>{
     }),
   });
   const {error} = machineScheduleSchema.validate(req.body);
+  if(error){
+    return res.status(400).json({status: "false", message: error.message})
+  }
+  return next()
+}
+
+exports.transactionType = async (req, res, next)=>{
+  const {transaction} = req.body;
+  const transactionSchema = Joi.object({
+    transactionType: Joi.string().valid(...Object.values(TRANSACTION_TYPE)).required().messages({
+      'string.base': 'Transaction must be a string',
+      'any.only': `Transaction must be one of ${Object.values(MACHINE_SCHEDULE_FREQUENCY).join(', ')}`,
+      'any.required': 'Transaction is required'
+    }),
+    bankAccountId: Joi.number().when('transactionType',{
+      is: Joi.valid(TRANSACTION_TYPE.BANK),
+      then: Joi.required(),
+      otherwise: Joi.allow(null, '')
+    }).messages({
+      "number.base": "Bank Account Id must be a number",
+      "any.required": "Required Field : Bank Account",
+    }),
+    mode: Joi.string().when('transactionType',{
+      is: Joi.valid(TRANSACTION_TYPE.BANK),
+      then: Joi.required(),
+      otherwise: Joi.allow(null, '')
+    }).messages({
+      "string.base": "Mode must be a string",
+      "any.required": "Required Field : Mode",
+    })
+  })
+  const {error} = transactionSchema.validate(transaction);
   if(error){
     return res.status(400).json({status: "false", message: error.message})
   }

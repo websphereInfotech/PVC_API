@@ -2,13 +2,13 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const User = require("./user");
 const company = require("./company");
-const {PAYMENT_TYPE} = require("../constant/constant");
+const {PAYMENT_TYPE, TRANSACTION_TYPE} = require("../constant/constant");
 const Account = require("./Account");
 const CompanyBankDetails = require("./companyBankDetails");
 
 const Receipt = sequelize.define("P_Receipt", {
   voucherno: { type: DataTypes.INTEGER },
-  bankAccountId: { type: DataTypes.INTEGER, allowNull: false },
+  bankAccountId: { type: DataTypes.INTEGER, allowNull: true },
   paymentdate: { type: DataTypes.DATEONLY },
   mode: {
     type: DataTypes.ENUM(
@@ -23,6 +23,7 @@ const Receipt = sequelize.define("P_Receipt", {
       "Credit card",
       "Other"
     ),
+    allowNull: true
   },
   accountId: { type: DataTypes.INTEGER },
   amount: { type: DataTypes.INTEGER, allowNull: false },
@@ -33,6 +34,11 @@ const Receipt = sequelize.define("P_Receipt", {
     type: DataTypes.ENUM,
     values: [...Object.values(PAYMENT_TYPE)],
     allowNull: false
+  },
+  transactionType: {
+    type: DataTypes.ENUM,
+    values: [...Object.values(TRANSACTION_TYPE)],
+    allowNull: false,
   }
 });
 

@@ -33,5 +33,6 @@ router.use('/itemGroup', require('./itemGroup'))
 router.use('/itemCategory', require('./itemCategory'))
 router.use('/account', require('./account'))
 router.use('/ledger', require('./ledger'))
+router.use('/schedule', require('./machineSchedule'))
 
 module.exports = router;
