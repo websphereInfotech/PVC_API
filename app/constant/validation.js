@@ -1,5 +1,5 @@
 const Joi = require("joi");
-const {PAYMENT_TYPE, SALARY_PAYMENT_TYPE, ACCOUNT_GROUPS_TYPE, REGISTRATION_TYPE} = require("./constant");
+const {PAYMENT_TYPE, SALARY_PAYMENT_TYPE, ACCOUNT_GROUPS_TYPE, REGISTRATION_TYPE, MACHINE_SCHEDULE_FREQUENCY, MACHINE_SCHEDULE_TYPE} = require("./constant");
 const AccountGroup = require("../models/AccountGroup");
 
 exports.email = function (req, res, next) {
@@ -2135,17 +2135,20 @@ exports.account_validation = async function(req, res, next){
         'any.unknown': 'Registration Type is not required.',
         'any.only': 'Invalid Registration Type provided.'
       }),
-      gstNumber: Joi.string().pattern(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/).when('registrationType', {
-        is: Joi.valid(
-            REGISTRATION_TYPE.REGULAR
-        ),
-        then: Joi.required(),
-        otherwise: Joi.allow(null,'')
+      gstNumber: Joi.alternatives().conditional(Joi.ref('$groupName'), {
+          is: Joi.valid(ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS, ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS),
+          then: Joi.alternatives().conditional('registrationType', {
+            is: Joi.valid(REGISTRATION_TYPE.REGULAR),
+            then: Joi.string().required().pattern(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/),
+            otherwise: Joi.allow(null,'')
+          }),
+        otherwise: Joi.forbidden(),
       }).messages({
         'string.pattern.base': 'GST Number must be in the format XX0000000000X.',
         'any.required': 'GST Number is required field.',
         'string.empty': 'GST Number cannot be an empty string',
-        'string.base': "GST Number must be string."
+        'string.base': "GST Number is required field.",
+        'any.unknown': 'GST Number is not required.',
       }),
       accountNumber: Joi.alternatives().conditional(Joi.ref('$groupName'), {
         is: Joi.valid(ACCOUNT_GROUPS_TYPE.BANK_ACCOUNT),
@@ -2288,3 +2291,37 @@ exports.bankAccountId = async function(req, res, next){
   return next()
 }
 
+exports.machine_schedule_validation = async (req, res, next)=>{
+  const machineScheduleSchema = Joi.object({
+    machineId: Joi.number().integer().required().messages({
+      'number.base': 'Machine ID must be a number',
+      'number.integer': 'Machine ID must be an integer',
+      'any.required': 'Machine is required'
+    }),
+    frequency: Joi.string().valid(...Object.values(MACHINE_SCHEDULE_FREQUENCY)).required().messages({
+      'string.base': 'Frequency must be a string',
+      'any.only': `Frequency must be one of ${Object.values(MACHINE_SCHEDULE_FREQUENCY).join(', ')}`,
+      'any.required': 'Frequency is required'
+    }),
+    date: Joi.date().iso().required().messages({
+      'date.base': 'Date must be a valid date',
+      'date.format': 'Date must be in ISO format',
+      'any.required': 'Date is required'
+    }),
+    interval: Joi.number().integer().required().messages({
+      'number.base': 'Interval must be a number',
+      'number.integer': 'Interval must be an integer',
+      'any.required': 'Interval is required'
+    }),
+    type: Joi.string().valid(...Object.values(MACHINE_SCHEDULE_TYPE)).required().messages({
+      'string.base': 'Type must be a string',
+      'any.only': `Type must be one of ${Object.values(MACHINE_SCHEDULE_TYPE).join(', ')}`,
+      'any.required': 'Type is required'
+    }),
+  });
+  const {error} = machineScheduleSchema.validate(req.body);
+  if(error){
+    return res.status(400).json({status: "false", message: error.message})
+  }
+  return next()
+}
