@@ -7,6 +7,8 @@ const Receipt = require("../models/Receipt");
 const User = require("../models/user");
 const {Sequelize} = require("sequelize");
 const companyBankDetails = require("../models/companyBankDetails");
+const Ledger = require("../models/Ledger");
+const {TRANSACTION_TYPE} = require("../constant/constant");
 
 /*=============================================================================================================
                                            Type C API
@@ -329,16 +331,18 @@ exports.create_receive_bank = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Account Not Found" });
     }
-    const accountData = await companyBankDetails.findOne({
-      where: {
-        id: bankAccountId,
-        companyId: companyId,
-      },
-    });
-    if (!accountData) {
-      return res
-          .status(404)
-          .json({ status: "false", message: "Bank Account Not Found" });
+    if(transactionType === TRANSACTION_TYPE.BANK){
+      const accountData = await companyBankDetails.findOne({
+        where: {
+          id: bankAccountId,
+          companyId: companyId,
+        },
+      });
+      if (!accountData) {
+        return res
+            .status(404)
+            .json({ status: "false", message: "Bank Account Not Found" });
+      }
     }
 
 
@@ -356,6 +360,13 @@ exports.create_receive_bank = async (req, res) => {
       updatedBy: user,
       companyId: companyId,
     });
+
+    await Ledger.create({
+      accountId: accountId,
+      companyId: companyId,
+      receiptId: data.id,
+      date: paymentdate
+    })
 
     // await customerLedger.create({
     //   companyId: req.user.companyId,
@@ -456,16 +467,18 @@ exports.update_receive_bank = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Account Not Found" });
     }
-    const accountData = await companyBankDetails.findOne({
-      where: {
-        id: bankAccountId,
-        companyId: companyId,
-      },
-    });
-    if (!accountData) {
-      return res
-          .status(404)
-          .json({ status: "false", message: "Bank Account Not Found" });
+    if(transactionType === TRANSACTION_TYPE.BANK){
+      const accountData = await companyBankDetails.findOne({
+        where: {
+          id: bankAccountId,
+          companyId: companyId,
+        },
+      });
+      if (!accountData) {
+        return res
+            .status(404)
+            .json({ status: "false", message: "Bank Account Not Found" });
+      }
     }
 
     await Receipt.update(

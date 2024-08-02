@@ -1,11 +1,12 @@
 const Account = require("../models/Account");
 const Company = require("../models/company");
+const CompanyBankDetails = require("../models/companyBankDetails");
 const {Sequelize} = require("sequelize");
 const Ledger = require("../models/Ledger");
 const purchaseInvoice = require("../models/purchaseInvoice");
 const salesInvoice = require("../models/salesInvoice");
-const receiveBank = require("../models/Receipt");
-const paymentBank = require("../models/Payment");
+const Receipt = require("../models/Receipt");
+const Payment = require("../models/Payment");
 exports.normal_ledger = async (req, res) => {
     try {
         const { id } = req.params;
@@ -33,14 +34,7 @@ exports.normal_ledger = async (req, res) => {
         }
         const data = await Ledger.findAll({
             attributes: [
-                "accountId",
                 "date",
-                "id",
-                "purchaseInvId",
-                "saleInvId",
-                "paymentId",
-                "receiptId",
-                "companyId",
                 [Sequelize.literal(`CASE
                     WHEN paymentLedger.id IS NOT NULL THEN \`paymentLedger\`.\`amount\`
                     WHEN salesLedger.id IS NOT NULL THEN \`salesLedger\`.\`mainTotal\`
@@ -54,6 +48,17 @@ exports.normal_ledger = async (req, res) => {
                 [
                     Sequelize.literal(`CASE
                     WHEN salesLedger.id IS NOT NULL THEN 'SALES GST'
+                    WHEN purchaseLedger.id IS NOT NULL THEN 'PURCHASE GST'
+                    WHEN paymentLedger.id IS NOT NULL THEN
+                        CASE
+                            WHEN paymentLedger.bankAccountId IS NOT NULL THEN \`paymentLedger->paymentBankAccount\`.\`bankname\`
+                            ELSE \`paymentLedger\`.\`transactionType\`
+                        END
+                    WHEN receiptLedger.id IS NOT NULL THEN
+                        CASE
+                            WHEN receiptLedger.bankAccountId IS NOT NULL THEN \`receiptLedger->receiptBankAccount\`.\`bankname\`
+                            ELSE \`receiptLedger\`.\`transactionType\`
+                        END
                     ELSE ''
                   END`), "particulars"],
                 [Sequelize.literal(`CASE
@@ -90,9 +95,9 @@ exports.normal_ledger = async (req, res) => {
                       ), 0)
                     FROM
                       \`P_Ledgers\` AS cl2
-                      LEFT OUTER JOIN \`P_paymentBanks\` AS paymentLedger ON cl2.paymentId = paymentLedger.id
+                      LEFT OUTER JOIN \`P_Payments\` AS paymentLedger ON cl2.paymentId = paymentLedger.id
                       LEFT OUTER JOIN \`P_purchaseInvoices\` AS purchaseLedger ON cl2.purchaseInvId = purchaseLedger.id
-                      LEFT OUTER JOIN \`P_receiveBanks\` AS receiptLedger ON cl2.receiptId = receiptLedger.id
+                      LEFT OUTER JOIN \`P_Receipts\` AS receiptLedger ON cl2.receiptId = receiptLedger.id
                       LEFT OUTER JOIN \`P_salesInvoices\` AS salesLedger ON cl2.saleInvId = salesLedger.id
                     WHERE
                       cl2.accountId = \`P_Ledger\`.\`accountId\`
@@ -104,22 +109,29 @@ exports.normal_ledger = async (req, res) => {
                 {
                     model: purchaseInvoice,
                     as: "purchaseLedger",
+                    attributes: []
                 },
                 {
-                    model: paymentBank,
+                    model: Payment,
                     as: "paymentLedger",
+                    include: {model: CompanyBankDetails, as: "paymentBankAccount", attributes: []},
+                    attributes: []
                 },
                 {
                     model: salesInvoice,
                     as: "salesLedger",
+                    attributes: []
                 },
                 {
-                    model: receiveBank,
+                    model: Receipt,
                     as: "receiptLedger",
+                    include: {model: CompanyBankDetails, as: "receiptBankAccount", attributes: []},
+                    attributes: []
                 },
                 {
                     model: Account,
                     as: "accountLedger",
+                    attributes: []
                 },
             ],
             where: queryData,
@@ -128,10 +140,56 @@ exports.normal_ledger = async (req, res) => {
                 ["id", "ASC"],
             ],
         });
+        const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
+        const ledgerArray = [...data];
+        console.log(+openingBalance !== 0, "Open")
+        if(+openingBalance !== 0){
+            ledgerArray.unshift({
+                "date": formDate,
+                "debitAmount": openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+                "creditAmount": openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+                "particulars": "Opening Balance",
+                "vchType": "",
+                "vchNo": "",
+                "openingBalance": 0
+            })
+        }
+        console.log(openingBalance, "Opeing balance")
+        const totals = ledgerArray.reduce((acc, ledger) => {
+            if (ledger.dataValues) {
+                acc.totalCredit += ledger.dataValues.creditAmount || 0;
+                acc.totalDebit += ledger.dataValues.debitAmount || 0;
+            } else {
+                acc.totalCredit += ledger.creditAmount || 0;
+                acc.totalDebit += ledger.debitAmount || 0;
+            }
+            return acc;
+        }, { totalCredit: 0, totalDebit: 0 });
+
+        const totalCredit = totals.totalCredit;
+        const totalDebit = totals.totalDebit;
+
+        const closingBalanceAmount = totalDebit -totalCredit;
+        const closingBalance = {
+            type: closingBalanceAmount < 0 ? "debit": 'credit',
+            amount: +Math.abs(closingBalanceAmount).toFixed(2),
+        }
+
+        const records = ledgerArray.reduce((acc, obj) => {
+            const dateKey = obj.date;
+            const date = new Date(dateKey);
+            const formattedDate = `${date.getDate()}-${date.toLocaleString('default', { month: 'short' })}-${String(date.getFullYear()).slice(-2)}`;
+
+            if (!acc[formattedDate]) {
+                acc[formattedDate] = [];
+            }
+            acc[formattedDate].push(obj);
+            return acc;
+        }, {});
         return res.status(200).json({
             status: "true",
             message: "Vendor Ledger Data Fetch Successfully",
-            data: data,
+            data: {ledgerArray, total: {totalCredit, totalDebit}, closingBalance, records},
         });
     } catch (error) {
         console.log(error);

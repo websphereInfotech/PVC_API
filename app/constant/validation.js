@@ -2033,19 +2033,6 @@ exports.account_validation = async function(req, res, next){
         'any.required': 'Mobile Number is required field.',
         'any.unknown': 'Mobile Number is not required.'
       }),
-      panNo: Joi.string().pattern(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/).when(Joi.ref('$groupName'), {
-        is: Joi.valid(
-            ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
-            ACCOUNT_GROUPS_TYPE.UNSECURED_LOANS,
-            ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS
-        ),
-        then: Joi.allow(null, ''),
-        otherwise: Joi.forbidden()
-      }).messages({
-        'string.pattern.base': 'PAN No. must be a valid PAN Number.',
-        'any.unknown': 'PAN No. is not required.',
-        'string.base': "PAN No. must be string."
-      }),
       address1: Joi.string().when(Joi.ref('$groupName'), {
         is: Joi.valid(
             ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
@@ -2141,16 +2128,29 @@ exports.account_validation = async function(req, res, next){
           is: Joi.valid(ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS, ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS),
           then: Joi.alternatives().conditional('registrationType', {
             is: Joi.valid(REGISTRATION_TYPE.REGULAR),
-            then: Joi.string().required().pattern(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/),
+            then: Joi.string().required().length(15),
             otherwise: Joi.allow(null,'')
           }),
         otherwise: Joi.forbidden(),
       }).messages({
-        'string.pattern.base': 'GST Number must be in the format XX0000000000X.',
+        'string.length': 'Invalid GST Number.',
         'any.required': 'GST Number is required field.',
         'string.empty': 'GST Number cannot be an empty string',
         'string.base': "GST Number is required field.",
         'any.unknown': 'GST Number is not required.',
+      }),
+      panNo: Joi.string().pattern(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/).when(Joi.ref('$groupName'), {
+        is: Joi.valid(
+            ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
+            ACCOUNT_GROUPS_TYPE.UNSECURED_LOANS,
+            ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS
+        ),
+        then: Joi.allow(null, ''),
+        otherwise: Joi.forbidden()
+      }).messages({
+        'string.pattern.base': 'PAN No. must be a valid PAN Number.',
+        'any.unknown': 'PAN No. is not required.',
+        'string.base': "PAN No. must be string."
       }),
       accountNumber: Joi.alternatives().conditional(Joi.ref('$groupName'), {
         is: Joi.valid(ACCOUNT_GROUPS_TYPE.BANK_ACCOUNT),
