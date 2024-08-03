@@ -13,6 +13,7 @@ const {renderFile} = require("ejs");
 const path = require("node:path");
 const htmlToPdf = require("html-pdf-node");
 const AccountDetail = require("../models/AccountDetail");
+const C_Ledger = require("../models/C_Ledger");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -133,7 +134,7 @@ exports.create_salesInvoice = async (req, res) => {
       companyId: companyId,
       saleInvId: data.id,
       date: invoicedate
-    })
+    });
     const addToItem = items.map((item) => ({
       salesInvoiceId: data.id,
       ...item,
@@ -566,6 +567,13 @@ exports.C_create_salesinvoice = async (req, res) => {
       }
     }
 
+    await C_Ledger.create({
+      accountId: accountId,
+      companyId: companyId,
+      saleId: salesInvoiceData.id,
+      date: date
+    });
+
     const data = await C_salesinvoice.findOne({
       where: { id: salesInvoiceData.id, companyId: companyId },
       include: [{ model: C_salesinvoiceItem, as: "items" }],
@@ -718,6 +726,17 @@ exports.C_update_salesinvoice = async (req, res) => {
       await
       C_salesinvoiceItem.destroy({ where: { id: item.id } });
     }
+
+    await C_Ledger.update({
+      accountId: accountId,
+      saleId: id,
+      date: date
+    }, {
+      where: {
+        saleId: id,
+        companyId: companyId,
+      }
+    });
 
     const updatedInvoice = await C_salesinvoice.findOne({
       where: { id: id, companyId: companyId },

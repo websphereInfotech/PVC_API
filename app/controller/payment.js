@@ -4,6 +4,7 @@ const companyBalance = require("../models/companyBalance");
 const Payment = require("../models/Payment");
 const User = require("../models/user");
 const Ledger = require("../models/Ledger");
+const C_Ledger = require("../models/C_Ledger");
 const Account = require("../models/Account");
 const {Sequelize} = require("sequelize");
 const companyBankDetails = require("../models/companyBankDetails");
@@ -54,6 +55,13 @@ exports.C_create_paymentCash = async (req, res) => {
       createdBy: user,
       updatedBy: user,
       companyId: companyId,
+    });
+
+    await C_Ledger.create({
+      accountId: accountId,
+      companyId: companyId,
+      paymentId: data.id,
+      date: date
     });
 
     // await C_vendorLedger.create({
@@ -182,6 +190,17 @@ exports.C_update_paymentCash = async (req, res) => {
       },
       { where: { id: id } }
     );
+
+    await C_Ledger.update({
+      accountId: accountId,
+      paymentId: id,
+      date: date
+    }, {
+      where: {
+        paymentId: id,
+        companyId: companyId,
+      }
+    })
 
     // await C_vendorLedger.update(
     //   {

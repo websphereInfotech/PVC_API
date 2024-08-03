@@ -8,6 +8,7 @@ const User = require("../models/user");
 const {Sequelize} = require("sequelize");
 const companyBankDetails = require("../models/companyBankDetails");
 const Ledger = require("../models/Ledger");
+const C_Ledger = require("../models/C_Ledger");
 const {TRANSACTION_TYPE} = require("../constant/constant");
 
 /*=============================================================================================================
@@ -55,6 +56,13 @@ exports.C_create_receiveCash = async (req, res) => {
       createdBy: user,
       updatedBy: user,
       companyId: companyId,
+    });
+
+    await C_Ledger.create({
+      accountId: accountId,
+      companyId: companyId,
+      receiptId: data.id,
+      date: date
     });
 
     // await C_customerLedger.create({
@@ -203,6 +211,17 @@ exports.C_update_receiveCash = async (req, res) => {
         },
         { where: { id: id } }
     );
+
+    await C_Ledger.update({
+      accountId: accountId,
+      receiptId: id,
+      date: date
+    }, {
+      where: {
+        receiptId: id,
+        companyId: companyId,
+      }
+    })
 
     // await C_customerLedger.update(
     //   {

@@ -5,6 +5,7 @@ const product = require("../models/product");
 const Account = require("../models/Account");
 const AccountDetail = require("../models/AccountDetail");
 const Ledger = require("../models/Ledger");
+const C_Ledger = require("../models/C_Ledger");
 const purchaseInvoice = require("../models/purchaseInvoice");
 const purchaseInvoiceItem = require("../models/purchaseInvoiceItem");
 const User = require("../models/user");
@@ -534,6 +535,13 @@ exports.C_create_purchaseCash = async (req, res) => {
     //   date,
     // });
 
+    await C_Ledger.create({
+      accountId: accountId,
+      companyId: companyId,
+      purchaseId: purchseData.id,
+      date: date
+    });
+
     const addToItem = items.map((item) => ({
       PurchaseId: purchseData.id,
       ...item,
@@ -648,6 +656,17 @@ exports.C_update_purchaseCash = async (req, res) => {
       },
       { where: { id } }
     );
+
+    await C_Ledger.update({
+      accountId: accountId,
+      purchaseId: id,
+      date: date
+    }, {
+      where: {
+        purchaseId: id,
+        companyId: companyId,
+      }
+    })
     const existingItems = await C_purchaseCashItem.findAll({
       where: { PurchaseId: id },
     });
