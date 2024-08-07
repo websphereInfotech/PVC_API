@@ -1,6 +1,7 @@
 const company = require("../models/company");
 const User = require("../models/user");
 const CompanyUser = require("../models/companyUser");
+const CompanyCashBalance = require("../models/companyCashBalance");
 const Permissions = require("../models/permission");
 const { permissions } = require("../middleware/permissions");
 const companyBalance = require("../models/companyBalance");
@@ -80,6 +81,15 @@ const existingData = async () => {
     });
     if(!balanceExists) {
       await companyBalance.create({
+        companyId: existingCompany.id,
+        balance:0
+      });
+    }
+    const cashBalanceExists = await CompanyCashBalance.findOne({
+      where:{companyId: existingCompany.id},
+    });
+    if(!cashBalanceExists) {
+      await CompanyCashBalance.create({
         companyId: existingCompany.id,
         balance:0
       });

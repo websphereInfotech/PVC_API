@@ -9,6 +9,7 @@ const Account = require("../models/Account");
 const {Sequelize} = require("sequelize");
 const companyBankDetails = require("../models/companyBankDetails");
 const {TRANSACTION_TYPE} = require("../constant/constant");
+const CompanyCashBalance = require("../models/companyCashBalance");
 
 /*=============================================================================================================
                                          Type C API
@@ -359,13 +360,22 @@ exports.create_payment_bank = async (req, res) => {
       date: paymentdate
     })
 
-    const existsingBalance = await companyBalance.findOne({
-      where: { companyId: companyId },
-    });
+    if(transactionType === TRANSACTION_TYPE.CASH) {
+      const existsingCashBalance = await CompanyCashBalance.findOne({
+        where: { companyId: companyId },
+      });
+      if (existsingCashBalance) {
+        await existsingCashBalance.decrement('balance', { by: amount })
+      }
+    } else if (transactionType === TRANSACTION_TYPE.BANK){
+      const existsingBalance = await companyBalance.findOne({
+        where: { companyId: companyId },
+      });
 
-    if (existsingBalance) {
-      existsingBalance.balance -= amount;
-      await existsingBalance.save();
+      if (existsingBalance) {
+        existsingBalance.balance -= amount;
+        await existsingBalance.save();
+      }
     }
 
     // const balanceExists = await companySingleBank.findOne({
@@ -489,6 +499,31 @@ exports.update_payment_bank = async (req, res) => {
     //     },
     //     { where: { debitId: id } }
     //     );
+
+    if(transactionType === TRANSACTION_TYPE.CASH) {
+      const existsingCashBalance = await CompanyCashBalance.findOne({
+        where: { companyId: companyId },
+      });
+      if (existsingCashBalance) {
+        await existsingCashBalance.increment('balance', { by: amount });
+        await existsingCashBalance.decrement('balance', { by: amount });
+      }
+    }else if (transactionType === TRANSACTION_TYPE.BANK){
+      const existsingBalance = await companyBalance.findOne({
+        where: { companyId: companyId },
+      });
+
+      const balanceChange = amount - voucherNoExist.amount;
+      const newBalance = existsingBalance.balance + balanceChange;
+
+      await companyBalance.update(
+          {
+            balance: newBalance,
+          },
+          { where: { companyId: companyId } }
+      );
+    }
+
         const existingBalance = await companyBalance.findOne({
           where: { companyId: companyId },
           });

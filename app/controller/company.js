@@ -3,6 +3,7 @@ const C_userBalance = require("../models/C_userBalance");
 const admintoken = require("../models/admintoken");
 const company = require("../models/company");
 const companyBalance = require("../models/companyBalance");
+const CompanyCashBalance = require("../models/companyCashBalance");
 const companyBankDetails = require("../models/companyBankDetails");
 const companySingleBank = require("../models/companySingleBank");
 const companyUser = require("../models/companyUser");
@@ -84,16 +85,22 @@ exports.create_company = async (req, res) => {
       companyId: data.id,
       balance: 0,
     });
-    
+
     await C_companyBalance.create({
       companyId: req.user.companyId,
       balance: 0,
     });
-    
+
     await companyBalance.create({
       companyId:req.user.companyId,
       balance:0
     });
+
+    await CompanyCashBalance.create({
+      companyId:req.user.companyId,
+      balance:0
+    });
+
     return res.status(200).json({
       status: "true",
       message: "Company Create Successfully",
@@ -135,7 +142,7 @@ exports.update_company = async (req, res) => {
           .status(400)
           .json({ status: "false", message: "Email Already Exists" });
       }}
-   
+
     if (companyId.mobileno !== mobileno) {
       const existingMobile = await company.findOne({ where: { mobileno: mobileno } });
       if (existingMobile) {

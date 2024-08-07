@@ -2,6 +2,7 @@ const C_companyBalance = require("../models/C_companyBalance");
 const C_Receipt = require("../models/C_Receipt");
 const C_userBalance = require("../models/C_userBalance");
 const companyBalance = require("../models/companyBalance");
+const companyCashBalance = require("../models/companyCashBalance");
 const Account = require("../models/Account");
 const Receipt = require("../models/Receipt");
 const User = require("../models/user");
@@ -385,7 +386,24 @@ exports.create_receive_bank = async (req, res) => {
       companyId: companyId,
       receiptId: data.id,
       date: paymentdate
-    })
+    });
+
+    if(transactionType === TRANSACTION_TYPE.CASH) {
+      const existsingCashBalance = await companyCashBalance.findOne({
+        where: { companyId: companyId },
+      });
+      if (existsingCashBalance) {
+        await existsingCashBalance.increment('balance', { by: amount })
+      }
+    } else if (transactionType === TRANSACTION_TYPE.BANK){
+      const existsingBalance = await companyBalance.findOne({
+        where: { companyId: companyId },
+      });
+      if (existsingBalance) {
+        existsingBalance.balance += amount;
+        await existsingBalance.save();
+      }
+    }
 
     // await customerLedger.create({
     //   companyId: req.user.companyId,
@@ -406,13 +424,7 @@ exports.create_receive_bank = async (req, res) => {
     //   accountId: accountId,
     //   date: paymentdate,
     // });
-    const existsingBalance = await companyBalance.findOne({
-      where: { companyId: companyId },
-    });
-    if (existsingBalance) {
-      existsingBalance.balance += amount;
-      await existsingBalance.save();
-    }
+
 
     // const balanceExists = await companySingleBank.findOne({
     //   where: { accountId: accountId, companyId: req.user.companyId },
@@ -543,19 +555,30 @@ exports.update_receive_bank = async (req, res) => {
     //   },
     //   { where: { creditId: id } }
     // );
-    const existsingBalance = await companyBalance.findOne({
-      where: { companyId: companyId },
-    });
+    if(transactionType === TRANSACTION_TYPE.CASH) {
+      const existsingCashBalance = await companyCashBalance.findOne({
+        where: { companyId: companyId },
+      });
+      if (existsingCashBalance) {
+        await existsingCashBalance.decrement('balance', { by: amount });
+        await existsingCashBalance.increment('balance', { by: amount });
+      }
+    }else if (transactionType === TRANSACTION_TYPE.BANK){
+      const existsingBalance = await companyBalance.findOne({
+        where: { companyId: companyId },
+      });
 
-    const balanceChange = amount - receiveBankId.amount;
-    const newBalance = existsingBalance.balance + balanceChange;
+      const balanceChange = amount - receiveBankId.amount;
+      const newBalance = existsingBalance.balance + balanceChange;
 
-    await companyBalance.update(
-        {
-          balance: newBalance,
-        },
-        { where: { companyId: companyId } }
-    );
+      await companyBalance.update(
+          {
+            balance: newBalance,
+          },
+          { where: { companyId: companyId } }
+      );
+    }
+
     // const balanceExists = await companySingleBank.findOne({
     //   where: { accountId: accountId, companyId: req.user.companyId },
     // });
