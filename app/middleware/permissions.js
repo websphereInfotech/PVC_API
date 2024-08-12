@@ -1596,21 +1596,97 @@ exports.permissions = {
     "Machine Schedule" : {
         "Super Admin" :{
             "create_machine_schedule":true,
+            "update_machine_schedule":true,
+            "view_machine_schedule":true,
+            "view_all_machine_schedule":true,
+            "delete_machine_schedule":true,
         },
         "Admin" :{
             "create_machine_schedule":true,
+            "update_machine_schedule":true,
+            "view_machine_schedule":true,
+            "view_all_machine_schedule":true,
+            "delete_machine_schedule":true,
         },
         "Account" :{
             "create_machine_schedule":true,
+            "update_machine_schedule":true,
+            "view_machine_schedule":true,
+            "view_all_machine_schedule":true,
+            "delete_machine_schedule":true,
         },
         "Employee" :{
             "create_machine_schedule":true,
+            "update_machine_schedule":true,
+            "view_machine_schedule":true,
+            "view_all_machine_schedule":true,
+            "delete_machine_schedule":true,
         },
         "Workers" :{
             "create_machine_schedule":true,
+            "update_machine_schedule":true,
+            "view_machine_schedule":true,
+            "view_all_machine_schedule":true,
+            "delete_machine_schedule":true,
         },
         "Other" :{
             "create_machine_schedule":true,
+            "update_machine_schedule":true,
+            "view_machine_schedule":true,
+            "view_all_machine_schedule":true,
+            "delete_machine_schedule":true,
         }
     },
+    "Ledger": {
+        "Super Admin" :{
+            "account_ledger":true,
+            "daybook":true,
+        },
+        "Admin" :{
+            "account_ledger":true,
+            "daybook":true,
+        },
+        "Account" :{
+            "account_ledger":true,
+            "daybook":true,
+        },
+        "Employee" :{
+            "account_ledger":true,
+            "daybook":true,
+        },
+        "Workers" :{
+            "account_ledger":true,
+            "daybook":true,
+        },
+        "Other" :{
+            "account_ledger":true,
+            "daybook":true,
+        }
+    },
+    "Ledger Cash": {
+        "Super Admin" :{
+            "account_ledger":true,
+            "daybook":true,
+        },
+        "Admin" :{
+            "account_ledger":true,
+            "daybook":true,
+        },
+        "Account" :{
+            "account_ledger":true,
+            "daybook":true,
+        },
+        "Employee" :{
+            "account_ledger":true,
+            "daybook":true,
+        },
+        "Workers" :{
+            "account_ledger":true,
+            "daybook":true,
+        },
+        "Other" :{
+            "account_ledger":true,
+            "daybook":true,
+        }
+    }
 }
