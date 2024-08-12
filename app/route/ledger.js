@@ -2,20 +2,24 @@ const express = require("express");
 const { validation } = require("../constant/validate");
 const adminAuth = require("../middleware/adminAuth");
 const {
-    normal_ledger, C_normal_ledger
+    account_ledger, C_account_ledger, daybook, C_daybook
 } = require("../controller/ledger");
 
 const router = express.Router();
 
 router.get(
-    "/normal/:id",
-    adminAuth("Item Group:create_itemGroup"),
-    normal_ledger
+    "/account_ledger/:id",
+    adminAuth("Ledger:account_ledger"),
+    account_ledger
 );
+
 router.get(
-    "/C_normal/:id",
-    adminAuth("Item Group:create_itemGroup"),
-    C_normal_ledger
+    "/C_account_ledger/:id",
+    adminAuth("Ledger Cash:account_ledger"),
+    C_account_ledger
 );
+
+router.get('/daybook', adminAuth('Ledger:daybook'), daybook)
+router.get('/C_daybook', adminAuth('Ledger Cash:daybook'), C_daybook)
 
 module.exports = router;

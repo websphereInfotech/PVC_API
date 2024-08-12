@@ -77,7 +77,7 @@ exports.view_machine_schedule = async (req, res) => {
 exports.view_all_machine_schedule = async (req, res) => {
     try{
         const {companyId} = req.user;
-        const machineScheduleExists = await MachineSchedule.findOne({
+        const machineScheduleExists = await MachineSchedule.findAll({
             where: {
                 companyId: companyId
             }
