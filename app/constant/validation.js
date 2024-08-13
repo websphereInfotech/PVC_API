@@ -2308,6 +2308,22 @@ exports.bankAccountId = async function(req, res, next){
   return next()
 }
 
+
+exports.purchaseOrder_no = async function(req, res, next){
+  const {purchaseOrder_no} = req.body;
+  const purchaseOrderSchema = Joi.number().required().messages({
+    "number.base": "Purchase Order Id must be a number",
+    "any.required": "Required Field : Purchase Order",
+  })
+
+  const {error} = purchaseOrderSchema.validate(purchaseOrder_no);
+  if(error){
+    return res.status(400).json({status: "false", message: error.message})
+  }
+  return next()
+}
+
+
 exports.machine_schedule_validation = async (req, res, next)=>{
   const machineScheduleSchema = Joi.object({
     machineId: Joi.number().integer().required().messages({

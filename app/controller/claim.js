@@ -6,6 +6,7 @@ const C_receiveCash = require("../models/C_Receipt");
 const C_userBalance = require("../models/C_userBalance");
 const companyUser = require("../models/companyUser");
 const C_customer = require("../models/C_customer");
+const Account = require("../models/Account");
 const C_CompanyBalance = require("../models/C_companyBalance");
 const Salary = require("../models/salary");
 const SalaryPayment = require("../models/salaryPayment");
@@ -403,7 +404,7 @@ exports.view_claimBalance_ledger = async (req, res) => {
         ],
         [
           Sequelize.literal(`COALESCE(
-        \`claimLedger->ReceiveCustomer\`.\`customername\`, 
+        \`claimLedger->accountReceiptCash\`.\`contactPersonName\`, 
         CASE 
           WHEN \`claimData\`.\`fromUserId\` = ${userId} THEN \`claimData->toUser\`.\`username\`
           WHEN \`claimData\`.\`toUserId\` = ${userId} THEN \`claimData->fromUser\`.\`username\`
@@ -420,7 +421,7 @@ exports.view_claimBalance_ledger = async (req, res) => {
           as: "claimLedger",
           attributes: [],
           include: [
-            { model: C_customer, as: "ReceiveCustomer", attributes: [] },
+            { model: Account, as: "accountReceiptCash", attributes: [] },
           ],
         },
         {

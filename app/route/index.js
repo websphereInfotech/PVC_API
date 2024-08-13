@@ -34,5 +34,6 @@ router.use('/itemCategory', require('./itemCategory'))
 router.use('/account', require('./account'))
 router.use('/ledger', require('./ledger'))
 router.use('/schedule', require('./machineSchedule'))
+router.use('/purchaseOrder', require('./purchaseOrder'))
 
 module.exports = router;

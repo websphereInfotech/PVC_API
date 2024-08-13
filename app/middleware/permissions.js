@@ -1688,5 +1688,25 @@ exports.permissions = {
             "account_ledger":true,
             "daybook":true,
         }
+    },
+    "Purchase Order": {
+        "Super Admin" :{
+            "create_purchaseOrder":true,
+        },
+        "Admin" :{
+            "create_purchaseOrder":true,
+        },
+        "Account" :{
+            "create_purchaseOrder":true,
+        },
+        "Employee" :{
+            "create_purchaseOrder":true,
+        },
+        "Workers" :{
+            "create_purchaseOrder":true,
+        },
+        "Other" :{
+            "create_purchaseOrder":true,
+        }
     }
 }
