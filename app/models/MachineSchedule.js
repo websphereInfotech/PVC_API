@@ -2,7 +2,7 @@ const { DataTypes} = require("sequelize");
 const sequelize = require("../config/index");
 const company = require("./company");
 const Machine = require("./Machine");
-const {MACHINE_SCHEDULE_TYPE, MACHINE_SCHEDULE_FREQUENCY} = require("../constant/constant");
+const {MACHINE_SCHEDULE_TYPE, MACHINE_SCHEDULE_FREQUENCY, MAINTENCE_TYPE} = require("../constant/constant");
 const MachineSchedule = sequelize.define("P_MachineSchedule", {
     machineId: {
         type: DataTypes.INTEGER,
@@ -22,6 +22,10 @@ const MachineSchedule = sequelize.define("P_MachineSchedule", {
     },
     type: {
         type: DataTypes.ENUM(...Object.values(MACHINE_SCHEDULE_TYPE)),
+        allowNull: false
+    },
+    maintenanceType: {
+        type: DataTypes.ENUM(...Object.values(MAINTENCE_TYPE)),
         allowNull: false
     },
     companyId: {type: DataTypes.INTEGER, allowNull: false},

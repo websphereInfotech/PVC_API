@@ -1,6 +1,7 @@
 const Joi = require("joi");
 const {PAYMENT_TYPE, SALARY_PAYMENT_TYPE, ACCOUNT_GROUPS_TYPE, REGISTRATION_TYPE, MACHINE_SCHEDULE_FREQUENCY, MACHINE_SCHEDULE_TYPE,
-  TRANSACTION_TYPE
+  TRANSACTION_TYPE,
+  MAINTENCE_TYPE
 } = require("./constant");
 const AccountGroup = require("../models/AccountGroup");
 
@@ -2320,6 +2321,11 @@ exports.machine_schedule_validation = async (req, res, next)=>{
       'any.only': `Type must be one of ${Object.values(MACHINE_SCHEDULE_TYPE).join(', ')}`,
       'any.required': 'Type is required'
     }),
+    maintenanceType: Joi.string().valid(...Object.values(MAINTENCE_TYPE)).required().messages({
+      'string.base': 'Maintenance Type must be a string',
+      'any.only': `Maintenance Type must be one of ${Object.values(MAINTENCE_TYPE).join(', ')}`,
+      'any.required': 'Maintenance Type is required'
+    })
   });
   const {error} = machineScheduleSchema.validate(req.body);
   if(error){

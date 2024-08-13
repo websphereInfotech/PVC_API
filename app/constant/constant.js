@@ -45,3 +45,10 @@ exports.TRANSACTION_TYPE = {
     BANK: "Bank",
     CASH: "Cash"
 }
+
+exports.MAINTENCE_TYPE = {
+    OILING: "oiling",
+    GREASING: "greasing",
+    CLEANING: "cleaning",
+    PAINTING: "painting"
+}
