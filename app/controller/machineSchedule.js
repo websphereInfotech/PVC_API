@@ -62,7 +62,13 @@ exports.view_machine_schedule = async (req, res) => {
             where: {
                 id: id,
                 companyId: companyId
-            }
+            },
+            include: [
+                {
+                    model: Machine,
+                    as: "scheduleMachine"
+                }
+            ]
         });
         if(!machineScheduleExist){
             return res.status(404).json({status: "false", message: "Machine Schedule Not Found"})
@@ -80,7 +86,13 @@ exports.view_all_machine_schedule = async (req, res) => {
         const machineScheduleExists = await MachineSchedule.findAll({
             where: {
                 companyId: companyId
-            }
+            },
+            include: [
+                {
+                    model: Machine,
+                    as: "scheduleMachine"
+                }
+            ]
         });
         if(!machineScheduleExists){
             return res.status(404).json({status: "false", message: "Machine Schedule Not Found"})
