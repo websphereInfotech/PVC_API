@@ -1,7 +1,8 @@
 const Joi = require("joi");
 const {PAYMENT_TYPE, SALARY_PAYMENT_TYPE, ACCOUNT_GROUPS_TYPE, REGISTRATION_TYPE, MACHINE_SCHEDULE_FREQUENCY, MACHINE_SCHEDULE_TYPE,
   TRANSACTION_TYPE,
-  MAINTENCE_TYPE
+  MAINTENCE_TYPE,
+  WORKER_SHIFT
 } = require("./constant");
 const AccountGroup = require("../models/AccountGroup");
 
@@ -1593,6 +1594,19 @@ exports.create_bom = function(req, res, next) {
       'any.required': 'The product unit field is required.',
       'string.base': 'The product unit must be a string.',
       'string.empty': 'The product unit cannot be empty.'
+    }),
+    shift: Joi.string().valid(...Object.values(WORKER_SHIFT)).required().messages({
+      'string.base': 'Shift must be a string',
+      'any.only': `Shift must be one of ${Object.values(WORKER_SHIFT).join(', ')}`,
+      'any.required': 'Shift is required'
+    }),
+    startTime: Joi.string().pattern(/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/).required().messages({
+      'string.pattern.base': 'Start Time must be in the format HH:mm (24-hour format)',
+      'any.required': 'Start time is required'
+    }),
+    endTime: Joi.string().pattern(/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/).required().messages({
+      'string.pattern.base': 'Start time must be in the format HH:mm (24-hour format)',
+      'any.required': 'Start time is required'
     }),
     items: Joi.array().items(
         Joi.object({

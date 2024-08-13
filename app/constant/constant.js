@@ -52,3 +52,8 @@ exports.MAINTENCE_TYPE = {
     CLEANING: "cleaning",
     PAINTING: "painting"
 }
+
+exports.WORKER_SHIFT = {
+    DAY: "Day",
+    NIGHT: "Night"
+}

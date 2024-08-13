@@ -3,6 +3,7 @@ const sequelize = require("../config/index");
 const User = require("./user");
 const Company = require("./company");
 const Product = require("./product");
+const {WORKER_SHIFT} = require("../constant/constant");
 
 const Bom = sequelize.define("P_Bom", {
     bomNo: { type: DataTypes.INTEGER, allowNull: false },
@@ -14,7 +15,19 @@ const Bom = sequelize.define("P_Bom", {
     productId: {type: DataTypes.INTEGER, allowNull: false },
     qty: { type: DataTypes.INTEGER, allowNull: false },
     unit: {type: DataTypes.STRING, allowNull: false},
-    totalQty: {type: DataTypes.FLOAT, allowNull: false}
+    totalQty: {type: DataTypes.FLOAT, allowNull: false},
+    shift: {
+        type: DataTypes.ENUM(...Object.values(WORKER_SHIFT)),
+        allowNull: false
+    },
+    startTime: {
+        type: DataTypes.TIME,
+        allowNull: false
+    },
+    endTime: {
+        type: DataTypes.TIME,
+        allowNull: false
+    }
 });
 
 User.hasMany(Bom, { foreignKey: "updatedBy", as: "bomUpdatedUser" });

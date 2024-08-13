@@ -7,7 +7,7 @@ const Stock = require("../models/stock");
 
 exports.create_bom = async (req, res) => {
     try {
-        const {bomNo, date, unit, weight, items, productId, qty, totalQty} = req.body;
+        const {bomNo, date, unit, weight, items, productId, qty, totalQty, shift, endTime, startTime} = req.body;
         const userId = req.user.userId;
         const companyId = req.user.companyId;
         const checkBomNo = await Bom.findOne({where: {bomNo: bomNo, companyId: companyId}});
@@ -56,7 +56,10 @@ exports.create_bom = async (req, res) => {
             createdBy: userId,
             updatedBy: userId,
             companyId,
-            unit: unit
+            unit: unit,
+            shift: shift,
+            endTime: endTime,
+            startTime: startTime
         })
 
         const itemStock = await Stock.findOne({
@@ -98,7 +101,7 @@ exports.update_bom = async (req, res) => {
     try{
         const companyId = req.user.companyId;
         const {bomId} = req.params;
-        const {bomNo, date, unit, weight, items, productId, qty, totalQty} = req.body;
+        const {bomNo, date, unit, weight, items, productId, qty, totalQty, shift, endTime, startTime} = req.body;
 
         const bomExist = await Bom.findOne({where: {id: bomId, companyId: companyId}})
         if(!bomExist){
@@ -177,7 +180,10 @@ exports.update_bom = async (req, res) => {
                 qty,
                 unit,
                 updatedBy: req.user.userId,
-                totalQty
+                totalQty,
+                shift,
+                endTime,
+                startTime
             },
             {
                 where: {
