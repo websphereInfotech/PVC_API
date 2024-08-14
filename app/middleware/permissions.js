@@ -1692,21 +1692,45 @@ exports.permissions = {
     "Purchase Order": {
         "Super Admin" :{
             "create_purchaseOrder":true,
+            "update_purchaseOrder": true,
+            "view_single_purchaseOrder": true,
+            "view_all_purchaseOrder": true,
+            "delete_purchaseOrder": true
         },
         "Admin" :{
             "create_purchaseOrder":true,
+            "update_purchaseOrder": true,
+            "view_single_purchaseOrder": true,
+            "view_all_purchaseOrder": true,
+            "delete_purchaseOrder": true
         },
         "Account" :{
             "create_purchaseOrder":true,
+            "update_purchaseOrder": true,
+            "view_single_purchaseOrder": true,
+            "view_all_purchaseOrder": true,
+            "delete_purchaseOrder": true
         },
         "Employee" :{
             "create_purchaseOrder":true,
+            "update_purchaseOrder": true,
+            "view_single_purchaseOrder": true,
+            "view_all_purchaseOrder": true,
+            "delete_purchaseOrder": true
         },
         "Workers" :{
             "create_purchaseOrder":true,
+            "update_purchaseOrder": true,
+            "view_single_purchaseOrder": true,
+            "view_all_purchaseOrder": true,
+            "delete_purchaseOrder": true
         },
         "Other" :{
             "create_purchaseOrder":true,
+            "update_purchaseOrder": true,
+            "view_single_purchaseOrder": true,
+            "view_all_purchaseOrder": true,
+            "delete_purchaseOrder": true
         }
     }
 }
