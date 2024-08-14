@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const Account = require("./Account");
 const User = require("./user");
+const SalesInvoice = require("./salesInvoice");
 
 const deliverychallan = sequelize.define("P_deliverychallan", {
   challanno: {
@@ -19,6 +20,10 @@ const deliverychallan = sequelize.define("P_deliverychallan", {
     type: DataTypes.INTEGER,
     defaultValue:0
   },
+    saleInvoiceId: {
+      type: DataTypes.INTEGER,
+        allowNull: false
+    },
     updatedBy: { type: DataTypes.INTEGER },
     createdBy: { type: DataTypes.INTEGER }
 });
@@ -31,5 +36,8 @@ deliverychallan.belongsTo(User, { foreignKey: "updatedBy", as: "challanUpdateUse
 
 User.hasMany(deliverychallan, { foreignKey: "createdBy", as: "challanCreateUser" });
 deliverychallan.belongsTo(User, { foreignKey: "createdBy", as: "challanCreateUser" });
+
+SalesInvoice.hasMany(deliverychallan, { foreignKey: "saleInvoiceId", as: "saleDeliveryChallan" });
+deliverychallan.belongsTo(SalesInvoice, { foreignKey: "saleInvoiceId", as: "saleDeliveryChallan" });
 
 module.exports = deliverychallan;

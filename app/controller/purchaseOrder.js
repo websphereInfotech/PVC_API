@@ -104,7 +104,7 @@ exports.create_purchaseOrder = async (req, res) => {
         });
 
         const addToProduct = items.map((item) => ({
-            InvoiceId: createdOrder.id,
+            purchaseOrderId: createdOrder.id,
             ...item,
         }));
         await PurchaseOrderItem.bulkCreate(addToProduct);
@@ -289,8 +289,6 @@ exports.update_purchaseOrder = async (req, res)=>{
     }
 }
 
-
-
 exports.delete_purchaseOrder = async (req, res) => {
     try {
         const { id } = req.params;
@@ -319,7 +317,6 @@ exports.delete_purchaseOrder = async (req, res) => {
             .json({ status: "false", message: "Internal Server Error" });
     }
 };
-
 
 exports.view_purchaseOrder = async (req, res) => {
     try {

@@ -3,7 +3,7 @@ const sequelize = require("../config/index");
 const product = require("./product");
 const PurchaseOrder = require("./PurchaseOrder");
 
-const purchaseInvoiceItem = sequelize.define("P_purchaseInvoiceItem", {
+const PurchaseOrderItem = sequelize.define("P_PurchaseOrderItem", {
     productId: { type: DataTypes.INTEGER },
     qty: { type: DataTypes.INTEGER },
     rate: { type: DataTypes.INTEGER },
@@ -18,10 +18,10 @@ const purchaseInvoiceItem = sequelize.define("P_purchaseInvoiceItem", {
     }
 });
 
-product.hasMany(purchaseInvoiceItem, {foreignKey:'productId',onDelete:'CASCADE',as:'purchaseOrderProduct'});
-purchaseInvoiceItem.belongsTo(product, {foreignKey:'productId', onDelete:'CASCADE', as:'purchaseOrderProduct'});
+product.hasMany(PurchaseOrderItem, {foreignKey:'productId',onDelete:'CASCADE',as:'purchaseOrderProduct'});
+PurchaseOrderItem.belongsTo(product, {foreignKey:'productId', onDelete:'CASCADE', as:'purchaseOrderProduct'});
 
-PurchaseOrder.hasMany(purchaseInvoiceItem, { foreignKey: "purchaseOrderId" ,onDelete:'CASCADE',as:'purchaseOrderItem'});
-purchaseInvoiceItem.belongsTo(PurchaseOrder, { foreignKey: "purchaseOrderId",onDelete:'CASCADE', as:'purchaseOrderItem' });
+PurchaseOrder.hasMany(PurchaseOrderItem, { foreignKey: "purchaseOrderId" ,onDelete:'CASCADE',as:'purchaseOrderItem'});
+PurchaseOrderItem.belongsTo(PurchaseOrder, { foreignKey: "purchaseOrderId",onDelete:'CASCADE', as:'purchaseOrderItem' });
 
-module.exports = purchaseInvoiceItem;
+module.exports = PurchaseOrderItem;
