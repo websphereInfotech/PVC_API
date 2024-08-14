@@ -14,12 +14,11 @@ router.post(
 );
 
 router.put(
-    "/update_purchaseOrder",
+    "/update_purchaseOrder/:id",
     adminAuth("Purchase Order:update_purchaseOrder"),
     validation("update_purchaseOrder"),
     update_purchaseOrder
 );
-
 
 router.delete(
     "/delete_purchaseOrder/:id",

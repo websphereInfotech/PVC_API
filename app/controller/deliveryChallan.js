@@ -2,12 +2,13 @@ const { Sequelize } = require("sequelize");
 const Account = require("../models/Account");
 const deliverychallan = require("../models/deliverychallan");
 const deliverychallanitem = require("../models/deliverychallanitem");
+const SalesInvoice = require("../models/salesInvoice");
 const product = require("../models/product");
 const User = require("../models/user");
 
 exports.create_deliverychallan = async (req, res) => {
   try {
-    const { date, challanno, accountId, totalQty, items } = req.body;
+    const { date, saleInvoiceId, challanno, accountId, totalQty, items } = req.body;
     const userId = req.user.userId;
     const companyId = req.user.companyId;
     const numberOf = await deliverychallan.findOne({
@@ -26,6 +27,13 @@ exports.create_deliverychallan = async (req, res) => {
     const accountExist = await Account.findOne({
       where: { id: accountId, companyId: companyId, isActive: true },
     });
+    const saleExist = await SalesInvoice.findOne({
+      where: {id: saleInvoiceId, companyId: companyId}
+    })
+    if(!saleExist){
+      return res.status(404)
+          .json({ status: "false", message: "Sale Invoice Not Found." });
+    }
     if (!accountExist) {
       return res
         .status(404)
@@ -56,6 +64,7 @@ exports.create_deliverychallan = async (req, res) => {
       challanno,
       accountId,
       totalQty,
+      saleInvoiceId,
       companyId: companyId,
       createdBy: userId,
       updatedBy: userId
@@ -86,7 +95,7 @@ exports.create_deliverychallan = async (req, res) => {
 exports.update_deliverychallan = async (req, res) => {
   try {
     const { id } = req.params;
-    const { date, challanno, accountId, totalQty, items } = req.body;
+    const { date, challanno, accountId, saleInvoiceId, totalQty, items } = req.body;
     const userId = req.user.userId;
     const companyId = req.user.companyId;
 
@@ -114,6 +123,13 @@ exports.update_deliverychallan = async (req, res) => {
       return res
         .status(400)
         .json({ status: "false", message: "Challan Number Already Exists" });
+    }
+    const saleExist = await SalesInvoice.findOne({
+      where: {id: saleInvoiceId, companyId: companyId}
+    })
+    if(!saleExist){
+      return res.status(404)
+          .json({ status: "false", message: "Sale Invoice Not Found." });
     }
     if (!items || items.length === 0) {
       return res
@@ -147,6 +163,7 @@ exports.update_deliverychallan = async (req, res) => {
         date,
         accountId,
         totalQty,
+        saleInvoiceId,
         companyId: companyId,
         updatedBy: userId
       },
@@ -243,6 +260,7 @@ exports.get_all_deliverychallan = async (req, res) => {
           include: [{ model: product, as: "DeliveryProduct" }],
         },
         { model: Account, as: "accountDelivery" },
+        { model: SalesInvoice, as: "saleDeliveryChallan" },
         {model: User, as: "challanUpdateUser", attributes: ['username']},{model: User, as: "challanCreateUser", attributes: ['username']}
       ],
     });
@@ -274,7 +292,8 @@ exports.view_deliverychallan = async (req, res) => {
           model: Account,
           as: "accountDelivery",
         },
-        {model: User, as: "challanUpdateUser", attributes: ['username']},{model: User, as: "challanCreateUser", attributes: ['username']}
+        {model: User, as: "challanUpdateUser", attributes: ['username']},{model: User, as: "challanCreateUser", attributes: ['username']},
+        { model: SalesInvoice, as: "saleDeliveryChallan" },
       ],
     });
 

@@ -2395,3 +2395,19 @@ exports.transactionType = async (req, res, next)=>{
   }
   return next()
 }
+
+exports.saleInvoiceId = async function(req, res, next){
+  const { saleInvoiceId } = req.body;
+  const saleInvoiceSchema = Joi.number()
+      .required()
+      .messages({
+        "number.base": "Sale Invoice Number must be a number",
+        "any.required": "Required Field : Sale Invoice",
+        "number.empty": "Sale Invoice Number Cannot Be Empty",
+      });
+  const { error } = saleInvoiceSchema.validate(saleInvoiceId);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+}

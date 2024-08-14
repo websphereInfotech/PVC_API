@@ -72,7 +72,8 @@ const {
   weight,
   itemUnit, saleNo, purchaseNo, paymentNo, receiptNo, paymentType, supplyInvoiceNo, dutyTime,
   salaryPaymentType, machineName, machineNumber, machineId, cost, name, itemGroupId, itemCategoryId,
-  account_validation, accountId, bankAccountId, machine_schedule_validation, transactionType, purchaseOrder_no
+  account_validation, accountId, bankAccountId, machine_schedule_validation, transactionType, purchaseOrder_no,
+  saleInvoiceId
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -86,9 +87,9 @@ module.exports.validation = function (method) {
     case "update_user":
       return [email, mobileno, salary, role, dutyTime];
     case "create_deliverychallan":
-      return [accountId, challanno, date, qty, itemUnit];
+      return [accountId, saleInvoiceId, challanno, date, qty, itemUnit];
     case "update_deliverychallan":
-      return [accountId, challanno, date, qty, itemUnit];
+      return [accountId, saleInvoiceId, challanno, date, qty, itemUnit];
     case "create_ProFormaInvoice":
       return [ProFormaInvoice_no, accountId, terms, date, validtill, qty, itemUnit, rate];
     case "update_ProFormaInvoice":
