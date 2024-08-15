@@ -2411,3 +2411,22 @@ exports.saleInvoiceId = async function(req, res, next){
   }
   next();
 }
+
+exports.purchaseDate = function (req, res, next) {
+  const { purchaseDate } = req.body;
+  const purchaseDateSchema = Joi.string()
+      .required()
+      .messages({
+        "any.required": "Required Field :Purchase Date",
+        "string.empty": "Purchase Date Cannot Be Empty",
+        "string.base": "Purchase Date Must Be A String"
+      });
+  const { error } = purchaseDateSchema.validate(purchaseDate);
+  if (purchaseDate === null) {
+    return res.status(400).json({ status: "False", message: "Purchase Invoice Cannot Be Empty" });
+  }
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+};

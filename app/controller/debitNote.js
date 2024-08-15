@@ -1,8 +1,11 @@
 const { Sequelize } = require("sequelize");
 const debitNote = require("../models/debitNote");
+const C_DebitNote = require("../models/C_DebitNote");
 const debitNoteItem = require("../models/debitNoteItem");
+const C_DebitNoteItems = require("../models/C_DebitNoteItems");
 const product = require("../models/product");
 const purchaseInvoice = require("../models/purchaseInvoice");
+const C_purchaseCash = require("../models/C_purchaseCash");
 const User = require("../models/user");
 const AccountDetail = require("../models/AccountDetail");
 const Account = require("../models/Account");
@@ -375,5 +378,372 @@ exports.delete_debitNote = async (req, res) => {
     return res
       .status(500)
       .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
+/*=============================================================================================================
+                                         With Type C API
+ ============================================================================================================ */
+
+exports.C_create_debitNote = async (req, res) => {
+  try {
+    const {companyId, userId} = req.user;
+    const {
+      accountId,
+      debitnoteno,
+      debitdate,
+      purchaseDate,
+      purchaseId,
+      totalQty,
+      items,
+      mainTotal,
+    } = req.body;
+    const existingCredit = await C_DebitNote.findOne({
+      where: { debitnoteno: debitnoteno, companyId: companyId },
+    });
+
+    if (existingCredit) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Debit Note Number Already Exists" });
+    }
+
+    if (!purchaseId || purchaseId === "" || purchaseId === null) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Required filed :Purchase" });
+    }
+    const purchaseData = await C_purchaseCash.findOne({
+      where: { id: purchaseId, companyId: companyId },
+    });
+    if (!purchaseData) {
+      return res
+          .status(404)
+          .json({ status: "false", message: "Purchase Not Found" });
+    }
+    const accountExist = await Account.findOne({
+      where: { id: accountId, companyId: companyId, isActive: true },
+    });
+    if (!accountExist) {
+      return res
+          .status(404)
+          .json({ status: "false", message: "Account Not Found" });
+    }
+    if (!items || items.length === 0) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Required Field oF items" });
+    }
+
+    for (const item of items) {
+      if (!item.productId || item.productId === "") {
+        return res
+            .status(400)
+            .json({ status: "false", message: "Required filed :Product" });
+      }
+      if (item.qty === 0) {
+        return res
+            .status(400)
+            .json({ status: "false", message: "Qty Value Invalid" });
+      }
+      if (item.rate === 0) {
+        return res
+            .status(400)
+            .json({ status: "false", message: "Rate Value Invalid" });
+      }
+      const productname = await product.findOne({
+        where: { id: item.productId, companyId: companyId, isActive: true },
+      });
+      if (!productname) {
+        return res
+            .status(404)
+            .json({ status: "false", message: "Product Not Found" });
+      }
+    }
+    const debitNoteData = await C_DebitNote.create({
+      accountId,
+      debitnoteno,
+      debitdate,
+      purchaseDate,
+      purchaseId,
+      totalQty,
+      mainTotal,
+      companyId: companyId,
+      createdBy: userId,
+      updatedBy: userId,
+    });
+
+    const addToProduct = items.map((item) => ({
+      DebitId: debitNoteData.id,
+      ...item,
+    }));
+
+    await C_DebitNoteItems.bulkCreate(addToProduct);
+
+    const data = await C_DebitNote.findOne({
+      where: { id: debitNoteData.id, companyId: companyId },
+      include: [{ model: C_DebitNoteItems, as: "cashDebitNoteItem" }],
+    });
+
+    return res.status(200).json({
+      status: "true",
+      message: "Debit Note Create Successfully",
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+        .status(500)
+        .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
+exports.C_update_debitNote = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {userId, companyId} = req.user;
+    const {
+      accountId,
+      debitnoteno,
+      debitdate,
+      purchaseDate,
+      purchaseId,
+      totalQty,
+      items,
+      mainTotal,
+    } = req.body;
+
+    const existingDebit = await C_DebitNote.findOne({
+      where: { id: id, companyId: companyId },
+    });
+
+    if (!existingDebit) {
+      return res
+          .status(404)
+          .json({ status: "false", message: "Debit Note Not Found" });
+    }
+    const existingDebitNo = await C_DebitNote.findOne({
+      where: {
+        debitnoteno: debitnoteno,
+        companyId: companyId,
+        id: { [Sequelize.Op.ne]: id },
+      },
+    });
+
+    if (existingDebitNo) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Debit Note Number Already Exists" });
+    }
+    if (!purchaseId || purchaseId === "" || purchaseId === null) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Required filed :Purchase" });
+    }
+    const accountExist = await Account.findOne({
+      where: { id: accountId, companyId: companyId, isActive: true },
+    });
+    if (!accountExist) {
+      return res
+          .status(404)
+          .json({ status: "false", message: "Account Not Found" });
+    }
+    if (!items || items.length === 0) {
+      return res
+          .status(400)
+          .json({ status: "false", message: "Required Field oF items" });
+    }
+    for (const item of items) {
+      if (!item.productId || item.productId === "") {
+        return res
+            .status(400)
+            .json({ status: "false", message: "Required filed :Product" });
+      }
+      if (item.qty === 0) {
+        return res
+            .status(400)
+            .json({ status: "false", message: "Qty Value Invalid" });
+      }
+      if (item.rate === 0) {
+        return res
+            .status(400)
+            .json({ status: "false", message: "Rate Value Invalid" });
+      }
+      const productname = await product.findOne({
+        where: { id: item.productId, companyId: companyId, isActive: true },
+      });
+      if (!productname) {
+        return res
+            .status(404)
+            .json({ status: "false", message: "Product Not Found" });
+      }
+    }
+    await C_DebitNote.update(
+        {
+          accountId,
+          debitnoteno,
+          purchaseId,
+          purchaseDate,
+          debitdate,
+          totalQty,
+          mainTotal,
+          companyId: companyId,
+          createdBy: existingDebit.createdBy,
+          updatedBy: userId,
+        },
+        { where: { id } }
+    );
+
+    const existingItems = await C_DebitNoteItems.findAll({
+      where: { DebitId: id },
+    });
+
+    for (const item of items) {
+      const existingItem = existingItems.find((ei) => ei.id === item.id);
+
+      if (existingItem) {
+        await C_DebitNoteItems.update(
+            {
+              qty: item.qty,
+              rate: item.rate,
+              mrp: item.mrp,
+              unit: item.unit,
+              productId: item.productId
+            },
+            { where: { id: existingItem.id } }
+        );
+      } else {
+        await C_DebitNoteItems.create({
+          DebitId: id,
+          productId: item.productId,
+          qty: item.qty,
+          rate: item.rate,
+          mrp: item.mrp,
+          unit: item.unit
+        });
+      }
+    }
+    const updatedProductIds = items.map((item) => item.id);
+
+    const itemsToDelete = existingItems.filter(
+        (item) => !updatedProductIds.includes(item.id)
+    );
+
+    for (const item of itemsToDelete) {
+      await C_DebitNoteItems.destroy({ where: { id: item.id } });
+    }
+    const data = await C_DebitNote.findOne({
+      where: { id: id, companyId: companyId },
+      include: [{ model: C_DebitNoteItems, as: "cashDebitNoteItem" }],
+    });
+
+    return res.status(200).json({
+      status: "true",
+      message: "Debit Note Update Successfully",
+      data: data,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: "false",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.C_get_all_debitNote = async (req, res) => {
+  try {
+    const {companyId} = req.user;
+    const data = await C_DebitNote.findAll({
+      where: { companyId: companyId },
+      include: [
+        {
+          model: C_DebitNoteItems,
+          as: "cashDebitNoteItem",
+          include: [{ model: product, as: "DebitProductCash" }],
+        },
+        { model: Account, as: "accountDebitNoCash", include: {model: AccountDetail, as: "accountDetail"} },
+        { model: User, as: "debitCreateUserCash", attributes: ["username"] },
+        { model: User, as: "debitUpdateUserCash", attributes: ["username"] },
+      ],
+    });
+
+    if (!data) {
+      return res
+          .status(404)
+          .json({ status: "false", message: "Debit Note Not Found" });
+    } else {
+      return res.status(200).json({
+        status: "true",
+        message: "Debit Note Data Fetch Successfully",
+        data: data,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+        .status(500)
+        .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
+exports.C_view_single_debitNote = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {companyId} = req.user;
+
+    const data = await C_DebitNote.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: C_DebitNoteItems,
+          as: "cashDebitNoteItem",
+          include: [{ model: product, as: "DebitProductCash" }],
+        },
+        { model: Account, as: "accountDebitNoCash", include: {model: AccountDetail, as: "accountDetail"} },
+        { model: C_purchaseCash, as: "purchaseDataCash" },
+      ],
+    });
+    if (data) {
+      return res.status(200).json({
+        status: "true",
+        message: "Debit Note Data Fetch Successfully",
+        data: data,
+      });
+    } else {
+      return res
+          .status(404)
+          .json({ status: "false", message: "Debit Note Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+        .status(500)
+        .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
+exports.C_delete_debitNote = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {companyId} = req.user;
+
+    const data = await C_DebitNote.destroy({
+      where: { id: id, companyId: companyId },
+    });
+    if (data) {
+      return res
+          .status(200)
+          .json({ status: "true", message: "Debit Note Deleted Successfully" });
+    } else {
+      return res
+          .status(404)
+          .json({ status: "false", message: "Debit Note Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+        .status(500)
+        .json({ status: "false", message: "Internal Server Error" });
   }
 };

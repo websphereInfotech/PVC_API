@@ -1732,5 +1732,49 @@ exports.permissions = {
             "view_all_purchaseOrder": true,
             "delete_purchaseOrder": true
         }
-    }
+    },
+    "Debit Note Cash" : {
+        "Super Admin" :{
+            "create_debitNote":true,
+            "update_debitNote":true,
+            "view_all_debitNote":true,
+            "view_single_debitNote":true,
+            "delete_debitNote":true
+        },
+        "Admin" :{
+            "create_debitNote":true,
+            "update_debitNote":true,
+            "view_all_debitNote":true,
+            "view_single_debitNote":true,
+            "delete_debitNote":true
+        },
+        "Account" :{
+            "create_debitNote":true,
+            "update_debitNote":true,
+            "view_all_debitNote":true,
+            "view_single_debitNote":true,
+            "delete_debitNote":true
+        },
+        "Employee" :{
+            "create_debitNote":true,
+            "update_debitNote":true,
+            "view_all_debitNote":true,
+            "view_single_debitNote":true,
+            "delete_debitNote":true
+        },
+        "Workers" :{
+            "create_debitNote":true,
+            "update_debitNote":true,
+            "view_all_debitNote":true,
+            "view_single_debitNote":true,
+            "delete_debitNote":true
+        },
+        "Other" :{
+            "create_debitNote":true,
+            "update_debitNote":true,
+            "view_all_debitNote":true,
+            "view_single_debitNote":true,
+            "delete_debitNote":true
+        }
+    },
 }

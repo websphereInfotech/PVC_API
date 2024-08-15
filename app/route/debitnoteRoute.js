@@ -7,6 +7,11 @@ const {
   get_all_debitNote,
   view_single_debitNote,
   delete_debitNote,
+  C_create_debitNote,
+  C_update_debitNote,
+  C_get_all_debitNote,
+  C_view_single_debitNote,
+  C_delete_debitNote,
 } = require("../controller/debitNote");
 
 const router = express.Router();
@@ -38,5 +43,41 @@ router.delete(
   adminAuth("Debit Note:delete_debitNote"),
   delete_debitNote
 );
+
+
+/*=============================================================================================================
+                                         With Type C API
+ ============================================================================================================ */
+
+
+
+router.post(
+    "/C_create_debitNote",
+    adminAuth("Debit Note Cash:create_debitNote"),
+    validation("C_create_debitNote"),
+    C_create_debitNote
+);
+router.put(
+    "/C_update_debitNote/:id",
+    adminAuth("Debit Note Cash:update_debitNote"),
+    validation("C_create_debitNote"),
+    C_update_debitNote
+);
+router.get(
+    "/C_get_all_debitNote",
+    adminAuth("Debit Note Cash:view_all_debitNote"),
+    C_get_all_debitNote
+);
+router.get(
+    "/C_view_single_debitNote/:id",
+    adminAuth("Debit Note Cash:view_single_debitNote"),
+    C_view_single_debitNote
+);
+router.delete(
+    "/C_delete_debitNote/:id",
+    adminAuth("Debit Note Cash:delete_debitNote"),
+    C_delete_debitNote
+);
+
 
 module.exports = router;

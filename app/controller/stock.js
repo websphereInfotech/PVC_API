@@ -10,21 +10,25 @@ const ItemGroup = require("../models/ItemGroup");
 exports.view_all_item_stock =async (req, res) => {
     try {
         const companyId = req.user.companyId;
-        const {groupId} = req.params;
-        const itemGroupExists = await ItemGroup.findOne({
-            where: {
-                id: groupId,
-                companyId: companyId
-            }
-        });
-        if(!itemGroupExists){
-            return res.status(404).json({
-                status: "false",
-                message: "Item Group Not Found."
-            })
+        const {groupId, categoryId, search} = req.query;
+        const filters = {
+            companyId: companyId,
+            isActive: true,
+        };
+        if (groupId) {
+            filters.itemGroupId = groupId;
         }
+
+        if (categoryId) {
+            filters.itemCategoryId = categoryId;
+        }
+
+        if (search) {
+            filters.productname = { [Op.like]: `%${search}%` };
+        }
+
         const itemStock =  await Stock.findAll({
-            include: [{model: Product, as: "itemStock", where: {companyId: companyId, isActive: true, itemGroupId: groupId}}, {model: User, as: "stockUpdateUser", attributes: ["username"]}],
+            include: [{model: Product, as: "itemStock", where: filters}, {model: User, as: "stockUpdateUser", attributes: ["username"]}],
         })
         return res.status(200).json({
             status: "true",

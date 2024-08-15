@@ -73,7 +73,7 @@ const {
   itemUnit, saleNo, purchaseNo, paymentNo, receiptNo, paymentType, supplyInvoiceNo, dutyTime,
   salaryPaymentType, machineName, machineNumber, machineId, cost, name, itemGroupId, itemCategoryId,
   account_validation, accountId, bankAccountId, machine_schedule_validation, transactionType, purchaseOrder_no,
-  saleInvoiceId
+  saleInvoiceId, purchaseDate
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -203,6 +203,8 @@ module.exports.validation = function (method) {
       return [purchaseOrder_no, accountId, terms, date, validtill, qty, itemUnit, rate];
       case "update_purchaseOrder":
       return [purchaseOrder_no, accountId, terms, date, validtill, qty, itemUnit, rate];
+    case "C_create_debitNote":
+      return [accountId, debitnoteno, purchaseDate, debitdate, qty, mrp, rate, itemUnit];
     default:
       throw new Error("Invalid validation method");
   }
