@@ -1,10 +1,11 @@
 const ItemGroup = require("../models/ItemGroup");
+const User = require("../models/user");
 const {Sequelize} = require("sequelize");
 
 exports.create_itemGroup = async (req, res) => {
   try {
     const { name } = req.body;
-    const companyId = req.user.companyId
+    const {companyId, userId} = req.user
     const existingGroup = await ItemGroup.findOne({
         where: {
             name: name,
@@ -18,7 +19,9 @@ exports.create_itemGroup = async (req, res) => {
     }
     const data = await ItemGroup.create({
       name: name,
-        companyId: companyId
+        companyId: companyId,
+        updatedBy: userId,
+        createdBy: userId
     });
     return res
       .status(200)
@@ -38,7 +41,7 @@ exports.update_itemGroup = async (req, res) => {
     try {
         const { name } = req.body;
         const {id} = req.params;
-        const companyId = req.user.companyId
+        const {companyId, userId} = req.user;
         const group = await  ItemGroup.findOne({
             where: {
                 id,
@@ -66,6 +69,7 @@ exports.update_itemGroup = async (req, res) => {
         }
         const data = await ItemGroup.update({
             name: name,
+            updatedBy: userId,
         }, {
             where: {
                 id
@@ -92,6 +96,16 @@ exports.view_itemGroup = async (req, res) => {
 
     const data = await ItemGroup.findOne({
       where: { id, companyId: companyId },
+        include: [
+            {
+                model: User,
+                as: "groupUpdateUser"
+            },
+            {
+                model: User,
+                as: "groupCreateUser"
+            }
+        ]
     });
 
     if (!data) {
@@ -149,7 +163,17 @@ exports.get_all_itemGroup = async (req, res) => {
     const data = await ItemGroup.findAll({
         where: {
             companyId: companyId
-        }
+        },
+        include: [
+            {
+                model: User,
+                as: "groupUpdateUser"
+            },
+            {
+                model: User,
+                as: "groupCreateUser"
+            }
+        ]
     });
 
       return res

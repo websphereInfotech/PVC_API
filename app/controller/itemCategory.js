@@ -1,11 +1,12 @@
 const ItemCategory = require("../models/ItemCategory");
 const ItemGroup = require("../models/ItemGroup");
+const User = require("../models/user");
 const {Sequelize} = require("sequelize");
 
 exports.create_itemCategory = async (req, res) => {
   try {
     const { name, itemGroupId } = req.body;
-    const companyId = req.user.companyId
+    const {companyId, userId} = req.user
       const itemGroupExist = await ItemGroup.findOne({
           where: {
               companyId: companyId,
@@ -32,7 +33,9 @@ exports.create_itemCategory = async (req, res) => {
     const data = await ItemCategory.create({
         name: name,
         companyId: companyId,
-        itemGroupId: itemGroupId
+        itemGroupId: itemGroupId,
+        updatedBy: userId,
+        createdBy: userId
     });
     return res
       .status(200)
@@ -52,7 +55,7 @@ exports.update_itemCategory = async (req, res) => {
     try {
         const { name, itemGroupId } = req.body;
         const {id} = req.params;
-        const companyId = req.user.companyId
+        const {companyId, userId} = req.user
         const itemGroupExist = await ItemGroup.findOne({
             where: {
                 companyId: companyId,
@@ -81,7 +84,8 @@ exports.update_itemCategory = async (req, res) => {
         }
         const data = await ItemCategory.update({
             name: name,
-            itemGroupId: itemGroupId
+            itemGroupId: itemGroupId,
+            updatedBy: userId,
         }, {where: {
             id: id
             }});
@@ -106,6 +110,16 @@ exports.view_itemCategory = async (req, res) => {
 
     const data = await ItemCategory.findOne({
       where: { id, companyId: companyId },
+        include: [
+            {
+                model: User,
+                as: "categoryUpdateUser"
+            },
+            {
+                model: User,
+                as: "categoryCreateUser"
+            }
+        ]
     });
 
     if (!data) {
@@ -163,7 +177,7 @@ exports.get_all_itemCategoryGroup = async (req, res) => {
           where: {
               id: groupId,
               companyId: companyId
-          }
+          },
       });
       if(!itemGroup){
           return res
@@ -204,6 +218,16 @@ exports.view_all_itemCategory = async (req, res) => {
 
         const data = await ItemCategory.findAll({
             where: { companyId: companyId },
+            include: [
+                {
+                    model: User,
+                    as: "categoryUpdateUser"
+                },
+                {
+                    model: User,
+                    as: "categoryCreateUser"
+                }
+            ]
         });
 
         return res
