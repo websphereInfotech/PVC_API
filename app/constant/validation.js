@@ -2430,3 +2430,20 @@ exports.purchaseDate = function (req, res, next) {
   }
   next();
 };
+
+
+exports.wastageName = function (req, res, next) {
+  const { name } = req.body;
+  const nameSchema = Joi.string()
+      .required()
+      .messages({
+        "any.required": "Required Field :Wastage Name",
+        "string.empty": "Wastage Name Cannot Be Empty",
+        "string.base": "Wastage Name Must Be A String"
+      });
+  const { error } = nameSchema.validate(name);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+};

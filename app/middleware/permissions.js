@@ -1821,4 +1821,48 @@ exports.permissions = {
             "view_single_creditNote":true
         }
     },
+    "Wastage" : {
+        "Super Admin" :{
+            "create_wastage":true,
+            "update_wastage":true,
+            "view_all_wastage":true,
+            "delete_wastage":true,
+            "view_single_wastage":true
+        },
+        "Admin" :{
+            "create_wastage":true,
+            "update_wastage":true,
+            "view_all_wastage":true,
+            "delete_wastage":true,
+            "view_single_wastage":true
+        },
+        "Account" :{
+            "create_wastage":true,
+            "update_wastage":true,
+            "view_all_wastage":true,
+            "delete_wastage":true,
+            "view_single_wastage":true
+        },
+        "Employee" :{
+            "create_wastage":true,
+            "update_wastage":true,
+            "view_all_wastage":true,
+            "delete_wastage":true,
+            "view_single_wastage":true
+        },
+        "Workers" :{
+            "create_wastage":true,
+            "update_wastage":true,
+            "view_all_wastage":true,
+            "delete_wastage":true,
+            "view_single_wastage":true
+        },
+        "Other" :{
+            "create_wastage":true,
+            "update_wastage":true,
+            "view_all_wastage":true,
+            "delete_wastage":true,
+            "view_single_wastage":true
+        }
+    },
 }

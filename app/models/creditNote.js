@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const User = require("./user");
 const Account = require("./Account");
+const company = require("./company");
 
 const creditNote = sequelize.define("P_creditNote", {
   accountId: {
@@ -52,6 +53,9 @@ const creditNote = sequelize.define("P_creditNote", {
   createdBy: { type: DataTypes.INTEGER },
   updatedBy: { type: DataTypes.INTEGER },
 });
+
+company.hasMany(creditNote, {foreignKey:'companyId',onDelete:'CASCADE'});
+creditNote.belongsTo(company, {foreignKey:'companyId',onDelete:'CASCADE'});
 
 User.hasMany(creditNote, { foreignKey: "createdBy", as: "creditCreateUser" });
 creditNote.belongsTo(User, {

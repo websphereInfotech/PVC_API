@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const User = require("./user");
 const Account = require("./Account");
+const company = require("./company");
 
 const C_CreditNote = sequelize.define("P_C_CreditNote", {
     accountId: {
@@ -55,5 +56,8 @@ C_CreditNote.belongsTo(Account, {
     onDelete: "CASCADE",
     as: "accountCreditNoCash",
 });
+
+company.hasMany(C_CreditNote, {foreignKey:'companyId',onDelete:'CASCADE'});
+C_CreditNote.belongsTo(company, {foreignKey:'companyId',onDelete:'CASCADE'});
 
 module.exports = C_CreditNote;
