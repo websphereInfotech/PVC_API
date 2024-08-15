@@ -1,4 +1,5 @@
 const ItemGroup = require("../models/ItemGroup");
+const {Sequelize} = require("sequelize");
 
 exports.create_itemGroup = async (req, res) => {
   try {
@@ -33,39 +34,57 @@ exports.create_itemGroup = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-// exports.update_itemgroup = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const { group, remarks } = req.body;
-//
-//     const item = await itemgroup.findByPk(id);
-//     if (!item) {
-//       return res.status(400).json({ message: "Item group not Found" });
-//     }
-//     await itemgroup.update(
-//       {
-//         group: group,
-//         remarks: remarks,
-//       },
-//       {
-//         where: { id: id },
-//       }
-//     );
-//     const data = await itemgroup.findByPk(id);
-//     return res
-//       .status(200)
-//       .json({
-//         status: "true",
-//         message: "Item group Update Successfully",
-//         data: data,
-//       });
-//   } catch (error) {
-//     console.log(error.message);
-//     return res
-//       .status(500)
-//       .json({ status: "false", message: "Internal Server Error" });
-//   }
-// };
+exports.update_itemGroup = async (req, res) => {
+    try {
+        const { name } = req.body;
+        const {id} = req.params;
+        const companyId = req.user.companyId
+        const group = await  ItemGroup.findOne({
+            where: {
+                id,
+                companyId: companyId
+            }
+        })
+        if(!group){
+            return res
+                .status(404)
+                .json({ status: "false", message: "Item Group Not Found." });
+        }
+        const existingGroup = await ItemGroup.findOne({
+            where: {
+                name: name,
+                companyId: companyId,
+                id: {
+                    [Sequelize.Op.ne]: id
+                }
+            }
+        });
+        if (existingGroup) {
+            return res
+                .status(400)
+                .json({ status: "false", message: "Item Group already exists" });
+        }
+        const data = await ItemGroup.update({
+            name: name,
+        }, {
+            where: {
+                id
+            }
+        });
+        return res
+            .status(200)
+            .json({
+                status: "true",
+                message: "Item group Update successfully.",
+                data: data,
+            });
+    } catch (error) {
+        console.log(error);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
+};
 exports.view_itemGroup = async (req, res) => {
   try {
     const { id } = req.params;
@@ -94,6 +113,36 @@ exports.view_itemGroup = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
+exports.delete_itemGroup = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const companyId = req.user.companyId;
+
+        const data = await ItemGroup.findOne({
+            where: { id, companyId: companyId },
+        });
+
+        if (!data) {
+            return res
+                .status(404)
+                .json({ status: "false", message: "Item group Not Found" });
+        }
+        await data.destroy()
+        return res
+            .status(200)
+            .json({
+                status: "true",
+                message: "Item group delete successfully",
+            });
+    } catch (error) {
+        console.log(error);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
+};
+
 exports.get_all_itemGroup = async (req, res) => {
   try {
       const companyId = req.user.companyId
@@ -103,7 +152,6 @@ exports.get_all_itemGroup = async (req, res) => {
         }
     });
 
-    if (data) {
       return res
         .status(200)
         .json({
@@ -111,11 +159,7 @@ exports.get_all_itemGroup = async (req, res) => {
           message: "Item Group Show Successfully",
           data: data,
         });
-    } else {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Item Group Not Found" });
-    }
+
   } catch (error) {
     console.log(error.message);
     return res

@@ -3,7 +3,7 @@ const Stock = require("../models/stock");
 const User = require("../models/user");
 const ItemGroup = require("../models/ItemGroup");
 const ItemCategory = require("../models/ItemCategory");
-const {Op} = require("sequelize");
+const {Op, Sequelize} = require("sequelize");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -38,6 +38,18 @@ exports.create_item = async (req, res) => {
     }
     if (weight === "") {
       weight = null;
+    }
+    const productNameExist = await item.findOne({
+      where: {
+        companyId: companyId,
+        productname: productname,
+      }
+    });
+    if(productNameExist){
+      return res.status(400).json({
+        status: "false",
+        message: "Product already exists."
+      })
     }
     const itemGroupExist = await ItemGroup.findOne({
       where: {
@@ -137,6 +149,21 @@ exports.update_item = async (req, res) => {
     }
     if (weight === "") {
       weight = null;
+    }
+
+    const productNameExist = await item.findOne({
+      where: {
+        companyId: companyId,
+        productname: productname,
+        id: {
+          [Sequelize.Op.ne]: id
+        }}
+    });
+    if(productNameExist){
+      return res.status(400).json({
+        status: "false",
+        message: "Product already exists."
+      })
     }
 
     const existingProduct = await item.findOne({
