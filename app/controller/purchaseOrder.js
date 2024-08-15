@@ -277,7 +277,7 @@ exports.update_purchaseOrder = async (req, res)=>{
 
         return res.status(200).json({
             status: true,
-            message: "Purchase Invoice Updated Successfully",
+            message: "Purchase Order Updated Successfully",
             data: updatedOrder,
         });
     } catch (error) {

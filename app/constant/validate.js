@@ -205,6 +205,8 @@ module.exports.validation = function (method) {
       return [purchaseOrder_no, accountId, terms, date, validtill, qty, itemUnit, rate];
     case "C_create_debitNote":
       return [accountId, debitnoteno, purchaseDate, debitdate, qty, mrp, rate, itemUnit];
+    case "C_create_creditNote":
+      return [ accountId, creditnoteNo, creditdate, rate, qty, itemUnit ];
     default:
       throw new Error("Invalid validation method");
   }

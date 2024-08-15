@@ -1777,4 +1777,48 @@ exports.permissions = {
             "delete_debitNote":true
         }
     },
+    "Credit Note Cash" : {
+        "Super Admin" :{
+            "create_creditNote":true,
+            "update_creditNote":true,
+            "view_all_creditNote":true,
+            "delete_creditNote":true,
+            "view_single_creditNote":true
+        },
+        "Admin" :{
+            "create_creditNote":true,
+            "update_creditNote":true,
+            "view_all_creditNote":true,
+            "delete_creditNote":true,
+            "view_single_creditNote":true
+        },
+        "Account" :{
+            "create_creditNote":true,
+            "update_creditNote":true,
+            "view_all_creditNote":true,
+            "delete_creditNote":true,
+            "view_single_creditNote":true
+        },
+        "Employee" :{
+            "create_creditNote":true,
+            "update_creditNote":true,
+            "view_all_creditNote":true,
+            "delete_creditNote":true,
+            "view_single_creditNote":true
+        },
+        "Workers" :{
+            "create_creditNote":true,
+            "update_creditNote":true,
+            "view_all_creditNote":true,
+            "delete_creditNote":true,
+            "view_single_creditNote":true
+        },
+        "Other" :{
+            "create_creditNote":true,
+            "update_creditNote":true,
+            "view_all_creditNote":true,
+            "delete_creditNote":true,
+            "view_single_creditNote":true
+        }
+    },
 }
