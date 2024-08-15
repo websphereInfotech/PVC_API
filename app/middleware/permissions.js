@@ -1501,32 +1501,50 @@ exports.permissions = {
         "Super Admin" :{
             "create_itemCategory":true,
             "view_single_itemCategory": true,
-            "view_all_itemCategory_group": true
+            "view_all_itemCategory_group": true,
+            "delete_itemCategory": true,
+            "view_all_itemCategory": true,
+            "update_itemCategory": true
         },
         "Admin" :{
             "create_itemCategory":true,
             "view_single_itemCategory": true,
-            "view_all_itemCategory_group": true
+            "view_all_itemCategory_group": true,
+            "delete_itemCategory": true,
+            "view_all_itemCategory": true,
+            "update_itemCategory": true
         },
         "Account" :{
             "create_itemCategory":true,
             "view_single_itemCategory": true,
-            "view_all_itemCategory_group": true
+            "view_all_itemCategory_group": true,
+            "delete_itemCategory": true,
+            "view_all_itemCategory": true,
+            "update_itemCategory": true
         },
         "Employee" :{
             "create_itemCategory":true,
             "view_single_itemCategory": true,
-            "view_all_itemCategory_group": true
+            "view_all_itemCategory_group": true,
+            "delete_itemCategory": true,
+            "view_all_itemCategory": true,
+            "update_itemCategory": true
         },
         "Workers" :{
             "create_itemCategory":true,
             "view_single_itemCategory": true,
-            "view_all_itemCategory_group": true
+            "view_all_itemCategory_group": true,
+            "delete_itemCategory": true,
+            "view_all_itemCategory": true,
+            "update_itemCategory": true
         },
         "Other" :{
             "create_itemCategory":true,
             "view_single_itemCategory": true,
-            "view_all_itemCategory_group": true
+            "view_all_itemCategory_group": true,
+            "delete_itemCategory": true,
+            "view_all_itemCategory": true,
+            "update_itemCategory": true
         }
     },
     "Account" : {

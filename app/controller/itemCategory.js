@@ -1,10 +1,22 @@
 const ItemCategory = require("../models/ItemCategory");
 const ItemGroup = require("../models/ItemGroup");
+const {Sequelize} = require("sequelize");
 
 exports.create_itemCategory = async (req, res) => {
   try {
     const { name, itemGroupId } = req.body;
     const companyId = req.user.companyId
+      const itemGroupExist = await ItemGroup.findOne({
+          where: {
+              companyId: companyId,
+              id: itemGroupId
+          }
+      })
+      if(!itemGroupExist){
+          return res
+              .status(404)
+              .json({ status: "false", message: "Item group not found." });
+      }
     const existingItemCategory = await ItemCategory.findOne({
         where: {
             name: name,
@@ -14,7 +26,7 @@ exports.create_itemCategory = async (req, res) => {
     });
     if (existingItemCategory) {
       return res
-        .status(404)
+        .status(400)
         .json({ status: "false", message: "Item Category already exists." });
     }
     const data = await ItemCategory.create({
@@ -36,40 +48,57 @@ exports.create_itemCategory = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-// exports.update_itemcategory = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const { category, remarks } = req.body;
-//
-//     const item = await itemcategory.findByPk(id);
-//     if (!item) {
-//       return res.status(400).json({ message: "Item category not Found" });
-//     }
-//     await itemcategory.update(
-//       {
-//         category: category,
-//         remarks: remarks,
-//       },
-//       {
-//         where: { id: id },
-//       }
-//     );
-//
-//     const data = await itemcategory.findByPk(id);
-//     return res
-//       .status(200)
-//       .json({
-//         status: "true",
-//         message: "Item category Update Successfully",
-//         data: data,
-//       });
-//   } catch (error) {
-//     console.log(error.message);
-//     return res
-//       .status(500)
-//       .json({ status: "false", message: "Internal Server Error" });
-//   }
-// };
+exports.update_itemCategory = async (req, res) => {
+    try {
+        const { name, itemGroupId } = req.body;
+        const {id} = req.params;
+        const companyId = req.user.companyId
+        const itemGroupExist = await ItemGroup.findOne({
+            where: {
+                companyId: companyId,
+                id: itemGroupId
+            }
+        })
+        if(!itemGroupExist){
+            return res
+                .status(404)
+                .json({ status: "false", message: "Item group not found." });
+        }
+        const existingItemCategory = await ItemCategory.findOne({
+            where: {
+                name: name,
+                companyId: companyId,
+                itemGroupId: itemGroupId,
+                id: {
+                    [Sequelize.Op.ne]: id
+                }
+            }
+        });
+        if (existingItemCategory) {
+            return res
+                .status(400)
+                .json({ status: "false", message: "Item Category already exists." });
+        }
+        const data = await ItemCategory.update({
+            name: name,
+            itemGroupId: itemGroupId
+        }, {where: {
+            id: id
+            }});
+        return res
+            .status(200)
+            .json({
+                status: "true",
+                message: "Item category update successfully.",
+                data: data,
+            });
+    } catch (error) {
+        console.log(error);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
+};
 exports.view_itemCategory = async (req, res) => {
   try {
     const { id } = req.params;
@@ -90,6 +119,34 @@ exports.view_itemCategory = async (req, res) => {
         status: "true",
         message: "Item category data fetch successfully",
         data: data,
+      });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+exports.delete_itemCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.user.companyId
+
+    const data = await ItemCategory.findOne({
+      where: { id, companyId: companyId },
+    });
+
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Item category Not Found." });
+    }
+    await data.destroy()
+    return res
+      .status(200)
+      .json({
+        status: "true",
+        message: "Item category delete successfully",
       });
   } catch (error) {
     console.log(error);
@@ -138,4 +195,28 @@ exports.get_all_itemCategoryGroup = async (req, res) => {
       .status(500)
       .json({ status: "false", message: "Internal Server Error" });
   }
+};
+
+
+exports.view_all_itemCategory = async (req, res) => {
+    try {
+        const companyId = req.user.companyId
+
+        const data = await ItemCategory.findAll({
+            where: { companyId: companyId },
+        });
+
+        return res
+            .status(200)
+            .json({
+                status: "true",
+                message: "Item category data fetch successfully",
+                data: data,
+            });
+    } catch (error) {
+        console.log(error);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
 };
