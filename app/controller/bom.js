@@ -4,10 +4,11 @@ const Product = require("../models/product");
 const User = require("../models/user");
 const {Sequelize} = require("sequelize");
 const Stock = require("../models/stock");
+const Wastage = require("../models/Wastage");
 
 exports.create_bom = async (req, res) => {
     try {
-        const {bomNo, date, unit, weight, items, productId, qty, totalQty, shift, endTime, startTime} = req.body;
+        const {bomNo, date, unit, weight, items, productId, qty, totalQty, shift, endTime, startTime, wastageId, wastageQty} = req.body;
         const userId = req.user.userId;
         const companyId = req.user.companyId;
         const checkBomNo = await Bom.findOne({where: {bomNo: bomNo, companyId: companyId}});
@@ -30,6 +31,17 @@ exports.create_bom = async (req, res) => {
             })
         }
 
+        const wastageExist = await Wastage.findOne({where: {
+                id: wastageId,
+                companyId: companyId,
+            }});
+        if(!wastageExist){
+            return res.status(404).json({
+                status: "false",
+                message: "Wastage Item Not Found.",
+            })
+        }
+
         for(const item of items){
             const productExist = await Product.findOne({where: {
                     id: item.productId,
@@ -43,7 +55,7 @@ exports.create_bom = async (req, res) => {
                 })
             }
         }
-        const totalWeight = qty * weight;
+        const totalWeight = (qty * weight) + wastageQty;
         const dividedWeight = Math.floor((totalWeight / totalQty) * 100) / 100;
 
         const createBOM = await Bom.create({
@@ -59,7 +71,9 @@ exports.create_bom = async (req, res) => {
             unit: unit,
             shift: shift,
             endTime: endTime,
-            startTime: startTime
+            startTime: startTime,
+            wastageId,
+            wastageQty
         })
 
         const itemStock = await Stock.findOne({
@@ -101,7 +115,7 @@ exports.update_bom = async (req, res) => {
     try{
         const companyId = req.user.companyId;
         const {bomId} = req.params;
-        const {bomNo, date, unit, weight, items, productId, qty, totalQty, shift, endTime, startTime} = req.body;
+        const {bomNo, date, unit, weight, items, productId, qty, totalQty, shift, endTime, startTime, wastageId, wastageQty} = req.body;
 
         const bomExist = await Bom.findOne({where: {id: bomId, companyId: companyId}})
         if(!bomExist){
@@ -129,6 +143,16 @@ exports.update_bom = async (req, res) => {
             return res.status(404).json({
                 status: "false",
                 message: "Product Item Not Found.",
+            })
+        }
+        const wastageExist = await Wastage.findOne({where: {
+                id: wastageId,
+                companyId: companyId,
+            }});
+        if(!wastageExist){
+            return res.status(404).json({
+                status: "false",
+                message: "Wastage Item Not Found.",
             })
         }
         const existingItems = await BomItem.findAll({
@@ -162,11 +186,11 @@ exports.update_bom = async (req, res) => {
                 }
             }
         }
-        const totalWeight = qty * weight;
+        const totalWeight = (qty * weight) + wastageQty;
 
         const dividedWeight = Math.floor((totalWeight / totalQty) * 100) / 100;
 
-        const oldTotalWeight = bomExist.qty * bomExist.weight;
+        const oldTotalWeight = (bomExist.qty * bomExist.weight) + bomExist.wastageQty;
         const oldTotalRecipeWeight = bomExist?.totalQty ?? 0;
         const oldDividedWeight = Math.floor((oldTotalWeight / oldTotalRecipeWeight) * 100) / 100;
 
@@ -183,7 +207,9 @@ exports.update_bom = async (req, res) => {
                 totalQty,
                 shift,
                 endTime,
-                startTime
+                startTime,
+                wastageId,
+                wastageQty
             },
             {
                 where: {
@@ -292,6 +318,10 @@ exports.view_all_bom = async (req,res)=>{
                     model: User,
                     as: "bomCreatedUser",
                     attributes: ['username']
+                },
+                {
+                    model: Wastage,
+                    as: "bomWastage",
                 }
             ]
         })
@@ -346,6 +376,10 @@ exports.view_bom = async (req,res)=>{
                     model: User,
                     as: "bomCreatedUser",
                     attributes: ['username']
+                },
+                {
+                    model: Wastage,
+                    as: "bomWastage",
                 }
             ]
         })
@@ -380,7 +414,7 @@ exports.delete_bom = async (req,res)=>{
             where: { bomId: bomExist.id },
         });
 
-        const oldTotalWeight = bomExist.qty * bomExist.weight;
+        const oldTotalWeight = (bomExist.qty * bomExist.weight) + bomExist.wastageQty;
         const oldTotalRecipeWeight = bomExist.totalQty;
         const oldDividedWeight = Math.floor((oldTotalWeight / oldTotalRecipeWeight) * 100) / 100;
         const itemStock = await Stock.findOne({

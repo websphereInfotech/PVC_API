@@ -16,8 +16,8 @@ const Wastage = sequelize.define("P_Wastage", {
 company.hasOne(Wastage, {foreignKey: "companyId", onDelete: "CASCADE" });
 Wastage.belongsTo(company, {foreignKey: "companyId", onDelete: "CASCADE" });
 
-User.hasMany(Wastage, { foreignKey: "updatedBy", as: "wastageUpdateUser" });
-Wastage.belongsTo(User, { foreignKey: "updatedBy", as: "wastageUpdateUser" });
+User.hasMany(Wastage, { foreignKey: "createdBy", as: "wastageCreateUser" });
+Wastage.belongsTo(User, { foreignKey: "createdBy", as: "wastageCreateUser" });
 
 User.hasMany(Wastage, { foreignKey: "updatedBy", as: "wastageUpdateUser" });
 Wastage.belongsTo(User, { foreignKey: "updatedBy", as: "wastageUpdateUser" });

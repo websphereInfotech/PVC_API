@@ -1608,6 +1608,15 @@ exports.create_bom = function(req, res, next) {
       'string.pattern.base': 'Start time must be in the format HH:mm (24-hour format)',
       'any.required': 'Start time is required'
     }),
+    wastageId: Joi.number().required().messages({
+      'any.required': 'The Wastage field is required.',
+      'number.base': 'The Wastage must be a number.'
+    }),
+    wastageQty: Joi.number().greater(0).required().messages({
+      'any.required': 'The Wastage qty field is required.',
+      'number.base': 'The Wastage qty must be a number.',
+      "number.greater": "Wastage Qty must be greater than 0.",
+    }),
     items: Joi.array().items(
         Joi.object({
           productId: Joi.number().required().messages({
