@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/index');
 const product = require('./product');
-const creditNote = require('./creditNote');
+const C_CreditNote = require('./C_CreditNote');
 
 const C_CreditNoteItem = sequelize.define("P_C_CreditNoteItem", {
     productId: {
@@ -26,7 +26,7 @@ const C_CreditNoteItem = sequelize.define("P_C_CreditNoteItem", {
 product.hasMany(C_CreditNoteItem, { foreignKey: 'productId', onDelete: 'CASCADE', as: 'CreditProductCash' });
 C_CreditNoteItem.belongsTo(product, { foreignKey: 'productId', onDelete: 'CASCADE', as: 'CreditProductCash' });
 
-creditNote.hasMany(C_CreditNoteItem, { foreignKey: 'creditId', onDelete: 'CASCADE', as: 'cashCreditNoteItem' });
-C_CreditNoteItem.belongsTo(creditNote, { foreignKey: 'creditId', onDelete: 'CASCADE', as: 'cashCreditNoteItem' });
+C_CreditNote.hasMany(C_CreditNoteItem, { foreignKey: 'creditId', onDelete: 'CASCADE', as: 'cashCreditNoteItem' });
+C_CreditNoteItem.belongsTo(C_CreditNote, { foreignKey: 'creditId', onDelete: 'CASCADE', as: 'cashCreditNoteItem' });
 
 module.exports = C_CreditNoteItem;
