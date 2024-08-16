@@ -1,7 +1,7 @@
 const ItemCategory = require("../models/ItemCategory");
 const ItemGroup = require("../models/ItemGroup");
 const User = require("../models/user");
-const {Sequelize} = require("sequelize");
+const {Sequelize, Op} = require("sequelize");
 
 exports.create_itemCategory = async (req, res) => {
   try {
@@ -219,9 +219,14 @@ exports.get_all_itemCategoryGroup = async (req, res) => {
 exports.view_all_itemCategory = async (req, res) => {
     try {
         const companyId = req.user.companyId
+        const { search } = req.query;
+        const whereClause = { companyId: companyId };
+        if (search) {
+            whereClause.name = { [Op.like]: `%${search}%` };
+        }
 
         const data = await ItemCategory.findAll({
-            where: { companyId: companyId },
+            where: whereClause,
             include: [
                 {
                     model: User,

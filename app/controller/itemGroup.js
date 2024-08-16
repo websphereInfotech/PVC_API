@@ -1,6 +1,6 @@
 const ItemGroup = require("../models/ItemGroup");
 const User = require("../models/user");
-const {Sequelize} = require("sequelize");
+const {Sequelize, Op} = require("sequelize");
 
 exports.create_itemGroup = async (req, res) => {
   try {
@@ -160,10 +160,13 @@ exports.delete_itemGroup = async (req, res) => {
 exports.get_all_itemGroup = async (req, res) => {
   try {
       const companyId = req.user.companyId
+      const { search } = req.query;
+      const whereClause = { companyId: companyId };
+      if (search) {
+          whereClause.name = { [Op.like]: `%${search}%` };
+      }
     const data = await ItemGroup.findAll({
-        where: {
-            companyId: companyId
-        },
+        where: whereClause,
         include: [
             {
                 model: User,
