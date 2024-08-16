@@ -118,6 +118,10 @@ exports.view_itemCategory = async (req, res) => {
             {
                 model: User,
                 as: "categoryCreateUser"
+            },
+            {
+                model: ItemGroup,
+                as: "ItemGroup"
             }
         ]
     });
@@ -226,6 +230,10 @@ exports.view_all_itemCategory = async (req, res) => {
                 {
                     model: User,
                     as: "categoryCreateUser"
+                },
+                {
+                    model: ItemGroup,
+                    as: "ItemGroup"
                 }
             ]
         });
