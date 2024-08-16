@@ -1,5 +1,6 @@
 const { DataTypes} = require("sequelize");
 const sequelize = require("../config/index");
+const {ROLE} = require("../constant/constant");
 
 const User = sequelize.define("P_user", {
   username: {
@@ -18,14 +19,7 @@ const User = sequelize.define("P_user", {
     type: DataTypes.STRING,
   },
   role: {
-    type: DataTypes.ENUM(
-      "Super Admin",
-      "Admin",
-      "Account",
-      "Employee",
-      "Workers",
-      "Other"
-    ),
+    type: DataTypes.ENUM(...Object.values(ROLE)),
     allowNull: false,
   },
   entryTime: {

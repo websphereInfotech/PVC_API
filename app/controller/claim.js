@@ -5,12 +5,12 @@ const C_claimLedger = require("../models/C_claimLedger");
 const C_receiveCash = require("../models/C_Receipt");
 const C_userBalance = require("../models/C_userBalance");
 const companyUser = require("../models/companyUser");
-const C_customer = require("../models/C_customer");
+const C_WalletLedger = require("../models/C_WalletLedger");
 const Account = require("../models/Account");
 const C_CompanyBalance = require("../models/C_companyBalance");
 const Salary = require("../models/salary");
 const SalaryPayment = require("../models/salaryPayment");
-const {SALARY_PAYMENT_TYPE} = require("../constant/constant");
+const {SALARY_PAYMENT_TYPE, ROLE} = require("../constant/constant");
 
 exports.create_claim = async (req, res) => {
   try {
@@ -205,96 +205,155 @@ exports.isapproved_claim = async (req, res) => {
         message: "Claim has already been approved or rejected",
       });
     }
+    let existingBalance;
+    if(data.toUser.role === ROLE.SUPER_ADMIN){
+      existingBalance = await C_CompanyBalance.findOne({
+        where: {
+          companyId: data.companyId,
+        }
+      })
+    }else {
+      existingBalance = await C_userBalance.findOne({
+        where: { userId: req.user.userId, companyId: req.user.companyId },
+      });
+    }
+    const balance = existingBalance?.balance ?? 0
+    const amount = data.amount;
+    if(isApproved === true && balance<amount){
+      return res.status(400).json({
+        status: "false",
+        message: "Not enough fund."
+      })
+    }
     data.isApproved = isApproved;
     data.date = new Date();
 
     await data.save();
 
     if (isApproved === true) {
-      await C_claimLedger.create({
+      // await C_claimLedger.create({
+      //   claimId: data.id,
+      //   userId: req.user.userId,
+      //   date: new Date(),
+      //   companyId: req.user.companyId,
+      // });
+
+      await C_WalletLedger.create({
         claimId: data.id,
         userId: req.user.userId,
+        companyId: companyId,
         date: new Date(),
-        companyId: req.user.companyId,
-      });
+        isApprove: true,
+        approveDate: new Date(),
+      })
 
-      await C_claimLedger.create({
+      await C_WalletLedger.create({
         claimId: data.id,
         userId: data.fromUserId,
+        companyId: companyId,
         date: new Date(),
-        companyId: req.user.companyId,
-      });
-
-      const fromUserBalance = await C_userBalance.findOne({
-        where: { userId: data.fromUserId, companyId: req.user.companyId },
-      });
-
-      const toUserBalance = await C_userBalance.findOne({
-        where: { userId: req.user.userId, companyId: req.user.companyId },
-      });
-
-      fromUserBalance.balance += data.amount;
-      toUserBalance.balance -= data.amount;
-
-      await fromUserBalance.save();
-      await toUserBalance.save();
+        isApprove: true,
+        approveDate: new Date(),
+      })
 
       let companyCashBalance = await C_CompanyBalance.findOne({
         where: {
           companyId: data.companyId,
         }
       })
-      if(data.fromUser.role === "Super Admin"){
-        if(data.purpose === "Salary" || data.purpose === "Advance") {
-          const salaryData = await Salary.findOne({
-            where:{
-              userId: data.fromUserId,
-              companyId: companyId
-            },
-            order: [
-              ['monthStartDate', 'DESC']
-            ]
-          });
-          salaryData.payableAmount -= data.amount
-          await salaryData.save()
+      const fromUserBalance = await C_userBalance.findOne({
+        where: { userId: data.fromUserId, companyId: req.user.companyId },
+      });
+      const toUserBalance = await C_userBalance.findOne({
+        where: { userId: req.user.userId, companyId: req.user.companyId },
+      });
 
-          await SalaryPayment.create({
-            amount: data.amount,
-            salaryId: salaryData.id,
-            paymentType: SALARY_PAYMENT_TYPE.CASH,
-            date: data.date,
-            companyBankId: null,
-            userBankId: null
-          });
-        }
-        companyCashBalance.balance += data.amount;
-        await companyCashBalance.save()
-      }else if(data.toUser.role === "Super Admin"){
-        if(data.purpose === "Salary" || data.purpose === "Advance") {
-          const salaryData = await Salary.findOne({
-            where:{
-              userId: data.fromUserId,
-              companyId: companyId
-            },
-            order: [
-              ['monthStartDate', 'DESC']
-            ]
-          });
-          salaryData.payableAmount -= data.amount
-          await salaryData.save()
 
-          await SalaryPayment.create({
-            amount: data.amount,
-            salaryId: salaryData.id,
-            paymentType: SALARY_PAYMENT_TYPE.CASH,
-            date: data.date,
-            companyBankId: null,
-            userBankId: null
-          });
-        }
-        companyCashBalance.balance -= data.amount;
-        await companyCashBalance.save()
+      if(data.fromUser.role === ROLE.SUPER_ADMIN){
+        await companyCashBalance.increment('balance', {by: amount})
+      }else {
+        await fromUserBalance.increment('balance', {by: amount})
       }
+
+      if(data.toUser.role === ROLE.SUPER_ADMIN){
+        await companyCashBalance.decrement('balance', {by: amount})
+      }else {
+        await toUserBalance.decrement('balance', {by: amount})
+      }
+
+      // await C_claimLedger.create({
+      //   claimId: data.id,
+      //   userId: data.fromUserId,
+      //   date: new Date(),
+      //   companyId: req.user.companyId,
+      // });
+
+      // const fromUserBalance = await C_userBalance.findOne({
+      //   where: { userId: data.fromUserId, companyId: req.user.companyId },
+      // });
+      //
+      // const toUserBalance = await C_userBalance.findOne({
+      //   where: { userId: req.user.userId, companyId: req.user.companyId },
+      // });
+      //
+      // fromUserBalance.balance += data.amount;
+      // toUserBalance.balance -= data.amount;
+      //
+      // await fromUserBalance.save();
+      // await toUserBalance.save();
+
+
+      // if(data.fromUser.role === "Super Admin"){
+      //   if(data.purpose === "Salary" || data.purpose === "Advance") {
+      //     const salaryData = await Salary.findOne({
+      //       where:{
+      //         userId: data.fromUserId,
+      //         companyId: companyId
+      //       },
+      //       order: [
+      //         ['monthStartDate', 'DESC']
+      //       ]
+      //     });
+      //     salaryData.payableAmount -= data.amount
+      //     await salaryData.save()
+      //
+      //     await SalaryPayment.create({
+      //       amount: data.amount,
+      //       salaryId: salaryData.id,
+      //       paymentType: SALARY_PAYMENT_TYPE.CASH,
+      //       date: data.date,
+      //       companyBankId: null,
+      //       userBankId: null
+      //     });
+      //   }
+      //   companyCashBalance.balance += data.amount;
+      //   await companyCashBalance.save()
+      // }else if(data.toUser.role === "Super Admin"){
+      //   if(data.purpose === "Salary" || data.purpose === "Advance") {
+      //     const salaryData = await Salary.findOne({
+      //       where:{
+      //         userId: data.fromUserId,
+      //         companyId: companyId
+      //       },
+      //       order: [
+      //         ['monthStartDate', 'DESC']
+      //       ]
+      //     });
+      //     salaryData.payableAmount -= data.amount
+      //     await salaryData.save()
+      //
+      //     await SalaryPayment.create({
+      //       amount: data.amount,
+      //       salaryId: salaryData.id,
+      //       paymentType: SALARY_PAYMENT_TYPE.CASH,
+      //       date: data.date,
+      //       companyBankId: null,
+      //       userBankId: null
+      //     });
+      //   }
+      //   companyCashBalance.balance -= data.amount;
+      //   await companyCashBalance.save()
+      // }
     }
 
 

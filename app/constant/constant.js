@@ -4,6 +4,15 @@ exports.PAYMENT_TYPE = {
     FINAL_PAYMENT: "final payment"
 }
 
+exports.ROLE = {
+    SUPER_ADMIN: "Super Admin",
+    ADMIN: "Admin",
+    ACCOUNT: "Account",
+    EMPLOYEE: "Employee",
+    WORKERS: "Workers",
+    OTHER: "Other",
+}
+
 exports.SALARY_PAYMENT_TYPE = {
     CASH: "cash",
     BANK: "bank"

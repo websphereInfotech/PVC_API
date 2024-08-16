@@ -8,8 +8,10 @@ const C_Ledger = require("../models/C_Ledger");
 const Account = require("../models/Account");
 const {Sequelize} = require("sequelize");
 const companyBankDetails = require("../models/companyBankDetails");
-const {TRANSACTION_TYPE} = require("../constant/constant");
+const {TRANSACTION_TYPE, ROLE} = require("../constant/constant");
 const CompanyCashBalance = require("../models/companyCashBalance");
+const C_WalletLedger = require("../models/C_WalletLedger");
+const C_UserBalance = require("../models/C_userBalance");
 
 /*=============================================================================================================
                                          Type C API
@@ -18,6 +20,7 @@ const CompanyCashBalance = require("../models/companyCashBalance");
 exports.C_create_paymentCash = async (req, res) => {
   try {
     const user = req.user.userId;
+    const role = req.user.role;
     const companyId = req.user.companyId;
     const { accountId,paymentNo, amount, description, date } = req.body;
 
@@ -47,6 +50,24 @@ exports.C_create_paymentCash = async (req, res) => {
         message: "Description Cannot Have More Then 20 Characters",
       });
     }
+    let existingBalance;
+    if(role === ROLE.SUPER_ADMIN){
+      existingBalance = await C_companyBalance.findOne({
+        where: { companyId: companyId },
+      });
+
+    }else{
+      existingBalance = await C_UserBalance.findOne({
+        where: { companyId: companyId, userId: user },
+      });
+    }
+    const balance = existingBalance?.balance ?? 0
+    if(balance<amount){
+      return res.status(400).json({
+        status: "false",
+        message: "Not enough fund."
+      })
+    }
     const data = await C_Payment.create({
       accountId,
       amount,
@@ -64,20 +85,25 @@ exports.C_create_paymentCash = async (req, res) => {
       paymentId: data.id,
       date: date
     });
-
-    // await C_vendorLedger.create({
-    //   vendorId,
-    //   creditId: data.id,
-    //   date,
-    //   companyId: req.user.companyId,
-    // });
-
-    const existingBalance = await C_companyBalance.findOne({
-      where: { companyId: companyId },
-    });
+    if(role === ROLE.SUPER_ADMIN){
+      await C_WalletLedger.create({
+        paymentId: data.id,
+        userId: user,
+        companyId: companyId,
+        date: date,
+        isApprove: true,
+        approveDate: new Date()
+      })
+    }else{
+      await C_WalletLedger.create({
+        paymentId: data.id,
+        userId: user,
+        companyId: companyId,
+        date: date,
+      })
+    }
     if (existingBalance) {
-      existingBalance.balance -= amount;
-      await existingBalance.save();
+      await existingBalance.decrement('balance', {by: amount})
     }
     return res.status(200).json({
       status: "true",
@@ -146,6 +172,7 @@ exports.C_view_paymentCash = async (req, res) => {
 exports.C_update_paymentCash = async (req, res) => {
   try {
     const user = req.user.userId;
+    const role = req.user.role;
     const companyId = req.user.companyId;
     const { id } = req.params;
     const { accountId, paymentNo, amount, description, date } = req.body
@@ -177,6 +204,27 @@ exports.C_update_paymentCash = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Payment Cash Not Found" });
     }
+    let existingBalance;
+    if(role === ROLE.SUPER_ADMIN){
+      existingBalance = await C_companyBalance.findOne({
+        where: { companyId: companyId },
+      });
+
+    }else{
+      existingBalance = await C_UserBalance.findOne({
+        where: { companyId: companyId, userId: user },
+      });
+    }
+    const oldAmount = paymentId?.amount ?? 0;
+    const balance = existingBalance?.balance ?? 0
+    const newAmount = amount - oldAmount;
+
+    if(balance<newAmount){
+      return res.status(400).json({
+        status: "false",
+        message: "Not enough fund."
+      })
+    }
 
     await C_Payment.update(
       {
@@ -203,6 +251,33 @@ exports.C_update_paymentCash = async (req, res) => {
       }
     })
 
+    if(role === ROLE.SUPER_ADMIN){
+      await C_WalletLedger.update({
+        date: date,
+        approveDate: new Date()
+      }, {
+        where: {
+          paymentId: id,
+          companyId: companyId,
+          userId: user,
+        }
+      })
+    }else{
+      await C_WalletLedger.update({
+        date: date,
+      }, {
+        where: {
+          paymentId: id,
+          userId: user,
+          companyId: companyId,
+        }
+      })
+    }
+    if(existingBalance){
+      await existingBalance.increment('balance', {by: oldAmount})
+      await existingBalance.decrement('balance', {by: amount})
+    }
+
     // await C_vendorLedger.update(
     //   {
     //     vendorId,
@@ -211,19 +286,19 @@ exports.C_update_paymentCash = async (req, res) => {
     //   { where: { creditId: id } }
     // );
 
-    const existingBalance = await C_companyBalance.findOne({
-      where: { companyId: companyId },
-    });
-
-    const balanceChange = amount - paymentId.amount;
-    const newBalance = existingBalance.balance - balanceChange;
-
-    await C_companyBalance.update(
-      {
-        balance: newBalance,
-      },
-      { where: { companyId: companyId } }
-    );
+    // const existingBalance = await C_companyBalance.findOne({
+    //   where: { companyId: companyId },
+    // });
+    //
+    // const balanceChange = amount - paymentId.amount;
+    // const newBalance = existingBalance.balance - balanceChange;
+    //
+    // await C_companyBalance.update(
+    //   {
+    //     balance: newBalance,
+    //   },
+    //   { where: { companyId: companyId } }
+    // );
     const data = await C_Payment.findOne({
       where: { id: id, companyId: companyId },
     });
@@ -244,11 +319,30 @@ exports.C_update_paymentCash = async (req, res) => {
 exports.C_delete_paymentCash = async (req, res) => {
   try {
     const { id } = req.params;
-    const {companyId} = req.user;
+    const {companyId, userId, role} = req.user;
+    const paymentData = await C_Payment.findOne({
+      where: { id: id, companyId: companyId },
+    });
+    let existingBalance;
+    if(role === ROLE.SUPER_ADMIN){
+      existingBalance = await C_companyBalance.findOne({
+        where: { companyId: companyId },
+      });
+
+    }else{
+      existingBalance = await C_UserBalance.findOne({
+        where: { companyId: companyId, userId: userId },
+      });
+    }
+    const oldAmount = paymentData?.amount ?? 0;
+
 
     const data = await C_Payment.destroy({
       where: { id: id, companyId: companyId },
     });
+    if(existingBalance){
+      await existingBalance.increment('balance',{by: oldAmount})
+    }
     if (data) {
       return res
         .status(200)
