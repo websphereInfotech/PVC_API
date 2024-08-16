@@ -2,7 +2,7 @@ const express = require("express");
 const { validation } = require("../constant/validate");
 const adminAuth = require("../middleware/adminAuth");
 const {
-    account_ledger, C_account_ledger, daybook, C_daybook
+    account_ledger, C_account_ledger, daybook, C_daybook, C_wallet_ledger
 } = require("../controller/ledger");
 
 const router = express.Router();
@@ -21,5 +21,7 @@ router.get(
 
 router.get('/daybook', adminAuth('Ledger:daybook'), daybook)
 router.get('/C_daybook', adminAuth('Ledger Cash:daybook'), C_daybook)
+
+router.get('/C_wallet_ledger/:userId', adminAuth('Ledger Cash:wallet_ledger'), C_wallet_ledger)
 
 module.exports = router;
