@@ -36,5 +36,6 @@ router.use('/ledger', require('./ledger'))
 router.use('/schedule', require('./machineSchedule'))
 router.use('/purchaseOrder', require('./purchaseOrder'))
 router.use('/wastage', require('./wastage'))
+router.use('/maintenanceType', require('./maintenanceType'))
 
 module.exports = router;

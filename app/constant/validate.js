@@ -209,6 +209,8 @@ module.exports.validation = function (method) {
       return [ accountId, creditnoteNo, creditdate, rate, qty, itemUnit ];
     case "wastage_validation":
       return [ wastageName ];
+      case "maintenanceType_validation":
+      return [ name ];
     default:
       throw new Error("Invalid validation method");
   }

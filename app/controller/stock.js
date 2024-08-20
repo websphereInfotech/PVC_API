@@ -1,7 +1,7 @@
 const Stock = require("../models/stock");
 const Product = require("../models/product");
 const User = require("../models/user");
-const ItemGroup = require("../models/ItemGroup");
+const { Sequelize} = require("sequelize");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -24,7 +24,7 @@ exports.view_all_item_stock =async (req, res) => {
         }
 
         if (search) {
-            filters.productname = { [Op.like]: `%${search}%` };
+            filters.productname = { [Sequelize.Op.like]: `%${search}%` };
         }
 
         const itemStock =  await Stock.findAll({

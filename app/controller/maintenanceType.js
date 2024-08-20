@@ -1,13 +1,13 @@
-const Wastage = require("../models/Wastage");
+const MaintenanceType = require("../models/MaintenanceType");
 const User = require("../models/user");
-exports.create_wastage = async (req, res)=>{
+exports.create_maintenanceType = async (req, res)=>{
     try {
         const {
             name
         } = req.body;
         const companyId = req.user.companyId;
         const userId = req.user.userId;
-        const data = await Wastage.create({
+        const data = await MaintenanceType.create({
             name: name,
             companyId: companyId,
             createdBy: userId,
@@ -16,7 +16,7 @@ exports.create_wastage = async (req, res)=>{
 
         return res.status(200).json({
             status: "true",
-            message: "Wastage Create Successfully",
+            message: "Maintenance Type Create Successfully",
             data: data,
         });
     } catch (error) {
@@ -27,7 +27,7 @@ exports.create_wastage = async (req, res)=>{
     }
 }
 
-exports.update_wastage = async (req, res)=>{
+exports.update_maintenanceType = async (req, res)=>{
     try {
         const {id} = req.params;
         const {
@@ -35,26 +35,26 @@ exports.update_wastage = async (req, res)=>{
         } = req.body;
         const companyId = req.user.companyId;
         const userId = req.user.userId;
-        const wastageExist = await Wastage.findOne({
+        const maintenanceExist = await MaintenanceType.findOne({
             where: {
                 id: id,
                 companyId: companyId
             }
         });
-        if(!wastageExist){
+        if(!maintenanceExist){
             return res.status(404).json({
                 status: "false",
-                message: "Wastage Not Found."
+                message: "Maintenance Type Not Found."
             })
         }
-        const data = await Wastage.update({
+        const data = await MaintenanceType.update({
             name: name,
             updatedBy: userId
         }, {where: {id: id}})
 
         return res.status(200).json({
             status: "true",
-            message: "Wastage Update Successfully",
+            message: "Maintenance Type Update Successfully",
             data: data,
         });
     } catch (error) {
@@ -65,30 +65,30 @@ exports.update_wastage = async (req, res)=>{
     }
 }
 
-exports.get_all_wastage = async (req, res)=>{
+exports.get_all_maintenanceType = async (req, res)=>{
     try {
 
         const companyId = req.user.companyId;
 
-        const data = await Wastage.findAll({
+        const data = await MaintenanceType.findAll({
             where: {
                 companyId: companyId
             },
             include: [
                 {
                     model: User,
-                    as: "wastageCreateUser"
+                    as: "maintenanceTypeCreateUser"
                 },
                 {
                     model: User,
-                    as: "wastageUpdateUser"
+                    as: "maintenanceTypeUpdateUser"
                 }
             ]
         });
 
         return res.status(200).json({
             status: "true",
-            message: "Wastage Fetch Successfully",
+            message: "Maintenance Type Fetch Successfully",
             data: data,
         });
     } catch (error) {
@@ -99,13 +99,13 @@ exports.get_all_wastage = async (req, res)=>{
     }
 }
 
-exports.view_single_wastage = async (req, res)=>{
+exports.view_single_maintenanceType = async (req, res)=>{
     try {
 
         const companyId = req.user.companyId;
         const {id} = req.params;
 
-        const data = await Wastage.findOne({
+        const data = await MaintenanceType.findOne({
             where: {
                 companyId: companyId,
                 id: id
@@ -113,23 +113,23 @@ exports.view_single_wastage = async (req, res)=>{
             include: [
                 {
                     model: User,
-                    as: "wastageCreateUser"
+                    as: "maintenanceTypeCreateUser"
                 },
                 {
                     model: User,
-                    as: "wastageUpdateUser"
+                    as: "maintenanceTypeUpdateUser"
                 }
             ]
         });
         if(!data){
             return res.status(404).json({
                 status: "false",
-                message: "Wastage Not Found."
+                message: "Maintenance Type Not Found."
             })
         }
         return res.status(200).json({
             status: "true",
-            message: "Wastage Fetch Successfully",
+            message: "Maintenance Type Fetch Successfully",
             data: data,
         });
     } catch (error) {
@@ -141,13 +141,13 @@ exports.view_single_wastage = async (req, res)=>{
 }
 
 
-exports.delete_wastage = async (req, res)=>{
+exports.delete_maintenanceType = async (req, res)=>{
     try {
 
         const companyId = req.user.companyId;
         const {id} = req.params;
 
-        const data = await Wastage.findOne({
+        const data = await MaintenanceType.findOne({
             where: {
                 companyId: companyId,
                 id: id
@@ -156,13 +156,13 @@ exports.delete_wastage = async (req, res)=>{
         if(!data){
             return res.status(404).json({
                 status: "false",
-                message: "Wastage Not Found."
+                message: "Maintenance Type Not Found."
             })
         }
         await data.destroy()
         return res.status(200).json({
             status: "true",
-            message: "Wastage Delete Successfully",
+            message: "Maintenance Type Delete Successfully",
         });
     } catch (error) {
         console.log(error);

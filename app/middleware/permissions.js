@@ -1901,4 +1901,48 @@ exports.permissions = {
             "view_single_wastage":true
         }
     },
+    "Maintenance Type" : {
+        "Super Admin" :{
+            "create_maintenanceType":true,
+            "update_maintenanceType":true,
+            "view_all_maintenanceType":true,
+            "view_single_maintenanceType":true,
+            "delete_maintenanceType":true
+        },
+        "Admin" :{
+            "create_maintenanceType":true,
+            "update_maintenanceType":true,
+            "view_all_maintenanceType":true,
+            "view_single_maintenanceType":true,
+            "delete_maintenanceType":true
+        },
+        "Account" :{
+            "create_maintenanceType":true,
+            "update_maintenanceType":true,
+            "view_all_maintenanceType":true,
+            "view_single_maintenanceType":true,
+            "delete_maintenanceType":true
+        },
+        "Employee" :{
+            "create_maintenanceType":true,
+            "update_maintenanceType":true,
+            "view_all_maintenanceType":true,
+            "view_single_maintenanceType":true,
+            "delete_maintenanceType":true
+        },
+        "Workers" :{
+            "create_maintenanceType":true,
+            "update_maintenanceType":true,
+            "view_all_maintenanceType":true,
+            "view_single_maintenanceType":true,
+            "delete_maintenanceType":true
+        },
+        "Other" :{
+            "create_maintenanceType":true,
+            "update_maintenanceType":true,
+            "view_all_maintenanceType":true,
+            "view_single_maintenanceType":true,
+            "delete_maintenanceType":true
+        }
+    },
 }
