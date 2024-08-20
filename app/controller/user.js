@@ -7,6 +7,7 @@ const company = require("../models/company");
 const C_userBalance = require("../models/C_userBalance");
 const {Op, Sequelize} = require("sequelize");
 const UserBankAccount = require("../models/userBankAccount");
+const C_WalletLedger = require("../models/C_WalletLedger");
 
 exports.create_user = async (req, res) => {
   try {
@@ -23,14 +24,14 @@ exports.create_user = async (req, res) => {
     } = req.body;
 
     const existingEmail = await User.findOne({ where: { email: email } });
-  
+
     if (existingEmail) {
       return res
         .status(400)
         .json({ status: "false", message: "Email Already Exists" });
     }
     const existingMobile = await User.findOne({ where: { mobileno: mobileno } });
-  
+
     if (existingMobile) {
       return res
         .status(400)
@@ -136,7 +137,7 @@ exports.view_user = async (req, res) => {
     const companyId = req.user.companyId;
 
     const { id } = req.params;
- 
+
     const data = await User.findOne({
       where: { id: id },
       include: [{ model: company, as: "companies", where: { id: companyId }, attributes: [] }, {model: UserBankAccount, as: "userBankAccount"}],
@@ -196,7 +197,7 @@ exports.update_user = async (req, res) => {
         return res.status(400).json({ status: "false", message: "Email Already Exists" });
       }
     }
-      
+
     if (FindID.mobileno !== mobileno) {
       const existingMobile = await User.findOne({ where: { mobileno: mobileno } });
       if(existingMobile) {
@@ -688,5 +689,42 @@ exports.view_all_user_bank_account = async (req, res)=>{
   }catch (e) {
     console.log(e);
     return res.status(500).json({status: "false", message: "Internal Server Error."})
+  }
+}
+
+exports.wallet_approve = async (req, res)=>{
+  try{
+    const {id} = req.params;
+    const {companyId} = req.user;
+    const existWalletLedger = await C_WalletLedger.findOne({
+      where: {
+        id: id,
+        companyId: companyId,
+      }
+    })
+    if(!existWalletLedger){
+      return res.status(404).json({
+        status: "false",
+        message: "Wallet Entry Not Found."
+      })
+    }
+    if(existWalletLedger.isApprove){
+      return res.status(400).json({
+        status: "false",
+        message: "Wallet Entry Already Approved."
+      })
+    }
+    existWalletLedger.isApprove = true;
+    existWalletLedger.approveDate = new Date();
+    await existWalletLedger.save();
+    return res.status(200).json({
+      status: "true",
+      message: "Wallet Entry Approved Successfully.",
+    })
+  }catch (e) {
+    console.log(e);
+    return res
+        .status(500)
+        .json({ status: "false", message: "Internal Server Error" });
   }
 }

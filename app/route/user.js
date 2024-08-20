@@ -16,7 +16,8 @@ const {
   edit_user_bank_account,
   delete_user_bank_account,
   view_user_bank_account,
-  view_all_user_bank_account
+  view_all_user_bank_account,
+  wallet_approve
 } = require("../controller/user");
 const adminAuth = require("../middleware/adminAuth");
 const { validation } = require("../constant/validate");
@@ -67,5 +68,7 @@ router.put('/edit_user_bank_account/:accountId',adminToken("Login:edit_user_bank
 router.delete('/delete_user_bank_account/:accountId',adminToken("Login:delete_user_bank_account"),delete_user_bank_account);
 router.get('/view_user_bank_account/:accountId',adminToken("Login:view_user_bank_account"),view_user_bank_account);
 router.get('/view_all_user_bank_account/:userId',adminToken("Login:view_all_user_bank_account"),view_all_user_bank_account);
+
+router.get('/wallet_approve/:id',adminToken("Login:wallet_approve"),wallet_approve);
 
 module.exports = router;
