@@ -22,6 +22,6 @@ router.get(
 router.get('/daybook', adminAuth('Ledger:daybook'), daybook)
 router.get('/C_daybook', adminAuth('Ledger Cash:daybook'), C_daybook)
 
-router.get('/C_wallet_ledger/:userId', adminAuth('Ledger Cash:wallet_ledger'), C_wallet_ledger)
+router.get('/C_wallet_ledger/:userId', adminAuth('Login:wallet_ledger'), C_wallet_ledger)
 
 module.exports = router;

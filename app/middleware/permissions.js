@@ -63,7 +63,9 @@ exports.permissions = {
             "edit_user_bank_account":true,
             "delete_user_bank_account":true,
             "view_user_bank_account": true,
-            "view_all_user_bank_account": true
+            "view_all_user_bank_account": true,
+            "wallet_approve": true,
+            "wallet_ledger": true
         },
         "Admin" : {
             "update_user":true,
@@ -1697,32 +1699,26 @@ exports.permissions = {
         "Super Admin" :{
             "account_ledger":true,
             "daybook":true,
-            "wallet_ledger": true
         },
         "Admin" :{
             "account_ledger":true,
             "daybook":true,
-            "wallet_ledger": true
         },
         "Account" :{
             "account_ledger":true,
             "daybook":true,
-             "wallet_ledger": true
         },
         "Employee" :{
             "account_ledger":true,
             "daybook":true,
-             "wallet_ledger": true
         },
         "Workers" :{
             "account_ledger":true,
             "daybook":true,
-             "wallet_ledger": true
         },
         "Other" :{
             "account_ledger":true,
             "daybook":true,
-             "wallet_ledger": true
         }
     },
     "Purchase Order": {
