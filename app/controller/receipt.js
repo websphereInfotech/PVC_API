@@ -102,19 +102,6 @@ exports.C_create_receiveCash = async (req, res) => {
       await existingBalance.increment('balance', {by: amount})
     }
 
-    // await C_customerLedger.create({
-    //   companyId: req.user.companyId,
-    //   debitId: data.id,
-    //   customerId,
-    //   date,
-    // });
-    //
-    // await C_claimLedger.create({
-    //   companyId: req.user.companyId,
-    //   receiveId: data.id,
-    //   userId: user,
-    //   date,
-    // });
 
     let userBalance = await C_userBalance.findOne({
       where: { userId: user, companyId: companyId },

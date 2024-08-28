@@ -106,12 +106,6 @@ module.exports.validation = function (method) {
       return [ accountId, creditnoteNo, creditdate, org_invoiceno, org_invoicedate, rate, qty, itemUnit ];
     case "update_creditNote":
       return [ accountId, creditnoteNo, creditdate, org_invoiceno, org_invoicedate, rate, qty, itemUnit ];
-    case "create_customer":
-      return [ accountname, email, mobileno, contactpersonname, creditperiod, address1, pincode, state,
-               city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails,validateCredit ];
-    case "update_customer":
-      return [ accountname, email, mobileno, contactpersonname, creditperiod, address1, pincode, state,
-               city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails,validateCredit ];
     case "create_item":
       return [ itemtype, productname, itemGroupId, itemCategoryId, weight, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice ];
     case "update_item":
@@ -124,12 +118,6 @@ module.exports.validation = function (method) {
       return [ companyname, gstnumber, email, mobileno, address1, pincode, state, city ];
     case "update_company":
       return [ companyname, gstnumber, email, mobileno, address1, pincode, state, city ];
-    case "create_vendor":
-      return [ accountname, email, contactpersonname, mobileno, creditperiod, address1, pincode, state,
-               city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails,validateCredit ];
-    case "update_vendor":
-      return [ accountname, email, contactpersonname, mobileno, creditperiod, address1, pincode, state,
-               city, bankdetail, creditlimit, balance, gstnumber,validateBankdetails,validateCredit ];
     case "C_create_salesinvoice":
       return [accountId, date, saleNo, qty,itemUnit, rate];
     case "C_update_salesinvoice":
@@ -162,9 +150,6 @@ module.exports.validation = function (method) {
       return [accountId, voucherno, transactionType, paymentdate, paymentType, amount];
     case "update_payment_bank":
       return [accountId, voucherno, transactionType, paymentdate, paymentType, amount];
-    case "create_expense":
-      return [ mobileno, voucherno, date, mobileno, email, billno, billdate, payment, expensse,
-               taxable, mrp ];
     case "create_stoke":
         return [itemname, unit, email];
     case "create_receipt":

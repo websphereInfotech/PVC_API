@@ -378,50 +378,6 @@ exports.permissions = {
             "update_item_stock": true,
         }
     },
-    "Customer" : {
-        "Super Admin" :{
-            "create_customer":true,
-            "update_customer":true,
-            "delete_customer":true,
-            "view_single_customer":true,
-            "view_all_customer":true,
-        },
-        "Admin" :{
-            "create_customer":true,
-            "update_customer":true,
-            "delete_customer":true,
-            "view_single_customer":true,
-            "view_all_customer":true,
-        },
-        "Account" :{
-            "create_customer":true,
-            "update_customer":true,
-            "delete_customer":true,
-            "view_single_customer":true,
-            "view_all_customer":true,
-        },
-        "Employee" :{
-            "create_customer":true,
-            "update_customer":true,
-            "delete_customer":true,
-            "view_single_customer":true,
-            "view_all_customer":true,
-        },
-        "Workers" :{
-            "create_customer":true,
-            "update_customer":true,
-            "delete_customer":true,
-            "view_single_customer":true,
-            "view_all_customer":true,
-        },
-        "Other" :{
-            "create_customer":true,
-            "update_customer":true,
-            "delete_customer":true,
-            "view_single_customer":true,
-            "view_all_customer":true,
-        }
-    },
     "Items" : {
         "Super Admin" :{
             "create_item":true,
@@ -509,102 +465,6 @@ exports.permissions = {
             "view_single_purchase_Invoice":true,
             "view_all_purchase_Invoice":true,
         }
-    },
-    "Vendor" :{
-        "Super Admin" :{
-            "create_vendor":true,
-            "update_vendor":true,
-            "delete_vandor":true,
-            "view_vendor":true,
-            "view_all_vandor":true,
-        },
-        "Admin" :{
-            "create_vendor":true,
-            "update_vendor":true,
-            "delete_vandor":true,
-            "view_vendor":true,
-            "view_all_vandor":true,
-        },
-        "Account" :{
-            "create_vendor":true,
-            "update_vendor":true,
-            "delete_vandor":true,
-            "view_vendor":true,
-            "view_all_vandor":true,
-        },
-        "Employee" :{
-            "create_vendor":true,
-            "update_vendor":true,
-            "delete_vandor":true,
-            "view_vendor":true,
-            "view_all_vandor":true,
-        },
-        "Workers" :{
-            "create_vendor":true,
-            "update_vendor":true,
-            "delete_vandor":true,
-            "view_vendor":true,
-            "view_all_vandor":true,
-        },
-        "Other" :{
-            "create_vendor":true,
-            "update_vendor":true,
-            "delete_vandor":true,
-            "view_vendor":true,
-            "view_all_vandor":true,
-        }
-    },
-    "Customer Ledger" : {
-        "Super Admin" :{
-            "View_customer_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Admin" :{
-            "View_customer_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Account" :{
-            "View_customer_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Employee" :{
-            "View_customer_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Workers" :{
-            "View_customer_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Other" :{
-            "View_customer_Ledger":true,
-            "Pdf_Download": true
-        },
-    },
-    "Vendor Ledger" : {
-        "Super Admin" :{
-            "View_vendor_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Admin" :{
-            "View_vendor_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Account" :{
-            "View_vendor_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Employee" :{
-            "View_vendor_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Workers" :{
-            "View_vendor_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Other" :{
-            "View_vendor_Ledger":true,
-            "Pdf_Download": true
-        },
     },
     "Company Bank Details" : {
         "Super Admin" :{
@@ -939,46 +799,6 @@ exports.permissions = {
             "view_purchase_cash_pdf": true
         },
     },
-    "Customer Cash" : {
-        "Super Admin" :{
-            "get_all_customer_cash":true,
-        },
-        "Admin" :{
-            "get_all_customer_cash":true,
-        },
-        "Account" :{
-            "get_all_customer_cash":true,
-        },
-        "Employee" :{
-            "get_all_customer_cash":true,
-        },
-        "Workers" :{
-            "get_all_customer_cash":true,
-        },
-        "Other" :{
-            "get_all_customer_cash":true,
-        },
-    },
-    "Vendor Cash" : {
-        "Super Admin" :{
-            "get_all_vandor_cash":true,
-        },
-        "Admin" :{
-            "get_all_vandor_cash":true,
-        },
-        "Account" :{
-            "get_all_vandor_cash":true,
-        },
-        "Employee" :{
-            "get_all_vandor_cash":true,
-        },
-        "Workers" :{
-            "get_all_vandor_cash":true,
-        },
-        "Other" :{
-            "get_all_vandor_cash":true,
-        },
-    },
     "Items Cash" : {
         "Super Admin" :{
             "get_all_item_cash":true,
@@ -997,58 +817,6 @@ exports.permissions = {
         },
         "Other" :{
             "get_all_item_cash":true,
-        },
-    },
-    "Customer Ledger Cash" : {
-        "Super Admin" :{
-            "View_Cash_customer_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Admin" :{
-            "View_Cash_customer_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Account" :{
-            "View_Cash_customer_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Employee" :{
-            "View_Cash_customer_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Workers" :{
-            "View_Cash_customer_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Other" :{
-            "View_Cash_customer_Ledger":true,
-            "Pdf_Download": true
-        },
-    },
-    "Vendor Ledger Cash" : {
-        "Super Admin" :{
-            "View_Cash_vendor_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Admin" :{
-            "View_Cash_vendor_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Account" :{
-            "View_Cash_vendor_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Employee" :{
-            "View_Cash_vendor_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Workers" :{
-            "View_Cash_vendor_Ledger":true,
-            "Pdf_Download": true
-        },
-        "Other" :{
-            "View_Cash_vendor_Ledger":true,
-            "Pdf_Download": true
         },
     },
     "Company Cash" : {

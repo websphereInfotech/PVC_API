@@ -772,11 +772,11 @@ exports.C_wallet_ledger = async (req, res)=>{
             ELSE 0
         END`), "creditAmount"],
                 [Sequelize.literal(`CASE
-            WHEN walletPayment.id IS NOT NULL THEN 'Payment'
-            WHEN walletReceipt.id IS NOT NULL THEN 'Receipt'
-            WHEN walletClaim.id IS NOT NULL THEN 'Claim'
+            WHEN walletPayment.id IS NOT NULL THEN \`walletPayment\`.\`description\`
+            WHEN walletReceipt.id IS NOT NULL THEN \`walletReceipt\`.\`description\`
+            WHEN walletClaim.id IS NOT NULL THEN \`walletClaim\`.\`description\`
             ELSE ''
-        END`), "particulars"],
+        END`), "details"],
                 [Sequelize.literal(`CASE
             WHEN walletPayment.id IS NOT NULL THEN \`walletPayment->accountPaymentCash\`.\`contactPersonName\`
             WHEN walletReceipt.id IS NOT NULL THEN \`walletReceipt->accountReceiptCash\`.\`contactPersonName\`
@@ -850,7 +850,7 @@ exports.C_wallet_ledger = async (req, res)=>{
                 "date": formDate,
                 "debitAmount": openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
                 "creditAmount": openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-                "particulars": "Opening Balance",
+                "details": "Opening Balance",
                 "openingBalance": 0,
                 "personName": "",
                 id: null

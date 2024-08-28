@@ -129,19 +129,6 @@ exports.date = function (req, res, next) {
   next();
 };
 
-exports.customerId = function (req, res, next) {
-  const { customerId } = req.body;
-
-  const customerSchema = Joi.number().required().messages({
-    "number.empty": "Customer Cannot Be Empty",
-    "any.required": "Required Filed : Customer",
-  });
-  const { error } = customerSchema.validate(customerId);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
 exports.mrp = function (req, res, next) {
   const { items } = req.body;
 
@@ -273,19 +260,7 @@ exports.expirydate = function (req, res, next) {
   }
   next();
 };
-exports.vendor = function (req, res, next) {
-  const { vendor } = req.body;
-  const vendorSchema = Joi.string().required().messages({
-    "any.required": "Required Filed : Vendor",
-    "string.empty": "Vendor Cannot Be Empty",
-  });
 
-  const { error } = vendorSchema.validate(vendor);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
 exports.voucherno = function (req, res, next) {
   const { voucherno } = req.body;
   const vouchernoSchema = Joi.number().required().messages({
