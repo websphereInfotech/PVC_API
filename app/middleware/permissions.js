@@ -1467,26 +1467,32 @@ exports.permissions = {
         "Super Admin" :{
             "account_ledger":true,
             "daybook":true,
+            "cashbook": true
         },
         "Admin" :{
             "account_ledger":true,
             "daybook":true,
+            "cashbook": true
         },
         "Account" :{
             "account_ledger":true,
             "daybook":true,
+            "cashbook": true
         },
         "Employee" :{
             "account_ledger":true,
             "daybook":true,
+            "cashbook": true
         },
         "Workers" :{
             "account_ledger":true,
             "daybook":true,
+            "cashbook": true
         },
         "Other" :{
             "account_ledger":true,
             "daybook":true,
+            "cashbook": true
         }
     },
     "Purchase Order": {

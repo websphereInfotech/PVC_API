@@ -37,7 +37,6 @@ exports.create_account = async (req, res) => {
                 ...accountDetail,
                 accountId: accountId,
             });
-            console.log(accountDetailCreate)
         }
         return res.status(200).json({status: "true", message: "Successfully Created Account.", data: accountCreate});
     }catch (e) {
