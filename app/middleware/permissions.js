@@ -73,6 +73,7 @@ exports.permissions = {
             "view_user":true,
             "user_logout":true,
             "view_all_JoinComapny":true,
+            "wallet_ledger": true
         },
         "Account" : {
             "update_user":true,
@@ -850,7 +851,8 @@ exports.permissions = {
             "view_single_claim":true,
             "view_claimBalance_ledger":true,
             "view_all_ClaimUser":true,
-            "view_user_balance":true
+            "view_user_balance":true,
+            "view_wallet": true
         },
         "Admin" :{
             "create_claim":true,
@@ -862,7 +864,8 @@ exports.permissions = {
             "view_single_claim":true,
             "view_claimBalance_ledger":true,
             "view_all_ClaimUser":true,
-            "view_user_balance":true
+            "view_user_balance":true,
+            "view_wallet": true
         },
         "Account" :{
             "create_claim":true,
@@ -874,7 +877,8 @@ exports.permissions = {
             "view_single_claim":true,
             "view_claimBalance_ledger":true,
             "view_all_ClaimUser":true,
-            "view_user_balance":true
+            "view_user_balance":true,
+            "view_wallet": true
         },
         "Employee" :{
             "create_claim":true,
@@ -886,7 +890,8 @@ exports.permissions = {
             "view_single_claim":true,
             "view_claimBalance_ledger":true,
             "view_all_ClaimUser":true,
-            "view_user_balance":true
+            "view_user_balance":true,
+            "view_wallet": true
         },
         "Workers" :{
             "create_claim":true,
@@ -898,7 +903,8 @@ exports.permissions = {
             "view_single_claim":true,
             "view_claimBalance_ledger":true,
             "view_all_ClaimUser":true,
-            "view_user_balance":true
+            "view_user_balance":true,
+            "view_wallet": true
         },
         "Other" :{
             "create_claim":true,
@@ -910,7 +916,8 @@ exports.permissions = {
             "view_single_claim":true,
             "view_claimBalance_ledger":true,
             "view_all_ClaimUser":true,
-            "view_user_balance":true
+            "view_user_balance":true,
+            "view_wallet": true
         },
     },
     "Production" : {

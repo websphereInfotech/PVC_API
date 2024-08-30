@@ -11,6 +11,9 @@ const C_CompanyBalance = require("../models/C_companyBalance");
 const Salary = require("../models/salary");
 const SalaryPayment = require("../models/salaryPayment");
 const {SALARY_PAYMENT_TYPE, ROLE} = require("../constant/constant");
+const C_Payment = require("../models/C_Payment");
+const C_Receipt = require("../models/C_Receipt");
+const C_Claim = require("../models/C_claim");
 
 exports.create_claim = async (req, res) => {
   try {
@@ -273,6 +276,7 @@ exports.isapproved_claim = async (req, res) => {
         await companyCashBalance.increment('balance', {by: amount})
       }else {
         await fromUserBalance.increment('balance', {by: amount})
+        await fromUserBalance.increment('incomes', {by: amount})
       }
 
       if(data.toUser.role === ROLE.SUPER_ADMIN){
@@ -585,3 +589,182 @@ exports.view_user_balance = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
+exports.view_wallet = async (req,res)=>{
+  try {
+    const {role,userId, companyId} = req.user;
+    const {id} = req.params;
+    let userWallet = null;
+    let walletEntry = {
+      records: null,
+      totals: null,
+      closingBalance: null,
+      totalAmount: null
+    };
+    if(role === ROLE.SUPER_ADMIN){
+        const userExist = await User.findOne({
+          where: {
+            id: id,
+          }
+        })
+      if(!userExist){
+        return res
+            .status(404)
+            .json({ status: "false", message: "User Not Found" });
+      }
+      userWallet = await C_userBalance.findOne({
+        where: {
+          userId: id,
+          companyId: companyId,
+        },
+        include: [{model: User, attributes: ["username", "email"], as: "userBalance"}]
+      })
+      const data = await C_WalletLedger.findAll({
+        where: {
+          userId: id,
+          isApprove: {
+            [Sequelize.Op.is]: false,
+          }
+        },
+        attributes: [
+          "date",
+          "id",
+          "isApprove",
+          [Sequelize.literal(`CASE
+            WHEN walletPayment.id IS NOT NULL THEN \`walletPayment\`.\`amount\`
+            WHEN \`walletClaim\`.\`toUserId\` = ${userId} THEN \`walletClaim\`.\`amount\`
+            ELSE 0
+        END`), "debitAmount"],
+          [Sequelize.literal(`CASE
+            WHEN walletReceipt.id IS NOT NULL THEN \`walletReceipt\`.\`amount\`
+            WHEN \`walletClaim\`.\`fromUserId\` = ${userId} THEN \`walletClaim\`.\`amount\`
+            ELSE 0
+        END`), "creditAmount"],
+          [Sequelize.literal(`CASE
+            WHEN walletPayment.id IS NOT NULL THEN \`walletPayment\`.\`description\`
+            WHEN walletReceipt.id IS NOT NULL THEN \`walletReceipt\`.\`description\`
+            WHEN walletClaim.id IS NOT NULL THEN \`walletClaim\`.\`description\`
+            ELSE ''
+        END`), "details"],
+          [Sequelize.literal(`CASE
+            WHEN walletPayment.id IS NOT NULL THEN \`walletPayment->accountPaymentCash\`.\`contactPersonName\`
+            WHEN walletReceipt.id IS NOT NULL THEN \`walletReceipt->accountReceiptCash\`.\`contactPersonName\`
+            WHEN \`walletClaim\`.\`fromUserId\` = ${userId} THEN \`walletClaim->toUser\`.\`username\`
+          WHEN \`walletClaim\`.\`toUserId\` = ${userId} THEN \`walletClaim->fromUser\`.\`username\`
+            ELSE ''
+        END`), "personName"],
+          [Sequelize.literal(`
+    (
+        SELECT
+            IFNULL(SUM(
+                IFNULL(CASE
+                    WHEN walletReceipt.id IS NOT NULL THEN walletReceipt.amount
+                    WHEN walletClaim.fromUserId = ${userId} THEN walletClaim.amount
+                    ELSE 0
+                END, 0) -
+                IFNULL(CASE
+                    WHEN walletPayment.id IS NOT NULL THEN walletPayment.amount
+                    WHEN walletClaim.toUserId = ${userId} THEN walletClaim.amount
+                    ELSE 0
+                END, 0)
+            ), 0)
+        FROM
+            \`P_C_WalletLedgers\` AS wl2
+            LEFT OUTER JOIN \`P_C_Payments\` AS walletPayment ON wl2.paymentId = walletPayment.id
+            LEFT OUTER JOIN \`P_C_Receipts\` AS walletReceipt ON wl2.receiptId = walletReceipt.id
+            LEFT OUTER JOIN \`P_C_claims\` AS walletClaim ON wl2.claimId = walletClaim.id
+        WHERE
+            wl2.userId = \`P_C_WalletLedger\`.\`userId\`
+            AND wl2.companyId = ${companyId}
+            AND wl2.isApprove = false
+            AND (wl2.date < \`P_C_WalletLedger\`.\`date\` OR (wl2.date = \`P_C_WalletLedger\`.\`date\` AND wl2.id < \`P_C_WalletLedger\`.\`id\`))
+    )`), 'openingBalance']
+        ],
+        include: [
+          {
+            model: C_Payment,
+            as: "walletPayment",
+            include: [{
+              model: Account,
+              as: "accountPaymentCash"
+            }],
+            attributes: []
+          },
+          {
+            model: C_Receipt,
+            as: "walletReceipt",
+            include: [{
+              model: Account,
+              as: "accountReceiptCash"
+            }],
+            attributes: []
+          },
+          {
+            model: C_Claim,
+            as: "walletClaim",
+            include: [{ model: User, as: "toUser" }, { model: User, as: "fromUser" }],
+            attributes: []
+          },
+        ],
+        order: [
+          ["date", "ASC"],
+          ["id", "ASC"],
+        ],
+      });
+      const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
+      const walletLedgerArray = [...data];
+      if(+openingBalance !== 0){
+        walletLedgerArray.unshift({
+          "date": formDate,
+          "debitAmount": openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+          "creditAmount": openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+          "details": "Opening Balance",
+          "openingBalance": 0,
+          "personName": "",
+          id: null
+        })
+      }
+      const totals = walletLedgerArray.reduce((acc, ledger) => {
+        if (ledger.dataValues) {
+          acc.totalCredit += ledger.dataValues.creditAmount || 0;
+          acc.totalDebit += ledger.dataValues.debitAmount || 0;
+        } else {
+          acc.totalCredit += ledger.creditAmount || 0;
+          acc.totalDebit += ledger.debitAmount || 0;
+        }
+        return acc;
+      }, { totalCredit: 0, totalDebit: 0 });
+
+      const totalCredit = totals.totalCredit;
+      const totalDebit = totals.totalDebit;
+      const closingBalanceAmount = totalDebit -totalCredit;
+      const closingBalance = {
+        type: closingBalanceAmount < 0 ? "debit": 'credit',
+        amount: +Math.abs(closingBalanceAmount).toFixed(2),
+      }
+      walletEntry.records = walletLedgerArray;
+      walletEntry.totals = totals;
+      walletEntry.totalAmount = totals.totalCredit < totals.totalDebit ? totals.totalDebit: totals.totalCredit
+      walletEntry.closingBalance = closingBalance;
+    }else{
+      userWallet = await C_userBalance.findOne({
+        where: {
+          userId: userId,
+          companyId: companyId,
+        },
+        include: [{model: User, attributes: ["username", "email"], as: "userBalance"}]
+      })
+    }
+
+    return res.status(200).json({
+      status: "true",
+      message: "User Wallet Show Successfully",
+      data: {userWallet, walletEntry},
+    });
+  }catch (e) {
+    console.log(e);
+    return res
+        .status(500)
+        .json({ status: "false", message: "Internal Server Error" });
+  }
+}

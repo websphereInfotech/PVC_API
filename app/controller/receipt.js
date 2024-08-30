@@ -100,17 +100,21 @@ exports.C_create_receiveCash = async (req, res) => {
 
     if (existingBalance) {
       await existingBalance.increment('balance', {by: amount})
+      if(existingBalance?.incomes >=0){
+        await existingBalance.increment('incomes', {by: amount})
+      }
     }
 
 
-    let userBalance = await C_userBalance.findOne({
-      where: { userId: user, companyId: companyId },
-    });
-
-    if (userBalance) {
-      userBalance.balance += amount;
-      await userBalance.save();
-    }
+    // let userBalance = await C_userBalance.findOne({
+    //   where: { userId: user, companyId: companyId },
+    // });
+    //
+    // if (userBalance) {
+    //   userBalance.balance += amount;
+    //   userBalance.incomes += amount;
+    //   await userBalance.save();
+    // }
 
     // const existingBalance = await C_companyBalance.findOne({
     //   where: { companyId: companyId },
@@ -233,7 +237,7 @@ exports.C_update_receiveCash = async (req, res) => {
         where: { companyId: companyId, userId: user },
       });
     }
-    const oldAmount = receiveId?.balance ?? 0
+    const oldAmount = receiveId?.amount ?? 0
 
     await C_Receipt.update(
         {
@@ -283,6 +287,10 @@ exports.C_update_receiveCash = async (req, res) => {
     if (existingBalance) {
       await existingBalance.decrement('balance', {by: oldAmount})
       await existingBalance.increment('balance', {by: amount})
+      if(existingBalance?.incomes >=0){
+        await existingBalance.decrement('incomes', {by: oldAmount})
+        await existingBalance.increment('incomes', {by: amount})
+      }
     }
 
     // await C_customerLedger.update(
@@ -378,6 +386,9 @@ exports.C_delete_receiveCash = async (req, res) => {
     });
     if(existingBalance){
       await existingBalance.decrement('balance', {by: oldAmount})
+      if(existingBalance?.incomes >=0){
+        await existingBalance.decrement('incomes', {by: oldAmount})
+      }
     }
     if (data) {
       return res
