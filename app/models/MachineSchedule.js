@@ -24,10 +24,6 @@ const MachineSchedule = sequelize.define("P_MachineSchedule", {
         type: DataTypes.ENUM(...Object.values(MACHINE_SCHEDULE_TYPE)),
         allowNull: false
     },
-    maintenanceType: {
-        type: DataTypes.ENUM(...Object.values(MAINTENCE_TYPE)),
-        allowNull: false
-    },
     companyId: {type: DataTypes.INTEGER, allowNull: false},
 });
 

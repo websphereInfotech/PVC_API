@@ -1,5 +1,7 @@
 const Machine = require('../models/Machine');
 const MachineSchedule = require('../models/MachineSchedule');
+const MaintenanceType = require('../models/MaintenanceType');
+const MachineScheduleMaintenance = require('../models/MachineScheduleType');
 
 exports.create_machine_schedule = async (req, res) => {
     try {
@@ -15,6 +17,7 @@ exports.create_machine_schedule = async (req, res) => {
             return res.status(422).json({status: "false", message: "Machine Not Found"})
         }
         const machineSchedule = await MachineSchedule.create({...req.body, companyId: companyId});
+        await machineSchedule.addMaintenanceTypes(req.body.maintenanceType);
         return res.status(200).json({status: "true", message: "Successfully Machine Scheduled.", data: machineSchedule});
     }catch (e) {
         console.error(e);
@@ -47,6 +50,8 @@ exports.update_machine_schedule = async (req, res)=>{
         }
         Object.assign(machineScheduleExist, req.body);
         await machineScheduleExist.save()
+        await machineScheduleExist.setMaintenanceTypes([]);
+        await machineScheduleExist.setMaintenanceTypes(req.body.maintenanceType);
         return res.status(200).json({status: "true", message: "Successfully Machine Schedule Updated.", data: machineScheduleExist});
     }catch (e) {
         console.error(e);
@@ -67,6 +72,14 @@ exports.view_machine_schedule = async (req, res) => {
                 {
                     model: Machine,
                     as: "scheduleMachine"
+                },
+                {
+                    model: MaintenanceType,
+                    as: "maintenanceTypes",
+                    attributes: ['name','id'],
+                    through: {
+                        attributes: [],
+                    },
                 }
             ]
         });
@@ -91,6 +104,14 @@ exports.view_all_machine_schedule = async (req, res) => {
                 {
                     model: Machine,
                     as: "scheduleMachine"
+                },
+                {
+                    model: MaintenanceType,
+                    as: "maintenanceTypes",
+                    attributes: ['name','id'],
+                    through: {
+                        attributes: [],
+                    },
                 }
             ]
         });

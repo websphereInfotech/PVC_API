@@ -2335,9 +2335,8 @@ exports.machine_schedule_validation = async (req, res, next)=>{
       'any.only': `Type must be one of ${Object.values(MACHINE_SCHEDULE_TYPE).join(', ')}`,
       'any.required': 'Type is required'
     }),
-    maintenanceType: Joi.string().valid(...Object.values(MAINTENCE_TYPE)).required().messages({
-      'string.base': 'Maintenance Type must be a string',
-      'any.only': `Maintenance Type must be one of ${Object.values(MAINTENCE_TYPE).join(', ')}`,
+    maintenanceType: Joi.array().items(Joi.number()).required().messages({
+      'array.base': 'Maintenance Type must be an array',
       'any.required': 'Maintenance Type is required'
     })
   });
