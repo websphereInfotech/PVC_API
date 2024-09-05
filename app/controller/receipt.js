@@ -6,13 +6,14 @@ const companyCashBalance = require("../models/companyCashBalance");
 const Account = require("../models/Account");
 const Receipt = require("../models/Receipt");
 const User = require("../models/user");
-const {Sequelize} = require("sequelize");
+const { Sequelize } = require("sequelize");
 const companyBankDetails = require("../models/companyBankDetails");
 const Ledger = require("../models/Ledger");
 const C_Ledger = require("../models/C_Ledger");
 const C_WalletLedger = require("../models/C_WalletLedger");
-const {TRANSACTION_TYPE, ROLE} = require("../constant/constant");
+const { TRANSACTION_TYPE, ROLE } = require("../constant/constant");
 const C_UserBalance = require("../models/C_userBalance");
+const C_Cashbook = require("../models/C_Cashbook");
 
 /*=============================================================================================================
                                            Type C API
@@ -28,21 +29,21 @@ exports.C_create_receiveCash = async (req, res) => {
     const receiptNoExist = await C_Receipt.findOne({
       where: {
         receiptNo: receiptNo,
-        companyId: companyId
-      }
-    })
+        companyId: companyId,
+      },
+    });
     if (receiptNoExist) {
       return res
-          .status(400)
-          .json({ status: "false", message: "Receipt Number Already Exists" });
+        .status(400)
+        .json({ status: "false", message: "Receipt Number Already Exists" });
     }
     const accountExist = await Account.findOne({
       where: { id: accountId, companyId: companyId },
     });
     if (!accountExist) {
       return res
-          .status(404)
-          .json({ status: "false", message: "Account Not Found" });
+        .status(404)
+        .json({ status: "false", message: "Account Not Found" });
     }
 
     if (description.length > 20) {
@@ -52,12 +53,11 @@ exports.C_create_receiveCash = async (req, res) => {
       });
     }
     let existingBalance;
-    if(role === ROLE.SUPER_ADMIN){
+    if (role === ROLE.SUPER_ADMIN) {
       existingBalance = await C_companyBalance.findOne({
         where: { companyId: companyId },
       });
-
-    }else{
+    } else {
       existingBalance = await C_UserBalance.findOne({
         where: { companyId: companyId, userId: user },
       });
@@ -77,34 +77,39 @@ exports.C_create_receiveCash = async (req, res) => {
       accountId: accountId,
       companyId: companyId,
       receiptId: data.id,
-      date: date
+      date: date,
     });
 
-    if(role === ROLE.SUPER_ADMIN){
+    if (role === ROLE.SUPER_ADMIN) {
       await C_WalletLedger.create({
         receiptId: data.id,
         userId: user,
         companyId: companyId,
         date: date,
         isApprove: true,
-        approveDate: new Date()
-      })
-    }else{
+        approveDate: new Date(),
+      });
+
+      await C_Cashbook.create({
+        C_receiptId: data.id,
+        companyId: companyId,
+        date: date,
+      });
+    } else {
       await C_WalletLedger.create({
         receiptId: data.id,
         userId: user,
         companyId: companyId,
         date: date,
-      })
+      });
     }
 
     if (existingBalance) {
-      await existingBalance.increment('balance', {by: amount})
-      if(existingBalance?.incomes >=0){
-        await existingBalance.increment('incomes', {by: amount})
+      await existingBalance.increment("balance", { by: amount });
+      if (existingBalance?.incomes >= 0) {
+        await existingBalance.increment("incomes", { by: amount });
       }
     }
-
 
     // let userBalance = await C_userBalance.findOne({
     //   where: { userId: user, companyId: companyId },
@@ -132,14 +137,14 @@ exports.C_create_receiveCash = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res
-        .status(500)
-        .json({ status: "false", message: "Internal Server Error" });
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
   }
 };
 
 exports.C_get_all_receiveCash = async (req, res) => {
   try {
-    const {companyId} = req.user;
+    const { companyId } = req.user;
     const data = await C_Receipt.findAll({
       where: { companyId: companyId },
       include: [
@@ -156,15 +161,15 @@ exports.C_get_all_receiveCash = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res
-        .status(500)
-        .json({ status: "false", message: "Internal Server Error" });
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
   }
 };
 
 exports.C_view_receiveCash = async (req, res) => {
   try {
     const { id } = req.params;
-    const {companyId} = req.user;
+    const { companyId } = req.user;
     const data = await C_Receipt.findOne({
       where: { id: id, companyId: companyId },
       include: [{ model: Account, as: "accountReceiptCash" }],
@@ -177,14 +182,14 @@ exports.C_view_receiveCash = async (req, res) => {
       });
     } else {
       return res
-          .status(404)
-          .json({ status: "false", message: "Receipt Cash not found" });
+        .status(404)
+        .json({ status: "false", message: "Receipt Cash not found" });
     }
   } catch (error) {
     console.log(error);
     return res
-        .status(500)
-        .json({ status: "false", message: "Internal Server Error" });
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
   }
 };
 
@@ -194,28 +199,27 @@ exports.C_update_receiveCash = async (req, res) => {
     const companyId = req.user.companyId;
     const role = req.user.role;
     const { id } = req.params;
-    const { accountId, receiptNo,  amount, description, date } = req.body;
-
+    const { accountId, receiptNo, amount, description, date } = req.body;
 
     const receiptNoExist = await C_Receipt.findOne({
       where: {
         receiptNo: receiptNo,
         companyId: companyId,
-        id: { [Sequelize.Op.ne]: id }
-      }
-    })
+        id: { [Sequelize.Op.ne]: id },
+      },
+    });
     if (receiptNoExist) {
       return res
-          .status(400)
-          .json({ status: "false", message: "Receipt Number Already Exists" });
+        .status(400)
+        .json({ status: "false", message: "Receipt Number Already Exists" });
     }
     const receiveId = await C_Receipt.findOne({
       where: { id: id, companyId: companyId },
     });
     if (!receiveId) {
       return res
-          .status(404)
-          .json({ status: "false", message: "Receive Cash Not Found" });
+        .status(404)
+        .json({ status: "false", message: "Receive Cash Not Found" });
     }
 
     const accountExist = await Account.findOne({
@@ -223,73 +227,95 @@ exports.C_update_receiveCash = async (req, res) => {
     });
     if (!accountExist) {
       return res
-          .status(404)
-          .json({ status: "false", message: "Account Not Found" });
+        .status(404)
+        .json({ status: "false", message: "Account Not Found" });
     }
     let existingBalance;
-    if(role === ROLE.SUPER_ADMIN){
+    if (role === ROLE.SUPER_ADMIN) {
       existingBalance = await C_companyBalance.findOne({
         where: { companyId: companyId },
       });
-
-    }else{
+    } else {
       existingBalance = await C_UserBalance.findOne({
         where: { companyId: companyId, userId: user },
       });
     }
-    const oldAmount = receiveId?.amount ?? 0
+    const oldAmount = receiveId?.amount ?? 0;
 
     await C_Receipt.update(
-        {
-          accountId,
-          amount,
-          description,
-          date,
-          receiptNo,
-          createdBy: receiveId.createdBy,
-          updatedBy: user,
-          companyId: companyId,
-        },
-        { where: { id: id } }
+      {
+        accountId,
+        amount,
+        description,
+        date,
+        receiptNo,
+        createdBy: receiveId.createdBy,
+        updatedBy: user,
+        companyId: companyId,
+      },
+      { where: { id: id } }
     );
 
-    await C_Ledger.update({
-      accountId: accountId,
-      receiptId: id,
-      date: date
-    }, {
-      where: {
+    await C_Ledger.update(
+      {
+        accountId: accountId,
         receiptId: id,
-        companyId: companyId,
-      }
-    })
-
-    if(role === ROLE.SUPER_ADMIN){
-      await C_WalletLedger.update({
         date: date,
-        approveDate: new Date()
-      }, {where: {
-          receiptId: id,
-          userId: user,
-          companyId: companyId,
-        }})
-    }else{
-      await C_WalletLedger.update({
-        date: date,
-      }, {
+      },
+      {
         where: {
           receiptId: id,
-          userId: user,
           companyId: companyId,
+        },
+      }
+    );
+
+    if (role === ROLE.SUPER_ADMIN) {
+      await C_WalletLedger.update(
+        {
+          date: date,
+          approveDate: new Date(),
+        },
+        {
+          where: {
+            receiptId: id,
+            userId: user,
+            companyId: companyId,
+          },
         }
-      })
+      );
+
+      await C_Cashbook.update(
+        {
+          date: date,
+        },
+        {
+          where: {
+            C_receiptId: id,
+            companyId: companyId,
+          },
+        }
+      );
+    } else {
+      await C_WalletLedger.update(
+        {
+          date: date,
+        },
+        {
+          where: {
+            receiptId: id,
+            userId: user,
+            companyId: companyId,
+          },
+        }
+      );
     }
     if (existingBalance) {
-      await existingBalance.decrement('balance', {by: oldAmount})
-      await existingBalance.increment('balance', {by: amount})
-      if(existingBalance?.incomes >=0){
-        await existingBalance.decrement('incomes', {by: oldAmount})
-        await existingBalance.increment('incomes', {by: amount})
+      await existingBalance.decrement("balance", { by: oldAmount });
+      await existingBalance.increment("balance", { by: amount });
+      if (existingBalance?.incomes >= 0) {
+        await existingBalance.decrement("incomes", { by: oldAmount });
+        await existingBalance.increment("incomes", { by: amount });
       }
     }
 
@@ -348,62 +374,61 @@ exports.C_update_receiveCash = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res
-        .status(500)
-        .json({ status: "false", message: "Internal Server Error" });
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
   }
 };
 
 exports.C_delete_receiveCash = async (req, res) => {
   try {
     const { id } = req.params;
-    const {companyId, role, userId} = req.user;
+    const { companyId, role, userId } = req.user;
     const receiptData = await C_Receipt.findOne({
       where: { id: id, companyId: companyId },
     });
     let existingBalance;
-    if(role === ROLE.SUPER_ADMIN){
+    if (role === ROLE.SUPER_ADMIN) {
       existingBalance = await C_companyBalance.findOne({
         where: { companyId: companyId },
       });
-
-    }else{
+    } else {
       existingBalance = await C_UserBalance.findOne({
         where: { companyId: companyId, userId: userId },
       });
     }
     const oldAmount = receiptData?.amount ?? 0;
-    const balance = existingBalance?.balance ?? 0
+    const balance = existingBalance?.balance ?? 0;
 
-    if(balance<oldAmount){
+    if (balance < oldAmount) {
       return res.status(400).json({
         status: "false",
-        message: "Not enough fund."
-      })
+        message: "Not enough fund.",
+      });
     }
 
     const data = await C_Receipt.destroy({
       where: { id: id, companyId: companyId },
     });
-    if(existingBalance){
-      await existingBalance.decrement('balance', {by: oldAmount})
-      if(existingBalance?.incomes >=0){
-        await existingBalance.decrement('incomes', {by: oldAmount})
+    if (existingBalance) {
+      await existingBalance.decrement("balance", { by: oldAmount });
+      if (existingBalance?.incomes >= 0) {
+        await existingBalance.decrement("incomes", { by: oldAmount });
       }
     }
     if (data) {
       return res
-          .status(200)
-          .json({ status: "true", message: "Receipt Cash Deleted Successfully" });
+        .status(200)
+        .json({ status: "true", message: "Receipt Cash Deleted Successfully" });
     } else {
       return res
-          .status(404)
-          .json({ status: "false", message: "Receipt Cash Not Found" });
+        .status(404)
+        .json({ status: "false", message: "Receipt Cash Not Found" });
     }
   } catch (error) {
     console.log(error);
     return res
-        .status(500)
-        .json({ status: "false", message: "Internal Server Error" });
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
   }
 };
 
@@ -423,33 +448,33 @@ exports.create_receive_bank = async (req, res) => {
       accountId,
       amount,
       paymentType,
-      transactionType
+      transactionType,
     } = req.body;
 
     const voucherNoExist = await Receipt.findOne({
       where: {
         voucherno: voucherno,
         companyId: companyId,
-      }
-    })
+      },
+    });
     if (voucherNoExist) {
       return res
-          .status(400)
-          .json({ status: "false", message: "Voucher Number Already Exists" });
+        .status(400)
+        .json({ status: "false", message: "Voucher Number Already Exists" });
     }
     const accountExist = await Account.findOne({
       where: {
         id: accountId,
         companyId: companyId,
-        isActive: true
+        isActive: true,
       },
     });
     if (!accountExist) {
       return res
-          .status(404)
-          .json({ status: "false", message: "Account Not Found" });
+        .status(404)
+        .json({ status: "false", message: "Account Not Found" });
     }
-    if(transactionType === TRANSACTION_TYPE.BANK){
+    if (transactionType === TRANSACTION_TYPE.BANK) {
       const accountData = await companyBankDetails.findOne({
         where: {
           id: bankAccountId,
@@ -458,11 +483,10 @@ exports.create_receive_bank = async (req, res) => {
       });
       if (!accountData) {
         return res
-            .status(404)
-            .json({ status: "false", message: "Bank Account Not Found" });
+          .status(404)
+          .json({ status: "false", message: "Bank Account Not Found" });
       }
     }
-
 
     const data = await Receipt.create({
       voucherno,
@@ -483,17 +507,23 @@ exports.create_receive_bank = async (req, res) => {
       accountId: accountId,
       companyId: companyId,
       receiptId: data.id,
-      date: paymentdate
+      date: paymentdate,
     });
 
-    if(transactionType === TRANSACTION_TYPE.CASH) {
+    await C_Cashbook.create({
+      receiptId: data.id,
+      companyId: companyId,
+      date: paymentdate,
+    });
+
+    if (transactionType === TRANSACTION_TYPE.CASH) {
       const existsingCashBalance = await companyCashBalance.findOne({
         where: { companyId: companyId },
       });
       if (existsingCashBalance) {
-        await existsingCashBalance.increment('balance', { by: amount })
+        await existsingCashBalance.increment("balance", { by: amount });
       }
-    } else if (transactionType === TRANSACTION_TYPE.BANK){
+    } else if (transactionType === TRANSACTION_TYPE.BANK) {
       const existsingBalance = await companyBalance.findOne({
         where: { companyId: companyId },
       });
@@ -523,7 +553,6 @@ exports.create_receive_bank = async (req, res) => {
     //   date: paymentdate,
     // });
 
-
     // const balanceExists = await companySingleBank.findOne({
     //   where: { accountId: accountId, companyId: req.user.companyId },
     // });
@@ -539,8 +568,8 @@ exports.create_receive_bank = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res
-        .status(500)
-        .json({ status: "false", message: "Internal Server Error" });
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
   }
 };
 exports.update_receive_bank = async (req, res) => {
@@ -558,7 +587,7 @@ exports.update_receive_bank = async (req, res) => {
       accountId,
       amount,
       paymentType,
-      transactionType
+      transactionType,
     } = req.body;
 
     const receiveBankId = await Receipt.findOne({
@@ -569,34 +598,34 @@ exports.update_receive_bank = async (req, res) => {
     });
     if (!receiveBankId) {
       return res
-          .status(404)
-          .json({ status: "false", message: "Receipt Not Found" });
+        .status(404)
+        .json({ status: "false", message: "Receipt Not Found" });
     }
     const voucherNoExist = await Receipt.findOne({
       where: {
         voucherno: voucherno,
         companyId: companyId,
         id: { [Sequelize.Op.ne]: id },
-      }
-    })
+      },
+    });
     if (voucherNoExist) {
       return res
-          .status(400)
-          .json({ status: "false", message: "Voucher Number Already Exists" });
+        .status(400)
+        .json({ status: "false", message: "Voucher Number Already Exists" });
     }
     const accountExist = await Account.findOne({
       where: {
         id: accountId,
         companyId: companyId,
-        isActive: true
+        isActive: true,
       },
     });
     if (!accountExist) {
       return res
-          .status(404)
-          .json({ status: "false", message: "Account Not Found" });
+        .status(404)
+        .json({ status: "false", message: "Account Not Found" });
     }
-    if(transactionType === TRANSACTION_TYPE.BANK){
+    if (transactionType === TRANSACTION_TYPE.BANK) {
       const accountData = await companyBankDetails.findOne({
         where: {
           id: bankAccountId,
@@ -605,27 +634,39 @@ exports.update_receive_bank = async (req, res) => {
       });
       if (!accountData) {
         return res
-            .status(404)
-            .json({ status: "false", message: "Bank Account Not Found" });
+          .status(404)
+          .json({ status: "false", message: "Bank Account Not Found" });
       }
     }
 
     await Receipt.update(
-        {
-          voucherno,
-          bankAccountId,
-          paymentdate,
-          mode,
-          referance,
-          accountId,
-          amount,
-          paymentType,
-          transactionType,
-          createdBy: receiveBankId.createdBy,
-          updatedBy: user,
+      {
+        voucherno,
+        bankAccountId,
+        paymentdate,
+        mode,
+        referance,
+        accountId,
+        amount,
+        paymentType,
+        transactionType,
+        createdBy: receiveBankId.createdBy,
+        updatedBy: user,
+        companyId: companyId,
+      },
+      { where: { id } }
+    );
+
+    await C_Cashbook.update(
+      {
+        date: paymentdate,
+      },
+      {
+        where: {
+          receiptId: id,
           companyId: companyId,
         },
-        { where: { id } }
+      }
     );
 
     // await customerLedger.update(
@@ -653,15 +694,15 @@ exports.update_receive_bank = async (req, res) => {
     //   },
     //   { where: { creditId: id } }
     // );
-    if(transactionType === TRANSACTION_TYPE.CASH) {
+    if (transactionType === TRANSACTION_TYPE.CASH) {
       const existsingCashBalance = await companyCashBalance.findOne({
         where: { companyId: companyId },
       });
       if (existsingCashBalance) {
-        await existsingCashBalance.decrement('balance', { by: amount });
-        await existsingCashBalance.increment('balance', { by: amount });
+        await existsingCashBalance.decrement("balance", { by: amount });
+        await existsingCashBalance.increment("balance", { by: amount });
       }
-    }else if (transactionType === TRANSACTION_TYPE.BANK){
+    } else if (transactionType === TRANSACTION_TYPE.BANK) {
       const existsingBalance = await companyBalance.findOne({
         where: { companyId: companyId },
       });
@@ -670,10 +711,10 @@ exports.update_receive_bank = async (req, res) => {
       const newBalance = existsingBalance.balance + balanceChange;
 
       await companyBalance.update(
-          {
-            balance: newBalance,
-          },
-          { where: { companyId: companyId } }
+        {
+          balance: newBalance,
+        },
+        { where: { companyId: companyId } }
       );
     }
 
@@ -701,14 +742,14 @@ exports.update_receive_bank = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res
-        .status(500)
-        .json({ status: "false", message: "Internal Server Error" });
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
   }
 };
 exports.delete_receive_bank = async (req, res) => {
   try {
     const { id } = req.params;
-    const {companyId} = req.user;
+    const { companyId } = req.user;
 
     const data = await Receipt.destroy({
       where: { id: id, companyId: companyId },
@@ -716,24 +757,24 @@ exports.delete_receive_bank = async (req, res) => {
 
     if (data) {
       return res
-          .status(200)
-          .json({ status: "true", message: "Receipt Delete Successfully" });
+        .status(200)
+        .json({ status: "true", message: "Receipt Delete Successfully" });
     } else {
       return res
-          .status(404)
-          .json({ status: "false", message: "Receipt Not Found" });
+        .status(404)
+        .json({ status: "false", message: "Receipt Not Found" });
     }
   } catch (error) {
     console.log(error);
     return res
-        .status(500)
-        .json({ status: "false", message: "Internal Server Error" });
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
   }
 };
 exports.view_receive_bank = async (req, res) => {
   try {
     const { id } = req.params;
-    const {companyId} = req.user;
+    const { companyId } = req.user;
 
     const data = await Receipt.findOne({
       where: { id: id, companyId: companyId },
@@ -750,19 +791,19 @@ exports.view_receive_bank = async (req, res) => {
       });
     } else {
       return res
-          .status(404)
-          .json({ status: "false", message: "Receipt Not Found" });
+        .status(404)
+        .json({ status: "false", message: "Receipt Not Found" });
     }
   } catch (error) {
     console.log(error);
     return res
-        .status(500)
-        .json({ status: "false", message: "Internal Server Error" });
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
   }
 };
 exports.get_all_receive_bank = async (req, res) => {
   try {
-    const {companyId} = req.user;
+    const { companyId } = req.user;
     const data = await Receipt.findAll({
       where: { companyId: companyId },
       include: [
@@ -781,7 +822,7 @@ exports.get_all_receive_bank = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res
-        .status(500)
-        .json({ status: "false", message: "Internal Server Error" });
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
   }
 };

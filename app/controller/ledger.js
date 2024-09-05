@@ -1,7 +1,7 @@
 const Account = require("../models/Account");
 const CompanyBankDetails = require("../models/companyBankDetails");
 const Company = require("../models/company");
-const {Sequelize} = require("sequelize");
+const { Sequelize } = require("sequelize");
 const Ledger = require("../models/Ledger");
 const C_Ledger = require("../models/C_Ledger");
 const purchaseInvoice = require("../models/purchaseInvoice");
@@ -15,48 +15,56 @@ const C_Payment = require("../models/C_Payment");
 const User = require("../models/user");
 const C_WalletLedger = require("../models/C_WalletLedger");
 const C_Claim = require("../models/C_claim");
+const C_Cashbook = require("../models/C_Cashbook");
 exports.account_ledger = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { formDate, toDate } = req.query;
-        const companyId = req.user.companyId;
-        const accountExist = await Account.findOne({ where: { id, companyId, isActive: true } });
-        if(!accountExist){
-            return res.status(404).json({
-                status: "false",
-                message: "Account Not Found."
-            })
-        }
+  try {
+    const { id } = req.params;
+    const { formDate, toDate } = req.query;
+    const companyId = req.user.companyId;
+    const accountExist = await Account.findOne({
+      where: { id, companyId, isActive: true },
+    });
+    if (!accountExist) {
+      return res.status(404).json({
+        status: "false",
+        message: "Account Not Found.",
+      });
+    }
 
-        const company = await Company.findByPk(companyId);
+    const company = await Company.findByPk(companyId);
 
+    const queryData = { accountId: id };
 
-        const queryData = { accountId: id };
+    if (companyId) {
+      queryData.companyId = companyId;
+    }
 
-        if (companyId) {
-            queryData.companyId = companyId;
-        }
-
-        if (formDate && toDate) {
-            queryData.date = {
-                [Sequelize.Op.between]: [formDate, toDate],
-            };
-        }
-        const data = await Ledger.findAll({
-            attributes: [
-                "date",
-                [Sequelize.literal(`CASE
+    if (formDate && toDate) {
+      queryData.date = {
+        [Sequelize.Op.between]: [formDate, toDate],
+      };
+    }
+    const data = await Ledger.findAll({
+      attributes: [
+        "date",
+        [
+          Sequelize.literal(`CASE
                     WHEN paymentLedger.id IS NOT NULL THEN \`paymentLedger\`.\`amount\`
                     WHEN salesLedger.id IS NOT NULL THEN \`salesLedger\`.\`mainTotal\`
                     ELSE 0
-                END`), "debitAmount"],
-                [Sequelize.literal(`CASE
+                END`),
+          "debitAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
                     WHEN receiptLedger.id IS NOT NULL THEN \`receiptLedger\`.\`amount\`
                     WHEN purchaseLedger.id IS NOT NULL THEN \`purchaseLedger\`.\`mainTotal\`
                     ELSE 0
-                END`), "creditAmount"],
-                [
-                    Sequelize.literal(`CASE
+                END`),
+          "creditAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
                     WHEN salesLedger.id IS NOT NULL THEN 'SALES GST'
                     WHEN purchaseLedger.id IS NOT NULL THEN 'PURCHASE GST'
                     WHEN paymentLedger.id IS NOT NULL THEN
@@ -70,25 +78,31 @@ exports.account_ledger = async (req, res) => {
                             ELSE \`receiptLedger\`.\`transactionType\`
                         END
                     ELSE ''
-                  END`), "particulars"],
-                [Sequelize.literal(`CASE
+                  END`),
+          "particulars",
+        ],
+        [
+          Sequelize.literal(`CASE
                     WHEN purchaseLedger.id IS NOT NULL THEN 'TAX INVOICE'
                     WHEN salesLedger.id IS NOT NULL THEN 'TAX INVOICE'
                     WHEN receiptLedger.id IS NOT NULL THEN 'Receipt'
                     WHEN paymentLedger.id IS NOT NULL THEN 'Payment'
                     ELSE ''
-                  END`), "vchType"
-                ],
-                [Sequelize.literal(`CASE
+                  END`),
+          "vchType",
+        ],
+        [
+          Sequelize.literal(`CASE
                     WHEN purchaseLedger.id IS NOT NULL THEN \`purchaseLedger\`.\`voucherno\`
                     WHEN salesLedger.id IS NOT NULL THEN \`salesLedger\`.\`invoiceno\`
                     WHEN receiptLedger.id IS NOT NULL THEN \`receiptLedger\`.\`voucherno\`
                     WHEN paymentLedger.id IS NOT NULL THEN \`paymentLedger\`.\`voucherno\`
                     ELSE ''
                   END`),
-                    "vchNo"
-                ],
-                [Sequelize.literal(`
+          "vchNo",
+        ],
+        [
+          Sequelize.literal(`
                   (
                     SELECT
                       IFNULL(SUM(
@@ -113,166 +127,216 @@ exports.account_ledger = async (req, res) => {
                       cl2.accountId = \`P_Ledger\`.\`accountId\`
                       AND cl2.companyId = ${companyId}
                       AND (cl2.date < \`P_Ledger\`.\`date\` OR (cl2.date = \`P_Ledger\`.\`date\` AND cl2.id < \`P_Ledger\`.\`id\`))
-                  )`), 'openingBalance']
-            ],
-            include: [
-                {
-                    model: purchaseInvoice,
-                    as: "purchaseLedger",
-                    attributes: []
-                },
-                {
-                    model: Payment,
-                    as: "paymentLedger",
-                    include: {model: CompanyBankDetails, as: "paymentBankAccount", attributes: []},
-                    attributes: []
-                },
-                {
-                    model: salesInvoice,
-                    as: "salesLedger",
-                    attributes: []
-                },
-                {
-                    model: Receipt,
-                    as: "receiptLedger",
-                    include: {model: CompanyBankDetails, as: "receiptBankAccount", attributes: []},
-                    attributes: []
-                },
-                {
-                    model: Account,
-                    as: "accountLedger",
-                    attributes: []
-                },
-            ],
-            where: queryData,
-            order: [
-                ["date", "ASC"],
-                ["id", "ASC"],
-            ],
-        });
-        const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
-        const ledgerArray = [...data];
-        if(+openingBalance !== 0){
-            ledgerArray.unshift({
-                "date": formDate,
-                "debitAmount": openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-                "creditAmount": openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-                "particulars": "Opening Balance",
-                "vchType": "",
-                "vchNo": "",
-                "openingBalance": 0
-            })
-        }
-        const totals = ledgerArray.reduce((acc, ledger) => {
-            if (ledger.dataValues) {
-                acc.totalCredit += ledger.dataValues.creditAmount || 0;
-                acc.totalDebit += ledger.dataValues.debitAmount || 0;
-            } else {
-                acc.totalCredit += ledger.creditAmount || 0;
-                acc.totalDebit += ledger.debitAmount || 0;
-            }
-            return acc;
-        }, { totalCredit: 0, totalDebit: 0 });
-
-
-        const totalCredit = totals.totalCredit;
-        const totalDebit = totals.totalDebit;
-        const closingBalanceAmount = totalDebit -totalCredit;
-        const closingBalance = {
-            type: closingBalanceAmount < 0 ? "debit": 'credit',
-            amount: +Math.abs(closingBalanceAmount).toFixed(2),
-        }
-
-        const records = ledgerArray.reduce((acc, obj) => {
-            const dateKey = obj.date;
-            const date = new Date(dateKey);
-            const formattedDate = `${date.getDate()}-${date.toLocaleString('default', { month: 'short' })}-${String(date.getFullYear()).slice(-2)}`;
-
-            if (!acc[formattedDate]) {
-                acc[formattedDate] = [];
-            }
-            acc[formattedDate].push(obj);
-            return acc;
-        }, {});
-        const formattedFromDate = new Date(formDate);
-        const formattedToDate = new Date(toDate);
-
-        const formDateFormat = `${formattedFromDate.getDate()}-${formattedFromDate.toLocaleString('default', { month: 'short' })}-${String(formattedFromDate.getFullYear()).slice(-2)}`;
-        const toDateFormat = `${formattedToDate.getDate()}-${formattedToDate.toLocaleString('default', { month: 'short' })}-${String(formattedToDate.getFullYear()).slice(-2)}`;
-        return res.status(200).json({
-            status: "true",
-            message: "Ledger Data Fetch Successfully",
-            data: {form: company,to: accountExist, dateRange: `${formDateFormat} - ${toDateFormat}`,totals, totalAmount: totals.totalCredit < totals.totalDebit ? totals.totalDebit: totals.totalCredit,closingBalance, records: records},
-        });
-    } catch (error) {
-        console.log(error);
-        return res
-            .status(500)
-            .json({ status: "false", message: "Internal Server Error" });
+                  )`),
+          "openingBalance",
+        ],
+      ],
+      include: [
+        {
+          model: purchaseInvoice,
+          as: "purchaseLedger",
+          attributes: [],
+        },
+        {
+          model: Payment,
+          as: "paymentLedger",
+          include: {
+            model: CompanyBankDetails,
+            as: "paymentBankAccount",
+            attributes: [],
+          },
+          attributes: [],
+        },
+        {
+          model: salesInvoice,
+          as: "salesLedger",
+          attributes: [],
+        },
+        {
+          model: Receipt,
+          as: "receiptLedger",
+          include: {
+            model: CompanyBankDetails,
+            as: "receiptBankAccount",
+            attributes: [],
+          },
+          attributes: [],
+        },
+        {
+          model: Account,
+          as: "accountLedger",
+          attributes: [],
+        },
+      ],
+      where: queryData,
+      order: [
+        ["date", "ASC"],
+        ["id", "ASC"],
+      ],
+    });
+    const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
+    const ledgerArray = [...data];
+    if (+openingBalance !== 0) {
+      ledgerArray.unshift({
+        date: formDate,
+        debitAmount:
+          openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        creditAmount:
+          openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        particulars: "Opening Balance",
+        vchType: "",
+        vchNo: "",
+        openingBalance: 0,
+      });
     }
-}
-
-
-exports.C_account_ledger = async (req, res)=>{
-    try {
-        const { id } = req.params;
-        const { formDate, toDate } = req.query;
-        const companyId = req.user.companyId;
-        const queryData = { accountId: id, companyId: companyId };
-
-        const accountExist = await Account.findOne({ where: { id, companyId, isActive: true } });
-        if(!accountExist){
-            return res.status(404).json({
-                status: "false",
-                message: "Account Not Found."
-            })
+    const totals = ledgerArray.reduce(
+      (acc, ledger) => {
+        if (ledger.dataValues) {
+          acc.totalCredit += ledger.dataValues.creditAmount || 0;
+          acc.totalDebit += ledger.dataValues.debitAmount || 0;
+        } else {
+          acc.totalCredit += ledger.creditAmount || 0;
+          acc.totalDebit += ledger.debitAmount || 0;
         }
+        return acc;
+      },
+      { totalCredit: 0, totalDebit: 0 }
+    );
 
-        const company = await Company.findByPk(companyId);
+    const totalCredit = totals.totalCredit;
+    const totalDebit = totals.totalDebit;
+    const closingBalanceAmount = totalDebit - totalCredit;
+    const closingBalance = {
+      type: closingBalanceAmount < 0 ? "debit" : "credit",
+      amount: +Math.abs(closingBalanceAmount).toFixed(2),
+    };
 
+    const records = ledgerArray.reduce((acc, obj) => {
+      const dateKey = obj.date;
+      const date = new Date(dateKey);
+      const formattedDate = `${date.getDate()}-${date.toLocaleString(
+        "default",
+        { month: "short" }
+      )}-${String(date.getFullYear()).slice(-2)}`;
 
-        if (formDate && toDate) {
-            queryData.date = {
-                [Sequelize.Op.between]: [formDate, toDate],
-            };
-        }
+      if (!acc[formattedDate]) {
+        acc[formattedDate] = [];
+      }
+      acc[formattedDate].push(obj);
+      return acc;
+    }, {});
+    const formattedFromDate = new Date(formDate);
+    const formattedToDate = new Date(toDate);
 
-        const data = await C_Ledger.findAll({
-            where: queryData,
-            attributes: [
-                "date",
-                [Sequelize.literal(`CASE
+    const formDateFormat = `${formattedFromDate.getDate()}-${formattedFromDate.toLocaleString(
+      "default",
+      { month: "short" }
+    )}-${String(formattedFromDate.getFullYear()).slice(-2)}`;
+    const toDateFormat = `${formattedToDate.getDate()}-${formattedToDate.toLocaleString(
+      "default",
+      { month: "short" }
+    )}-${String(formattedToDate.getFullYear()).slice(-2)}`;
+    return res.status(200).json({
+      status: "true",
+      message: "Ledger Data Fetch Successfully",
+      data: {
+        form: company,
+        to: accountExist,
+        dateRange: `${formDateFormat} - ${toDateFormat}`,
+        totals,
+        totalAmount:
+          totals.totalCredit < totals.totalDebit
+            ? totals.totalDebit
+            : totals.totalCredit,
+        closingBalance,
+        records: records,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
+exports.C_account_ledger = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { formDate, toDate } = req.query;
+    const companyId = req.user.companyId;
+    const queryData = { accountId: id, companyId: companyId };
+
+    const accountExist = await Account.findOne({
+      where: { id, companyId, isActive: true },
+    });
+    if (!accountExist) {
+      return res.status(404).json({
+        status: "false",
+        message: "Account Not Found.",
+      });
+    }
+
+    const company = await Company.findByPk(companyId);
+
+    if (formDate && toDate) {
+      queryData.date = {
+        [Sequelize.Op.between]: [formDate, toDate],
+      };
+    }
+
+    const data = await C_Ledger.findAll({
+      where: queryData,
+      attributes: [
+        "date",
+        [
+          Sequelize.literal(`CASE
             WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`amount\`
             WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`totalMrp\`
             ELSE 0
-        END`), "debitAmount"],
-                [Sequelize.literal(`CASE
+        END`),
+          "debitAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
             WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`amount\`
             WHEN purchaseLedgerCash.id IS NOT NULL THEN \`purchaseLedgerCash\`.\`totalMrp\`
             ELSE 0
-        END`), "creditAmount"],
-                [Sequelize.literal(`CASE
+        END`),
+          "creditAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
             WHEN salesLedgerCash.id IS NOT NULL THEN 'SALES CASH'
             WHEN purchaseLedgerCash.id IS NOT NULL THEN 'PURCHASE CASH'
             WHEN receiptLedgerCash.id IS NOT NULL THEN 'CASH'
             WHEN paymentLedgerCash.id IS NOT NULL THEN 'CASH'
             ELSE ''
-        END`), "particulars"],
-                [Sequelize.literal(`CASE
+        END`),
+          "particulars",
+        ],
+        [
+          Sequelize.literal(`CASE
             WHEN purchaseLedgerCash.id IS NOT NULL THEN 'CASH'
             WHEN salesLedgerCash.id IS NOT NULL THEN 'CASH'
             WHEN receiptLedgerCash.id IS NOT NULL THEN 'Receipt'
             WHEN paymentLedgerCash.id IS NOT NULL THEN 'Payment'
             ELSE ''
-        END`), "vchType"],
-        [Sequelize.literal(`CASE
+        END`),
+          "vchType",
+        ],
+        [
+          Sequelize.literal(`CASE
             WHEN purchaseLedgerCash.id IS NOT NULL THEN \`purchaseLedgerCash\`.\`purchaseNo\`
             WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`saleNo\`
             WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`receiptNo\`
             WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`paymentNo\`
             ELSE ''
-        END`), "vchNo"],
-        [Sequelize.literal(`
+        END`),
+          "vchNo",
+        ],
+        [
+          Sequelize.literal(`
           (
             SELECT
               IFNULL(SUM(
@@ -297,151 +361,194 @@ exports.C_account_ledger = async (req, res)=>{
               cl2.accountId = \`P_C_Ledger\`.\`accountId\`
               AND cl2.companyId = ${companyId}
               AND (cl2.date < \`P_C_Ledger\`.\`date\` OR (cl2.date = \`P_C_Ledger\`.\`date\` AND cl2.id < \`P_C_Ledger\`.\`id\`))
-          )`), 'openingBalance']
-            ],
-            include: [
-                {
-                    model: C_PurchaseCash,
-                    as: "purchaseLedgerCash",
-                    attributes: []
-                },
-                {
-                    model: C_Payment,
-                    as: "paymentLedgerCash",
-                    attributes: []
-                },
-                {
-                    model: C_Salesinvoice,
-                    as: "salesLedgerCash",
-                    attributes: []
-                },
-                {
-                    model: C_Receipt,
-                    as: "receiptLedgerCash",
-                    attributes: []
-                },
-                {
-                    model: Account,
-                    as: "accountLedgerCash",
-                    attributes: []
-                },
-            ],
-            order: [
-                ["date", "ASC"],
-                ["id", "ASC"],
-            ],
-        });
+          )`),
+          "openingBalance",
+        ],
+      ],
+      include: [
+        {
+          model: C_PurchaseCash,
+          as: "purchaseLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_Payment,
+          as: "paymentLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_Salesinvoice,
+          as: "salesLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_Receipt,
+          as: "receiptLedgerCash",
+          attributes: [],
+        },
+        {
+          model: Account,
+          as: "accountLedgerCash",
+          attributes: [],
+        },
+      ],
+      order: [
+        ["date", "ASC"],
+        ["id", "ASC"],
+      ],
+    });
 
-        const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
+    const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
 
-        const cashLedgerArray = [...data];
-        if(+openingBalance !== 0){
-            cashLedgerArray.unshift({
-                "date": formDate,
-                "debitAmount": openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-                "creditAmount": openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-                "particulars": "Opening Balance",
-                "vchType": "",
-                "vchNo": "",
-                "openingBalance": 0
-            })
-        }
-
-        const totals = cashLedgerArray.reduce((acc, ledger) => {
-            if (ledger.dataValues) {
-                acc.totalCredit += ledger.dataValues.creditAmount || 0;
-                acc.totalDebit += ledger.dataValues.debitAmount || 0;
-            } else {
-                acc.totalCredit += ledger.creditAmount || 0;
-                acc.totalDebit += ledger.debitAmount || 0;
-            }
-            return acc;
-        }, { totalCredit: 0, totalDebit: 0 });
-
-        const totalCredit = totals.totalCredit;
-        const totalDebit = totals.totalDebit;
-        const closingBalanceAmount = totalDebit -totalCredit;
-        const closingBalance = {
-            type: closingBalanceAmount < 0 ? "debit": 'credit',
-            amount: +Math.abs(closingBalanceAmount).toFixed(2),
-        }
-        const records = cashLedgerArray.reduce((acc, obj) => {
-            const dateKey = obj.date;
-            const date = new Date(dateKey);
-            const formattedDate = `${date.getDate()}-${date.toLocaleString('default', { month: 'short' })}-${String(date.getFullYear()).slice(-2)}`;
-
-            if (!acc[formattedDate]) {
-                acc[formattedDate] = [];
-            }
-            acc[formattedDate].push(obj);
-            return acc;
-        }, {});
-        const formattedFromDate = new Date(formDate);
-        const formattedToDate = new Date(toDate);
-
-        const formDateFormat = `${formattedFromDate.getDate()}-${formattedFromDate.toLocaleString('default', { month: 'short' })}-${String(formattedFromDate.getFullYear()).slice(-2)}`;
-        const toDateFormat = `${formattedToDate.getDate()}-${formattedToDate.toLocaleString('default', { month: 'short' })}-${String(formattedToDate.getFullYear()).slice(-2)}`;
-
-
-        return res.status(200).json({status: "true", message: "Cash Ledger Dta Fetch Successfully.", data: {form: company,to: accountExist, dateRange: `${formDateFormat} - ${toDateFormat}`,totals, totalAmount: totals.totalCredit < totals.totalDebit ? totals.totalDebit: totals.totalCredit,closingBalance, records: records}})
-    }catch (e) {
-        console.log(e);
-        return res.status(500).json({status: "false", message: "Internal Server Error."})
+    const cashLedgerArray = [...data];
+    if (+openingBalance !== 0) {
+      cashLedgerArray.unshift({
+        date: formDate,
+        debitAmount:
+          openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        creditAmount:
+          openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        particulars: "Opening Balance",
+        vchType: "",
+        vchNo: "",
+        openingBalance: 0,
+      });
     }
-}
 
-exports.daybook = async (req, res)=>{
-    try {
-        const { formDate, toDate } = req.query;
-        const companyId = req.user.companyId;
-
-        const company = await Company.findByPk(companyId);
-
-
-        const queryData = { companyId: companyId };
-
-        if (formDate && toDate) {
-            queryData.date = {
-                [Sequelize.Op.between]: [formDate, toDate],
-            };
+    const totals = cashLedgerArray.reduce(
+      (acc, ledger) => {
+        if (ledger.dataValues) {
+          acc.totalCredit += ledger.dataValues.creditAmount || 0;
+          acc.totalDebit += ledger.dataValues.debitAmount || 0;
+        } else {
+          acc.totalCredit += ledger.creditAmount || 0;
+          acc.totalDebit += ledger.debitAmount || 0;
         }
-        const data = await Ledger.findAll({
-            attributes: [
-                "accountId",
-                "date",
-                [Sequelize.literal(`CASE
+        return acc;
+      },
+      { totalCredit: 0, totalDebit: 0 }
+    );
+
+    const totalCredit = totals.totalCredit;
+    const totalDebit = totals.totalDebit;
+    const closingBalanceAmount = totalDebit - totalCredit;
+    const closingBalance = {
+      type: closingBalanceAmount < 0 ? "debit" : "credit",
+      amount: +Math.abs(closingBalanceAmount).toFixed(2),
+    };
+    const records = cashLedgerArray.reduce((acc, obj) => {
+      const dateKey = obj.date;
+      const date = new Date(dateKey);
+      const formattedDate = `${date.getDate()}-${date.toLocaleString(
+        "default",
+        { month: "short" }
+      )}-${String(date.getFullYear()).slice(-2)}`;
+
+      if (!acc[formattedDate]) {
+        acc[formattedDate] = [];
+      }
+      acc[formattedDate].push(obj);
+      return acc;
+    }, {});
+    const formattedFromDate = new Date(formDate);
+    const formattedToDate = new Date(toDate);
+
+    const formDateFormat = `${formattedFromDate.getDate()}-${formattedFromDate.toLocaleString(
+      "default",
+      { month: "short" }
+    )}-${String(formattedFromDate.getFullYear()).slice(-2)}`;
+    const toDateFormat = `${formattedToDate.getDate()}-${formattedToDate.toLocaleString(
+      "default",
+      { month: "short" }
+    )}-${String(formattedToDate.getFullYear()).slice(-2)}`;
+
+    return res.status(200).json({
+      status: "true",
+      message: "Cash Ledger Dta Fetch Successfully.",
+      data: {
+        form: company,
+        to: accountExist,
+        dateRange: `${formDateFormat} - ${toDateFormat}`,
+        totals,
+        totalAmount:
+          totals.totalCredit < totals.totalDebit
+            ? totals.totalDebit
+            : totals.totalCredit,
+        closingBalance,
+        records: records,
+      },
+    });
+  } catch (e) {
+    console.log(e);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error." });
+  }
+};
+
+exports.daybook = async (req, res) => {
+  try {
+    const { formDate, toDate } = req.query;
+    const companyId = req.user.companyId;
+
+    const company = await Company.findByPk(companyId);
+
+    const queryData = { companyId: companyId };
+
+    if (formDate && toDate) {
+      queryData.date = {
+        [Sequelize.Op.between]: [formDate, toDate],
+      };
+    }
+    const data = await Ledger.findAll({
+      attributes: [
+        "accountId",
+        "date",
+        [
+          Sequelize.literal(`CASE
                     WHEN paymentLedger.id IS NOT NULL THEN \`paymentLedger\`.\`amount\`
                     WHEN salesLedger.id IS NOT NULL THEN \`salesLedger\`.\`mainTotal\`
                     ELSE 0
-                END`), "debitAmount"],
-                [Sequelize.literal(`CASE
+                END`),
+          "debitAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
                     WHEN receiptLedger.id IS NOT NULL THEN \`receiptLedger\`.\`amount\`
                     WHEN purchaseLedger.id IS NOT NULL THEN \`purchaseLedger\`.\`mainTotal\`
                     ELSE 0
-                END`), "creditAmount"],
-                [
-                    Sequelize.literal(`CASE
+                END`),
+          "creditAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
                     WHEN accountLedger.id IS NOT NULL THEN  \`accountLedger\`.\`accountName\`
                     ELSE ''
-                  END`), "particulars"],
-                [Sequelize.literal(`CASE
+                  END`),
+          "particulars",
+        ],
+        [
+          Sequelize.literal(`CASE
                     WHEN purchaseLedger.id IS NOT NULL THEN 'TAX INVOICE'
                     WHEN salesLedger.id IS NOT NULL THEN 'TAX INVOICE'
                     WHEN receiptLedger.id IS NOT NULL THEN 'Receipt'
                     WHEN paymentLedger.id IS NOT NULL THEN 'Payment'
                     ELSE ''
-                  END`), "vchType"
-                ],
-                [Sequelize.literal(`CASE
+                  END`),
+          "vchType",
+        ],
+        [
+          Sequelize.literal(`CASE
                     WHEN purchaseLedger.id IS NOT NULL THEN \`purchaseLedger\`.\`voucherno\`
                     WHEN salesLedger.id IS NOT NULL THEN \`salesLedger\`.\`invoiceno\`
                     WHEN receiptLedger.id IS NOT NULL THEN \`receiptLedger\`.\`voucherno\`
                     WHEN paymentLedger.id IS NOT NULL THEN \`paymentLedger\`.\`voucherno\`
                     ELSE ''
                   END`),
-                    "vchNo"
-                ],
-                [Sequelize.literal(`
+          "vchNo",
+        ],
+        [
+          Sequelize.literal(`
                   (
                     SELECT
                       IFNULL(SUM(
@@ -466,154 +573,201 @@ exports.daybook = async (req, res)=>{
                       cl2.accountId = \`P_Ledger\`.\`accountId\`
                       AND cl2.companyId = ${companyId}
                       AND (cl2.date < \`P_Ledger\`.\`date\` OR (cl2.date = \`P_Ledger\`.\`date\` AND cl2.id < \`P_Ledger\`.\`id\`))
-                  )`), 'openingBalance']
-            ],
-            include: [
-                {
-                    model: purchaseInvoice,
-                    as: "purchaseLedger",
-                    attributes: []
-                },
-                {
-                    model: Payment,
-                    as: "paymentLedger",
-                    include: {model: CompanyBankDetails, as: "paymentBankAccount", attributes: []},
-                    attributes: []
-                },
-                {
-                    model: salesInvoice,
-                    as: "salesLedger",
-                    attributes: []
-                },
-                {
-                    model: Receipt,
-                    as: "receiptLedger",
-                    include: {model: CompanyBankDetails, as: "receiptBankAccount", attributes: []},
-                    attributes: []
-                },
-                {
-                    model: Account,
-                    as: "accountLedger",
-                    attributes: []
-                },
-            ],
-            where: queryData,
-            order: [
-                ["date", "ASC"],
-                ["id", "ASC"],
-            ],
-        });
-        const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
-        const ledgerArray = [...data];
-        if(+openingBalance !== 0){
-            ledgerArray.unshift({
-                "date": formDate,
-                "debitAmount": openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-                "creditAmount": openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-                "particulars": "Opening Balance",
-                "vchType": "",
-                "vchNo": "",
-                "openingBalance": 0
-            })
-        }
-        const totals = ledgerArray.reduce((acc, ledger) => {
-            if (ledger.dataValues) {
-                acc.totalCredit += ledger.dataValues.creditAmount || 0;
-                acc.totalDebit += ledger.dataValues.debitAmount || 0;
-            } else {
-                acc.totalCredit += ledger.creditAmount || 0;
-                acc.totalDebit += ledger.debitAmount || 0;
-            }
-            return acc;
-        }, { totalCredit: 0, totalDebit: 0 });
-
-
-        const totalCredit = totals.totalCredit;
-        const totalDebit = totals.totalDebit;
-        const closingBalanceAmount = totalDebit -totalCredit;
-        const closingBalance = {
-            type: closingBalanceAmount < 0 ? "debit": 'credit',
-            amount: +Math.abs(closingBalanceAmount).toFixed(2),
-        }
-
-        const records = ledgerArray.reduce((acc, obj) => {
-            const dateKey = obj.date;
-            const date = new Date(dateKey);
-            const formattedDate = `${date.getDate()}-${date.toLocaleString('default', { month: 'short' })}-${String(date.getFullYear()).slice(-2)}`;
-
-            if (!acc[formattedDate]) {
-                acc[formattedDate] = [];
-            }
-            acc[formattedDate].push(obj);
-            return acc;
-        }, {});
-        const formattedFromDate = new Date(formDate);
-        const formattedToDate = new Date(toDate);
-
-        const formDateFormat = `${formattedFromDate.getDate()}-${formattedFromDate.toLocaleString('default', { month: 'short' })}-${String(formattedFromDate.getFullYear()).slice(-2)}`;
-        const toDateFormat = `${formattedToDate.getDate()}-${formattedToDate.toLocaleString('default', { month: 'short' })}-${String(formattedToDate.getFullYear()).slice(-2)}`;
-        return res.status(200).json({
-            status: "true",
-            message: "Ledger Data Fetch Successfully",
-            data: {form: company, dateRange: `${formDateFormat} - ${toDateFormat}`,totals, totalAmount: totals.totalCredit < totals.totalDebit ? totals.totalDebit: totals.totalCredit,closingBalance, records: records},
-        });
-    } catch (error) {
-        console.log(error);
-        return res
-            .status(500)
-            .json({ status: "false", message: "Internal Server Error" });
+                  )`),
+          "openingBalance",
+        ],
+      ],
+      include: [
+        {
+          model: purchaseInvoice,
+          as: "purchaseLedger",
+          attributes: [],
+        },
+        {
+          model: Payment,
+          as: "paymentLedger",
+          include: {
+            model: CompanyBankDetails,
+            as: "paymentBankAccount",
+            attributes: [],
+          },
+          attributes: [],
+        },
+        {
+          model: salesInvoice,
+          as: "salesLedger",
+          attributes: [],
+        },
+        {
+          model: Receipt,
+          as: "receiptLedger",
+          include: {
+            model: CompanyBankDetails,
+            as: "receiptBankAccount",
+            attributes: [],
+          },
+          attributes: [],
+        },
+        {
+          model: Account,
+          as: "accountLedger",
+          attributes: [],
+        },
+      ],
+      where: queryData,
+      order: [
+        ["date", "ASC"],
+        ["id", "ASC"],
+      ],
+    });
+    const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
+    const ledgerArray = [...data];
+    if (+openingBalance !== 0) {
+      ledgerArray.unshift({
+        date: formDate,
+        debitAmount:
+          openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        creditAmount:
+          openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        particulars: "Opening Balance",
+        vchType: "",
+        vchNo: "",
+        openingBalance: 0,
+      });
     }
-}
-
-exports.C_daybook = async (req, res)=>{
-    try {
-        const { formDate, toDate } = req.query;
-        const companyId = req.user.companyId;
-        const queryData = { companyId: companyId };
-
-        const company = await Company.findByPk(companyId);
-
-
-        if (formDate && toDate) {
-            queryData.date = {
-                [Sequelize.Op.between]: [formDate, toDate],
-            };
+    const totals = ledgerArray.reduce(
+      (acc, ledger) => {
+        if (ledger.dataValues) {
+          acc.totalCredit += ledger.dataValues.creditAmount || 0;
+          acc.totalDebit += ledger.dataValues.debitAmount || 0;
+        } else {
+          acc.totalCredit += ledger.creditAmount || 0;
+          acc.totalDebit += ledger.debitAmount || 0;
         }
+        return acc;
+      },
+      { totalCredit: 0, totalDebit: 0 }
+    );
 
-        const data = await C_Ledger.findAll({
-            where: queryData,
-            attributes: [
-                "date",
-                [Sequelize.literal(`CASE
+    const totalCredit = totals.totalCredit;
+    const totalDebit = totals.totalDebit;
+    const closingBalanceAmount = totalDebit - totalCredit;
+    const closingBalance = {
+      type: closingBalanceAmount < 0 ? "debit" : "credit",
+      amount: +Math.abs(closingBalanceAmount).toFixed(2),
+    };
+
+    const records = ledgerArray.reduce((acc, obj) => {
+      const dateKey = obj.date;
+      const date = new Date(dateKey);
+      const formattedDate = `${date.getDate()}-${date.toLocaleString(
+        "default",
+        { month: "short" }
+      )}-${String(date.getFullYear()).slice(-2)}`;
+
+      if (!acc[formattedDate]) {
+        acc[formattedDate] = [];
+      }
+      acc[formattedDate].push(obj);
+      return acc;
+    }, {});
+    const formattedFromDate = new Date(formDate);
+    const formattedToDate = new Date(toDate);
+
+    const formDateFormat = `${formattedFromDate.getDate()}-${formattedFromDate.toLocaleString(
+      "default",
+      { month: "short" }
+    )}-${String(formattedFromDate.getFullYear()).slice(-2)}`;
+    const toDateFormat = `${formattedToDate.getDate()}-${formattedToDate.toLocaleString(
+      "default",
+      { month: "short" }
+    )}-${String(formattedToDate.getFullYear()).slice(-2)}`;
+    return res.status(200).json({
+      status: "true",
+      message: "Ledger Data Fetch Successfully",
+      data: {
+        form: company,
+        dateRange: `${formDateFormat} - ${toDateFormat}`,
+        totals,
+        totalAmount:
+          totals.totalCredit < totals.totalDebit
+            ? totals.totalDebit
+            : totals.totalCredit,
+        closingBalance,
+        records: records,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
+exports.C_daybook = async (req, res) => {
+  try {
+    const { formDate, toDate } = req.query;
+    const companyId = req.user.companyId;
+    const queryData = { companyId: companyId };
+
+    const company = await Company.findByPk(companyId);
+
+    if (formDate && toDate) {
+      queryData.date = {
+        [Sequelize.Op.between]: [formDate, toDate],
+      };
+    }
+
+    const data = await C_Ledger.findAll({
+      where: queryData,
+      attributes: [
+        "date",
+        [
+          Sequelize.literal(`CASE
             WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`amount\`
             WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`totalMrp\`
             ELSE 0
-        END`), "debitAmount"],
-                [Sequelize.literal(`CASE
+        END`),
+          "debitAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
             WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`amount\`
             WHEN purchaseLedgerCash.id IS NOT NULL THEN \`purchaseLedgerCash\`.\`totalMrp\`
             ELSE 0
-        END`), "creditAmount"],
-                [
-                    Sequelize.literal(`CASE
+        END`),
+          "creditAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
                     WHEN accountLedgerCash.id IS NOT NULL THEN  \`accountLedgerCash\`.\`contactPersonName\`
                     ELSE ''
-                  END`), "particulars"],
-                [Sequelize.literal(`CASE
+                  END`),
+          "particulars",
+        ],
+        [
+          Sequelize.literal(`CASE
             WHEN purchaseLedgerCash.id IS NOT NULL THEN 'CASH'
             WHEN salesLedgerCash.id IS NOT NULL THEN 'CASH'
             WHEN receiptLedgerCash.id IS NOT NULL THEN 'Receipt'
             WHEN paymentLedgerCash.id IS NOT NULL THEN 'Payment'
             ELSE ''
-        END`), "vchType"],
-                [Sequelize.literal(`CASE
+        END`),
+          "vchType",
+        ],
+        [
+          Sequelize.literal(`CASE
             WHEN purchaseLedgerCash.id IS NOT NULL THEN \`purchaseLedgerCash\`.\`purchaseNo\`
             WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`saleNo\`
             WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`receiptNo\`
             WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`paymentNo\`
             ELSE ''
-        END`), "vchNo"],
-                [Sequelize.literal(`
+        END`),
+          "vchNo",
+        ],
+        [
+          Sequelize.literal(`
           (
             SELECT
               IFNULL(SUM(
@@ -638,153 +792,196 @@ exports.C_daybook = async (req, res)=>{
               cl2.accountId = \`P_C_Ledger\`.\`accountId\`
               AND cl2.companyId = ${companyId}
               AND (cl2.date < \`P_C_Ledger\`.\`date\` OR (cl2.date = \`P_C_Ledger\`.\`date\` AND cl2.id < \`P_C_Ledger\`.\`id\`))
-          )`), 'openingBalance']
-            ],
-            include: [
-                {
-                    model: C_PurchaseCash,
-                    as: "purchaseLedgerCash",
-                    attributes: []
-                },
-                {
-                    model: C_Payment,
-                    as: "paymentLedgerCash",
-                    attributes: []
-                },
-                {
-                    model: C_Salesinvoice,
-                    as: "salesLedgerCash",
-                    attributes: []
-                },
-                {
-                    model: C_Receipt,
-                    as: "receiptLedgerCash",
-                    // attributes: []
-                },
-                {
-                    model: Account,
-                    as: "accountLedgerCash",
-                    // attributes: []
-                },
-            ],
-            order: [
-                ["date", "ASC"],
-                ["id", "ASC"],
-            ],
-        });
+          )`),
+          "openingBalance",
+        ],
+      ],
+      include: [
+        {
+          model: C_PurchaseCash,
+          as: "purchaseLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_Payment,
+          as: "paymentLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_Salesinvoice,
+          as: "salesLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_Receipt,
+          as: "receiptLedgerCash",
+          // attributes: []
+        },
+        {
+          model: Account,
+          as: "accountLedgerCash",
+          // attributes: []
+        },
+      ],
+      order: [
+        ["date", "ASC"],
+        ["id", "ASC"],
+      ],
+    });
 
-        const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
+    const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
 
-        const cashLedgerArray = [...data];
-        if(+openingBalance !== 0){
-            cashLedgerArray.unshift({
-                "date": formDate,
-                "debitAmount": openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-                "creditAmount": openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-                "particulars": "Opening Balance",
-                "vchType": "",
-                "vchNo": "",
-                "openingBalance": 0
-            })
-        }
-
-        const totals = cashLedgerArray.reduce((acc, ledger) => {
-            if (ledger.dataValues) {
-                acc.totalCredit += ledger.dataValues.creditAmount || 0;
-                acc.totalDebit += ledger.dataValues.debitAmount || 0;
-            } else {
-                acc.totalCredit += ledger.creditAmount || 0;
-                acc.totalDebit += ledger.debitAmount || 0;
-            }
-            return acc;
-        }, { totalCredit: 0, totalDebit: 0 });
-
-        const totalCredit = totals.totalCredit;
-        const totalDebit = totals.totalDebit;
-        const closingBalanceAmount = totalDebit -totalCredit;
-        const closingBalance = {
-            type: closingBalanceAmount < 0 ? "debit": 'credit',
-            amount: +Math.abs(closingBalanceAmount).toFixed(2),
-        }
-        const records = cashLedgerArray.reduce((acc, obj) => {
-            const dateKey = obj.date;
-            const date = new Date(dateKey);
-            const formattedDate = `${date.getDate()}-${date.toLocaleString('default', { month: 'short' })}-${String(date.getFullYear()).slice(-2)}`;
-
-            if (!acc[formattedDate]) {
-                acc[formattedDate] = [];
-            }
-            acc[formattedDate].push(obj);
-            return acc;
-        }, {});
-        const formattedFromDate = new Date(formDate);
-        const formattedToDate = new Date(toDate);
-
-        const formDateFormat = `${formattedFromDate.getDate()}-${formattedFromDate.toLocaleString('default', { month: 'short' })}-${String(formattedFromDate.getFullYear()).slice(-2)}`;
-        const toDateFormat = `${formattedToDate.getDate()}-${formattedToDate.toLocaleString('default', { month: 'short' })}-${String(formattedToDate.getFullYear()).slice(-2)}`;
-
-
-        return res.status(200).json({status: "true", message: "Cash Ledger Data Fetch Successfully.", data: {form: company, dateRange: `${formDateFormat} - ${toDateFormat}`,totals, totalAmount: totals.totalCredit < totals.totalDebit ? totals.totalDebit: totals.totalCredit,closingBalance, records: records}})
-    }catch (e) {
-        console.log(e);
-        return res.status(500).json({status: "false", message: "Internal Server Error."})
+    const cashLedgerArray = [...data];
+    if (+openingBalance !== 0) {
+      cashLedgerArray.unshift({
+        date: formDate,
+        debitAmount:
+          openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        creditAmount:
+          openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        particulars: "Opening Balance",
+        vchType: "",
+        vchNo: "",
+        openingBalance: 0,
+      });
     }
-}
 
-exports.C_wallet_ledger = async (req, res)=>{
-    try {
-        const { userId } = req.params;
-        const { formDate, toDate } = req.query;
-        const companyId = req.user.companyId;
-        const queryData = { userId: userId, companyId: companyId };
-
-        const userExist = await User.findOne({ where: { id: userId,  } });
-        if(!userExist){
-            return res.status(404).json({
-                status: "false",
-                message: "Account Not Found."
-            })
+    const totals = cashLedgerArray.reduce(
+      (acc, ledger) => {
+        if (ledger.dataValues) {
+          acc.totalCredit += ledger.dataValues.creditAmount || 0;
+          acc.totalDebit += ledger.dataValues.debitAmount || 0;
+        } else {
+          acc.totalCredit += ledger.creditAmount || 0;
+          acc.totalDebit += ledger.debitAmount || 0;
         }
+        return acc;
+      },
+      { totalCredit: 0, totalDebit: 0 }
+    );
 
-        const company = await Company.findByPk(companyId);
+    const totalCredit = totals.totalCredit;
+    const totalDebit = totals.totalDebit;
+    const closingBalanceAmount = totalDebit - totalCredit;
+    const closingBalance = {
+      type: closingBalanceAmount < 0 ? "debit" : "credit",
+      amount: +Math.abs(closingBalanceAmount).toFixed(2),
+    };
+    const records = cashLedgerArray.reduce((acc, obj) => {
+      const dateKey = obj.date;
+      const date = new Date(dateKey);
+      const formattedDate = `${date.getDate()}-${date.toLocaleString(
+        "default",
+        { month: "short" }
+      )}-${String(date.getFullYear()).slice(-2)}`;
 
+      if (!acc[formattedDate]) {
+        acc[formattedDate] = [];
+      }
+      acc[formattedDate].push(obj);
+      return acc;
+    }, {});
+    const formattedFromDate = new Date(formDate);
+    const formattedToDate = new Date(toDate);
 
-        if (formDate && toDate) {
-            queryData.date = {
-                [Sequelize.Op.between]: [formDate, toDate],
-            };
-        }
+    const formDateFormat = `${formattedFromDate.getDate()}-${formattedFromDate.toLocaleString(
+      "default",
+      { month: "short" }
+    )}-${String(formattedFromDate.getFullYear()).slice(-2)}`;
+    const toDateFormat = `${formattedToDate.getDate()}-${formattedToDate.toLocaleString(
+      "default",
+      { month: "short" }
+    )}-${String(formattedToDate.getFullYear()).slice(-2)}`;
 
-        const data = await C_WalletLedger.findAll({
-            where: queryData,
-            attributes: [
-                "date",
-                "id",
-                "isApprove",
-                [Sequelize.literal(`CASE
+    return res.status(200).json({
+      status: "true",
+      message: "Cash Ledger Data Fetch Successfully.",
+      data: {
+        form: company,
+        dateRange: `${formDateFormat} - ${toDateFormat}`,
+        totals,
+        totalAmount:
+          totals.totalCredit < totals.totalDebit
+            ? totals.totalDebit
+            : totals.totalCredit,
+        closingBalance,
+        records: records,
+      },
+    });
+  } catch (e) {
+    console.log(e);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error." });
+  }
+};
+
+exports.C_wallet_ledger = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { formDate, toDate } = req.query;
+    const companyId = req.user.companyId;
+    const queryData = { userId: userId, companyId: companyId };
+
+    const userExist = await User.findOne({ where: { id: userId } });
+    if (!userExist) {
+      return res.status(404).json({
+        status: "false",
+        message: "Account Not Found.",
+      });
+    }
+
+    const company = await Company.findByPk(companyId);
+
+    if (formDate && toDate) {
+      queryData.date = {
+        [Sequelize.Op.between]: [formDate, toDate],
+      };
+    }
+
+    const data = await C_WalletLedger.findAll({
+      where: queryData,
+      attributes: [
+        "date",
+        "id",
+        "isApprove",
+        [
+          Sequelize.literal(`CASE
             WHEN walletPayment.id IS NOT NULL THEN \`walletPayment\`.\`amount\`
             WHEN \`walletClaim\`.\`toUserId\` = ${userId} THEN \`walletClaim\`.\`amount\`
             ELSE 0
-        END`), "debitAmount"],
-                [Sequelize.literal(`CASE
+        END`),
+          "debitAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
             WHEN walletReceipt.id IS NOT NULL THEN \`walletReceipt\`.\`amount\`
             WHEN \`walletClaim\`.\`fromUserId\` = ${userId} THEN \`walletClaim\`.\`amount\`
             ELSE 0
-        END`), "creditAmount"],
-                [Sequelize.literal(`CASE
+        END`),
+          "creditAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
             WHEN walletPayment.id IS NOT NULL THEN \`walletPayment\`.\`description\`
             WHEN walletReceipt.id IS NOT NULL THEN \`walletReceipt\`.\`description\`
             WHEN walletClaim.id IS NOT NULL THEN \`walletClaim\`.\`description\`
             ELSE ''
-        END`), "details"],
-                [Sequelize.literal(`CASE
+        END`),
+          "details",
+        ],
+        [
+          Sequelize.literal(`CASE
             WHEN walletPayment.id IS NOT NULL THEN \`walletPayment->accountPaymentCash\`.\`contactPersonName\`
             WHEN walletReceipt.id IS NOT NULL THEN \`walletReceipt->accountReceiptCash\`.\`contactPersonName\`
             WHEN \`walletClaim\`.\`fromUserId\` = ${userId} THEN \`walletClaim->toUser\`.\`username\`
           WHEN \`walletClaim\`.\`toUserId\` = ${userId} THEN \`walletClaim->fromUser\`.\`username\`
             ELSE ''
-        END`), "personName"],
-                [Sequelize.literal(`
+        END`),
+          "personName",
+        ],
+        [
+          Sequelize.literal(`
     (
         SELECT
             IFNULL(SUM(
@@ -808,218 +1005,344 @@ exports.C_wallet_ledger = async (req, res)=>{
             wl2.userId = \`P_C_WalletLedger\`.\`userId\`
             AND wl2.companyId = ${companyId}
             AND (wl2.date < \`P_C_WalletLedger\`.\`date\` OR (wl2.date = \`P_C_WalletLedger\`.\`date\` AND wl2.id < \`P_C_WalletLedger\`.\`id\`))
-    )`), 'openingBalance']
-            ],
-            include: [
-                {
-                    model: C_Payment,
-                    as: "walletPayment",
-                    include: [{
-                        model: Account,
-                        as: "accountPaymentCash"
-                    }],
-                    attributes: []
-                },
-                {
-                    model: C_Receipt,
-                    as: "walletReceipt",
-                    include: [{
-                        model: Account,
-                        as: "accountReceiptCash"
-                    }],
-                    attributes: []
-                },
-                {
-                    model: C_Claim,
-                    as: "walletClaim",
-                    include: [{ model: User, as: "toUser" }, { model: User, as: "fromUser" }],
-                    attributes: []
-                },
-            ],
-            order: [
-                ["date", "ASC"],
-                ["id", "ASC"],
-            ],
-        });
+    )`),
+          "openingBalance",
+        ],
+      ],
+      include: [
+        {
+          model: C_Payment,
+          as: "walletPayment",
+          include: [
+            {
+              model: Account,
+              as: "accountPaymentCash",
+            },
+          ],
+          attributes: [],
+        },
+        {
+          model: C_Receipt,
+          as: "walletReceipt",
+          include: [
+            {
+              model: Account,
+              as: "accountReceiptCash",
+            },
+          ],
+          attributes: [],
+        },
+        {
+          model: C_Claim,
+          as: "walletClaim",
+          include: [
+            { model: User, as: "toUser" },
+            { model: User, as: "fromUser" },
+          ],
+          attributes: [],
+        },
+      ],
+      order: [
+        ["date", "ASC"],
+        ["id", "ASC"],
+      ],
+    });
 
-        const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
-        const walletLedgerArray = [...data];
-        if(+openingBalance !== 0){
-            walletLedgerArray.unshift({
-                "date": formDate,
-                "debitAmount": openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-                "creditAmount": openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-                "details": "Opening Balance",
-                "openingBalance": 0,
-                "personName": "",
-                id: null
-            })
-        }
-
-        const totals = walletLedgerArray.reduce((acc, ledger) => {
-            if (ledger.dataValues) {
-                acc.totalCredit += ledger.dataValues.creditAmount || 0;
-                acc.totalDebit += ledger.dataValues.debitAmount || 0;
-            } else {
-                acc.totalCredit += ledger.creditAmount || 0;
-                acc.totalDebit += ledger.debitAmount || 0;
-            }
-            return acc;
-        }, { totalCredit: 0, totalDebit: 0 });
-
-        const totalCredit = totals.totalCredit;
-        const totalDebit = totals.totalDebit;
-        const closingBalanceAmount = totalDebit -totalCredit;
-        const closingBalance = {
-            type: closingBalanceAmount < 0 ? "debit": 'credit',
-            amount: +Math.abs(closingBalanceAmount).toFixed(2),
-        }
-
-        return res.status(200).json({status: "true", message: "Wallet Ledger Data Fetch Successfully.", data: {records: walletLedgerArray, totals, closingBalance, totalAmount: totals.totalCredit < totals.totalDebit ? totals.totalDebit: totals.totalCredit}})
-    }catch (e) {
-        console.log(e);
-        return res.status(500).json({status: "false", message: "Internal Server Error."})
+    const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
+    const walletLedgerArray = [...data];
+    if (+openingBalance !== 0) {
+      walletLedgerArray.unshift({
+        date: formDate,
+        debitAmount:
+          openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        creditAmount:
+          openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        details: "Opening Balance",
+        openingBalance: 0,
+        personName: "",
+        id: null,
+      });
     }
-}
 
-exports.C_cashbook = async (req, res)=>{
-    try {
-        const { formDate, toDate } = req.query;
-        const companyId = req.user.companyId;
-        const queryData = { companyId: companyId, claimId: null, isApprove: true,
-            [Sequelize.Op.or]: [
-                { paymentId: { [Sequelize.Op.ne]: null } },
-                { receiptId: { [Sequelize.Op.ne]: null } }
-            ] };
-
-        const company = await Company.findByPk(companyId);
-
-        if (formDate && toDate) {
-            queryData.approveDate = {
-                [Sequelize.Op.between]: [formDate, toDate],
-            };
+    const totals = walletLedgerArray.reduce(
+      (acc, ledger) => {
+        if (ledger.dataValues) {
+          acc.totalCredit += ledger.dataValues.creditAmount || 0;
+          acc.totalDebit += ledger.dataValues.debitAmount || 0;
+        } else {
+          acc.totalCredit += ledger.creditAmount || 0;
+          acc.totalDebit += ledger.debitAmount || 0;
         }
+        return acc;
+      },
+      { totalCredit: 0, totalDebit: 0 }
+    );
 
-        const data = await C_WalletLedger.findAll({
-            where: queryData,
-            attributes: [
-                "date",
-                "id",
-                "isApprove",
-                "approveDate",
-                [Sequelize.literal(`CASE
-            WHEN walletPayment.id IS NOT NULL THEN \`walletPayment\`.\`amount\`
+    const totalCredit = totals.totalCredit;
+    const totalDebit = totals.totalDebit;
+    const closingBalanceAmount = totalDebit - totalCredit;
+    const closingBalance = {
+      type: closingBalanceAmount < 0 ? "debit" : "credit",
+      amount: +Math.abs(closingBalanceAmount).toFixed(2),
+    };
+
+    return res.status(200).json({
+      status: "true",
+      message: "Wallet Ledger Data Fetch Successfully.",
+      data: {
+        records: walletLedgerArray,
+        totals,
+        closingBalance,
+        totalAmount:
+          totals.totalCredit < totals.totalDebit
+            ? totals.totalDebit
+            : totals.totalCredit,
+      },
+    });
+  } catch (e) {
+    console.log(e);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error." });
+  }
+};
+
+exports.C_cashbook = async (req, res) => {
+  try {
+    const { formDate, toDate } = req.query;
+    const companyId = req.user.companyId;
+    const queryData = {
+      companyId: companyId,
+    };
+
+    const company = await Company.findByPk(companyId);
+
+    if (formDate && toDate) {
+      queryData.date = {
+        [Sequelize.Op.between]: [formDate, toDate],
+      };
+    }
+
+    const data = await C_Cashbook.findAll({
+      where: queryData,
+      attributes: [
+        "date",
+        "id",
+        [
+          Sequelize.literal(`CASE
+            WHEN cashCashbookPayment.id IS NOT NULL THEN \`cashCashbookPayment\`.\`amount\`
+            WHEN cashbookPayment.id IS NOT NULL THEN \`cashbookPayment\`.\`amount\`
             ELSE 0
-        END`), "debitAmount"],
-                [Sequelize.literal(`CASE
-            WHEN walletReceipt.id IS NOT NULL THEN \`walletReceipt\`.\`amount\`
+        END`),
+          "debitAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
+            WHEN cashCashbookReceipt.id IS NOT NULL THEN \`cashCashbookReceipt\`.\`amount\`
+            WHEN cashbookReceipt.id IS NOT NULL THEN \`cashbookReceipt\`.\`amount\`
             ELSE 0
-        END`), "creditAmount"],
-                [Sequelize.literal(`CASE
-            WHEN walletPayment.id IS NOT NULL THEN \`walletPayment\`.\`description\`
-            WHEN walletReceipt.id IS NOT NULL THEN \`walletReceipt\`.\`description\`
+        END`),
+          "creditAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
+            WHEN cashCashbookReceipt.id IS NOT NULL THEN \`cashCashbookReceipt\`.\`description\`
+            WHEN cashCashbookPayment.id IS NOT NULL THEN \`cashCashbookPayment\`.\`description\`
             ELSE ''
-        END`), "details"],
-                [Sequelize.literal(`CASE
-            WHEN walletPayment.id IS NOT NULL THEN \`walletPayment->accountPaymentCash\`.\`contactPersonName\`
-            WHEN walletReceipt.id IS NOT NULL THEN \`walletReceipt->accountReceiptCash\`.\`contactPersonName\`
+        END`),
+          "details",
+        ],
+        [
+          Sequelize.literal(`CASE
+            WHEN cashCashbookPayment.id IS NOT NULL THEN \`cashCashbookPayment->accountPaymentCash\`.\`contactPersonName\`
+            WHEN cashCashbookReceipt.id IS NOT NULL THEN \`cashCashbookReceipt->accountReceiptCash\`.\`contactPersonName\`
+            WHEN cashbookReceipt.id IS NOT NULL THEN \`cashbookReceipt->accountReceipt\`.\`accountName\`
+            WHEN cashbookPayment.id IS NOT NULL THEN \`cashbookPayment->accountPayment\`.\`accountName\`
             ELSE ''
-        END`), "personName"],
-                [Sequelize.literal(`
-    (
+        END`),
+          "personName",
+        ],
+        [
+          Sequelize.literal(`
+          (
         SELECT
             IFNULL(SUM(
                 IFNULL(CASE
-                    WHEN wl2.receiptId IS NOT NULL THEN walletReceipt.amount
-                    ELSE 0
+                  WHEN cashCashbookReceipt.id IS NOT NULL THEN cashCashbookReceipt.amount
+                  WHEN cashbookReceipt.id IS NOT NULL THEN cashbookReceipt.amount
+                  ELSE 0
                 END, 0) -
                 IFNULL(CASE
-                    WHEN wl2.paymentId IS NOT NULL THEN walletPayment.amount
-                    ELSE 0
+                  WHEN cashCashbookPayment.id IS NOT NULL THEN cashCashbookPayment.amount
+                  WHEN cashbookPayment.id IS NOT NULL THEN cashbookPayment.amount
+                  ELSE 0
                 END, 0)
-            ), 0)
+              ), 0
+            )
         FROM
-            \`P_C_WalletLedgers\` AS wl2
-        LEFT OUTER JOIN \`P_C_Payments\` AS walletPayment ON wl2.paymentId = walletPayment.id
-        LEFT OUTER JOIN \`P_C_Receipts\` AS walletReceipt ON wl2.receiptId = walletReceipt.id
+            P_C_Cashbooks AS cb2
+        LEFT OUTER JOIN P_Receipts AS cashbookReceipt ON cb2.receiptId = cashbookReceipt.id
+        LEFT OUTER JOIN P_Payments AS cashbookPayment ON cb2.paymentId = cashbookPayment.id
+        LEFT OUTER JOIN P_C_Receipts AS cashCashbookReceipt ON cb2.C_receiptId = cashCashbookReceipt.id
+        LEFT OUTER JOIN P_C_Payments AS cashCashbookPayment ON cb2.C_paymentId = cashCashbookPayment.id
         WHERE
-            wl2.companyId = ${companyId}
+            cb2.companyId = ${companyId}
             AND (
-                wl2.approveDate < \`P_C_WalletLedger\`.\`approveDate\`
+                cb2.date < P_C_Cashbook.date
                 OR (
-                    wl2.approveDate = \`P_C_WalletLedger\`.\`approveDate\`
-                    AND wl2.id < \`P_C_WalletLedger\`.\`id\`
+                    cb2.date = P_C_Cashbook.date
+                    AND cb2.id < P_C_Cashbook.id
                 )
             )
-    )`), 'openingBalance']
-            ],
-            include: [
-                {
-                    model: C_Payment,
-                    as: "walletPayment",
-                    include: [{
-                        model: Account,
-                        as: "accountPaymentCash"
-                    }],
-                    attributes: []
-                },
-                {
-                    model: C_Receipt,
-                    as: "walletReceipt",
-                    include: [{
-                        model: Account,
-                        as: "accountReceiptCash"
-                    }],
-                    attributes: []
-                },
-            ],
-            order: [
-                ["approveDate", "ASC"],
-            ],
-        });
+    )`),
+          "openingBalance",
+        ],
+      ],
+      include: [
+        {
+          model: C_Payment,
+          as: "cashCashbookPayment",
+          include: [
+            {
+              model: Account,
+              as: "accountPaymentCash",
+            },
+          ],
+          attributes: [],
+        },
+        {
+          model: C_Receipt,
+          as: "cashCashbookReceipt",
+          include: [
+            {
+              model: Account,
+              as: "accountReceiptCash",
+            },
+          ],
+          attributes: [],
+        },
+        {
+          model: Receipt,
+          as: "cashbookReceipt",
+          include: [
+            {
+              model: Account,
+              as: "accountReceipt",
+            },
+          ],
+          attributes: [],
+        },
+        {
+          model: Payment,
+          as: "cashbookPayment",
+          include: [
+            {
+              model: Account,
+              as: "accountPayment",
+            },
+          ],
+          attributes: [],
+        },
+      ],
+      order: [["date", "ASC"]],
+    });
 
-        const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
-        const ledgerArray = [...data];
-        if(+openingBalance !== 0){
-            ledgerArray.unshift({
-                "approveDate": formDate,
-                "debitAmount": openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-                "creditAmount": openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-                "details": "Opening Balance",
-                "openingBalance": 0,
-                "personName": "",
-                id: null
-            })
-        }
+    const fromDateObj = new Date(formDate);
+    const toDateObj = new Date(toDate);
 
-        const totals = ledgerArray.reduce((acc, ledger) => {
-            if (ledger.dataValues) {
-                acc.totalCredit += ledger.dataValues.creditAmount || 0;
-                acc.totalDebit += ledger.dataValues.debitAmount || 0;
-            } else {
-                acc.totalCredit += ledger.creditAmount || 0;
-                acc.totalDebit += ledger.debitAmount || 0;
-            }
-            return acc;
-        }, { totalCredit: 0, totalDebit: 0 });
+    function generateDateRange(from, to) {
+      const dates = [];
+      let currentDate = new Date(from);
 
-        const totalCredit = totals.totalCredit;
-        const totalDebit = totals.totalDebit;
-        const closingBalanceAmount = totalDebit -totalCredit;
-        const closingBalance = {
-            type: closingBalanceAmount < 0 ? "debit": 'credit',
-            amount: +Math.abs(closingBalanceAmount).toFixed(2),
-        }
+      while (currentDate <= to) {
+        dates.push(currentDate.toISOString().split("T")[0]); // Format as YYYY-MM-DD
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
 
-        const formattedFromDate = new Date(formDate);
-        const formattedToDate = new Date(toDate);
-
-        const formDateFormat = `${formattedFromDate.getDate()}-${formattedFromDate.toLocaleString('default', { month: 'short' })}-${String(formattedFromDate.getFullYear()).slice(-2)}`;
-        const toDateFormat = `${formattedToDate.getDate()}-${formattedToDate.toLocaleString('default', { month: 'short' })}-${String(formattedToDate.getFullYear()).slice(-2)}`;
-
-        return res.status(200).json({status: "true", message: "Wallet Ledger Data Fetch Successfully.", data: {form: company, dateRange: `${formDateFormat} - ${toDateFormat}`,totals, totalAmount: totals.totalCredit < totals.totalDebit ? totals.totalDebit: totals.totalCredit,closingBalance, records: ledgerArray}})
-    }catch (e) {
-        console.log(e);
-        return res.status(500).json({status: "false", message: "Internal Server Error."})
+      return dates;
     }
-}
+
+    const allDates = generateDateRange(fromDateObj, toDateObj);
+
+    const existingDataGrouped = data.reduce((acc, record) => {
+      const date = record.date;
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(record);
+      return acc;
+    }, {});
+    const result = allDates.reduce((acc, date) => {
+      acc[date] = existingDataGrouped[date] || [];
+      return acc;
+    }, {});
+
+    const output = Object.keys(result).reduce((acc, date) => {
+      const groupDateData = result[date];
+      const openingBalance = groupDateData[0]?.dataValues?.openingBalance ?? 0;
+      const ledgerArray = [...groupDateData];
+      if (+openingBalance !== 0) {
+        ledgerArray.unshift({
+          date: formDate,
+          debitAmount:
+            openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+          creditAmount:
+            openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+          details: "Opening Balance",
+          openingBalance: 0,
+          personName: "",
+          id: null,
+        });
+      }
+
+      const totals = ledgerArray.reduce(
+        (acc, ledger) => {
+          if (ledger.dataValues) {
+            acc.totalCredit += ledger.dataValues.creditAmount || 0;
+            acc.totalDebit += ledger.dataValues.debitAmount || 0;
+          } else {
+            acc.totalCredit += ledger.creditAmount || 0;
+            acc.totalDebit += ledger.debitAmount || 0;
+          }
+          return acc;
+        },
+        { totalCredit: 0, totalDebit: 0 }
+      );
+
+      const totalCredit = totals.totalCredit;
+      const totalDebit = totals.totalDebit;
+      const closingBalanceAmount = totalDebit - totalCredit;
+      const closingBalance = {
+        type: closingBalanceAmount < 0 ? "debit" : "credit",
+        amount: +Math.abs(closingBalanceAmount).toFixed(2),
+      };
+
+      const totalAmount =
+        totals.totalCredit < totals.totalDebit
+          ? totals.totalDebit
+          : totals.totalCredit;
+
+      acc[date] = {
+        totalAmount,
+        totals,
+        closingBalance,
+        records: ledgerArray,
+      };
+
+      return acc;
+    }, {});
+    return res.status(200).json({
+      status: "true",
+      message: "Cashbook Data Fetch Successfully.",
+      data: {
+        form: company,
+        records:output ,
+      },
+    });
+  } catch (e) {
+    console.log(e);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error." });
+  }
+};
