@@ -55,7 +55,7 @@ exports.create_bom = async (req, res) => {
                 })
             }
         }
-        const totalWeight = (qty * weight) + wastageQty;
+        const totalWeight = (qty * weight) + Number(wastageQty);
         const dividedWeight = Math.floor((totalWeight / totalQty) * 100) / 100;
 
         const createBOM = await Bom.create({
@@ -85,6 +85,7 @@ exports.create_bom = async (req, res) => {
 
         for(const item of items){
             const totalQty = Math.floor((item.qty * dividedWeight) * 100) / 100;
+            console.log(totalQty, "Total QTY", item.productId)
             await BomItem.create({
                 ...item,
                 bomId: createBOM.id
@@ -186,7 +187,7 @@ exports.update_bom = async (req, res) => {
                 }
             }
         }
-        const totalWeight = (qty * weight) + wastageQty;
+        const totalWeight = (qty * weight) + Number(wastageQty);
 
         const dividedWeight = Math.floor((totalWeight / totalQty) * 100) / 100;
 
