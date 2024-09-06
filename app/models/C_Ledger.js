@@ -6,6 +6,8 @@ const company = require("./company");
 const C_Payment = require("./C_Payment");
 const C_Receipt = require("./C_Receipt");
 const Account = require("./Account");
+const C_CreditNote = require("./C_CreditNote");
+const C_DebitNote = require("./C_DebitNote");
 
 const C_Ledger = sequelize.define("P_C_Ledger", {
     accountId: {
@@ -36,6 +38,16 @@ const C_Ledger = sequelize.define("P_C_Ledger", {
         allowNull: true,
         defaultValue: null
     },
+    debitNoId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: null
+    },
+    creditNoId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: null
+    },
     date: {
         type: DataTypes.DATEONLY,
         allowNull: false,
@@ -59,5 +71,13 @@ C_Ledger.belongsTo(C_Receipt, { foreignKey: "receiptId", onDelete: "CASCADE", as
 
 Account.hasMany(C_Ledger, { foreignKey: "accountId", onDelete: "CASCADE", as: "accountLedgerCash" });
 C_Ledger.belongsTo(Account, { foreignKey: "accountId", onDelete: "CASCADE", as: "accountLedgerCash" });
+
+
+C_DebitNote.hasMany(C_Ledger, { foreignKey: "debitNoId", onDelete: "CASCADE", as: "debitNoLedgerCash" });
+C_Ledger.belongsTo(C_DebitNote, { foreignKey: "debitNoId", onDelete: "CASCADE", as: "debitNoLedgerCash" });
+
+C_CreditNote.hasMany(C_Ledger, { foreignKey: "creditNoId", onDelete: "CASCADE", as: "creditNoLedgerCash" });
+C_Ledger.belongsTo(C_CreditNote, { foreignKey: "creditNoId", onDelete: "CASCADE", as: "creditNoLedgerCash" });
+
 
 module.exports = C_Ledger;

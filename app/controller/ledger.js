@@ -16,6 +16,10 @@ const User = require("../models/user");
 const C_WalletLedger = require("../models/C_WalletLedger");
 const C_Claim = require("../models/C_claim");
 const C_Cashbook = require("../models/C_Cashbook");
+const CreditNote = require("../models/creditNote");
+const DebitNote = require("../models/debitNote");
+const C_CreditNote = require("../models/C_CreditNote");
+const C_DebitNote = require("../models/C_DebitNote");
 exports.account_ledger = async (req, res) => {
   try {
     const { id } = req.params;
@@ -51,6 +55,7 @@ exports.account_ledger = async (req, res) => {
           Sequelize.literal(`CASE
                     WHEN paymentLedger.id IS NOT NULL THEN \`paymentLedger\`.\`amount\`
                     WHEN salesLedger.id IS NOT NULL THEN \`salesLedger\`.\`mainTotal\`
+                    WHEN debitNoLedger.id IS NOT NULL THEN \`debitNoLedger\`.\`mainTotal\`
                     ELSE 0
                 END`),
           "debitAmount",
@@ -59,6 +64,7 @@ exports.account_ledger = async (req, res) => {
           Sequelize.literal(`CASE
                     WHEN receiptLedger.id IS NOT NULL THEN \`receiptLedger\`.\`amount\`
                     WHEN purchaseLedger.id IS NOT NULL THEN \`purchaseLedger\`.\`mainTotal\`
+                    WHEN creditNoLedger.id IS NOT NULL THEN \`creditNoLedger\`.\`mainTotal\`
                     ELSE 0
                 END`),
           "creditAmount",
@@ -67,6 +73,8 @@ exports.account_ledger = async (req, res) => {
           Sequelize.literal(`CASE
                     WHEN salesLedger.id IS NOT NULL THEN 'SALES GST'
                     WHEN purchaseLedger.id IS NOT NULL THEN 'PURCHASE GST'
+                    WHEN creditNoLedger.id IS NOT NULL THEN 'SALES'
+                    WHEN debitNoLedger.id IS NOT NULL THEN 'PURCHASE'
                     WHEN paymentLedger.id IS NOT NULL THEN
                         CASE
                             WHEN paymentLedger.bankAccountId IS NOT NULL THEN \`paymentLedger->paymentBankAccount\`.\`bankname\`
@@ -87,6 +95,8 @@ exports.account_ledger = async (req, res) => {
                     WHEN salesLedger.id IS NOT NULL THEN 'TAX INVOICE'
                     WHEN receiptLedger.id IS NOT NULL THEN 'Receipt'
                     WHEN paymentLedger.id IS NOT NULL THEN 'Payment'
+                    WHEN debitNoLedger.id IS NOT NULL THEN 'DEBIT NOTE'
+                    WHEN creditNoLedger.id IS NOT NULL THEN 'CREDIT NOTE'
                     ELSE ''
                   END`),
           "vchType",
@@ -97,6 +107,8 @@ exports.account_ledger = async (req, res) => {
                     WHEN salesLedger.id IS NOT NULL THEN \`salesLedger\`.\`invoiceno\`
                     WHEN receiptLedger.id IS NOT NULL THEN \`receiptLedger\`.\`voucherno\`
                     WHEN paymentLedger.id IS NOT NULL THEN \`paymentLedger\`.\`voucherno\`
+                    WHEN creditNoLedger.id IS NOT NULL THEN \`creditNoLedger\`.\`creditnoteNo\`
+                    WHEN debitNoLedger.id IS NOT NULL THEN \`debitNoLedger\`.\`debitnoteno\`
                     ELSE ''
                   END`),
           "vchNo",
@@ -109,11 +121,13 @@ exports.account_ledger = async (req, res) => {
                         IFNULL(CASE
                           WHEN receiptLedger.id IS NOT NULL THEN receiptLedger.amount
                           WHEN purchaseLedger.id IS NOT NULL THEN purchaseLedger.mainTotal
+                          WHEN creditNoLedger.id IS NOT NULL THEN creditNoLedger.mainTotal
                           ELSE 0
                         END, 0) -
                         IFNULL(CASE
                           WHEN paymentLedger.id IS NOT NULL THEN paymentLedger.amount
                           WHEN salesLedger.id IS NOT NULL THEN salesLedger.mainTotal
+                          WHEN debitNoLedger.id IS NOT NULL THEN debitNoLedger.mainTotal
                           ELSE 0
                         END, 0)
                       ), 0)
@@ -123,6 +137,8 @@ exports.account_ledger = async (req, res) => {
                       LEFT OUTER JOIN \`P_purchaseInvoices\` AS purchaseLedger ON cl2.purchaseInvId = purchaseLedger.id
                       LEFT OUTER JOIN \`P_Receipts\` AS receiptLedger ON cl2.receiptId = receiptLedger.id
                       LEFT OUTER JOIN \`P_salesInvoices\` AS salesLedger ON cl2.saleInvId = salesLedger.id
+                      LEFT OUTER JOIN \`P_creditNotes\` AS creditNoLedger ON cl2.creditNoId = creditNoLedger.id
+                      LEFT OUTER JOIN \`P_debitNotes\` AS debitNoLedger ON cl2.debitNoId = debitNoLedger.id
                     WHERE
                       cl2.accountId = \`P_Ledger\`.\`accountId\`
                       AND cl2.companyId = ${companyId}
@@ -165,6 +181,16 @@ exports.account_ledger = async (req, res) => {
         {
           model: Account,
           as: "accountLedger",
+          attributes: [],
+        },
+        {
+          model: CreditNote,
+          as: "creditNoLedger",
+          attributes: [],
+        },
+        {
+          model: DebitNote,
+          as: "debitNoLedger",
           attributes: [],
         },
       ],
@@ -293,6 +319,7 @@ exports.C_account_ledger = async (req, res) => {
           Sequelize.literal(`CASE
             WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`amount\`
             WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`totalMrp\`
+            WHEN debitNoLedgerCash.id IS NOT NULL THEN \`debitNoLedgerCash\`.\`mainTotal\`
             ELSE 0
         END`),
           "debitAmount",
@@ -301,26 +328,31 @@ exports.C_account_ledger = async (req, res) => {
           Sequelize.literal(`CASE
             WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`amount\`
             WHEN purchaseLedgerCash.id IS NOT NULL THEN \`purchaseLedgerCash\`.\`totalMrp\`
+            WHEN creditNoLedgerCash.id IS NOT NULL THEN \`creditNoLedgerCash\`.\`mainTotal\`
             ELSE 0
         END`),
           "creditAmount",
         ],
         [
           Sequelize.literal(`CASE
-            WHEN salesLedgerCash.id IS NOT NULL THEN 'SALES CASH'
-            WHEN purchaseLedgerCash.id IS NOT NULL THEN 'PURCHASE CASH'
+            WHEN salesLedgerCash.id IS NOT NULL THEN 'CASH'
+            WHEN purchaseLedgerCash.id IS NOT NULL THEN 'CASH'
             WHEN receiptLedgerCash.id IS NOT NULL THEN 'CASH'
             WHEN paymentLedgerCash.id IS NOT NULL THEN 'CASH'
+            WHEN creditNoLedgerCash.id IS NOT NULL THEN 'SALES'
+            WHEN debitNoLedgerCash.id IS NOT NULL THEN 'PURCHASE'
             ELSE ''
         END`),
           "particulars",
         ],
         [
           Sequelize.literal(`CASE
-            WHEN purchaseLedgerCash.id IS NOT NULL THEN 'CASH'
-            WHEN salesLedgerCash.id IS NOT NULL THEN 'CASH'
+            WHEN purchaseLedgerCash.id IS NOT NULL THEN 'PURCHASE'
+            WHEN salesLedgerCash.id IS NOT NULL THEN 'SALES'
             WHEN receiptLedgerCash.id IS NOT NULL THEN 'Receipt'
             WHEN paymentLedgerCash.id IS NOT NULL THEN 'Payment'
+             WHEN creditNoLedgerCash.id IS NOT NULL THEN 'CREDIT NOTE'
+            WHEN debitNoLedgerCash.id IS NOT NULL THEN 'DEBIT NOTE'
             ELSE ''
         END`),
           "vchType",
@@ -331,6 +363,8 @@ exports.C_account_ledger = async (req, res) => {
             WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`saleNo\`
             WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`receiptNo\`
             WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`paymentNo\`
+            WHEN creditNoLedgerCash.id IS NOT NULL THEN \`creditNoLedgerCash\`.\`creditnoteNo\`
+            WHEN debitNoLedgerCash.id IS NOT NULL THEN \`debitNoLedgerCash\`.\`debitnoteno\`
             ELSE ''
         END`),
           "vchNo",
@@ -343,11 +377,13 @@ exports.C_account_ledger = async (req, res) => {
                 IFNULL(CASE
                   WHEN receiptLedgerCash.id IS NOT NULL THEN receiptLedgerCash.amount
                   WHEN purchaseLedgerCash.id IS NOT NULL THEN purchaseLedgerCash.totalMrp
+                  WHEN creditNoLedgerCash.id IS NOT NULL THEN creditNoLedgerCash.mainTotal
                   ELSE 0
                 END, 0) -
                 IFNULL(CASE
                   WHEN paymentLedgerCash.id IS NOT NULL THEN paymentLedgerCash.amount
                   WHEN salesLedgerCash.id IS NOT NULL THEN salesLedgerCash.totalMrp
+                  WHEN debitNoLedgerCash.id IS NOT NULL THEN debitNoLedgerCash.mainTotal
                   ELSE 0
                 END, 0)
               ), 0)
@@ -357,6 +393,8 @@ exports.C_account_ledger = async (req, res) => {
               LEFT OUTER JOIN \`P_C_purchaseCashes\` AS purchaseLedgerCash ON cl2.purchaseId = purchaseLedgerCash.id
               LEFT OUTER JOIN \`P_C_Receipts\` AS receiptLedgerCash ON cl2.receiptId = receiptLedgerCash.id
               LEFT OUTER JOIN \`P_C_salesInvoices\` AS salesLedgerCash ON cl2.saleId = salesLedgerCash.id
+              LEFT OUTER JOIN \`P_C_DebitNotes\` AS debitNoLedgerCash ON cl2.debitNoId = debitNoLedgerCash.id
+              LEFT OUTER JOIN \`P_C_CreditNotes\` AS creditNoLedgerCash ON cl2.creditNoId = creditNoLedgerCash.id
             WHERE
               cl2.accountId = \`P_C_Ledger\`.\`accountId\`
               AND cl2.companyId = ${companyId}
@@ -389,6 +427,16 @@ exports.C_account_ledger = async (req, res) => {
         {
           model: Account,
           as: "accountLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_CreditNote,
+          as: "creditNoLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_DebitNote,
+          as: "debitNoLedgerCash",
           attributes: [],
         },
       ],
@@ -508,6 +556,7 @@ exports.daybook = async (req, res) => {
           Sequelize.literal(`CASE
                     WHEN paymentLedger.id IS NOT NULL THEN \`paymentLedger\`.\`amount\`
                     WHEN salesLedger.id IS NOT NULL THEN \`salesLedger\`.\`mainTotal\`
+                    WHEN debitNoLedger.id IS NOT NULL THEN \`debitNoLedger\`.\`mainTotal\`
                     ELSE 0
                 END`),
           "debitAmount",
@@ -516,6 +565,7 @@ exports.daybook = async (req, res) => {
           Sequelize.literal(`CASE
                     WHEN receiptLedger.id IS NOT NULL THEN \`receiptLedger\`.\`amount\`
                     WHEN purchaseLedger.id IS NOT NULL THEN \`purchaseLedger\`.\`mainTotal\`
+                    WHEN creditNoLedger.id IS NOT NULL THEN \`creditNoLedger\`.\`mainTotal\`
                     ELSE 0
                 END`),
           "creditAmount",
@@ -533,6 +583,8 @@ exports.daybook = async (req, res) => {
                     WHEN salesLedger.id IS NOT NULL THEN 'TAX INVOICE'
                     WHEN receiptLedger.id IS NOT NULL THEN 'Receipt'
                     WHEN paymentLedger.id IS NOT NULL THEN 'Payment'
+                    WHEN debitNoLedger.id IS NOT NULL THEN 'DEBIT NOTE'
+                    WHEN creditNoLedger.id IS NOT NULL THEN 'CREDIT NOTE'
                     ELSE ''
                   END`),
           "vchType",
@@ -543,6 +595,8 @@ exports.daybook = async (req, res) => {
                     WHEN salesLedger.id IS NOT NULL THEN \`salesLedger\`.\`invoiceno\`
                     WHEN receiptLedger.id IS NOT NULL THEN \`receiptLedger\`.\`voucherno\`
                     WHEN paymentLedger.id IS NOT NULL THEN \`paymentLedger\`.\`voucherno\`
+                    WHEN creditNoLedger.id IS NOT NULL THEN \`creditNoLedger\`.\`creditnoteNo\`
+                    WHEN debitNoLedger.id IS NOT NULL THEN \`debitNoLedger\`.\`debitnoteno\`
                     ELSE ''
                   END`),
           "vchNo",
@@ -555,11 +609,13 @@ exports.daybook = async (req, res) => {
                         IFNULL(CASE
                           WHEN receiptLedger.id IS NOT NULL THEN receiptLedger.amount
                           WHEN purchaseLedger.id IS NOT NULL THEN purchaseLedger.mainTotal
+                          WHEN creditNoLedger.id IS NOT NULL THEN creditNoLedger.mainTotal
                           ELSE 0
                         END, 0) -
                         IFNULL(CASE
                           WHEN paymentLedger.id IS NOT NULL THEN paymentLedger.amount
                           WHEN salesLedger.id IS NOT NULL THEN salesLedger.mainTotal
+                          WHEN debitNoLedger.id IS NOT NULL THEN debitNoLedger.mainTotal
                           ELSE 0
                         END, 0)
                       ), 0)
@@ -569,6 +625,8 @@ exports.daybook = async (req, res) => {
                       LEFT OUTER JOIN \`P_purchaseInvoices\` AS purchaseLedger ON cl2.purchaseInvId = purchaseLedger.id
                       LEFT OUTER JOIN \`P_Receipts\` AS receiptLedger ON cl2.receiptId = receiptLedger.id
                       LEFT OUTER JOIN \`P_salesInvoices\` AS salesLedger ON cl2.saleInvId = salesLedger.id
+                      LEFT OUTER JOIN \`P_creditNotes\` AS creditNoLedger ON cl2.creditNoId = creditNoLedger.id
+                      LEFT OUTER JOIN \`P_debitNotes\` AS debitNoLedger ON cl2.debitNoId = debitNoLedger.id
                     WHERE
                       cl2.accountId = \`P_Ledger\`.\`accountId\`
                       AND cl2.companyId = ${companyId}
@@ -611,6 +669,16 @@ exports.daybook = async (req, res) => {
         {
           model: Account,
           as: "accountLedger",
+          attributes: [],
+        },
+        {
+          model: CreditNote,
+          as: "creditNoLedger",
+          attributes: [],
+        },
+        {
+          model: DebitNote,
+          as: "debitNoLedger",
           attributes: [],
         },
       ],
@@ -727,6 +795,7 @@ exports.C_daybook = async (req, res) => {
           Sequelize.literal(`CASE
             WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`amount\`
             WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`totalMrp\`
+            WHEN debitNoLedgerCash.id IS NOT NULL THEN \`debitNoLedgerCash\`.\`mainTotal\`
             ELSE 0
         END`),
           "debitAmount",
@@ -735,6 +804,7 @@ exports.C_daybook = async (req, res) => {
           Sequelize.literal(`CASE
             WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`amount\`
             WHEN purchaseLedgerCash.id IS NOT NULL THEN \`purchaseLedgerCash\`.\`totalMrp\`
+            WHEN creditNoLedgerCash.id IS NOT NULL THEN \`creditNoLedgerCash\`.\`mainTotal\`
             ELSE 0
         END`),
           "creditAmount",
@@ -748,10 +818,12 @@ exports.C_daybook = async (req, res) => {
         ],
         [
           Sequelize.literal(`CASE
-            WHEN purchaseLedgerCash.id IS NOT NULL THEN 'CASH'
-            WHEN salesLedgerCash.id IS NOT NULL THEN 'CASH'
+            WHEN purchaseLedgerCash.id IS NOT NULL THEN 'PURCHASE CASH'
+            WHEN salesLedgerCash.id IS NOT NULL THEN 'SALES CASH'
             WHEN receiptLedgerCash.id IS NOT NULL THEN 'Receipt'
             WHEN paymentLedgerCash.id IS NOT NULL THEN 'Payment'
+             WHEN creditNoLedgerCash.id IS NOT NULL THEN 'CREDIT NOTE'
+            WHEN debitNoLedgerCash.id IS NOT NULL THEN 'DEBIT NOTE'
             ELSE ''
         END`),
           "vchType",
@@ -762,6 +834,8 @@ exports.C_daybook = async (req, res) => {
             WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`saleNo\`
             WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`receiptNo\`
             WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`paymentNo\`
+            WHEN creditNoLedgerCash.id IS NOT NULL THEN \`creditNoLedgerCash\`.\`creditnoteNo\`
+            WHEN debitNoLedgerCash.id IS NOT NULL THEN \`debitNoLedgerCash\`.\`debitnoteno\`
             ELSE ''
         END`),
           "vchNo",
@@ -774,11 +848,13 @@ exports.C_daybook = async (req, res) => {
                 IFNULL(CASE
                   WHEN receiptLedgerCash.id IS NOT NULL THEN receiptLedgerCash.amount
                   WHEN purchaseLedgerCash.id IS NOT NULL THEN purchaseLedgerCash.totalMrp
+                  WHEN creditNoLedgerCash.id IS NOT NULL THEN creditNoLedgerCash.mainTotal
                   ELSE 0
                 END, 0) -
                 IFNULL(CASE
                   WHEN paymentLedgerCash.id IS NOT NULL THEN paymentLedgerCash.amount
                   WHEN salesLedgerCash.id IS NOT NULL THEN salesLedgerCash.totalMrp
+                  WHEN debitNoLedgerCash.id IS NOT NULL THEN debitNoLedgerCash.mainTotal
                   ELSE 0
                 END, 0)
               ), 0)
@@ -788,6 +864,8 @@ exports.C_daybook = async (req, res) => {
               LEFT OUTER JOIN \`P_C_purchaseCashes\` AS purchaseLedgerCash ON cl2.purchaseId = purchaseLedgerCash.id
               LEFT OUTER JOIN \`P_C_Receipts\` AS receiptLedgerCash ON cl2.receiptId = receiptLedgerCash.id
               LEFT OUTER JOIN \`P_C_salesInvoices\` AS salesLedgerCash ON cl2.saleId = salesLedgerCash.id
+              LEFT OUTER JOIN \`P_C_DebitNotes\` AS debitNoLedgerCash ON cl2.debitNoId = debitNoLedgerCash.id
+              LEFT OUTER JOIN \`P_C_CreditNotes\` AS creditNoLedgerCash ON cl2.creditNoId = creditNoLedgerCash.id
             WHERE
               cl2.accountId = \`P_C_Ledger\`.\`accountId\`
               AND cl2.companyId = ${companyId}
@@ -815,12 +893,22 @@ exports.C_daybook = async (req, res) => {
         {
           model: C_Receipt,
           as: "receiptLedgerCash",
-          // attributes: []
+          attributes: []
         },
         {
           model: Account,
           as: "accountLedgerCash",
-          // attributes: []
+          attributes: []
+        },
+        {
+          model: C_CreditNote,
+          as: "creditNoLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_DebitNote,
+          as: "debitNoLedgerCash",
+          attributes: [],
         },
       ],
       order: [
@@ -1336,7 +1424,7 @@ exports.C_cashbook = async (req, res) => {
       message: "Cashbook Data Fetch Successfully.",
       data: {
         form: company,
-        records:output ,
+        records: output,
       },
     });
   } catch (e) {
