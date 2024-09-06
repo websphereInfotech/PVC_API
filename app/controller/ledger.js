@@ -893,12 +893,12 @@ exports.C_daybook = async (req, res) => {
         {
           model: C_Receipt,
           as: "receiptLedgerCash",
-          attributes: []
+          attributes: [],
         },
         {
           model: Account,
           as: "accountLedgerCash",
-          attributes: []
+          attributes: [],
         },
         {
           model: C_CreditNote,
@@ -1250,41 +1250,41 @@ exports.C_cashbook = async (req, res) => {
         END`),
           "personName",
         ],
-        [
-          Sequelize.literal(`
-          (
-        SELECT
-            IFNULL(SUM(
-                IFNULL(CASE
-                  WHEN cashCashbookReceipt.id IS NOT NULL THEN cashCashbookReceipt.amount
-                  WHEN cashbookReceipt.id IS NOT NULL THEN cashbookReceipt.amount
-                  ELSE 0
-                END, 0) -
-                IFNULL(CASE
-                  WHEN cashCashbookPayment.id IS NOT NULL THEN cashCashbookPayment.amount
-                  WHEN cashbookPayment.id IS NOT NULL THEN cashbookPayment.amount
-                  ELSE 0
-                END, 0)
-              ), 0
-            )
-        FROM
-            P_C_Cashbooks AS cb2
-        LEFT OUTER JOIN P_Receipts AS cashbookReceipt ON cb2.receiptId = cashbookReceipt.id
-        LEFT OUTER JOIN P_Payments AS cashbookPayment ON cb2.paymentId = cashbookPayment.id
-        LEFT OUTER JOIN P_C_Receipts AS cashCashbookReceipt ON cb2.C_receiptId = cashCashbookReceipt.id
-        LEFT OUTER JOIN P_C_Payments AS cashCashbookPayment ON cb2.C_paymentId = cashCashbookPayment.id
-        WHERE
-            cb2.companyId = ${companyId}
-            AND (
-                cb2.date < P_C_Cashbook.date
-                OR (
-                    cb2.date = P_C_Cashbook.date
-                    AND cb2.id < P_C_Cashbook.id
-                )
-            )
-    )`),
-          "openingBalance",
-        ],
+    //     [
+    //       Sequelize.literal(`
+    //       (
+    //     SELECT
+    //         IFNULL(SUM(
+    //             IFNULL(CASE
+    //               WHEN cashCashbookReceipt.id IS NOT NULL THEN cashCashbookReceipt.amount
+    //               WHEN cashbookReceipt.id IS NOT NULL THEN cashbookReceipt.amount
+    //               ELSE 0
+    //             END, 0) -
+    //             IFNULL(CASE
+    //               WHEN cashCashbookPayment.id IS NOT NULL THEN cashCashbookPayment.amount
+    //               WHEN cashbookPayment.id IS NOT NULL THEN cashbookPayment.amount
+    //               ELSE 0
+    //             END, 0)
+    //           ), 0
+    //         )
+    //     FROM
+    //         P_C_Cashbooks AS cb2
+    //     LEFT OUTER JOIN P_Receipts AS cashbookReceipt ON cb2.receiptId = cashbookReceipt.id
+    //     LEFT OUTER JOIN P_Payments AS cashbookPayment ON cb2.paymentId = cashbookPayment.id
+    //     LEFT OUTER JOIN P_C_Receipts AS cashCashbookReceipt ON cb2.C_receiptId = cashCashbookReceipt.id
+    //     LEFT OUTER JOIN P_C_Payments AS cashCashbookPayment ON cb2.C_paymentId = cashCashbookPayment.id
+    //     WHERE
+    //         cb2.companyId = ${companyId}
+    //         AND (
+    //             cb2.date < P_C_Cashbook.date
+    //             OR (
+    //                 cb2.date = P_C_Cashbook.date
+    //                 AND cb2.id < P_C_Cashbook.id
+    //             )
+    //         )
+    // )`),
+    //       "openingBalance",
+    //     ],
       ],
       include: [
         {
@@ -1343,12 +1343,111 @@ exports.C_cashbook = async (req, res) => {
       let currentDate = new Date(from);
 
       while (currentDate <= to) {
-        dates.push(currentDate.toISOString().split("T")[0]); // Format as YYYY-MM-DD
+        dates.push(currentDate.toISOString().split("T")[0]);
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
       return dates;
     }
+
+    const openingBalanceData = await C_Cashbook.findOne({
+      where: {
+        companyId: companyId,
+        date: {
+          [Sequelize.Op.lt]: formDate,
+        },
+      },
+      attributes: [
+        "id",
+        "date",
+        [
+          Sequelize.literal(`
+          (
+        SELECT
+            IFNULL(SUM(
+                IFNULL(CASE
+                  WHEN cashCashbookReceipt.id IS NOT NULL THEN cashCashbookReceipt.amount
+                  WHEN cashbookReceipt.id IS NOT NULL THEN cashbookReceipt.amount
+                  ELSE 0
+                END, 0) -
+                IFNULL(CASE
+                  WHEN cashCashbookPayment.id IS NOT NULL THEN cashCashbookPayment.amount
+                  WHEN cashbookPayment.id IS NOT NULL THEN cashbookPayment.amount
+                  ELSE 0
+                END, 0)
+              ), 0
+            )
+        FROM
+            P_C_Cashbooks AS cb2
+        LEFT OUTER JOIN P_Receipts AS cashbookReceipt ON cb2.receiptId = cashbookReceipt.id
+        LEFT OUTER JOIN P_Payments AS cashbookPayment ON cb2.paymentId = cashbookPayment.id
+        LEFT OUTER JOIN P_C_Receipts AS cashCashbookReceipt ON cb2.C_receiptId = cashCashbookReceipt.id
+        LEFT OUTER JOIN P_C_Payments AS cashCashbookPayment ON cb2.C_paymentId = cashCashbookPayment.id
+        WHERE
+            cb2.companyId = ${companyId}
+            AND (
+                cb2.date <= P_C_Cashbook.date
+                OR (
+                    cb2.date = P_C_Cashbook.date
+                    AND cb2.id <= P_C_Cashbook.id
+                )
+            )
+    )`),
+          "openingBalance",
+        ],
+      ],
+      include: [
+        {
+          model: C_Payment,
+          as: "cashCashbookPayment",
+          include: [
+            {
+              model: Account,
+              as: "accountPaymentCash",
+            },
+          ],
+          attributes: [],
+        },
+        {
+          model: C_Receipt,
+          as: "cashCashbookReceipt",
+          include: [
+            {
+              model: Account,
+              as: "accountReceiptCash",
+            },
+          ],
+          attributes: [],
+        },
+        {
+          model: Receipt,
+          as: "cashbookReceipt",
+          include: [
+            {
+              model: Account,
+              as: "accountReceipt",
+            },
+          ],
+          attributes: [],
+        },
+        {
+          model: Payment,
+          as: "cashbookPayment",
+          include: [
+            {
+              model: Account,
+              as: "accountPayment",
+            },
+          ],
+          attributes: [],
+        },
+      ],
+    });
+
+    const mainOpeningBalance =
+      openingBalanceData?.dataValues?.openingBalance ?? 0;
+
+    console.log(mainOpeningBalance, "dfsd")
 
     const allDates = generateDateRange(fromDateObj, toDateObj);
 
@@ -1360,22 +1459,24 @@ exports.C_cashbook = async (req, res) => {
       acc[date].push(record);
       return acc;
     }, {});
-    const result = allDates.reduce((acc, date) => {
-      acc[date] = existingDataGrouped[date] || [];
-      return acc;
-    }, {});
 
-    const output = Object.keys(result).reduce((acc, date) => {
-      const groupDateData = result[date];
-      const openingBalance = groupDateData[0]?.dataValues?.openingBalance ?? 0;
+    let previousClosingBalance = {
+      type: "credit",
+      amount: 0,
+    };
+
+    const result = allDates.reduce((acc, date, index) => {
+      const groupDateData = existingDataGrouped[date] || [];
       const ledgerArray = [...groupDateData];
-      if (+openingBalance !== 0) {
+
+      if (index === 0) {
+        console.log(date, "date............")
         ledgerArray.unshift({
-          date: formDate,
+          date: date,
           debitAmount:
-            openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+          mainOpeningBalance < 0 ? +Math.abs(mainOpeningBalance).toFixed(2) : 0,
           creditAmount:
-            openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+          mainOpeningBalance > 0 ? +Math.abs(mainOpeningBalance).toFixed(2) : 0,
           details: "Opening Balance",
           openingBalance: 0,
           personName: "",
@@ -1383,6 +1484,20 @@ exports.C_cashbook = async (req, res) => {
         });
       }
 
+        const openingBalance = previousClosingBalance.amount;
+
+        ledgerArray.unshift({
+          date: date,
+          debitAmount:
+            previousClosingBalance.type === "credit" ? openingBalance : 0,
+          creditAmount:
+            previousClosingBalance.type === "debit" ? openingBalance : 0,
+          details: "Opening Balance",
+          openingBalance: 0,
+          personName: "",
+          id: null,
+        });
+      
       const totals = ledgerArray.reduce(
         (acc, ledger) => {
           if (ledger.dataValues) {
@@ -1405,6 +1520,8 @@ exports.C_cashbook = async (req, res) => {
         amount: +Math.abs(closingBalanceAmount).toFixed(2),
       };
 
+      previousClosingBalance = closingBalance;
+
       const totalAmount =
         totals.totalCredit < totals.totalDebit
           ? totals.totalDebit
@@ -1419,12 +1536,14 @@ exports.C_cashbook = async (req, res) => {
 
       return acc;
     }, {});
+
     return res.status(200).json({
       status: "true",
       message: "Cashbook Data Fetch Successfully.",
       data: {
+        openingBalanceData,
         form: company,
-        records: output,
+        records: result,
       },
     });
   } catch (e) {
