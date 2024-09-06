@@ -9,7 +9,7 @@ const salesInvoice = require("../models/salesInvoice");
 const salesInvoiceItem = require("../models/salesInvoiceitem");
 const User = require("../models/user");
 const Stock = require("../models/stock");
-const {renderFile} = require("ejs");
+const { renderFile } = require("ejs");
 const path = require("node:path");
 const htmlToPdf = require("html-pdf-node");
 const AccountDetail = require("../models/AccountDetail");
@@ -23,7 +23,7 @@ exports.create_salesInvoice = async (req, res) => {
     const userID = req.user.userId;
     const companyId = req.user.companyId;
     const {
-        accountId,
+      accountId,
       invoiceno,
       invoicedate,
       proFormaNo,
@@ -49,8 +49,8 @@ exports.create_salesInvoice = async (req, res) => {
       });
       if (!proformaData) {
         return res
-            .status(404)
-            .json({ status: "false", message: "ProForma Not Found" });
+          .status(404)
+          .json({ status: "false", message: "ProForma Not Found" });
       }
     }
     const numberOf = await salesInvoice.findOne({
@@ -96,7 +96,7 @@ exports.create_salesInvoice = async (req, res) => {
         where: {
           id: item.productId,
           companyId: companyId,
-          isActive: true
+          isActive: true,
         },
       });
       if (!productname) {
@@ -133,7 +133,7 @@ exports.create_salesInvoice = async (req, res) => {
       accountId: accountId,
       companyId: companyId,
       saleInvId: data.id,
-      date: invoicedate
+      date: invoicedate,
     });
     const addToItem = items.map((item) => ({
       salesInvoiceId: data.id,
@@ -142,14 +142,14 @@ exports.create_salesInvoice = async (req, res) => {
 
     await salesInvoiceItem.bulkCreate(addToItem);
 
-    for(const item of items){
+    for (const item of items) {
       const productId = item.productId;
       const qty = item.qty;
       const itemStock = await Stock.findOne({
-        where: {productId}
-      })
-      if(itemStock){
-        await itemStock.decrement('qty',{by: qty})
+        where: { productId },
+      });
+      if (itemStock) {
+        await itemStock.decrement("qty", { by: qty });
       }
     }
 
@@ -172,7 +172,7 @@ exports.create_salesInvoice = async (req, res) => {
 };
 exports.get_all_salesInvoice = async (req, res) => {
   try {
-    const companyId = req.user.companyId
+    const companyId = req.user.companyId;
     const data = await salesInvoice.findAll({
       where: { companyId: companyId },
       include: [
@@ -206,7 +206,7 @@ exports.get_all_salesInvoice = async (req, res) => {
 exports.view_salesInvoice = async (req, res) => {
   try {
     const { id } = req.params;
-    const companyId = req.user.companyId
+    const companyId = req.user.companyId;
 
     const data = await salesInvoice.findOne({
       where: { id: id, companyId: companyId },
@@ -216,7 +216,11 @@ exports.view_salesInvoice = async (req, res) => {
           as: "items",
           include: [{ model: product, as: "InvoiceProduct" }],
         },
-        { model: Account, as: "accountSaleInv", include: {model: AccountDetail, as: "accountDetail"} },
+        {
+          model: Account,
+          as: "accountSaleInv",
+          include: { model: AccountDetail, as: "accountDetail" },
+        },
       ],
     });
 
@@ -244,7 +248,7 @@ exports.update_salesInvoice = async (req, res) => {
 
     const { id } = req.params;
     const {
-        accountId,
+      accountId,
       dispatchThrough,
       dispatchno,
       destination,
@@ -294,15 +298,16 @@ exports.update_salesInvoice = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Account Not Found" });
     }
-    if (proFormaNo) { // Check if proFormaId is provided
+    if (proFormaNo) {
+      // Check if proFormaId is provided
       const proformaData = await ProFormaInvoice.findOne({
         where: { ProFormaInvoice_no: proFormaNo, companyId: companyId },
       });
 
       if (!proformaData) {
         return res
-            .status(404)
-            .json({ status: "false", message: "ProForma Not Found" });
+          .status(404)
+          .json({ status: "false", message: "ProForma Not Found" });
       }
     }
     if (!items || items.length === 0) {
@@ -366,16 +371,30 @@ exports.update_salesInvoice = async (req, res) => {
         where: { id: id },
       }
     );
-    await Ledger.update({
-      accountId: accountId,
-      saleInvId: id,
-      date: invoicedate
-    }, {
-      where: {
+    await Ledger.update(
+      {
+        accountId: accountId,
         saleInvId: id,
-        companyId: companyId,
+        date: invoicedate,
+      },
+      {
+        where: {
+          saleInvId: id,
+          companyId: companyId,
+        },
       }
-    })
+    );
+
+    for (const exItem of existingItems) {
+      const preProductId = exItem.productId;
+      const previousQty = exItem?.qty ?? 0;
+      const itemStock = await Stock.findOne({
+        where: { productId: preProductId },
+      });
+      if (itemStock) {
+        await itemStock.increment("qty", { by: previousQty });
+      }
+    }
 
     for (const item of items) {
       const existingItem = existingItems.find((ei) => ei.id === item.id);
@@ -387,7 +406,7 @@ exports.update_salesInvoice = async (req, res) => {
             rate: item.rate,
             mrp: item.mrp,
             unit: item.unit,
-            productId: item.productId
+            productId: item.productId,
           },
           { where: { id: existingItem.id } }
         );
@@ -398,18 +417,16 @@ exports.update_salesInvoice = async (req, res) => {
           qty: item.qty,
           rate: item.rate,
           mrp: item.mrp,
-          unit: item.unit
+          unit: item.unit,
         });
       }
       const productId = item.productId;
-      const previousQty = existingItem?.qty ?? 0;
       const newQty = item.qty;
       const itemStock = await Stock.findOne({
-        where: {productId}
-      })
-      if(itemStock){
-        await itemStock.increment('qty',{by: previousQty})
-        await itemStock.decrement('qty',{by: newQty})
+        where: { productId },
+      });
+      if (itemStock) {
+        await itemStock.decrement("qty", { by: newQty });
       }
     }
     const updatedProductIds = items.map((item) => item.id);
@@ -419,12 +436,6 @@ exports.update_salesInvoice = async (req, res) => {
     );
 
     for (const item of itemsToDelete) {
-      const productId = item.productId;
-      const qty = item.qty;
-      const itemStock = await Stock.findOne({
-        where: {productId}
-      })
-      if(itemStock) await itemStock.increment('qty',{by: qty})
       await salesInvoiceItem.destroy({ where: { id: item.id } });
     }
 
@@ -459,20 +470,20 @@ exports.delete_salesInvoice = async (req, res) => {
     }
     const findItems = await salesInvoiceItem.findAll({
       where: { salesInvoiceId: id },
-    })
-    for(const item of findItems){
+    });
+    for (const item of findItems) {
       const productId = item.productId;
       const qty = item.qty;
       const itemStock = await Stock.findOne({
-        where: {productId}
-      })
-      if(itemStock) await itemStock.increment('qty',{by: qty})
+        where: { productId },
+      });
+      if (itemStock) await itemStock.increment("qty", { by: qty });
     }
-    await salesInvoiceItem.destroy({ where: { salesInvoiceId: id } })
-    await data.destroy()
+    await salesInvoiceItem.destroy({ where: { salesInvoiceId: id } });
+    await data.destroy();
     return res
-        .status(200)
-        .json({ status: "true", message: "Sales Invoice Delete Successfully." });
+      .status(200)
+      .json({ status: "true", message: "Sales Invoice Delete Successfully." });
   } catch (error) {
     console.log(error);
     return res
@@ -494,13 +505,13 @@ exports.C_create_salesinvoice = async (req, res) => {
     const salesNoExist = await C_salesinvoice.findOne({
       where: {
         saleNo: saleNo,
-        companyId: companyId
-      }
+        companyId: companyId,
+      },
     });
-    if(salesNoExist){
+    if (salesNoExist) {
       return res
-          .status(400)
-          .json({ status: "false", message: "Sales Number Already Exists." });
+        .status(400)
+        .json({ status: "false", message: "Sales Number Already Exists." });
     }
     const accountExist = await Account.findOne({
       where: { id: accountId, companyId: companyId, isActive: true },
@@ -556,14 +567,14 @@ exports.C_create_salesinvoice = async (req, res) => {
       ...item,
     }));
     await C_salesinvoiceItem.bulkCreate(addToProduct);
-    for(const item of items){
+    for (const item of items) {
       const productId = item.productId;
       const qty = item.qty;
       const itemStock = await Stock.findOne({
-        where: {productId}
-      })
-      if(itemStock){
-        await itemStock.decrement('qty',{by: qty})
+        where: { productId },
+      });
+      if (itemStock) {
+        await itemStock.decrement("qty", { by: qty });
       }
     }
 
@@ -571,7 +582,7 @@ exports.C_create_salesinvoice = async (req, res) => {
       accountId: accountId,
       companyId: companyId,
       saleId: salesInvoiceData.id,
-      date: date
+      date: date,
     });
 
     const data = await C_salesinvoice.findOne({
@@ -593,7 +604,7 @@ exports.C_create_salesinvoice = async (req, res) => {
 exports.C_update_salesinvoice = async (req, res) => {
   try {
     const user = req.user.userId;
-    const companyId = req.user.companyId
+    const companyId = req.user.companyId;
 
     const { id } = req.params;
     const { accountId, saleNo, date, totalMrp, items } = req.body;
@@ -612,13 +623,13 @@ exports.C_update_salesinvoice = async (req, res) => {
       where: {
         saleNo: saleNo,
         companyId: companyId,
-        id: {[Sequelize.Op.ne]: id}
-      }
-    })
-    if(salesNoExist){
+        id: { [Sequelize.Op.ne]: id },
+      },
+    });
+    if (salesNoExist) {
       return res
-          .status(400)
-          .json({ status: "false", message: "Sale Number Already Exists" });
+        .status(400)
+        .json({ status: "false", message: "Sale Number Already Exists" });
     }
     const accountExist = await Account.findOne({
       where: { id: accountId, companyId: companyId, isActive: true },
@@ -675,6 +686,17 @@ exports.C_update_salesinvoice = async (req, res) => {
       { where: { id } }
     );
 
+    for (const exItem of existingItems) {
+      const preProductId = exItem.productId;
+      const previousQty = exItem?.qty ?? 0;
+      const itemStock = await Stock.findOne({
+        where: { productId: preProductId },
+      });
+      if (itemStock) {
+        await itemStock.increment("qty", { by: previousQty });
+      }
+    }
+
     for (const item of items) {
       const existingItem = existingItems.find((ei) => ei.id === item.id);
 
@@ -685,7 +707,7 @@ exports.C_update_salesinvoice = async (req, res) => {
             rate: item.rate,
             mrp: item.mrp,
             unit: item.unit,
-            productId: item.productId
+            productId: item.productId,
           },
           { where: { id: existingItem.id } }
         );
@@ -696,18 +718,16 @@ exports.C_update_salesinvoice = async (req, res) => {
           qty: item.qty,
           rate: item.rate,
           mrp: item.mrp,
-          unit: item.unit
+          unit: item.unit,
         });
       }
       const productId = item.productId;
-      const previousQty = existingItem?.qty ?? 0;
       const newQty = item.qty;
       const itemStock = await Stock.findOne({
-        where: {productId}
-      })
-      if(itemStock){
-        await itemStock.increment('qty',{by: previousQty})
-        await itemStock.decrement('qty',{by: newQty})
+        where: { productId },
+      });
+      if (itemStock) {
+        await itemStock.decrement("qty", { by: newQty });
       }
     }
     const updatedProductIds = items.map((item) => item.id);
@@ -717,26 +737,22 @@ exports.C_update_salesinvoice = async (req, res) => {
     );
 
     for (const item of itemsToDelete) {
-      const productId = item.productId;
-      const qty = item.qty;
-      const itemStock = await Stock.findOne({
-        where: {productId}
-      })
-      if(itemStock) await itemStock.increment('qty',{by: qty})
-      await
-      C_salesinvoiceItem.destroy({ where: { id: item.id } });
+      await C_salesinvoiceItem.destroy({ where: { id: item.id } });
     }
 
-    await C_Ledger.update({
-      accountId: accountId,
-      saleId: id,
-      date: date
-    }, {
-      where: {
+    await C_Ledger.update(
+      {
+        accountId: accountId,
         saleId: id,
-        companyId: companyId,
+        date: date,
+      },
+      {
+        where: {
+          saleId: id,
+          companyId: companyId,
+        },
       }
-    });
+    );
 
     const updatedInvoice = await C_salesinvoice.findOne({
       where: { id: id, companyId: companyId },
@@ -836,20 +852,20 @@ exports.C_delete_salesInvoice = async (req, res) => {
     }
     const findItems = await C_salesinvoiceItem.findAll({
       where: { invoiceId: id },
-    })
-    for(const item of findItems){
+    });
+    for (const item of findItems) {
       const productId = item.productId;
       const qty = item.qty;
       const itemStock = await Stock.findOne({
-        where: {productId}
-      })
-      if(itemStock) await itemStock.increment('qty',{by: qty})
+        where: { productId },
+      });
+      if (itemStock) await itemStock.increment("qty", { by: qty });
     }
-    await C_salesinvoiceItem.destroy({ where: { invoiceId: id } })
-    await data.destroy()
+    await C_salesinvoiceItem.destroy({ where: { invoiceId: id } });
+    await data.destroy();
     return res
-        .status(200)
-        .json({ status: "true", message: "Sales Cash Delete Successfully." });
+      .status(200)
+      .json({ status: "true", message: "Sales Cash Delete Successfully." });
   } catch (error) {
     console.log(error);
     return res
@@ -857,7 +873,7 @@ exports.C_delete_salesInvoice = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
-exports.C_view_salesInvoice_pdf = async (req, res)=>{
+exports.C_view_salesInvoice_pdf = async (req, res) => {
   try {
     const { id } = req.params;
     const companyId = req.user.companyId;
@@ -876,20 +892,27 @@ exports.C_view_salesInvoice_pdf = async (req, res)=>{
 
     if (!data) {
       return res
-          .status(404)
-          .json({ status: "false", message: "Sales Cash Not Found" });
+        .status(404)
+        .json({ status: "false", message: "Sales Cash Not Found" });
     }
-    const html = await renderFile(path.join(__dirname, "../views/salesCash.ejs"),{data})
-    htmlToPdf.generatePdf({content: html},{printBackground: true, format: 'A4'}).then((pdf) => {
-      const base64String = pdf.toString("base64");
-      return res.status(200).json({
-        status: "Success",
-        message: "pdf create successFully",
-        data: base64String,
+    const html = await renderFile(
+      path.join(__dirname, "../views/salesCash.ejs"),
+      { data }
+    );
+    htmlToPdf
+      .generatePdf({ content: html }, { printBackground: true, format: "A4" })
+      .then((pdf) => {
+        const base64String = pdf.toString("base64");
+        return res.status(200).json({
+          status: "Success",
+          message: "pdf create successFully",
+          data: base64String,
+        });
       });
-    })
-  }catch (e) {
+  } catch (e) {
     console.error(e);
-    return res.status(500).json({status: "false", message: "Internal Server Error."});
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error." });
   }
-}
+};

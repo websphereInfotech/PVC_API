@@ -10,7 +10,7 @@ const purchaseInvoice = require("../models/purchaseInvoice");
 const purchaseInvoiceItem = require("../models/purchaseInvoiceItem");
 const User = require("../models/user");
 const Stock = require("../models/stock");
-const {renderFile} = require("ejs");
+const { renderFile } = require("ejs");
 const path = require("node:path");
 const htmlToPdf = require("html-pdf-node");
 
@@ -33,7 +33,7 @@ exports.create_purchaseInvoice = async (req, res) => {
       totalQty,
       items,
       supplyInvoiceNo,
-      voucherno
+      voucherno,
     } = req.body;
 
     const numberOf = await purchaseInvoice.findOne({
@@ -46,11 +46,11 @@ exports.create_purchaseInvoice = async (req, res) => {
     }
     const supplyInvoiceNoExist = await purchaseInvoice.findOne({
       where: { supplyInvoiceNo: supplyInvoiceNo, companyId: companyId },
-    })
+    });
     if (supplyInvoiceNoExist) {
       return res
-          .status(400)
-          .json({ status: "false", message: "Supply Number Already Exists" });
+        .status(400)
+        .json({ status: "false", message: "Supply Number Already Exists" });
     }
 
     if (!items || items.length === 0) {
@@ -112,8 +112,8 @@ exports.create_purchaseInvoice = async (req, res) => {
       accountId: accountId,
       companyId: companyId,
       purchaseInvId: purchseData.id,
-      date: invoicedate
-    })
+      date: invoicedate,
+    });
     const addToItem = items.map((item) => ({
       purchasebillId: purchseData.id,
       ...item,
@@ -121,14 +121,14 @@ exports.create_purchaseInvoice = async (req, res) => {
 
     await purchaseInvoiceItem.bulkCreate(addToItem);
 
-    for(const item of items){
-        const productId = item.productId;
-        const qty = item.qty;
-        const itemStock = await Stock.findOne({
-          where: {productId}
-        })
-      if(itemStock){
-        await itemStock.increment('qty',{by: qty})
+    for (const item of items) {
+      const productId = item.productId;
+      const qty = item.qty;
+      const itemStock = await Stock.findOne({
+        where: { productId },
+      });
+      if (itemStock) {
+        await itemStock.increment("qty", { by: qty });
       }
     }
 
@@ -164,7 +164,7 @@ exports.update_purchaseInvoice = async (req, res) => {
       totalQty,
       items,
       supplyInvoiceNo,
-      voucherno
+      voucherno,
     } = req.body;
 
     const existingPurchase = await purchaseInvoice.findOne({
@@ -198,8 +198,8 @@ exports.update_purchaseInvoice = async (req, res) => {
     });
     if (supplyInvoiceNoExist) {
       return res
-          .status(400)
-          .json({ status: "false", message: "Supply Number Already Exists" });
+        .status(400)
+        .json({ status: "false", message: "Supply Number Already Exists" });
     }
     const accountExist = await Account.findOne({
       where: { id: accountId, companyId: companyId, isActive: true },
@@ -258,19 +258,33 @@ exports.update_purchaseInvoice = async (req, res) => {
       { where: { id } }
     );
 
-    await Ledger.update({
-      accountId: accountId,
-      purchaseInvId: id,
-      date: invoicedate
-    }, {
-      where: {
+    await Ledger.update(
+      {
+        accountId: accountId,
         purchaseInvId: id,
-        companyId: companyId,
+        date: invoicedate,
+      },
+      {
+        where: {
+          purchaseInvId: id,
+          companyId: companyId,
+        },
       }
-    })
+    );
     const existingItems = await purchaseInvoiceItem.findAll({
       where: { purchasebillId: id },
     });
+
+    for (const exItem of existingItems) {
+      const preProductId = exItem.productId;
+      const previousQty = exItem?.qty ?? 0;
+      const itemStock = await Stock.findOne({
+        where: { productId: preProductId },
+      });
+      if (itemStock) {
+        await itemStock.decrement("qty", { by: previousQty });
+      }
+    }
 
     for (const item of items) {
       const existingItem = existingItems.find((ei) => ei.id === item.id);
@@ -282,7 +296,7 @@ exports.update_purchaseInvoice = async (req, res) => {
             rate: item.rate,
             mrp: item.mrp,
             unit: item.unit,
-            productId: item.productId
+            productId: item.productId,
           },
           { where: { id: existingItem.id } }
         );
@@ -293,18 +307,16 @@ exports.update_purchaseInvoice = async (req, res) => {
           qty: item.qty,
           rate: item.rate,
           mrp: item.mrp,
-          unit: item.unit
+          unit: item.unit,
         });
       }
       const productId = item.productId;
-      const previousQty = existingItem?.qty ?? 0;
       const newQty = item.qty;
       const itemStock = await Stock.findOne({
-        where: {productId}
-      })
-      if(itemStock){
-        await itemStock.decrement('qty',{by: previousQty})
-        await itemStock.increment('qty',{by: newQty})
+        where: { productId },
+      });
+      if (itemStock) {
+        await itemStock.increment("qty", { by: newQty });
       }
     }
     const updatedProductIds = items.map((item) => item.id);
@@ -314,12 +326,6 @@ exports.update_purchaseInvoice = async (req, res) => {
     );
 
     for (const item of itemsToDelete) {
-      const productId = item.productId;
-      const qty = item.qty;
-      const itemStock = await Stock.findOne({
-        where: {productId}
-      })
-      if(itemStock) await itemStock.decrement('qty',{by: qty})
       await purchaseInvoiceItem.destroy({ where: { id: item.id } });
     }
     const data = await purchaseInvoice.findOne({
@@ -354,33 +360,33 @@ exports.delete_purchaseInvoice = async (req, res) => {
     }
     const findItems = await purchaseInvoiceItem.findAll({
       where: { purchasebillId: billId.id },
-    })
-    for(const item of findItems){
+    });
+    for (const item of findItems) {
       const productname = await product.findOne({
         where: { id: item.productId, companyId: companyId, isActive: true },
       });
-      if(!productname){
+      if (!productname) {
         return res.status(404).json({
           status: "false",
           message: `Product Not Found`,
-        })
+        });
       }
     }
     // }
-    for(const item of findItems){
+    for (const item of findItems) {
       const productId = item.productId;
       const qty = item.qty;
       const itemStock = await Stock.findOne({
-        where: {productId}
-      })
-      if(itemStock) await itemStock.decrement('qty',{by: qty})
+        where: { productId },
+      });
+      if (itemStock) await itemStock.decrement("qty", { by: qty });
     }
-    await purchaseInvoiceItem.destroy({ where: { purchasebillId: id } })
-    await billId.destroy()
+    await purchaseInvoiceItem.destroy({ where: { purchasebillId: id } });
+    await billId.destroy();
     return res.status(200).json({
       status: "true",
-      message: "Purchase Invoice Successfully delete"
-    })
+      message: "Purchase Invoice Successfully delete",
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -434,7 +440,11 @@ exports.view_purchaseInvoice = async (req, res) => {
           as: "items",
           include: [{ model: product, as: "purchseProduct" }],
         },
-        { model: Account, as: "accountPurchaseInv", include: {model: AccountDetail, as: "accountDetail"} },
+        {
+          model: Account,
+          as: "accountPurchaseInv",
+          include: { model: AccountDetail, as: "accountDetail" },
+        },
       ],
     });
     if (data) {
@@ -463,20 +473,19 @@ exports.view_purchaseInvoice = async (req, res) => {
 exports.C_create_purchaseCash = async (req, res) => {
   try {
     const user = req.user.userId;
-    const { accountId,purchaseNo, date, totalMrp, items } = req.body;
+    const { accountId, purchaseNo, date, totalMrp, items } = req.body;
     const companyId = req.user.companyId;
-
 
     const purchaseNoExist = await C_purchaseCash.findOne({
       where: {
         purchaseNo: purchaseNo,
-        companyId: companyId
-      }
-    })
+        companyId: companyId,
+      },
+    });
     if (purchaseNoExist) {
       return res
-          .status(400)
-          .json({ status: "false", message: "Purchase Number Already Exists" });
+        .status(400)
+        .json({ status: "false", message: "Purchase Number Already Exists" });
     }
 
     const accountExist = await Account.findOne({
@@ -539,7 +548,7 @@ exports.C_create_purchaseCash = async (req, res) => {
       accountId: accountId,
       companyId: companyId,
       purchaseId: purchseData.id,
-      date: date
+      date: date,
     });
 
     const addToItem = items.map((item) => ({
@@ -548,14 +557,14 @@ exports.C_create_purchaseCash = async (req, res) => {
     }));
 
     await C_purchaseCashItem.bulkCreate(addToItem);
-    for(const item of items){
+    for (const item of items) {
       const productId = item.productId;
       const qty = item.qty;
       const itemStock = await Stock.findOne({
-        where: {productId}
-      })
-      if(itemStock){
-        await itemStock.increment('qty',{by: qty})
+        where: { productId },
+      });
+      if (itemStock) {
+        await itemStock.increment("qty", { by: qty });
       }
     }
 
@@ -577,12 +586,12 @@ exports.C_create_purchaseCash = async (req, res) => {
 };
 exports.C_update_purchaseCash = async (req, res) => {
   try {
-    const user = req.user.userId
+    const user = req.user.userId;
     const companyId = req.user.companyId;
 
     const { id } = req.params;
 
-    const { accountId,purchaseNo, date, totalMrp, items } = req.body;
+    const { accountId, purchaseNo, date, totalMrp, items } = req.body;
 
     const existingPurchase = await C_purchaseCash.findOne({
       where: { id: id, companyId: companyId },
@@ -599,12 +608,12 @@ exports.C_update_purchaseCash = async (req, res) => {
         purchaseNo: purchaseNo,
         companyId: companyId,
         id: { [Sequelize.Op.ne]: id },
-      }
-    })
+      },
+    });
     if (purchaseNoExist) {
       return res
-          .status(400)
-          .json({ status: "false", message: "Purchase Number Already Exists" });
+        .status(400)
+        .json({ status: "false", message: "Purchase Number Already Exists" });
     }
     const accountExist = await Account.findOne({
       where: { id: accountId, companyId: companyId, isActive: true },
@@ -657,19 +666,32 @@ exports.C_update_purchaseCash = async (req, res) => {
       { where: { id } }
     );
 
-    await C_Ledger.update({
-      accountId: accountId,
-      purchaseId: id,
-      date: date
-    }, {
-      where: {
+    await C_Ledger.update(
+      {
+        accountId: accountId,
         purchaseId: id,
-        companyId: companyId,
+        date: date,
+      },
+      {
+        where: {
+          purchaseId: id,
+          companyId: companyId,
+        },
       }
-    })
+    );
     const existingItems = await C_purchaseCashItem.findAll({
       where: { PurchaseId: id },
     });
+    for (const exItem of existingItems) {
+      const preProductId = exItem.productId;
+      const previousQty = exItem?.qty ?? 0;
+      const itemStock = await Stock.findOne({
+        where: { productId: preProductId },
+      });
+      if (itemStock) {
+        await itemStock.decrement("qty", { by: previousQty });
+      }
+    }
     for (const item of items) {
       const existingItem = existingItems.find((ei) => ei.id === item.id);
       if (existingItem) {
@@ -679,7 +701,7 @@ exports.C_update_purchaseCash = async (req, res) => {
             rate: item.rate,
             mrp: item.mrp,
             unit: item.unit,
-            productId: item.productId
+            productId: item.productId,
           },
           { where: { id: existingItem.id } }
         );
@@ -690,18 +712,16 @@ exports.C_update_purchaseCash = async (req, res) => {
           qty: item.qty,
           rate: item.rate,
           mrp: item.mrp,
-          unit: item.unit
+          unit: item.unit,
         });
       }
       const productId = item.productId;
-      const previousQty = existingItem?.qty ?? 0;
       const newQty = item.qty;
       const itemStock = await Stock.findOne({
-        where: {productId}
-      })
-      if(itemStock){
-        await itemStock.decrement('qty',{by: previousQty})
-        await itemStock.increment('qty',{by: newQty})
+        where: { productId },
+      });
+      if (itemStock) {
+        await itemStock.increment("qty", { by: newQty });
       }
     }
     const updatedProductIds = items.map((item) => item.id);
@@ -711,24 +731,8 @@ exports.C_update_purchaseCash = async (req, res) => {
     );
 
     for (const item of itemsToDelete) {
-      const productId = item.productId;
-      const qty = item.qty;
-      const itemStock = await Stock.findOne({
-        where: {productId}
-      })
-      if(itemStock){
-      await itemStock.decrement('qty',{by: qty})
-      }
       await C_purchaseCashItem.destroy({ where: { id: item.id } });
     }
-    // await C_vendorLedger.update(
-    //   {
-    //     companyId: req.user.companyId,
-    //     vendorId,
-    //     date,
-    //   },
-    //   { where: { debitId:id } }
-    // );
 
     const data = await C_purchaseCash.findOne({
       where: { id: id, companyId: companyId },
@@ -764,23 +768,23 @@ exports.C_delete_purchaseCash = async (req, res) => {
 
     const findItems = await C_purchaseCashItem.findAll({
       where: { PurchaseId: billId.id },
-    })
+    });
 
-    for(const item of findItems){
+    for (const item of findItems) {
       const productId = item.productId;
       const qty = item.qty;
       const itemStock = await Stock.findOne({
-        where: {productId}
-      })
-      if(itemStock){
-        await itemStock.decrement('qty',{by: qty})
+        where: { productId },
+      });
+      if (itemStock) {
+        await itemStock.decrement("qty", { by: qty });
       }
     }
 
-    await billId.destroy()
-      return res
-        .status(200)
-        .json({ status: "true", message: "Purchase Cash Delete Successfully" });
+    await billId.destroy();
+    return res
+      .status(200)
+      .json({ status: "true", message: "Purchase Cash Delete Successfully" });
   } catch (error) {
     console.log(error);
     return res
@@ -805,12 +809,11 @@ exports.C_get_all_purchaseCash = async (req, res) => {
       ],
     });
 
-      return res.status(200).json({
-        status: "true",
-        message: "All Purchase Cash show Successfully",
-        data: data,
-      });
-
+    return res.status(200).json({
+      status: "true",
+      message: "All Purchase Cash show Successfully",
+      data: data,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -852,7 +855,7 @@ exports.C_view_purchaseCash = async (req, res) => {
   }
 };
 
-exports.C_view_purchaseCash_pdf = async (req, res)=>{
+exports.C_view_purchaseCash_pdf = async (req, res) => {
   try {
     const { id } = req.params;
     const companyId = req.user.companyId;
@@ -869,20 +872,27 @@ exports.C_view_purchaseCash_pdf = async (req, res)=>{
     });
     if (!data) {
       return res
-          .status(404)
-          .json({ status: "false", message: "Purchase Cash Not Found" });
+        .status(404)
+        .json({ status: "false", message: "Purchase Cash Not Found" });
     }
-    const html = await renderFile(path.join(__dirname, "../views/purchaseCash.ejs"),{data})
-    htmlToPdf.generatePdf({content: html},{printBackground: true, format: 'A4'}).then((pdf) => {
-      const base64String = pdf.toString("base64");
-      return res.status(200).json({
-        status: "Success",
-        message: "pdf create successFully",
-        data: base64String,
+    const html = await renderFile(
+      path.join(__dirname, "../views/purchaseCash.ejs"),
+      { data }
+    );
+    htmlToPdf
+      .generatePdf({ content: html }, { printBackground: true, format: "A4" })
+      .then((pdf) => {
+        const base64String = pdf.toString("base64");
+        return res.status(200).json({
+          status: "Success",
+          message: "pdf create successFully",
+          data: base64String,
+        });
       });
-    })
-  }catch (e) {
+  } catch (e) {
     console.error(e);
-    return res.status(500).json({status: "false", message: "Internal Server Error."})
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error." });
   }
-}
+};
