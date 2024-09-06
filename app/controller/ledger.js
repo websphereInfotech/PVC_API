@@ -1447,8 +1447,6 @@ exports.C_cashbook = async (req, res) => {
     const mainOpeningBalance =
       openingBalanceData?.dataValues?.openingBalance ?? 0;
 
-    console.log(mainOpeningBalance, "dfsd")
-
     const allDates = generateDateRange(fromDateObj, toDateObj);
 
     const existingDataGrouped = data.reduce((acc, record) => {
@@ -1470,7 +1468,6 @@ exports.C_cashbook = async (req, res) => {
       const ledgerArray = [...groupDateData];
 
       if (index === 0) {
-        console.log(date, "date............")
         ledgerArray.unshift({
           date: date,
           debitAmount:

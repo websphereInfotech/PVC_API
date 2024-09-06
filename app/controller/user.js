@@ -9,6 +9,8 @@ const {Op, Sequelize} = require("sequelize");
 const UserBankAccount = require("../models/userBankAccount");
 const C_WalletLedger = require("../models/C_WalletLedger");
 const C_Cashbook = require("../models/C_Cashbook");
+const C_UserBalance = require("../models/C_userBalance");
+const C_Payment = require("../models/C_Payment");
 
 exports.create_user = async (req, res) => {
   try {
@@ -724,6 +726,23 @@ exports.wallet_approve = async (req, res)=>{
       companyId: companyId,
       date: new Date()
     })
+    if(existWalletLedger.paymentId){
+      const paymentData = await C_Payment.findOne({
+        where: {
+          id: existWalletLedger.paymentId,
+          companyId: companyId
+        }
+      });
+      const paymentAmount = paymentData.amount;
+      const userBalance = await C_UserBalance.findOne({
+        where: {
+          userId: existWalletLedger.userId,
+          companyId: companyId
+        }
+      });
+      await userBalance.decrement('incomes', {by: paymentAmount})
+    }
+    
     return res.status(200).json({
       status: "true",
       message: "Wallet Entry Approved Successfully.",

@@ -10,10 +10,11 @@ const Account = require("../models/Account");
 const C_CompanyBalance = require("../models/C_companyBalance");
 const Salary = require("../models/salary");
 const SalaryPayment = require("../models/salaryPayment");
-const {SALARY_PAYMENT_TYPE, ROLE} = require("../constant/constant");
+const { SALARY_PAYMENT_TYPE, ROLE } = require("../constant/constant");
 const C_Payment = require("../models/C_Payment");
 const C_Receipt = require("../models/C_Receipt");
 const C_Claim = require("../models/C_claim");
+const company = require("../models/company");
 
 exports.create_claim = async (req, res) => {
   try {
@@ -193,7 +194,10 @@ exports.isapproved_claim = async (req, res) => {
         toUserId: req.user.userId,
         companyId: req.user.companyId,
       },
-      include: [{model: User, as: "toUser"}, {model: User, as: "fromUser"}],
+      include: [
+        { model: User, as: "toUser" },
+        { model: User, as: "fromUser" },
+      ],
     });
 
     if (!data) {
@@ -209,24 +213,24 @@ exports.isapproved_claim = async (req, res) => {
       });
     }
     let existingBalance;
-    if(data.toUser.role === ROLE.SUPER_ADMIN){
+    if (data.toUser.role === ROLE.SUPER_ADMIN) {
       existingBalance = await C_CompanyBalance.findOne({
         where: {
           companyId: data.companyId,
-        }
-      })
-    }else {
+        },
+      });
+    } else {
       existingBalance = await C_userBalance.findOne({
         where: { userId: req.user.userId, companyId: req.user.companyId },
       });
     }
-    const balance = existingBalance?.balance ?? 0
+    const balance = existingBalance?.balance ?? 0;
     const amount = data.amount;
-    if(isApproved === true && balance<amount){
+    if (isApproved === true && balance < amount) {
       return res.status(400).json({
         status: "false",
-        message: "Not enough fund."
-      })
+        message: "Not enough fund.",
+      });
     }
     data.isApproved = isApproved;
     data.date = new Date();
@@ -248,7 +252,7 @@ exports.isapproved_claim = async (req, res) => {
         date: new Date(),
         isApprove: true,
         approveDate: new Date(),
-      })
+      });
 
       await C_WalletLedger.create({
         claimId: data.id,
@@ -257,13 +261,13 @@ exports.isapproved_claim = async (req, res) => {
         date: new Date(),
         isApprove: true,
         approveDate: new Date(),
-      })
+      });
 
       let companyCashBalance = await C_CompanyBalance.findOne({
         where: {
           companyId: data.companyId,
-        }
-      })
+        },
+      });
       const fromUserBalance = await C_userBalance.findOne({
         where: { userId: data.fromUserId, companyId: req.user.companyId },
       });
@@ -271,18 +275,18 @@ exports.isapproved_claim = async (req, res) => {
         where: { userId: req.user.userId, companyId: req.user.companyId },
       });
 
-
-      if(data.fromUser.role === ROLE.SUPER_ADMIN){
-        await companyCashBalance.increment('balance', {by: amount})
-      }else {
-        await fromUserBalance.increment('balance', {by: amount})
-        await fromUserBalance.increment('incomes', {by: amount})
+      if (data.fromUser.role === ROLE.SUPER_ADMIN) {
+        await companyCashBalance.increment("balance", { by: amount });
+      } else {
+        await fromUserBalance.increment("balance", { by: amount });
+        await fromUserBalance.increment("incomes", { by: amount });
       }
 
-      if(data.toUser.role === ROLE.SUPER_ADMIN){
-        await companyCashBalance.decrement('balance', {by: amount})
-      }else {
-        await toUserBalance.decrement('balance', {by: amount})
+      if (data.toUser.role === ROLE.SUPER_ADMIN) {
+        await companyCashBalance.decrement("balance", { by: amount });
+      } else {
+        await toUserBalance.decrement("balance", { by: amount });
+        await toUserBalance.decrement("incomes", { by: amount });
       }
 
       // await C_claimLedger.create({
@@ -305,7 +309,6 @@ exports.isapproved_claim = async (req, res) => {
       //
       // await fromUserBalance.save();
       // await toUserBalance.save();
-
 
       // if(data.fromUser.role === "Super Admin"){
       //   if(data.purpose === "Salary" || data.purpose === "Advance") {
@@ -359,7 +362,6 @@ exports.isapproved_claim = async (req, res) => {
       //   await companyCashBalance.save()
       // }
     }
-
 
     return res.status(200).json({
       status: "true",
@@ -476,7 +478,7 @@ exports.view_claimBalance_ledger = async (req, res) => {
         'Unknown'
       )`),
           "name",
-        ]
+        ],
       ],
       include: [
         {
@@ -491,7 +493,10 @@ exports.view_claimBalance_ledger = async (req, res) => {
           model: C_claim,
           as: "claimData",
           attributes: [],
-          include: [{ model: User, as: "toUser", attributes: [] }, { model: User, as: "fromUser", attributes: [] }],
+          include: [
+            { model: User, as: "toUser", attributes: [] },
+            { model: User, as: "fromUser", attributes: [] },
+          ],
         },
       ],
       where: whereClause,
@@ -590,70 +595,86 @@ exports.view_user_balance = async (req, res) => {
   }
 };
 
-exports.view_wallet = async (req,res)=>{
+exports.view_wallet = async (req, res) => {
   try {
-    const {role,userId, companyId} = req.user;
-    const {id} = req.params;
+    const { role, userId, companyId } = req.user;
+    const { id } = req.params;
     let userWallet = null;
     let walletEntry = {
       records: null,
       totals: null,
       closingBalance: null,
-      totalAmount: null
+      totalAmount: null,
     };
-    if(role === ROLE.SUPER_ADMIN){
-        const userExist = await User.findOne({
-          where: {
-            id: id,
-          }
-        })
-      if(!userExist){
+    let companyEntry = null;
+    if (role === ROLE.SUPER_ADMIN) {
+      const userExist = await User.findOne({
+        where: {
+          id: id,
+        },
+      });
+      if (!userExist) {
         return res
-            .status(404)
-            .json({ status: "false", message: "User Not Found" });
+          .status(404)
+          .json({ status: "false", message: "User Not Found" });
       }
       userWallet = await C_userBalance.findOne({
         where: {
           userId: id,
           companyId: companyId,
         },
-        include: [{model: User, attributes: ["username", "email"], as: "userBalance"}]
-      })
+        include: [
+          { model: User, attributes: ["username", "email"], as: "userBalance" },
+        ],
+      });
       const data = await C_WalletLedger.findAll({
         where: {
           userId: id,
           isApprove: {
             [Sequelize.Op.is]: false,
-          }
+          },
         },
         attributes: [
           "date",
           "id",
           "isApprove",
-          [Sequelize.literal(`CASE
+          [
+            Sequelize.literal(`CASE
             WHEN walletPayment.id IS NOT NULL THEN \`walletPayment\`.\`amount\`
             WHEN \`walletClaim\`.\`toUserId\` = ${userId} THEN \`walletClaim\`.\`amount\`
             ELSE 0
-        END`), "debitAmount"],
-          [Sequelize.literal(`CASE
+        END`),
+            "debitAmount",
+          ],
+          [
+            Sequelize.literal(`CASE
             WHEN walletReceipt.id IS NOT NULL THEN \`walletReceipt\`.\`amount\`
             WHEN \`walletClaim\`.\`fromUserId\` = ${userId} THEN \`walletClaim\`.\`amount\`
             ELSE 0
-        END`), "creditAmount"],
-          [Sequelize.literal(`CASE
+        END`),
+            "creditAmount",
+          ],
+          [
+            Sequelize.literal(`CASE
             WHEN walletPayment.id IS NOT NULL THEN \`walletPayment\`.\`description\`
             WHEN walletReceipt.id IS NOT NULL THEN \`walletReceipt\`.\`description\`
             WHEN walletClaim.id IS NOT NULL THEN \`walletClaim\`.\`description\`
             ELSE ''
-        END`), "details"],
-          [Sequelize.literal(`CASE
+        END`),
+            "details",
+          ],
+          [
+            Sequelize.literal(`CASE
             WHEN walletPayment.id IS NOT NULL THEN \`walletPayment->accountPaymentCash\`.\`contactPersonName\`
             WHEN walletReceipt.id IS NOT NULL THEN \`walletReceipt->accountReceiptCash\`.\`contactPersonName\`
             WHEN \`walletClaim\`.\`fromUserId\` = ${userId} THEN \`walletClaim->toUser\`.\`username\`
           WHEN \`walletClaim\`.\`toUserId\` = ${userId} THEN \`walletClaim->fromUser\`.\`username\`
             ELSE ''
-        END`), "personName"],
-          [Sequelize.literal(`
+        END`),
+            "personName",
+          ],
+          [
+            Sequelize.literal(`
     (
         SELECT
             IFNULL(SUM(
@@ -678,32 +699,41 @@ exports.view_wallet = async (req,res)=>{
             AND wl2.companyId = ${companyId}
             AND wl2.isApprove = false
             AND (wl2.date < \`P_C_WalletLedger\`.\`date\` OR (wl2.date = \`P_C_WalletLedger\`.\`date\` AND wl2.id < \`P_C_WalletLedger\`.\`id\`))
-    )`), 'openingBalance']
+    )`),
+            "openingBalance",
+          ],
         ],
         include: [
           {
             model: C_Payment,
             as: "walletPayment",
-            include: [{
-              model: Account,
-              as: "accountPaymentCash"
-            }],
-            attributes: []
+            include: [
+              {
+                model: Account,
+                as: "accountPaymentCash",
+              },
+            ],
+            attributes: [],
           },
           {
             model: C_Receipt,
             as: "walletReceipt",
-            include: [{
-              model: Account,
-              as: "accountReceiptCash"
-            }],
-            attributes: []
+            include: [
+              {
+                model: Account,
+                as: "accountReceiptCash",
+              },
+            ],
+            attributes: [],
           },
           {
             model: C_Claim,
             as: "walletClaim",
-            include: [{ model: User, as: "toUser" }, { model: User, as: "fromUser" }],
-            attributes: []
+            include: [
+              { model: User, as: "toUser" },
+              { model: User, as: "fromUser" },
+            ],
+            attributes: [],
           },
         ],
         order: [
@@ -713,58 +743,87 @@ exports.view_wallet = async (req,res)=>{
       });
       const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
       const walletLedgerArray = [...data];
-      if(+openingBalance !== 0){
+      if (+openingBalance !== 0) {
         walletLedgerArray.unshift({
-          "date": formDate,
-          "debitAmount": openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-          "creditAmount": openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-          "details": "Opening Balance",
-          "openingBalance": 0,
-          "personName": "",
-          id: null
-        })
+          date: formDate,
+          debitAmount:
+            openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+          creditAmount:
+            openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+          details: "Opening Balance",
+          openingBalance: 0,
+          personName: "",
+          id: null,
+        });
       }
-      const totals = walletLedgerArray.reduce((acc, ledger) => {
-        if (ledger.dataValues) {
-          acc.totalCredit += ledger.dataValues.creditAmount || 0;
-          acc.totalDebit += ledger.dataValues.debitAmount || 0;
-        } else {
-          acc.totalCredit += ledger.creditAmount || 0;
-          acc.totalDebit += ledger.debitAmount || 0;
-        }
-        return acc;
-      }, { totalCredit: 0, totalDebit: 0 });
+      const totals = walletLedgerArray.reduce(
+        (acc, ledger) => {
+          if (ledger.dataValues) {
+            acc.totalCredit += ledger.dataValues.creditAmount || 0;
+            acc.totalDebit += ledger.dataValues.debitAmount || 0;
+          } else {
+            acc.totalCredit += ledger.creditAmount || 0;
+            acc.totalDebit += ledger.debitAmount || 0;
+          }
+          return acc;
+        },
+        { totalCredit: 0, totalDebit: 0 }
+      );
 
       const totalCredit = totals.totalCredit;
       const totalDebit = totals.totalDebit;
-      const closingBalanceAmount = totalDebit -totalCredit;
+      const closingBalanceAmount = totalDebit - totalCredit;
       const closingBalance = {
-        type: closingBalanceAmount < 0 ? "debit": 'credit',
+        type: closingBalanceAmount < 0 ? "debit" : "credit",
         amount: +Math.abs(closingBalanceAmount).toFixed(2),
-      }
+      };
       walletEntry.records = walletLedgerArray;
       walletEntry.totals = totals;
-      walletEntry.totalAmount = totals.totalCredit < totals.totalDebit ? totals.totalDebit: totals.totalCredit
+      walletEntry.totalAmount =
+        totals.totalCredit < totals.totalDebit
+          ? totals.totalDebit
+          : totals.totalCredit;
       walletEntry.closingBalance = closingBalance;
-    }else{
+
+      const comapnyData = await company.findOne({
+        where: {
+          id: companyId
+        }
+      });
+      const companyBalance = await C_CompanyBalance.findOne({
+        where: {
+          companyId: companyId
+        }
+      });
+      const allUserBalance = await C_userBalance.sum('balance',{where: {
+        companyId: companyId
+      }})
+      companyEntry = {
+        name: comapnyData.companyname,
+        cashOnHand: companyBalance.balance,
+        totalBalance: allUserBalance
+      }
+    } else {
       userWallet = await C_userBalance.findOne({
         where: {
           userId: userId,
           companyId: companyId,
         },
-        include: [{model: User, attributes: ["username", "email"], as: "userBalance"}]
-      })
+        include: [
+          { model: User, attributes: ["username", "email"], as: "userBalance" },
+        ],
+      });
     }
 
     return res.status(200).json({
       status: "true",
       message: "User Wallet Show Successfully",
-      data: {userWallet, walletEntry},
+      data: { userWallet, walletEntry, companyEntry },
     });
-  }catch (e) {
+  } catch (e) {
     console.log(e);
     return res
-        .status(500)
-        .json({ status: "false", message: "Internal Server Error" });
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
   }
-}
+};
