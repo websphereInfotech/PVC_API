@@ -70,10 +70,31 @@ const {
   create_bom,
   update_itemStock,
   weight,
-  itemUnit, saleNo, purchaseNo, paymentNo, receiptNo, paymentType, supplyInvoiceNo, dutyTime,
-  salaryPaymentType, machineName, machineNumber, machineId, cost, name, itemGroupId, itemCategoryId,
-  account_validation, accountId, bankAccountId, machine_schedule_validation, transactionType, purchaseOrder_no,
-  saleInvoiceId, purchaseDate, wastageName
+  itemUnit,
+  saleNo,
+  purchaseNo,
+  paymentNo,
+  receiptNo,
+  paymentType,
+  supplyInvoiceNo,
+  dutyTime,
+  salaryPaymentType,
+  machineName,
+  machineNumber,
+  machineId,
+  cost,
+  name,
+  itemGroupId,
+  itemCategoryId,
+  account_validation,
+  accountId,
+  bankAccountId,
+  machine_schedule_validation,
+  transactionType,
+  purchaseOrder_no,
+  saleInvoiceId,
+  purchaseDate,
+  wastageName,
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -91,37 +112,171 @@ module.exports.validation = function (method) {
     case "update_deliverychallan":
       return [accountId, saleInvoiceId, challanno, date, qty, itemUnit];
     case "create_ProFormaInvoice":
-      return [ProFormaInvoice_no, accountId, terms, date, validtill, qty, itemUnit, rate];
+      return [
+        ProFormaInvoice_no,
+        accountId,
+        terms,
+        date,
+        validtill,
+        qty,
+        itemUnit,
+        rate,
+      ];
     case "update_ProFormaInvoice":
-      return [ProFormaInvoice_no, accountId, terms, date, validtill, qty, itemUnit, rate];
+      return [
+        ProFormaInvoice_no,
+        accountId,
+        terms,
+        date,
+        validtill,
+        qty,
+        itemUnit,
+        rate,
+      ];
     case "create_salesinvoice":
-      return [invoiceno,accountId, terms, invoicedate, rate, qty, proFormaNo, itemUnit];
+      return [
+        invoiceno,
+        accountId,
+        terms,
+        invoicedate,
+        rate,
+        qty,
+        proFormaNo,
+        itemUnit,
+      ];
     case "update_salesinvoice":
-      return [invoiceno, accountId, terms, invoicedate, rate, qty, proFormaNo, itemUnit];
+      return [
+        invoiceno,
+        accountId,
+        terms,
+        invoicedate,
+        rate,
+        qty,
+        proFormaNo,
+        itemUnit,
+      ];
     case "create_debitNote":
-      return [accountId, debitnoteno, purchaseinvoicedate, debitdate, qty, mrp, rate, itemUnit];
+      return [
+        accountId,
+        debitnoteno,
+        purchaseinvoicedate,
+        debitdate,
+        qty,
+        mrp,
+        rate,
+        itemUnit,
+      ];
     case "update_debitNote":
-      return [accountId, debitnoteno, purchaseinvoicedate, debitdate, qty, mrp, rate, itemUnit];
+      return [
+        accountId,
+        debitnoteno,
+        purchaseinvoicedate,
+        debitdate,
+        qty,
+        mrp,
+        rate,
+        itemUnit,
+      ];
     case "create_creditNote":
-      return [ accountId, creditnoteNo, creditdate, org_invoiceno, org_invoicedate, rate, qty, itemUnit ];
+      return [
+        accountId,
+        creditnoteNo,
+        creditdate,
+        org_invoiceno,
+        org_invoicedate,
+        rate,
+        qty,
+        itemUnit,
+      ];
     case "update_creditNote":
-      return [ accountId, creditnoteNo, creditdate, org_invoiceno, org_invoicedate, rate, qty, itemUnit ];
+      return [
+        accountId,
+        creditnoteNo,
+        creditdate,
+        org_invoiceno,
+        org_invoicedate,
+        rate,
+        qty,
+        itemUnit,
+      ];
     case "create_item":
-      return [ itemtype, productname, itemGroupId, itemCategoryId, weight, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice ];
+      return [
+        itemtype,
+        productname,
+        itemGroupId,
+        itemCategoryId,
+        weight,
+        unit,
+        nagativeqty,
+        gstrate,
+        lowstock,
+        salesprice,
+        HSNcode,
+        purchaseprice,
+      ];
     case "update_item":
-      return [ itemtype, productname, itemGroupId, itemCategoryId, weight, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice ];
+      return [
+        itemtype,
+        productname,
+        itemGroupId,
+        itemCategoryId,
+        weight,
+        unit,
+        nagativeqty,
+        gstrate,
+        lowstock,
+        salesprice,
+        HSNcode,
+        purchaseprice,
+      ];
     case "create_purchaseInvoice":
-      return [accountId, duedate, voucherno, supplyInvoiceNo, invoicedate, qty,itemUnit, rate];
+      return [
+        accountId,
+        duedate,
+        voucherno,
+        supplyInvoiceNo,
+        invoicedate,
+        qty,
+        itemUnit,
+        rate,
+      ];
     case "update_purchaseInvoice":
-      return [accountId, duedate, voucherno, supplyInvoiceNo, invoicedate, qty, itemUnit, rate];
+      return [
+        accountId,
+        duedate,
+        voucherno,
+        supplyInvoiceNo,
+        invoicedate,
+        qty,
+        itemUnit,
+        rate,
+      ];
     case "create_company":
-      return [ companyname, gstnumber, email, mobileno, address1, pincode, state, city ];
+      return [
+        companyname,
+        gstnumber,
+        email,
+        mobileno,
+        address1,
+        pincode,
+        state,
+        city,
+      ];
     case "update_company":
-      return [ companyname, gstnumber, email, mobileno, address1, pincode, state, city ];
+      return [
+        companyname,
+        gstnumber,
+        email,
+        mobileno,
+        address1,
+        pincode,
+        state,
+        city,
+      ];
     case "C_create_salesinvoice":
-      return [accountId, date, saleNo, qty,itemUnit, rate];
+      return [accountId, date, saleNo, qty, itemUnit, rate];
     case "C_update_salesinvoice":
-      return [accountId, date, saleNo,qty,itemUnit, rate];
+      return [accountId, date, saleNo, qty, itemUnit, rate];
     case "C_create_purchase_Cash":
       return [accountId, date, purchaseNo, qty, itemUnit, rate];
     case "C_update_purchase_Cash":
@@ -143,17 +298,45 @@ module.exports.validation = function (method) {
     case "update_company_bankDetails":
       return [bankname, accountnumber, ifsccode, branch];
     case "create_receive_bank":
-      return [accountId, voucherno, transactionType, paymentdate, paymentType, amount];
+      return [
+        accountId,
+        voucherno,
+        transactionType,
+        paymentdate,
+        paymentType,
+        amount,
+      ];
     case "update_receive_bank":
-      return [voucherno, voucherno, transactionType, paymentdate, paymentType, amount];
+      return [
+        voucherno,
+        voucherno,
+        transactionType,
+        paymentdate,
+        paymentType,
+        amount,
+      ];
     case "create_payment_bank":
-      return [accountId, voucherno, transactionType, paymentdate, paymentType, amount];
+      return [
+        accountId,
+        voucherno,
+        transactionType,
+        paymentdate,
+        paymentType,
+        amount,
+      ];
     case "update_payment_bank":
-      return [accountId, voucherno, transactionType, paymentdate, paymentType, amount];
+      return [
+        accountId,
+        voucherno,
+        transactionType,
+        paymentdate,
+        paymentType,
+        amount,
+      ];
     case "create_stoke":
-        return [itemname, unit, email];
+      return [itemname, unit, email];
     case "create_receipt":
-        return [voucherno, account, email, mode, refno, depositto, receiptdate];
+      return [voucherno, account, email, mode, refno, depositto, receiptdate];
     case "create_bom":
       return [create_bom];
     case "update_bom":
@@ -161,41 +344,92 @@ module.exports.validation = function (method) {
     case "update_stock":
       return [update_itemStock];
     case "create_raw_material":
-      return [ itemtype, productname, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice, weight ];
+      return [
+        itemtype,
+        productname,
+        unit,
+        nagativeqty,
+        gstrate,
+        lowstock,
+        salesprice,
+        HSNcode,
+        purchaseprice,
+        weight,
+      ];
     case "update_raw_material":
-      return [ itemtype, productname, unit, nagativeqty, gstrate, lowstock, salesprice, HSNcode,purchaseprice, weight ];
+      return [
+        itemtype,
+        productname,
+        unit,
+        nagativeqty,
+        gstrate,
+        lowstock,
+        salesprice,
+        HSNcode,
+        purchaseprice,
+        weight,
+      ];
     case "add_user_bank_account":
       return [accountname, bankname, accountnumber, ifsccode, branch];
     case "add_salary_payment":
       return [amount, date, salaryPaymentType];
     case "create_machine":
       return [machineName, machineNumber];
-      case "create_regular_maintenance":
+    case "create_regular_maintenance":
       return [machineId, date, cost];
-      case "create_preventive_maintenance":
+    case "create_preventive_maintenance":
       return [machineId, date, cost];
-      case "create_breakdown_maintenance":
+    case "create_breakdown_maintenance":
       return [machineId, date, cost];
-      case "create_itemGroup":
+    case "create_itemGroup":
       return [name];
-      case "create_itemCategory":
+    case "create_itemCategory":
       return [name, itemGroupId];
     case "account_validation":
-      return [account_validation]
+      return [account_validation];
     case "machine_schedule_validation":
-      return [machine_schedule_validation]
+      return [machine_schedule_validation];
     case "create_purchaseOrder":
-      return [purchaseOrder_no, accountId, terms, date, validtill, qty, itemUnit, rate];
-      case "update_purchaseOrder":
-      return [purchaseOrder_no, accountId, terms, date, validtill, qty, itemUnit, rate];
+      return [
+        purchaseOrder_no,
+        accountId,
+        terms,
+        date,
+        validtill,
+        qty,
+        itemUnit,
+        rate,
+      ];
+    case "update_purchaseOrder":
+      return [
+        purchaseOrder_no,
+        accountId,
+        terms,
+        date,
+        validtill,
+        qty,
+        itemUnit,
+        rate,
+      ];
     case "C_create_debitNote":
-      return [accountId, debitnoteno, purchaseDate, debitdate, qty, mrp, rate, itemUnit];
+      return [
+        accountId,
+        debitnoteno,
+        purchaseDate,
+        debitdate,
+        qty,
+        mrp,
+        rate,
+        itemUnit,
+      ];
     case "C_create_creditNote":
-      return [ accountId, creditnoteNo, creditdate, rate, qty, itemUnit ];
+      return [accountId, creditnoteNo, creditdate, rate, qty, itemUnit];
     case "wastage_validation":
-      return [ wastageName ];
-      case "maintenanceType_validation":
-      return [ name ];
+      return [wastageName];
+    case "maintenanceType_validation":
+      return [name];
+    case "purpose_validation":
+      return [name];
     default:
       throw new Error("Invalid validation method");
   }

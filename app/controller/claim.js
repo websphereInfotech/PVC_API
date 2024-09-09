@@ -8,36 +8,49 @@ const companyUser = require("../models/companyUser");
 const C_WalletLedger = require("../models/C_WalletLedger");
 const Account = require("../models/Account");
 const C_CompanyBalance = require("../models/C_companyBalance");
-const Salary = require("../models/salary");
-const SalaryPayment = require("../models/salaryPayment");
-const { SALARY_PAYMENT_TYPE, ROLE } = require("../constant/constant");
+const { ROLE } = require("../constant/constant");
 const C_Payment = require("../models/C_Payment");
 const C_Receipt = require("../models/C_Receipt");
 const C_Claim = require("../models/C_claim");
 const company = require("../models/company");
+const C_Purpose = require("../models/Purpose");
 
 exports.create_claim = async (req, res) => {
   try {
     const fromUserId = req.user.userId;
-    const { toUserId, amount, description, purpose } = req.body;
+    const { companyId } = req.user;
+    const { toUserId, amount, description, purposeId } = req.body;
 
     if (toUserId === "" || toUserId === undefined || !toUserId) {
       return res
         .status(400)
         .json({ status: "true", message: "Required Field : User" });
     }
+
     const userData = await User.findOne({ where: { id: toUserId } });
     if (!userData) {
       return res
         .status(404)
         .json({ status: "false", message: "User Not Found" });
     }
+
+    const purposeExist = await C_Purpose.findOne({
+      where: {
+        companyId: companyId,
+        id: purposeId,
+      },
+    });
+    if (!purposeExist) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Purpose Not Found" });
+    }
     const data = await C_claim.create({
       toUserId,
       amount,
       description,
       fromUserId,
-      purpose,
+      purposeId,
       companyId: req.user.companyId,
     });
     return res.status(200).json({
@@ -56,7 +69,8 @@ exports.create_claim = async (req, res) => {
 exports.update_claim = async (req, res) => {
   try {
     const { id } = req.params;
-    const { toUserId, amount, description, purpose } = req.body;
+    const { toUserId, amount, description, purposeId } = req.body;
+    const { companyId } = req.user;
 
     const userData = await C_claim.findOne({
       where: { id: id, companyId: req.user.companyId },
@@ -67,13 +81,25 @@ exports.update_claim = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Claim Not Found" });
     }
+
+    const purposeExist = await C_Purpose.findOne({
+      where: {
+        companyId: companyId,
+        id: purposeId,
+      },
+    });
+    if (!purposeExist) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Purpose Not Found" });
+    }
     if (req.user.userId === userData.fromUserId) {
       await C_claim.update(
         {
           toUserId,
           amount,
           description,
-          purpose,
+          purposeId,
           companyId: req.user.companyId,
         },
         { where: { id } }
@@ -132,6 +158,7 @@ exports.view_myclaim = async (req, res) => {
       include: [
         { model: User, as: "fromUser" },
         { model: User, as: "toUser" },
+        { model: C_Purpose, as: "claimPurpose" },
       ],
     });
 
@@ -162,6 +189,7 @@ exports.view_reciveclaim = async (req, res) => {
       include: [
         { model: User, as: "toUser" },
         { model: User, as: "fromUser" },
+        { model: C_Purpose, as: "claimPurpose" },
       ],
     });
     if (data.length > 0) {
@@ -197,6 +225,7 @@ exports.isapproved_claim = async (req, res) => {
       include: [
         { model: User, as: "toUser" },
         { model: User, as: "fromUser" },
+        { model: C_Purpose, as: "claimPurpose" },
       ],
     });
 
@@ -417,6 +446,7 @@ exports.view_single_claim = async (req, res) => {
       include: [
         { model: User, as: "fromUser" },
         { model: User, as: "toUser" },
+        { model: C_Purpose, as: "claimPurpose" },
       ],
     });
 
@@ -787,22 +817,24 @@ exports.view_wallet = async (req, res) => {
 
       const comapnyData = await company.findOne({
         where: {
-          id: companyId
-        }
+          id: companyId,
+        },
       });
       const companyBalance = await C_CompanyBalance.findOne({
         where: {
-          companyId: companyId
-        }
+          companyId: companyId,
+        },
       });
-      const allUserBalance = await C_userBalance.sum('balance',{where: {
-        companyId: companyId
-      }})
+      const allUserBalance = await C_userBalance.sum("balance", {
+        where: {
+          companyId: companyId,
+        },
+      });
       companyEntry = {
         name: comapnyData.companyname,
         cashOnHand: companyBalance.balance,
-        totalBalance: allUserBalance
-      }
+        totalBalance: allUserBalance,
+      };
     } else {
       userWallet = await C_userBalance.findOne({
         where: {

@@ -1722,4 +1722,48 @@ exports.permissions = {
             "delete_maintenanceType":true
         }
     },
+    "Purpose" : {
+        "Super Admin" :{
+            "create_purpose":true,
+            "update_purpose": true,
+            "view_single_purpose": true,
+            "view_all_purpose": true,
+            "delete_purpose": true
+        },
+        "Admin" :{
+            "create_purpose":true,
+            "update_purpose": true,
+            "view_single_purpose": true,
+            "view_all_purpose": true,
+            "delete_purpose": true
+        },
+        "Account" :{
+            "create_purpose":true,
+            "update_purpose": true,
+            "view_single_purpose": true,
+            "view_all_purpose": true,
+            "delete_purpose": true
+        },
+        "Employee" :{
+           "create_purpose":true,
+            "update_purpose": true,
+            "view_single_purpose": true,
+            "view_all_purpose": true,
+            "delete_purpose": true
+        },
+        "Workers" :{
+            "create_purpose":true,
+            "update_purpose": true,
+            "view_single_purpose": true,
+            "view_all_purpose": true,
+            "delete_purpose": true
+        },
+        "Other" :{
+            "create_purpose":true,
+            "update_purpose": true,
+            "view_single_purpose": true,
+            "view_all_purpose": true,
+            "delete_purpose": true
+        }
+    },
 }

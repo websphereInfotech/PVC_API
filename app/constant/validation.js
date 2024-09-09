@@ -1449,16 +1449,17 @@ exports.referance = function (req, res, next) {
   next();
 }
 exports.purpose = function (req, res, next) {
-  const { purpose } = req.body
+  const { purposeId } = req.body
 
-  const purposeSchema = Joi.string()
+  const purposeSchema = Joi.number()
     .required()
     .messages({
       "any.required": 'Required field : Purpose',
-      "string.empty": "Purpose Cannot Be Empty"
+      "number.base": "Purpose must be a number",
+      "number.empty": "Purpose Cannot Be Empty"
     });
 
-  const { error } = purposeSchema.validate(purpose);
+  const { error } = purposeSchema.validate(purposeId);
   if (error) {
     return res.status(400).json({ status: 'false', message: error.message });
   }

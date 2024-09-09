@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const User = require("./user");
 const company = require("./company");
+const C_Purpose = require("./Purpose");
 
 const C_claim = sequelize.define("P_C_claim", {
   fromUserId: { type: DataTypes.INTEGER },
@@ -9,14 +10,18 @@ const C_claim = sequelize.define("P_C_claim", {
   amount: { type: DataTypes.INTEGER },
   description: { type: DataTypes.STRING },
   isApproved: { type: DataTypes.BOOLEAN },
-  purpose: {
-    type: DataTypes.ENUM("Salary", "Advance", "Expense"),
+  purposeId: {
+    type: DataTypes.INTEGER,
+    allowNull: false
   },
   companyId: { type: DataTypes.INTEGER },
   date: {type: DataTypes.DATEONLY}
 });
 company.hasMany(C_claim, { foreignKey: "companyId", onDelete: "CASCADE" });
 C_claim.belongsTo(company, { foreignKey: "companyId", onDelete: "CASCADE" });
+
+C_Purpose.hasMany(C_claim, { foreignKey: "purposeId", onDelete: "CASCADE", as: "claimPurpose" });
+C_claim.belongsTo(C_Purpose, { foreignKey: "purposeId", onDelete: "CASCADE", as: "claimPurpose" });
 
 User.hasMany(C_claim, {
   foreignKey: "fromUserId",
