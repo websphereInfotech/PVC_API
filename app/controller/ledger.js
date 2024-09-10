@@ -579,8 +579,8 @@ exports.daybook = async (req, res) => {
         ],
         [
           Sequelize.literal(`CASE
-                    WHEN purchaseLedger.id IS NOT NULL THEN 'TAX INVOICE'
-                    WHEN salesLedger.id IS NOT NULL THEN 'TAX INVOICE'
+                    WHEN purchaseLedger.id IS NOT NULL THEN 'TAX INVOICE/PURCHASE'
+                    WHEN salesLedger.id IS NOT NULL THEN 'TAX INVOICE/SALES'
                     WHEN receiptLedger.id IS NOT NULL THEN 'Receipt'
                     WHEN paymentLedger.id IS NOT NULL THEN 'Payment'
                     WHEN debitNoLedger.id IS NOT NULL THEN 'DEBIT NOTE'
@@ -1236,6 +1236,16 @@ exports.C_cashbook = async (req, res) => {
           Sequelize.literal(`CASE
             WHEN cashCashbookReceipt.id IS NOT NULL THEN \`cashCashbookReceipt\`.\`description\`
             WHEN cashCashbookPayment.id IS NOT NULL THEN \`cashCashbookPayment\`.\`description\`
+            WHEN cashbookPayment.id IS NOT NULL THEN
+                        CASE
+                            WHEN cashbookPayment.bankAccountId IS NOT NULL THEN \`cashbookPayment->paymentBankAccount\`.\`bankname\`
+                            ELSE \`cashbookPayment\`.\`transactionType\`
+                        END
+            WHEN cashbookReceipt.id IS NOT NULL THEN
+                CASE
+                    WHEN cashbookReceipt.bankAccountId IS NOT NULL THEN \`cashbookReceipt->receiptBankAccount\`.\`bankname\`
+                    ELSE \`cashbookReceipt\`.\`transactionType\`
+                END
             ELSE ''
         END`),
           "details",
@@ -1317,6 +1327,11 @@ exports.C_cashbook = async (req, res) => {
               model: Account,
               as: "accountReceipt",
             },
+            {
+              model: CompanyBankDetails,
+              as: "receiptBankAccount",
+              attributes: [],
+            }
           ],
           attributes: [],
         },
@@ -1328,6 +1343,11 @@ exports.C_cashbook = async (req, res) => {
               model: Account,
               as: "accountPayment",
             },
+            {
+              model: CompanyBankDetails,
+              as: "paymentBankAccount",
+              attributes: [],
+            }
           ],
           attributes: [],
         },
