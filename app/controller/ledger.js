@@ -1260,6 +1260,16 @@ exports.C_cashbook = async (req, res) => {
         END`),
           "personName",
         ],
+        [
+          Sequelize.literal(`CASE
+            WHEN cashCashbookPayment.id IS NOT NULL THEN \`cashCashbookPayment->paymentUpdate\`.\`username\`
+            WHEN cashCashbookReceipt.id IS NOT NULL THEN \`cashCashbookReceipt->receiveUpdate\`.\`username\`
+            WHEN cashbookReceipt.id IS NOT NULL THEN \`cashbookReceipt->bankUpdateUser\`.\`username\`
+            WHEN cashbookPayment.id IS NOT NULL THEN \`cashbookPayment->paymentUpdateUser\`.\`username\`
+            ELSE ''
+        END`),
+          "username",
+        ],
     //     [
     //       Sequelize.literal(`
     //       (
@@ -1305,6 +1315,10 @@ exports.C_cashbook = async (req, res) => {
               model: Account,
               as: "accountPaymentCash",
             },
+            {
+              model: User,
+              as: "paymentUpdate",
+            },
           ],
           attributes: [],
         },
@@ -1316,6 +1330,10 @@ exports.C_cashbook = async (req, res) => {
               model: Account,
               as: "accountReceiptCash",
             },
+            {
+              model: User,
+              as: "receiveUpdate",
+            }
           ],
           attributes: [],
         },
@@ -1331,6 +1349,10 @@ exports.C_cashbook = async (req, res) => {
               model: CompanyBankDetails,
               as: "receiptBankAccount",
               attributes: [],
+            },
+            {
+              model: User,
+              as: "bankUpdateUser",
             }
           ],
           attributes: [],
@@ -1347,6 +1369,10 @@ exports.C_cashbook = async (req, res) => {
               model: CompanyBankDetails,
               as: "paymentBankAccount",
               attributes: [],
+            },
+            {
+              model: User,
+              as: "paymentUpdateUser",
             }
           ],
           attributes: [],
@@ -1425,6 +1451,10 @@ exports.C_cashbook = async (req, res) => {
               model: Account,
               as: "accountPaymentCash",
             },
+            {
+              model: User,
+              as: "paymentUpdate",
+            },
           ],
           attributes: [],
         },
@@ -1436,6 +1466,10 @@ exports.C_cashbook = async (req, res) => {
               model: Account,
               as: "accountReceiptCash",
             },
+            {
+              model: User,
+              as: "receiveUpdate",
+            }
           ],
           attributes: [],
         },
@@ -1447,6 +1481,10 @@ exports.C_cashbook = async (req, res) => {
               model: Account,
               as: "accountReceipt",
             },
+            {
+              model: User,
+              as: "bankUpdateUser",
+            }
           ],
           attributes: [],
         },
@@ -1458,6 +1496,10 @@ exports.C_cashbook = async (req, res) => {
               model: Account,
               as: "accountPayment",
             },
+            {
+              model: User,
+              as: "paymentUpdateUser",
+            }
           ],
           attributes: [],
         },
@@ -1498,6 +1540,7 @@ exports.C_cashbook = async (req, res) => {
           openingBalance: 0,
           personName: "",
           id: null,
+          username:"",
         });
       }
 
@@ -1513,6 +1556,7 @@ exports.C_cashbook = async (req, res) => {
           openingBalance: 0,
           personName: "",
           id: null,
+          username:"",
         });
       
       const totals = ledgerArray.reduce(
