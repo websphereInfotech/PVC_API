@@ -1,5 +1,6 @@
 const Wastage = require("../models/Wastage");
 const User = require("../models/user");
+const {Op} = require("sequelize");
 exports.create_wastage = async (req, res) => {
   try {
     const { name } = req.body;

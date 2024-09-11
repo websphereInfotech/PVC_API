@@ -1,5 +1,6 @@
 const MaintenanceType = require("../models/MaintenanceType");
 const User = require("../models/user");
+const {Op} = require("sequelize");
 exports.create_maintenanceType = async (req, res) => {
   try {
     const { name } = req.body;
