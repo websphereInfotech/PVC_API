@@ -833,7 +833,7 @@ exports.view_wallet = async (req, res) => {
       companyEntry = {
         name: comapnyData.companyname,
         cashOnHand: companyBalance.balance,
-        totalBalance: allUserBalance,
+        totalBalance: allUserBalance + companyBalance.balance,
       };
     } else {
       userWallet = await C_userBalance.findOne({

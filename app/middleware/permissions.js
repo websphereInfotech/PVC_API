@@ -65,7 +65,7 @@ exports.permissions = {
             "view_user_bank_account": true,
             "view_all_user_bank_account": true,
             "wallet_approve": true,
-            "wallet_ledger": true
+            
         },
         "Admin" : {
             "update_user":true,
@@ -73,7 +73,6 @@ exports.permissions = {
             "view_user":true,
             "user_logout":true,
             "view_all_JoinComapny":true,
-            "wallet_ledger": true
         },
         "Account" : {
             "update_user":true,
@@ -1474,32 +1473,38 @@ exports.permissions = {
         "Super Admin" :{
             "account_ledger":true,
             "daybook":true,
-            "cashbook": true
+            "cashbook": true,
+            "wallet_ledger": true
         },
         "Admin" :{
             "account_ledger":true,
             "daybook":true,
-            "cashbook": true
+            "cashbook": true,
+            "wallet_ledger": true
         },
         "Account" :{
             "account_ledger":true,
             "daybook":true,
-            "cashbook": true
+            "cashbook": true,
+            "wallet_ledger": true
         },
         "Employee" :{
             "account_ledger":true,
             "daybook":true,
-            "cashbook": true
+            "cashbook": true,
+            "wallet_ledger": true
         },
         "Workers" :{
             "account_ledger":true,
             "daybook":true,
-            "cashbook": true
+            "cashbook": true,
+            "wallet_ledger": true
         },
         "Other" :{
             "account_ledger":true,
             "daybook":true,
-            "cashbook": true
+            "cashbook": true,
+            "wallet_ledger": true
         }
     },
     "Purchase Order": {

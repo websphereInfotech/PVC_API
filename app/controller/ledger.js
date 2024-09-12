@@ -1006,16 +1006,15 @@ exports.C_daybook = async (req, res) => {
 
 exports.C_wallet_ledger = async (req, res) => {
   try {
-    const { userId } = req.params;
     const { formDate, toDate } = req.query;
-    const companyId = req.user.companyId;
+    const {companyId, userId} = req.user;
     const queryData = { userId: userId, companyId: companyId };
 
     const userExist = await User.findOne({ where: { id: userId } });
     if (!userExist) {
       return res.status(404).json({
         status: "false",
-        message: "Account Not Found.",
+        message: "User Not Found.",
       });
     }
 
