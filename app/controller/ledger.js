@@ -200,6 +200,7 @@ exports.account_ledger = async (req, res) => {
         ["id", "ASC"],
       ],
     });
+
     const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
     const ledgerArray = [...data];
     if (+openingBalance !== 0) {
@@ -215,57 +216,93 @@ exports.account_ledger = async (req, res) => {
         openingBalance: 0,
       });
     }
-    const totals = ledgerArray.reduce(
-      (acc, ledger) => {
-        if (ledger.dataValues) {
-          acc.totalCredit += ledger.dataValues.creditAmount || 0;
-          acc.totalDebit += ledger.dataValues.debitAmount || 0;
-        } else {
-          acc.totalCredit += ledger.creditAmount || 0;
-          acc.totalDebit += ledger.debitAmount || 0;
-        }
-        return acc;
-      },
-      { totalCredit: 0, totalDebit: 0 }
-    );
+    const groupedRecords = {};
+    const fromFinancialYear = getFinancialYear(formDate);
+    const toFinancialYear = getFinancialYear(toDate);
 
-    const totalCredit = totals.totalCredit;
-    const totalDebit = totals.totalDebit;
-    const closingBalanceAmount = totalDebit - totalCredit;
-    const closingBalance = {
-      type: closingBalanceAmount < 0 ? "debit" : "credit",
-      amount: +Math.abs(closingBalanceAmount).toFixed(2),
+    let currentFinancialYear = fromFinancialYear;
+
+    let previousClosingBalance = {
+      type: "credit",
+      amount: 0,
     };
 
-    const records = ledgerArray.reduce((acc, obj) => {
-      const dateKey = obj.date;
-      const date = new Date(dateKey);
-      const formattedDate = `${date.getDate()}-${date.toLocaleString(
+    while (currentFinancialYear <= toFinancialYear) {
+      const [startYear, endYear] = currentFinancialYear.split("-").map(Number);
+      const filteredRecords = filterRecordsByFinancialYear(
+        ledgerArray,
+        startYear,
+        endYear
+      );
+      const newOpeningBalance = previousClosingBalance.amount;
+
+      if (newOpeningBalance >= 0) {
+        filteredRecords.unshift({
+          date: `${startYear}-04-01`,
+          debitAmount:
+            previousClosingBalance.type === "credit" ? newOpeningBalance : 0,
+          creditAmount:
+            previousClosingBalance.type === "debit" ? newOpeningBalance : 0,
+          particulars: "Opening Balance",
+          vchType: "",
+          vchNo: "",
+          openingBalance: newOpeningBalance,
+          id: null,
+        });
+      }
+
+      const totals = filteredRecords.reduce(
+        (acc, ledger) => {
+          if (ledger.dataValues) {
+            acc.totalCredit += ledger.dataValues.creditAmount || 0;
+            acc.totalDebit += ledger.dataValues.debitAmount || 0;
+          } else {
+            acc.totalCredit += ledger.creditAmount || 0;
+            acc.totalDebit += ledger.debitAmount || 0;
+          }
+          return acc;
+        },
+        { totalCredit: 0, totalDebit: 0 }
+      );
+
+      const totalCredit = totals.totalCredit;
+      const totalDebit = totals.totalDebit;
+
+      const closingBalanceAmount = totalDebit - totalCredit;
+      const closingBalance = {
+        type: closingBalanceAmount < 0 ? "debit" : "credit",
+        amount: +Math.abs(closingBalanceAmount).toFixed(2),
+      };
+
+      previousClosingBalance = closingBalance;
+
+      const records = filteredRecords.reduce((acc, obj) => {
+        const dateKey = obj.date;
+        const date = new Date(dateKey);
+        const formattedDate = `${date.getDate()}-${date.toLocaleString(
+          "default",
+          {
+            month: "short",
+          }
+        )}-${String(date.getFullYear()).slice(-2)}`;
+
+        if (!acc[formattedDate]) {
+          acc[formattedDate] = [];
+        }
+        acc[formattedDate].push(obj);
+        return acc;
+      }, {});
+      const formattedFromDate = new Date(`${startYear}-04-01`)
+      const formattedToDate = new Date(`${startYear}-03-31`)
+      const formDateFormat = `${formattedFromDate.getDate()}-${formattedFromDate.toLocaleString(
         "default",
         { month: "short" }
-      )}-${String(date.getFullYear()).slice(-2)}`;
-
-      if (!acc[formattedDate]) {
-        acc[formattedDate] = [];
-      }
-      acc[formattedDate].push(obj);
-      return acc;
-    }, {});
-    const formattedFromDate = new Date(formDate);
-    const formattedToDate = new Date(toDate);
-
-    const formDateFormat = `${formattedFromDate.getDate()}-${formattedFromDate.toLocaleString(
-      "default",
-      { month: "short" }
-    )}-${String(formattedFromDate.getFullYear()).slice(-2)}`;
-    const toDateFormat = `${formattedToDate.getDate()}-${formattedToDate.toLocaleString(
-      "default",
-      { month: "short" }
-    )}-${String(formattedToDate.getFullYear()).slice(-2)}`;
-    return res.status(200).json({
-      status: "true",
-      message: "Ledger Data Fetch Successfully",
-      data: {
+      )}-${String(formattedFromDate.getFullYear()).slice(-2)}`;
+      const toDateFormat = `${formattedToDate.getDate()}-${formattedToDate.toLocaleString(
+        "default",
+        { month: "short" }
+      )}-${String(formattedToDate.getFullYear()).slice(-2)}`;
+      groupedRecords[currentFinancialYear] = {
         form: company,
         to: accountExist,
         dateRange: `${formDateFormat} - ${toDateFormat}`,
@@ -275,8 +312,14 @@ exports.account_ledger = async (req, res) => {
             ? totals.totalDebit
             : totals.totalCredit,
         closingBalance,
-        records: records,
-      },
+        records,
+      };
+      currentFinancialYear = `${startYear + 1}-${endYear + 1}`;
+    }
+    return res.status(200).json({
+      status: "true",
+      message: "Ledger Data Fetch Successfully",
+      data: groupedRecords,
     });
   } catch (error) {
     console.log(error);
@@ -1007,7 +1050,7 @@ exports.C_daybook = async (req, res) => {
 exports.C_wallet_ledger = async (req, res) => {
   try {
     const { formDate, toDate } = req.query;
-    const {companyId, userId} = req.user;
+    const { companyId, userId } = req.user;
     const queryData = { userId: userId, companyId: companyId };
 
     const userExist = await User.findOne({ where: { id: userId } });
@@ -1269,41 +1312,41 @@ exports.C_cashbook = async (req, res) => {
         END`),
           "username",
         ],
-    //     [
-    //       Sequelize.literal(`
-    //       (
-    //     SELECT
-    //         IFNULL(SUM(
-    //             IFNULL(CASE
-    //               WHEN cashCashbookReceipt.id IS NOT NULL THEN cashCashbookReceipt.amount
-    //               WHEN cashbookReceipt.id IS NOT NULL THEN cashbookReceipt.amount
-    //               ELSE 0
-    //             END, 0) -
-    //             IFNULL(CASE
-    //               WHEN cashCashbookPayment.id IS NOT NULL THEN cashCashbookPayment.amount
-    //               WHEN cashbookPayment.id IS NOT NULL THEN cashbookPayment.amount
-    //               ELSE 0
-    //             END, 0)
-    //           ), 0
-    //         )
-    //     FROM
-    //         P_C_Cashbooks AS cb2
-    //     LEFT OUTER JOIN P_Receipts AS cashbookReceipt ON cb2.receiptId = cashbookReceipt.id
-    //     LEFT OUTER JOIN P_Payments AS cashbookPayment ON cb2.paymentId = cashbookPayment.id
-    //     LEFT OUTER JOIN P_C_Receipts AS cashCashbookReceipt ON cb2.C_receiptId = cashCashbookReceipt.id
-    //     LEFT OUTER JOIN P_C_Payments AS cashCashbookPayment ON cb2.C_paymentId = cashCashbookPayment.id
-    //     WHERE
-    //         cb2.companyId = ${companyId}
-    //         AND (
-    //             cb2.date < P_C_Cashbook.date
-    //             OR (
-    //                 cb2.date = P_C_Cashbook.date
-    //                 AND cb2.id < P_C_Cashbook.id
-    //             )
-    //         )
-    // )`),
-    //       "openingBalance",
-    //     ],
+        //     [
+        //       Sequelize.literal(`
+        //       (
+        //     SELECT
+        //         IFNULL(SUM(
+        //             IFNULL(CASE
+        //               WHEN cashCashbookReceipt.id IS NOT NULL THEN cashCashbookReceipt.amount
+        //               WHEN cashbookReceipt.id IS NOT NULL THEN cashbookReceipt.amount
+        //               ELSE 0
+        //             END, 0) -
+        //             IFNULL(CASE
+        //               WHEN cashCashbookPayment.id IS NOT NULL THEN cashCashbookPayment.amount
+        //               WHEN cashbookPayment.id IS NOT NULL THEN cashbookPayment.amount
+        //               ELSE 0
+        //             END, 0)
+        //           ), 0
+        //         )
+        //     FROM
+        //         P_C_Cashbooks AS cb2
+        //     LEFT OUTER JOIN P_Receipts AS cashbookReceipt ON cb2.receiptId = cashbookReceipt.id
+        //     LEFT OUTER JOIN P_Payments AS cashbookPayment ON cb2.paymentId = cashbookPayment.id
+        //     LEFT OUTER JOIN P_C_Receipts AS cashCashbookReceipt ON cb2.C_receiptId = cashCashbookReceipt.id
+        //     LEFT OUTER JOIN P_C_Payments AS cashCashbookPayment ON cb2.C_paymentId = cashCashbookPayment.id
+        //     WHERE
+        //         cb2.companyId = ${companyId}
+        //         AND (
+        //             cb2.date < P_C_Cashbook.date
+        //             OR (
+        //                 cb2.date = P_C_Cashbook.date
+        //                 AND cb2.id < P_C_Cashbook.id
+        //             )
+        //         )
+        // )`),
+        //       "openingBalance",
+        //     ],
       ],
       include: [
         {
@@ -1332,7 +1375,7 @@ exports.C_cashbook = async (req, res) => {
             {
               model: User,
               as: "receiveUpdate",
-            }
+            },
           ],
           attributes: [],
         },
@@ -1352,7 +1395,7 @@ exports.C_cashbook = async (req, res) => {
             {
               model: User,
               as: "bankUpdateUser",
-            }
+            },
           ],
           attributes: [],
         },
@@ -1372,7 +1415,7 @@ exports.C_cashbook = async (req, res) => {
             {
               model: User,
               as: "paymentUpdateUser",
-            }
+            },
           ],
           attributes: [],
         },
@@ -1468,7 +1511,7 @@ exports.C_cashbook = async (req, res) => {
             {
               model: User,
               as: "receiveUpdate",
-            }
+            },
           ],
           attributes: [],
         },
@@ -1483,7 +1526,7 @@ exports.C_cashbook = async (req, res) => {
             {
               model: User,
               as: "bankUpdateUser",
-            }
+            },
           ],
           attributes: [],
         },
@@ -1498,7 +1541,7 @@ exports.C_cashbook = async (req, res) => {
             {
               model: User,
               as: "paymentUpdateUser",
-            }
+            },
           ],
           attributes: [],
         },
@@ -1532,32 +1575,36 @@ exports.C_cashbook = async (req, res) => {
         ledgerArray.unshift({
           date: date,
           debitAmount:
-          mainOpeningBalance < 0 ? +Math.abs(mainOpeningBalance).toFixed(2) : 0,
+            mainOpeningBalance < 0
+              ? +Math.abs(mainOpeningBalance).toFixed(2)
+              : 0,
           creditAmount:
-          mainOpeningBalance > 0 ? +Math.abs(mainOpeningBalance).toFixed(2) : 0,
+            mainOpeningBalance > 0
+              ? +Math.abs(mainOpeningBalance).toFixed(2)
+              : 0,
           details: "Opening Balance",
           openingBalance: 0,
           personName: "",
           id: null,
-          username:"",
+          username: "",
         });
       }
 
-        const openingBalance = previousClosingBalance.amount;
+      const openingBalance = previousClosingBalance.amount;
 
-        ledgerArray.unshift({
-          date: date,
-          debitAmount:
-            previousClosingBalance.type === "credit" ? openingBalance : 0,
-          creditAmount:
-            previousClosingBalance.type === "debit" ? openingBalance : 0,
-          details: "Opening Balance",
-          openingBalance: 0,
-          personName: "",
-          id: null,
-          username:"",
-        });
-      
+      ledgerArray.unshift({
+        date: date,
+        debitAmount:
+          previousClosingBalance.type === "credit" ? openingBalance : 0,
+        creditAmount:
+          previousClosingBalance.type === "debit" ? openingBalance : 0,
+        details: "Opening Balance",
+        openingBalance: 0,
+        personName: "",
+        id: null,
+        username: "",
+      });
+
       const totals = ledgerArray.reduce(
         (acc, ledger) => {
           if (ledger.dataValues) {
@@ -1613,3 +1660,25 @@ exports.C_cashbook = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error." });
   }
 };
+
+
+function getFinancialYear(date) {
+  const givenDate = new Date(date);
+  const year = givenDate.getFullYear();
+  const month = givenDate.getMonth() + 1;
+  if (month >= 4) {
+    return `${year}-${year + 1}`;
+  } else {
+    return `${year - 1}-${year}`;
+  }
+}
+
+function filterRecordsByFinancialYear(records, startYear, endYear) {
+  const startDate = new Date(`${startYear}-04-01`);
+  const endDate = new Date(`${endYear}-03-31`);
+
+  return records.filter((record) => {
+    const recordDate = new Date(record.date);
+    return recordDate >= startDate && recordDate <= endDate;
+  });
+}
