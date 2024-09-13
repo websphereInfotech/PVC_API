@@ -303,8 +303,6 @@ exports.account_ledger = async (req, res) => {
         { month: "short" }
       )}-${String(formattedToDate.getFullYear()).slice(-2)}`;
       groupedRecords[currentFinancialYear] = {
-        form: company,
-        to: accountExist,
         dateRange: `${formDateFormat} - ${toDateFormat}`,
         totals,
         totalAmount:
@@ -319,7 +317,7 @@ exports.account_ledger = async (req, res) => {
     return res.status(200).json({
       status: "true",
       message: "Ledger Data Fetch Successfully",
-      data: groupedRecords,
+      data: {form: company, to: accountExist, years: groupedRecords},
     });
   } catch (error) {
     console.log(error);
