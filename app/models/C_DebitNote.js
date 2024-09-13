@@ -14,7 +14,7 @@ const C_DebitNote = sequelize.define("P_C_DebitNote", {
         type: DataTypes.INTEGER,
         defaultValue:0
     },
-    purchaseId: { type: DataTypes.INTEGER },
+    purchaseId: { type: DataTypes.INTEGER, allowNull: true },
     purchaseDate: { type: DataTypes.DATEONLY },
     debitdate: {
         type: DataTypes.DATEONLY

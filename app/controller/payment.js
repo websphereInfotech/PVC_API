@@ -626,11 +626,11 @@ exports.update_payment_bank = async (req, res) => {
 
     await C_Cashbook.update(
       {
-        date: date,
+        date: paymentdate,
       },
       {
         where: {
-          paymentId: data.id,
+          paymentId: id,
           companyId: companyId,
         },
       }

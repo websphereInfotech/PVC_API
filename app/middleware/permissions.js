@@ -65,7 +65,6 @@ exports.permissions = {
             "view_user_bank_account": true,
             "view_all_user_bank_account": true,
             "wallet_approve": true,
-            
         },
         "Admin" : {
             "update_user":true,

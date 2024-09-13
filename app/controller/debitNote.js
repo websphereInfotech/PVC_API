@@ -436,19 +436,15 @@ exports.C_create_debitNote = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Debit Note Number Already Exists" });
     }
-
-    if (!purchaseId || purchaseId === "" || purchaseId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required filed :Purchase" });
-    }
-    const purchaseData = await C_purchaseCash.findOne({
-      where: { id: purchaseId, companyId: companyId },
-    });
-    if (!purchaseData) {
-      return res
-        .status(404)
-        .json({ status: "false", message: "Purchase Not Found" });
+    if (purchaseId) {
+      const purchaseData = await C_purchaseCash.findOne({
+        where: { id: purchaseId, companyId: companyId },
+      });
+      if (!purchaseData) {
+        return res
+          .status(404)
+          .json({ status: "false", message: "Purchase Not Found" });
+      }
     }
     const accountExist = await Account.findOne({
       where: { id: accountId, companyId: companyId, isActive: true },
@@ -571,10 +567,15 @@ exports.C_update_debitNote = async (req, res) => {
         .status(400)
         .json({ status: "false", message: "Debit Note Number Already Exists" });
     }
-    if (!purchaseId || purchaseId === "" || purchaseId === null) {
-      return res
-        .status(400)
-        .json({ status: "false", message: "Required filed :Purchase" });
+    if (purchaseId) {
+      const purchaseData = await C_purchaseCash.findOne({
+        where: { id: purchaseId, companyId: companyId },
+      });
+      if (!purchaseData) {
+        return res
+          .status(404)
+          .json({ status: "false", message: "Purchase Not Found" });
+      }
     }
     const accountExist = await Account.findOne({
       where: { id: accountId, companyId: companyId, isActive: true },
