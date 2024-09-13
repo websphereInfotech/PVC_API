@@ -236,7 +236,7 @@ exports.account_ledger = async (req, res) => {
       );
       const newOpeningBalance = previousClosingBalance.amount;
 
-      if (newOpeningBalance >= 0) {
+      if (newOpeningBalance > 0) {
         filteredRecords.unshift({
           date: `${startYear}-04-01`,
           debitAmount:
@@ -246,8 +246,6 @@ exports.account_ledger = async (req, res) => {
           particulars: "Opening Balance",
           vchType: "",
           vchNo: "",
-          openingBalance: newOpeningBalance,
-          id: null,
         });
       }
 
@@ -292,18 +290,15 @@ exports.account_ledger = async (req, res) => {
         acc[formattedDate].push(obj);
         return acc;
       }, {});
-      const formattedFromDate = new Date(`${startYear}-04-01`)
-      const formattedToDate = new Date(`${startYear}-03-31`)
-      const formDateFormat = `${formattedFromDate.getDate()}-${formattedFromDate.toLocaleString(
-        "default",
-        { month: "short" }
-      )}-${String(formattedFromDate.getFullYear()).slice(-2)}`;
-      const toDateFormat = `${formattedToDate.getDate()}-${formattedToDate.toLocaleString(
-        "default",
-        { month: "short" }
-      )}-${String(formattedToDate.getFullYear()).slice(-2)}`;
+
+      const daterang = getFinancialYearDates(
+        startYear,
+        endYear,
+        formDate,
+        toDate
+      );
       groupedRecords[currentFinancialYear] = {
-        dateRange: `${formDateFormat} - ${toDateFormat}`,
+        dateRange: daterang,
         totals,
         totalAmount:
           totals.totalCredit < totals.totalDebit
@@ -317,7 +312,7 @@ exports.account_ledger = async (req, res) => {
     return res.status(200).json({
       status: "true",
       message: "Ledger Data Fetch Successfully",
-      data: {form: company, to: accountExist, years: groupedRecords},
+      data: { form: company, to: accountExist, years: groupedRecords },
     });
   } catch (error) {
     console.log(error);
@@ -488,10 +483,9 @@ exports.C_account_ledger = async (req, res) => {
     });
 
     const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
-
-    const cashLedgerArray = [...data];
+    const ledgerArray = [...data];
     if (+openingBalance !== 0) {
-      cashLedgerArray.unshift({
+      ledgerArray.unshift({
         date: formDate,
         debitAmount:
           openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
@@ -503,69 +497,103 @@ exports.C_account_ledger = async (req, res) => {
         openingBalance: 0,
       });
     }
+    const groupedRecords = {};
+    const fromFinancialYear = getFinancialYear(formDate);
+    const toFinancialYear = getFinancialYear(toDate);
 
-    const totals = cashLedgerArray.reduce(
-      (acc, ledger) => {
-        if (ledger.dataValues) {
-          acc.totalCredit += ledger.dataValues.creditAmount || 0;
-          acc.totalDebit += ledger.dataValues.debitAmount || 0;
-        } else {
-          acc.totalCredit += ledger.creditAmount || 0;
-          acc.totalDebit += ledger.debitAmount || 0;
-        }
-        return acc;
-      },
-      { totalCredit: 0, totalDebit: 0 }
-    );
+    let currentFinancialYear = fromFinancialYear;
 
-    const totalCredit = totals.totalCredit;
-    const totalDebit = totals.totalDebit;
-    const closingBalanceAmount = totalDebit - totalCredit;
-    const closingBalance = {
-      type: closingBalanceAmount < 0 ? "debit" : "credit",
-      amount: +Math.abs(closingBalanceAmount).toFixed(2),
+    let previousClosingBalance = {
+      type: "credit",
+      amount: 0,
     };
-    const records = cashLedgerArray.reduce((acc, obj) => {
-      const dateKey = obj.date;
-      const date = new Date(dateKey);
-      const formattedDate = `${date.getDate()}-${date.toLocaleString(
-        "default",
-        { month: "short" }
-      )}-${String(date.getFullYear()).slice(-2)}`;
 
-      if (!acc[formattedDate]) {
-        acc[formattedDate] = [];
+    while (currentFinancialYear <= toFinancialYear) {
+      const [startYear, endYear] = currentFinancialYear.split("-").map(Number);
+      const filteredRecords = filterRecordsByFinancialYear(
+        ledgerArray,
+        startYear,
+        endYear
+      );
+      const newOpeningBalance = previousClosingBalance.amount;
+
+      if (newOpeningBalance > 0) {
+        filteredRecords.unshift({
+          date: `${startYear}-04-01`,
+          debitAmount:
+            previousClosingBalance.type === "credit" ? newOpeningBalance : 0,
+          creditAmount:
+            previousClosingBalance.type === "debit" ? newOpeningBalance : 0,
+          particulars: "Opening Balance",
+          vchType: "",
+          vchNo: "",
+        });
       }
-      acc[formattedDate].push(obj);
-      return acc;
-    }, {});
-    const formattedFromDate = new Date(formDate);
-    const formattedToDate = new Date(toDate);
 
-    const formDateFormat = `${formattedFromDate.getDate()}-${formattedFromDate.toLocaleString(
-      "default",
-      { month: "short" }
-    )}-${String(formattedFromDate.getFullYear()).slice(-2)}`;
-    const toDateFormat = `${formattedToDate.getDate()}-${formattedToDate.toLocaleString(
-      "default",
-      { month: "short" }
-    )}-${String(formattedToDate.getFullYear()).slice(-2)}`;
+      const totals = filteredRecords.reduce(
+        (acc, ledger) => {
+          if (ledger.dataValues) {
+            acc.totalCredit += ledger.dataValues.creditAmount || 0;
+            acc.totalDebit += ledger.dataValues.debitAmount || 0;
+          } else {
+            acc.totalCredit += ledger.creditAmount || 0;
+            acc.totalDebit += ledger.debitAmount || 0;
+          }
+          return acc;
+        },
+        { totalCredit: 0, totalDebit: 0 }
+      );
 
-    return res.status(200).json({
-      status: "true",
-      message: "Cash Ledger Dta Fetch Successfully.",
-      data: {
-        form: company,
-        to: accountExist,
-        dateRange: `${formDateFormat} - ${toDateFormat}`,
+      const totalCredit = totals.totalCredit;
+      const totalDebit = totals.totalDebit;
+
+      const closingBalanceAmount = totalDebit - totalCredit;
+      const closingBalance = {
+        type: closingBalanceAmount < 0 ? "debit" : "credit",
+        amount: +Math.abs(closingBalanceAmount).toFixed(2),
+      };
+
+      previousClosingBalance = closingBalance;
+
+      const records = filteredRecords.reduce((acc, obj) => {
+        const dateKey = obj.date;
+        const date = new Date(dateKey);
+        const formattedDate = `${date.getDate()}-${date.toLocaleString(
+          "default",
+          {
+            month: "short",
+          }
+        )}-${String(date.getFullYear()).slice(-2)}`;
+
+        if (!acc[formattedDate]) {
+          acc[formattedDate] = [];
+        }
+        acc[formattedDate].push(obj);
+        return acc;
+      }, {});
+
+      const daterang = getFinancialYearDates(
+        startYear,
+        endYear,
+        formDate,
+        toDate
+      );
+      groupedRecords[currentFinancialYear] = {
+        dateRange: daterang,
         totals,
         totalAmount:
           totals.totalCredit < totals.totalDebit
             ? totals.totalDebit
             : totals.totalCredit,
         closingBalance,
-        records: records,
-      },
+        records,
+      };
+      currentFinancialYear = `${startYear + 1}-${endYear + 1}`;
+    }
+    return res.status(200).json({
+      status: "true",
+      message: "Cash Ledger Dta Fetch Successfully.",
+      data: { form: company, to: accountExist, years: groupedRecords },
     });
   } catch (e) {
     console.log(e);
@@ -1659,7 +1687,6 @@ exports.C_cashbook = async (req, res) => {
   }
 };
 
-
 function getFinancialYear(date) {
   const givenDate = new Date(date);
   const year = givenDate.getFullYear();
@@ -1679,4 +1706,33 @@ function filterRecordsByFinancialYear(records, startYear, endYear) {
     const recordDate = new Date(record.date);
     return recordDate >= startDate && recordDate <= endDate;
   });
+}
+
+function getFinancialYearDates(startYear, endYear, fromDate, toDate) {
+  const financialYearStart = new Date(`${startYear}-04-01`);
+  const financialYearEnd = new Date(`${endYear}-03-31`);
+
+  const from = new Date(fromDate);
+  const to = new Date(toDate);
+
+  const validFromDate =
+    from >= financialYearStart && from <= financialYearEnd
+      ? from
+      : new Date(`${startYear}-04-01`);
+
+  const validToDate =
+    to >= financialYearStart && to <= financialYearEnd
+      ? to
+      : new Date(`${endYear}-03-31`);
+
+  const formDateFormat = `${validFromDate.getDate()}-${validFromDate.toLocaleString(
+    "default",
+    { month: "short" }
+  )}-${String(validFromDate.getFullYear()).slice(-2)}`;
+  const toDateFormat = `${validToDate.getDate()}-${validToDate.toLocaleString(
+    "default",
+    { month: "short" }
+  )}-${String(validToDate.getFullYear()).slice(-2)}`;
+
+  return `${formDateFormat} - ${toDateFormat}`;
 }
