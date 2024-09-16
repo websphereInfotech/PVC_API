@@ -40,6 +40,8 @@ exports.create_maintenance = async (req, res) => {
     const data = await Maintenance.create({
       ...req.body,
       companyId: companyId,
+      createdBy: userId,
+      updatedBy: userId
     });
     await data.addMMaintenanceTypes(maintenanceType);
     return res.status(200).json({

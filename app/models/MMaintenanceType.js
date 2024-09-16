@@ -1,6 +1,6 @@
 const { DataTypes} = require("sequelize");
 const sequelize = require("../config/index");
-const MachineSchedule = require("./MachineSchedule");
+const Maintenance = require("./Maintenance");
 const MaintenanceType = require("./MaintenanceType");
 const MMaintenanceType = sequelize.define("P_MMaintenanceType", {
     maintenanceId: {
@@ -23,13 +23,13 @@ const MMaintenanceType = sequelize.define("P_MMaintenanceType", {
 });
 
 
-MachineSchedule.belongsToMany(MaintenanceType, {
+Maintenance.belongsToMany(MaintenanceType, {
     through: MMaintenanceType,
     foreignKey: 'maintenanceId',
     as: 'mMaintenanceTypes'
 });
 
-MaintenanceType.belongsToMany(MachineSchedule, {
+MaintenanceType.belongsToMany(Maintenance, {
     through: MMaintenanceType,
     foreignKey: 'maintenanceTypeId',
     as: 'maintenances'
