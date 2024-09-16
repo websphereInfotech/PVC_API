@@ -1,5 +1,7 @@
 const Machine = require('../models/Machine');
 const BreakdownMaintenance = require('../models/BreakdownMaintenance');
+const MMaintenanceType = require('../models/MMaintenanceType');
+const Maintenance = require('../models/Maintenance');
 
 exports.create_breakdown_maintenance = async (req, res) => {
     try {

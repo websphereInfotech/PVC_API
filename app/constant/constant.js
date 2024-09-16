@@ -35,7 +35,8 @@ exports.ACCOUNT_GROUPS_TYPE = {
 
 exports.MACHINE_SCHEDULE_TYPE = {
     REGULAR: "Regular",
-    PREVENTIVE: "Preventive"
+    PREVENTIVE: "Preventive",
+    BREAKDOWN: "Breakdown"
 }
 
 exports.MACHINE_SCHEDULE_FREQUENCY= {

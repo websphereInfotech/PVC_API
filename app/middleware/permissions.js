@@ -1771,4 +1771,24 @@ exports.permissions = {
             "delete_purpose": true
         }
     },
+    "Maintenance" : {
+        "Super Admin" :{
+            "create_maintenance":true,
+        },
+        "Admin" :{
+            "create_maintenance":true,
+        },
+        "Account" :{
+            "create_maintenance":true,
+        },
+        "Employee" :{
+            "create_maintenance":true,
+        },
+        "Workers" :{
+           "create_maintenance":true,
+        },
+        "Other" :{
+            "create_maintenance":true,
+        }
+    },
 }

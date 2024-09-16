@@ -95,6 +95,7 @@ const {
   saleInvoiceId,
   purchaseDate,
   wastageName,
+  maintenance_validation,
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -430,6 +431,8 @@ module.exports.validation = function (method) {
       return [name];
     case "purpose_validation":
       return [name];
+    case "maintenance_validation":
+      return [maintenance_validation];
     default:
       throw new Error("Invalid validation method");
   }

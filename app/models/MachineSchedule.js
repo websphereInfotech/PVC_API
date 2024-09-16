@@ -21,7 +21,7 @@ const MachineSchedule = sequelize.define("P_MachineSchedule", {
         allowNull: false
     },
     type: {
-        type: DataTypes.ENUM(...Object.values(MACHINE_SCHEDULE_TYPE)),
+        type: DataTypes.ENUM(MACHINE_SCHEDULE_TYPE.PREVENTIVE, MACHINE_SCHEDULE_TYPE.REGULAR),
         allowNull: false
     },
     companyId: {type: DataTypes.INTEGER, allowNull: false},
