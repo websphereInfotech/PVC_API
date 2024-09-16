@@ -2554,6 +2554,9 @@ exports.maintenance_validation = async (req, res, next) => {
             "number.base": "Quantity must be a number",
             "any.required": "Quantity is required",
           }),
+          id: Joi.number().optional().allow(null).messages({
+            "number.base": "Id must be a number",
+          }),
         })
       )
       .min(1)

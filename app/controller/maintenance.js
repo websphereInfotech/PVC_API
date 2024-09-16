@@ -3,6 +3,7 @@ const BreakdownMaintenance = require("../models/BreakdownMaintenance");
 const MMaintenanceType = require("../models/MMaintenanceType");
 const Maintenance = require("../models/Maintenance");
 const Product = require("../models/product");
+const MaintenanenceItem = require("../models/MaintenanenceItem");
 
 exports.create_maintenance = async (req, res) => {
   try {
@@ -39,15 +40,193 @@ exports.create_maintenance = async (req, res) => {
 
     const data = await Maintenance.create({
       ...req.body,
-      companyId: companyId,
       createdBy: userId,
-      updatedBy: userId
+      updatedBy: userId,
+      companyId: companyId,
     });
+    for (const item of items) {
+      await MaintenanenceItem.create({
+        maintenanceId: data.id,
+          productId: item.productId,
+          qty: item.qty,
+      });
+    }
     await data.addMMaintenanceTypes(maintenanceType);
     return res.status(200).json({
       status: "true",
-      message: "Breakdown Maintenance Create Successfully.",
+      message: "Maintenance Create Successfully.",
       data: data,
+    });
+  } catch (e) {
+    console.error(e);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error." });
+  }
+};
+exports.update_maintenance = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { companyId, userId } = req.user;
+    const { items, machineId, maintenanceType } = req.body;
+    const maintenanceExist = await Maintenance.findOne({
+      where: { id: id, companyId: companyId },
+    });
+    if (!maintenanceExist) {
+      return res.status(404).json({
+        status: "false",
+        message: "Maintenance Not Found",
+      });
+    }
+    const machineExists = await Machine.findOne({
+      where: {
+        id: machineId,
+        companyId: companyId,
+      },
+    });
+    if (!machineExists) {
+      return res.status(404).json({
+        status: "false",
+        message: "Machine Not Found.",
+      });
+    }
+    const existingItems = await MaintenanenceItem.findAll({
+      where: { maintenanceId: id },
+    });
+    for (const item of items) {
+      const isProduct = await Product.findOne({
+        where: {
+          id: item.productId,
+          companyId: companyId,
+          isActive: true,
+        },
+      });
+      if (!isProduct) {
+        return res.status(404).json({
+          status: "false",
+          message: "Product Not Found.",
+        });
+      }
+    }
+    Object.assign(maintenanceExist, req.body, { updateBy: userId });
+    await maintenanceExist.save();
+    await maintenanceExist.setMMaintenanceTypes([]);
+    await maintenanceExist.setMMaintenanceTypes(maintenanceType);
+
+    for (const item of items) {
+      const existingItem = existingItems.find((ei) => ei.id === item.id);
+
+      if (existingItem) {
+        await MaintenanenceItem.update(
+          {
+            qty: item.qty,
+            productId: item.productId,
+          },
+          { where: { id: existingItem.id } }
+        );
+      } else {
+        await MaintenanenceItem.create({
+          maintenanceId: id,
+          productId: item.productId,
+          qty: item.qty,
+        });
+      }
+    }
+
+    const updatedProductIds = items.map((item) => item.id);
+
+    const itemsToDelete = existingItems.filter(
+      (item) => !updatedProductIds.includes(item.id)
+    );
+
+    for (const item of itemsToDelete) {
+      await MaintenanenceItem.destroy({ where: { id: item.id } });
+    }
+
+    return res.status(200).json({
+      status: "true",
+      message: "Maintenance Update Successfully.",
+    });
+  } catch (e) {
+    console.error(e);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error." });
+  }
+};
+
+exports.view_all_maintenance = async (req, res) => {
+  try {
+    const companyId = req.user.companyId;
+    const data = await Maintenance.findAll({
+      where: {
+        companyId: companyId,
+      },
+      include: [{ model: Machine, as: "machineMaintenance" }],
+    });
+    return res.status(200).json({
+      status: "true",
+      message: "Breakdown Maintenance Fetch Successfully.",
+      data: data,
+    });
+  } catch (e) {
+    console.error(e);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error." });
+  }
+};
+
+exports.view_one_maintenance = async (req, res) => {
+  try {
+    const companyId = req.user.companyId;
+    const { id } = req.params;
+    const data = await BreakdownMaintenance.findOne({
+      where: {
+        companyId: companyId,
+        id: id,
+      },
+      include: [{ model: Machine, as: "machineBreakdownMaintenance" }],
+    });
+    if (!data) {
+      return res.status(404).json({
+        status: "false",
+        message: "Breakdown Maintenance Not Found.",
+      });
+    }
+    return res.status(200).json({
+      status: "true",
+      message: "Breakdown Maintenance Fetch Successfully.",
+      data: data,
+    });
+  } catch (e) {
+    console.error(e);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error." });
+  }
+};
+
+exports.delete_maintenance = async (req, res) => {
+  try {
+    const companyId = req.user.companyId;
+    const { id } = req.params;
+    const data = await BreakdownMaintenance.findOne({
+      where: {
+        companyId: companyId,
+        id: id,
+      },
+    });
+    if (!data) {
+      return res.status(404).json({
+        status: "false",
+        message: "Breakdown Maintenance Not Found.",
+      });
+    }
+    await data.destroy();
+    return res.status(200).json({
+      status: "true",
+      message: "Breakdown Maintenance Delete Successfully.",
     });
   } catch (e) {
     console.error(e);
