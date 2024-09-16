@@ -851,26 +851,15 @@ exports.view_balance = async (req, res) => {
         companyId: companyId,
       },
     });
-    const allUserBalance = await C_userBalance.findAll({
-      where: {
-        companyId: companyId,
-      },
-      include: [
-        {
-          model: User,
-          as: "userBalance",
-        },
-      ],
-    });
     const result = await companyUser.findAll({
       include: [
         {
           model: User,
-          as: "users", // Alias defined in your association
+          as: "users",
           include: [
             {
               model: C_userBalance,
-              as: "userBalance", // Alias defined in your association
+              as: "userBalance",
             },
           ],
         },
@@ -888,8 +877,6 @@ exports.view_balance = async (req, res) => {
           },
           0
         );
-
-        console.log("sdf", totalBalance);
         sum += totalBalance;
       }
       return companyUserRecord;
