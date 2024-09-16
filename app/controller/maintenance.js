@@ -1,9 +1,9 @@
 const Machine = require("../models/Machine");
-const BreakdownMaintenance = require("../models/BreakdownMaintenance");
-const MMaintenanceType = require("../models/MMaintenanceType");
 const Maintenance = require("../models/Maintenance");
 const Product = require("../models/product");
 const MaintenanenceItem = require("../models/MaintenanenceItem");
+const User = require("../models/user");
+const MaintenanceType = require("../models/MaintenanceType");
 
 exports.create_maintenance = async (req, res) => {
   try {
@@ -47,8 +47,8 @@ exports.create_maintenance = async (req, res) => {
     for (const item of items) {
       await MaintenanenceItem.create({
         maintenanceId: data.id,
-          productId: item.productId,
-          qty: item.qty,
+        productId: item.productId,
+        qty: item.qty,
       });
     }
     await data.addMMaintenanceTypes(maintenanceType);
@@ -162,11 +162,15 @@ exports.view_all_maintenance = async (req, res) => {
       where: {
         companyId: companyId,
       },
-      include: [{ model: Machine, as: "machineMaintenance" }],
+      include: [
+        { model: Machine, as: "machineMaintenance" },
+        { model: User, as: "maintenanceUpdateUser" },
+        { model: User, as: "maintenanceCreateUser" },
+      ],
     });
     return res.status(200).json({
       status: "true",
-      message: "Breakdown Maintenance Fetch Successfully.",
+      message: "Maintenance Fetch Successfully.",
       data: data,
     });
   } catch (e) {
@@ -181,22 +185,33 @@ exports.view_one_maintenance = async (req, res) => {
   try {
     const companyId = req.user.companyId;
     const { id } = req.params;
-    const data = await BreakdownMaintenance.findOne({
+    const data = await Maintenance.findOne({
       where: {
         companyId: companyId,
         id: id,
       },
-      include: [{ model: Machine, as: "machineBreakdownMaintenance" }],
+      include: [
+        { model: Machine, as: "machineMaintenance" },
+        {
+          model: MaintenanceType,
+          as: "mMaintenanceTypes",
+          attributes: ["name", "id"],
+          through: {
+            attributes: [],
+          },
+        },
+        { model: MaintenanenceItem, as: "maintenanceItems" },
+      ],
     });
     if (!data) {
       return res.status(404).json({
         status: "false",
-        message: "Breakdown Maintenance Not Found.",
+        message: "Maintenance Not Found.",
       });
     }
     return res.status(200).json({
       status: "true",
-      message: "Breakdown Maintenance Fetch Successfully.",
+      message: "Maintenance Fetch Successfully.",
       data: data,
     });
   } catch (e) {
@@ -211,7 +226,7 @@ exports.delete_maintenance = async (req, res) => {
   try {
     const companyId = req.user.companyId;
     const { id } = req.params;
-    const data = await BreakdownMaintenance.findOne({
+    const data = await Maintenance.findOne({
       where: {
         companyId: companyId,
         id: id,
@@ -220,13 +235,13 @@ exports.delete_maintenance = async (req, res) => {
     if (!data) {
       return res.status(404).json({
         status: "false",
-        message: "Breakdown Maintenance Not Found.",
+        message: "Maintenance Not Found.",
       });
     }
     await data.destroy();
     return res.status(200).json({
       status: "true",
-      message: "Breakdown Maintenance Delete Successfully.",
+      message: "Maintenance Delete Successfully.",
     });
   } catch (e) {
     console.error(e);

@@ -1774,21 +1774,45 @@ exports.permissions = {
     "Maintenance" : {
         "Super Admin" :{
             "create_maintenance":true,
+            "update_maintenance": true,
+            "view_all_maintenance": true,
+            "view_one_maintenance": true,
+            "delete_maintenance": true
         },
         "Admin" :{
             "create_maintenance":true,
+            "update_maintenance": true,
+            "view_all_maintenance": true,
+            "view_one_maintenance": true,
+            "delete_maintenance": true
         },
         "Account" :{
             "create_maintenance":true,
+            "update_maintenance": true,
+            "view_all_maintenance": true,
+            "view_one_maintenance": true,
+            "delete_maintenance": true
         },
         "Employee" :{
             "create_maintenance":true,
+            "update_maintenance": true,
+            "view_all_maintenance": true,
+            "view_one_maintenance": true,
+            "delete_maintenance": true
         },
         "Workers" :{
            "create_maintenance":true,
+           "update_maintenance": true,
+           "view_all_maintenance": true,
+           "view_one_maintenance": true,
+           "delete_maintenance": true
         },
         "Other" :{
             "create_maintenance":true,
+            "update_maintenance": true,
+            "view_all_maintenance": true,
+            "view_one_maintenance": true,
+            "delete_maintenance": true
         }
     },
 }
