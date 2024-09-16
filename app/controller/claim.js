@@ -636,7 +636,6 @@ exports.view_wallet = async (req, res) => {
       closingBalance: null,
       totalAmount: null,
     };
-    let companyEntry = null;
     if (role === ROLE.SUPER_ADMIN) {
       const userExist = await User.findOne({
         where: {
@@ -814,27 +813,6 @@ exports.view_wallet = async (req, res) => {
           ? totals.totalDebit
           : totals.totalCredit;
       walletEntry.closingBalance = closingBalance;
-
-      const comapnyData = await company.findOne({
-        where: {
-          id: companyId,
-        },
-      });
-      const companyBalance = await C_CompanyBalance.findOne({
-        where: {
-          companyId: companyId,
-        },
-      });
-      const allUserBalance = await C_userBalance.sum("balance", {
-        where: {
-          companyId: companyId,
-        },
-      });
-      companyEntry = {
-        name: comapnyData.companyname,
-        cashOnHand: companyBalance.balance,
-        totalBalance: allUserBalance + companyBalance.balance,
-      };
     } else {
       userWallet = await C_userBalance.findOne({
         where: {
@@ -850,10 +828,46 @@ exports.view_wallet = async (req, res) => {
     return res.status(200).json({
       status: "true",
       message: "User Wallet Show Successfully",
-      data: { userWallet, walletEntry, companyEntry },
+      data: { userWallet, walletEntry },
     });
   } catch (e) {
     console.log(e);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
+exports.view_balance = async (req, res) => {
+  try {
+    const { companyId } = req.user;
+    const comapnyData = await company.findOne({
+      where: {
+        id: companyId,
+      },
+    });
+    const companyBalance = await C_CompanyBalance.findOne({
+      where: {
+        companyId: companyId,
+      },
+    });
+    const allUserBalance = await C_userBalance.sum("balance", {
+      where: {
+        companyId: companyId,
+      },
+    });
+    const companyEntry = {
+      name: comapnyData.companyname,
+      cashOnHand: companyBalance.balance,
+      totalBalance: allUserBalance + companyBalance.balance,
+    };
+    return res.status(200).json({
+      status: "true",
+      message: "Company balace fetch successfully.",
+      data: companyEntry,
+    });
+  } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json({ status: "false", message: "Internal Server Error" });

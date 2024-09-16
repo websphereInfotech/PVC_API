@@ -9,7 +9,8 @@ const {
   view_single_claim,
   view_claimBalance_ledger,
   get_all_ClaimUser,
-  view_wallet
+  view_wallet,
+  view_balance
 } = require("../controller/claim");
 const adminToken = require("../middleware/adminAuth");
 const { validation } = require("../constant/validate");
@@ -67,4 +68,5 @@ router.get(
 );
 
 router.get('/view_wallet/:id', adminToken("Claim Cash:view_wallet"), view_wallet);
+router.get('/view_balance', adminToken("Login:view_balance"), view_balance);
 module.exports = router;
