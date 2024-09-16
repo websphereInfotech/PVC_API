@@ -851,15 +851,53 @@ exports.view_balance = async (req, res) => {
         companyId: companyId,
       },
     });
-    const allUserBalance = await C_userBalance.sum("balance", {
+    const allUserBalance = await C_userBalance.findAll({
       where: {
         companyId: companyId,
       },
+      include: [
+        {
+          model: User,
+          as: "userBalance",
+        },
+      ],
+    });
+    const result = await companyUser.findAll({
+      include: [
+        {
+          model: User,
+          as: "users", // Alias defined in your association
+          include: [
+            {
+              model: C_userBalance,
+              as: "userBalance", // Alias defined in your association
+            },
+          ],
+        },
+      ],
+    });
+    let sum = 0;
+    const modifiedResult = result.map((companyUserRecord) => {
+      if (
+        companyUserRecord.users &&
+        Array.isArray(companyUserRecord.users.userBalance)
+      ) {
+        const totalBalance = companyUserRecord.users.userBalance.reduce(
+          (sum, balanceRecord) => {
+            return sum + (balanceRecord.balance || 0);
+          },
+          0
+        );
+
+        console.log("sdf", totalBalance);
+        sum += totalBalance;
+      }
+      return companyUserRecord;
     });
     const companyEntry = {
       name: comapnyData.companyname,
       cashOnHand: companyBalance.balance,
-      totalBalance: allUserBalance + companyBalance.balance,
+      totalBalance: sum + companyBalance.balance,
     };
     return res.status(200).json({
       status: "true",
