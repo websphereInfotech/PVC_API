@@ -200,7 +200,7 @@ exports.view_one_maintenance = async (req, res) => {
             attributes: [],
           },
         },
-        { model: MaintenanenceItem, as: "maintenanceItems" },
+        { model: MaintenanenceItem, as: "maintenanceItems", include: [{model: Product, as: "maintenanceProduct"}] },
       ],
     });
     if (!data) {
