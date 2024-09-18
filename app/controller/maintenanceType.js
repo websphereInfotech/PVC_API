@@ -1,3 +1,4 @@
+const { object } = require("joi");
 const MaintenanceType = require("../models/MaintenanceType");
 const User = require("../models/user");
 const {Op} = require("sequelize");
@@ -44,18 +45,13 @@ exports.update_maintenanceType = async (req, res) => {
         message: "Maintenance Type Not Found.",
       });
     }
-    const data = await MaintenanceType.update(
-      {
-        name: name,
-        updatedBy: userId,
-      },
-      { where: { id: id } }
-    );
+    Object.assign(maintenanceExist, {name: name, updatedBy: userId,});
+    await maintenanceExist.save();
 
     return res.status(200).json({
       status: "true",
       message: "Maintenance Type Update Successfully",
-      data: data,
+      data: maintenanceExist,
     });
   } catch (error) {
     console.log(error);

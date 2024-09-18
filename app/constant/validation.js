@@ -2398,13 +2398,11 @@ exports.machine_schedule_validation = async (req, res, next) => {
       "any.required": "Interval is required",
     }),
     type: Joi.string()
-      .valid(...Object.values(MACHINE_SCHEDULE_TYPE))
+      .valid(MACHINE_SCHEDULE_TYPE.PREVENTIVE, MACHINE_SCHEDULE_TYPE.REGULAR)
       .required()
       .messages({
         "string.base": "Type must be a string",
-        "any.only": `Type must be one of ${Object.values(
-          MACHINE_SCHEDULE_TYPE
-        ).join(", ")}`,
+        "any.only": `Type must be one of ${[MACHINE_SCHEDULE_TYPE.PREVENTIVE, MACHINE_SCHEDULE_TYPE.REGULAR].join(", ")}`,
         "any.required": "Type is required",
       }),
     maintenanceType: Joi.array()
