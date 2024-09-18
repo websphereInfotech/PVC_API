@@ -17,12 +17,12 @@ const C_Purpose = sequelize.define("P_C_Purpose", {
 });
 
 company.hasMany(C_Purpose, {
-  foreignKey: "productId",
+  foreignKey: "companyId",
   onDelete: "CASCADE",
   as: "companyPurpose",
 });
 C_Purpose.belongsTo(company, {
-  foreignKey: "productId",
+  foreignKey: "companyId",
   onDelete: "CASCADE",
   as: "companyPurpose",
 });
