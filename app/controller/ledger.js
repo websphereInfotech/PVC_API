@@ -1572,10 +1572,13 @@ exports.C_cashbook = async (req, res) => {
           attributes: [],
         },
       ],
+      order: [['date', 'DESC']]
     });
 
+    console.log("Opeing Balance", openingBalanceData);
+
     const mainOpeningBalance =
-      openingBalanceData?.dataValues?.openingBalance ?? 0;
+    openingBalanceData?.dataValues?.openingBalance ?? 0;
 
     const allDates = generateDateRange(fromDateObj, toDateObj);
 
@@ -1608,7 +1611,7 @@ exports.C_cashbook = async (req, res) => {
             mainOpeningBalance > 0
               ? +Math.abs(mainOpeningBalance).toFixed(2)
               : 0,
-          details: "Opening Balance",
+          details: "Opening Balance.......",
           openingBalance: 0,
           personName: "",
           id: null,
@@ -1618,18 +1621,20 @@ exports.C_cashbook = async (req, res) => {
 
       const openingBalance = previousClosingBalance.amount;
 
-      ledgerArray.unshift({
-        date: date,
-        debitAmount:
-          previousClosingBalance.type === "credit" ? openingBalance : 0,
-        creditAmount:
-          previousClosingBalance.type === "debit" ? openingBalance : 0,
-        details: "Opening Balance",
-        openingBalance: 0,
-        personName: "",
-        id: null,
-        username: "",
-      });
+      if (openingBalance > 0) {
+        ledgerArray.unshift({
+          date: date,
+          debitAmount:
+            previousClosingBalance.type === "credit" ? openingBalance : 0,
+          creditAmount:
+            previousClosingBalance.type === "debit" ? openingBalance : 0,
+          details: "Opening Balance",
+          openingBalance: 0,
+          personName: "",
+          id: null,
+          username: "",
+        });
+      }
 
       const totals = ledgerArray.reduce(
         (acc, ledger) => {
@@ -1674,7 +1679,6 @@ exports.C_cashbook = async (req, res) => {
       status: "true",
       message: "Cashbook Data Fetch Successfully.",
       data: {
-        openingBalanceData,
         form: company,
         records: result,
       },
