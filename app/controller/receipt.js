@@ -532,34 +532,6 @@ exports.create_receive_bank = async (req, res) => {
         await existsingBalance.save();
       }
     }
-
-    // await customerLedger.create({
-    //   companyId: req.user.companyId,
-    //   customerId,
-    //   debitId: data.id,
-    //   date: paymentdate,
-    // });
-    //
-    // await companyBankLedger.create({
-    //   companyId: req.user.companyId,
-    //   creditId: data.id,
-    //   date: paymentdate,
-    // });
-    //
-    // await companySingleBankLedger.create({
-    //   companyId: req.user.companyId,
-    //   creditId: data.id,
-    //   accountId: accountId,
-    //   date: paymentdate,
-    // });
-
-    // const balanceExists = await companySingleBank.findOne({
-    //   where: { accountId: accountId, companyId: req.user.companyId },
-    // });
-    // if (balanceExists) {
-    //   balanceExists.balance += amount;
-    //   await balanceExists.save();
-    // }
     return res.status(200).json({
       status: "true",
       message: "Receipt Create Successfully",
@@ -699,7 +671,9 @@ exports.update_receive_bank = async (req, res) => {
         where: { companyId: companyId },
       });
       if (existsingCashBalance) {
-        await existsingCashBalance.decrement("balance", { by: amount });
+        await existsingCashBalance.decrement("balance", {
+          by: receiveBankId.amount,
+        });
         await existsingCashBalance.increment("balance", { by: amount });
       }
     } else if (transactionType === TRANSACTION_TYPE.BANK) {
@@ -710,27 +684,10 @@ exports.update_receive_bank = async (req, res) => {
       const balanceChange = amount - receiveBankId.amount;
       const newBalance = existsingBalance.balance + balanceChange;
 
-      await companyBalance.update(
-        {
-          balance: newBalance,
-        },
-        { where: { companyId: companyId } }
-      );
+      existsingBalance.balance = newBalance;
+      await existsingBalance.save();
     }
 
-    // const balanceExists = await companySingleBank.findOne({
-    //   where: { accountId: accountId, companyId: req.user.companyId },
-    // });
-    //
-    // const changeBalance = amount - receiveBankId.amount;
-    // const balanceNew = balanceExists.balance + changeBalance;
-    //
-    // await companySingleBank.update(
-    //   {
-    //     balance: balanceNew,
-    //   },
-    //   { where: { accountId: accountId, companyId: req.user.companyId } }
-    // );
     const data = await Receipt.findOne({
       where: { id: id, companyId: companyId },
     });
@@ -751,19 +708,43 @@ exports.delete_receive_bank = async (req, res) => {
     const { id } = req.params;
     const { companyId } = req.user;
 
-    const data = await Receipt.destroy({
-      where: { id: id, companyId: companyId },
+    const receiptExist = await Receipt.findOne({
+      where: {
+        id: id,
+        companyId: companyId,
+      },
     });
 
-    if (data) {
-      return res
-        .status(200)
-        .json({ status: "true", message: "Receipt Delete Successfully" });
-    } else {
+    if (!receiptExist) {
       return res
         .status(404)
         .json({ status: "false", message: "Receipt Not Found" });
     }
+
+    const transactionType = receiptExist.transactionType;
+    const amount = receiptExist.amount;
+
+    if (transactionType === TRANSACTION_TYPE.CASH) {
+      const existsingCashBalance = await companyCashBalance.findOne({
+        where: { companyId: companyId },
+      });
+      if (existsingCashBalance) {
+        await existsingCashBalance.decrement("balance", { by: amount });
+      }
+    } else if (transactionType === TRANSACTION_TYPE.BANK) {
+      const existsingBalance = await companyBalance.findOne({
+        where: { companyId: companyId },
+      });
+      if (existsingBalance) {
+        await existsingBalance.decrement("balance", { by: amount });
+      }
+    }
+
+    await receiptExist.destroy();
+
+    return res
+      .status(200)
+      .json({ status: "true", message: "Receipt Delete Successfully" });
   } catch (error) {
     console.log(error);
     return res
