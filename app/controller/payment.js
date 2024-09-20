@@ -286,45 +286,38 @@ exports.C_update_paymentCash = async (req, res) => {
         }
       );
     } else {
-      await C_WalletLedger.update(
-        {
-          date: date,
+      const walletLedgerExist = await C_WalletLedger.findOne({
+        where: {
+          paymentId: id,
+          companyId: companyId,
+          userId: user,
         },
-        {
-          where: {
-            paymentId: id,
-            userId: user,
-            companyId: companyId,
-          },
+      });
+
+      const cashbookEntry = await C_Cashbook.findOne({
+        where: {
+          C_paymentId: id,
+          companyId: companyId,
+        },
+      });
+      const entryApprove = walletLedgerExist.isApprove;
+      if (entryApprove) {
+        walletLedgerExist.approveDate = new Date();
+        cashbookEntry.date = date;
+        await cashbookEntry.save();
+        if (existingBalance) {
+          await existingBalance.increment("incomes", { by: oldAmount });
+          await existingBalance.decrement("incomes", { by: amount });
         }
-      );
+      }
+      walletLedgerExist.date = date;
+      await walletLedgerExist.save();
     }
     if (existingBalance) {
       await existingBalance.increment("balance", { by: oldAmount });
       await existingBalance.decrement("balance", { by: amount });
     }
 
-    // await C_vendorLedger.update(
-    //   {
-    //     vendorId,
-    //     date,
-    //   },
-    //   { where: { creditId: id } }
-    // );
-
-    // const existingBalance = await C_companyBalance.findOne({
-    //   where: { companyId: companyId },
-    // });
-    //
-    // const balanceChange = amount - paymentId.amount;
-    // const newBalance = existingBalance.balance - balanceChange;
-    //
-    // await C_companyBalance.update(
-    //   {
-    //     balance: newBalance,
-    //   },
-    //   { where: { companyId: companyId } }
-    // );
     const data = await C_Payment.findOne({
       where: { id: id, companyId: companyId },
     });
@@ -349,6 +342,11 @@ exports.C_delete_paymentCash = async (req, res) => {
     const paymentData = await C_Payment.findOne({
       where: { id: id, companyId: companyId },
     });
+    if (!paymentData) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Payment Cash Not Found" });
+    }
     let existingBalance;
     if (role === ROLE.SUPER_ADMIN) {
       existingBalance = await C_companyBalance.findOne({
@@ -361,21 +359,28 @@ exports.C_delete_paymentCash = async (req, res) => {
     }
     const oldAmount = paymentData?.amount ?? 0;
 
-    const data = await C_Payment.destroy({
+    const walletLedgerExist = await C_WalletLedger.findOne({
+      where: {
+        paymentId: id,
+        companyId: companyId,
+        userId: userId,
+      },
+    });
+    const entryApprove = walletLedgerExist.isApprove;
+
+    await C_Payment.destroy({
       where: { id: id, companyId: companyId },
     });
     if (existingBalance) {
       await existingBalance.increment("balance", { by: oldAmount });
+      if (existingBalance?.incomes >= 0 && entryApprove) {
+        await existingBalance.increment("incomes", { by: oldAmount });
+      }
     }
-    if (data) {
       return res
         .status(200)
         .json({ status: "true", message: "Payment Cash Deleted Successfully" });
-    } else {
-      return res
-        .status(404)
-        .json({ status: "false", message: "Payment Cash Not Found" });
-    }
+    
   } catch (error) {
     console.log(error);
     return res

@@ -111,24 +111,6 @@ exports.C_create_receiveCash = async (req, res) => {
       }
     }
 
-    // let userBalance = await C_userBalance.findOne({
-    //   where: { userId: user, companyId: companyId },
-    // });
-    //
-    // if (userBalance) {
-    //   userBalance.balance += amount;
-    //   userBalance.incomes += amount;
-    //   await userBalance.save();
-    // }
-
-    // const existingBalance = await C_companyBalance.findOne({
-    //   where: { companyId: companyId },
-    // });
-    // if (existingBalance) {
-    //   existingBalance.balance += amount;
-    //   await existingBalance.save();
-    // }
-
     return res.status(200).json({
       status: "true",
       message: "Receipt Cash Create Successfully.",
@@ -297,18 +279,27 @@ exports.C_update_receiveCash = async (req, res) => {
         }
       );
     } else {
-      await C_WalletLedger.update(
-        {
-          date: date,
+      const walletLedgerExist = await C_WalletLedger.findOne({
+        where: {
+          receiptId: id,
+          userId: user,
+          companyId: companyId,
         },
-        {
-          where: {
-            receiptId: id,
-            userId: user,
-            companyId: companyId,
-          },
-        }
-      );
+      });
+      const cashbookEntry = await C_Cashbook.findOne({
+        where: {
+          C_receiptId: id,
+          companyId: companyId,
+        },
+      });
+      const entryApprove = walletLedgerExist.isApprove;
+      if (entryApprove) {
+        walletLedgerExist.approveDate = new Date();
+        cashbookEntry.date = date;
+        await cashbookEntry.save();
+      }
+      walletLedgerExist.date = date;
+      await walletLedgerExist.save();
     }
     if (existingBalance) {
       await existingBalance.decrement("balance", { by: oldAmount });
@@ -318,50 +309,6 @@ exports.C_update_receiveCash = async (req, res) => {
         await existingBalance.increment("incomes", { by: amount });
       }
     }
-
-    // await C_customerLedger.update(
-    //   {
-    //     companyId: req.user.companyId,
-    //     customerId,
-    //     date,
-    //   },
-    //   { where: { debitId: id } }
-    // );
-    // await C_claimLedger.update(
-    //   {
-    //     companyId: req.user.companyId,
-    //     date,
-    //   },
-    //   { where: { receiveId: id } }
-    // );
-
-    // const existsingBalance = await C_userBalance.findOne({
-    //   where: { userId: user, companyId: req.user.companyId },
-    // });
-    //
-    // const balanceChange = amount - receiveId.amount;
-    // const newBalance = existsingBalance.balance + balanceChange;
-
-    // await C_userBalance.update(
-    //   {
-    //     balance: newBalance,
-    //   },
-    //   { where: { userId: user, companyId: req.user.companyId } }
-    // );
-
-    // const balanceExists = await C_companyBalance.findOne({
-    //   where: { companyId: companyId },
-    // });
-    //
-    // const changeBalance = amount - receiveId.amount;
-    // const balanceNew = balanceExists.balance + changeBalance;
-    //
-    // await C_companyBalance.update(
-    //     {
-    //       balance: balanceNew,
-    //     },
-    //     { where: { companyId: companyId } }
-    // );
     const data = await C_Receipt.findOne({
       where: { id: id, companyId: companyId },
     });
@@ -641,31 +588,6 @@ exports.update_receive_bank = async (req, res) => {
       }
     );
 
-    // await customerLedger.update(
-    //   {
-    //     customerId,
-    //     date: paymentdate,
-    //     companyId: req.user.companyId,
-    //   },
-    //   { where: { debitId: id } }
-    // );
-    //
-    // await companyBankLedger.update(
-    //   {
-    //     companyId: req.user.companyId,
-    //     date: paymentdate,
-    //   },
-    //   { where: { creditId: id } }
-    // );
-    //
-    // await companySingleBankLedger.update(
-    //   {
-    //     companyId: req.user.companyId,
-    //     date: paymentdate,
-    //     accountId: accountId,
-    //   },
-    //   { where: { creditId: id } }
-    // );
     if (transactionType === TRANSACTION_TYPE.CASH) {
       const existsingCashBalance = await companyCashBalance.findOne({
         where: { companyId: companyId },
