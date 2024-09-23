@@ -33,11 +33,11 @@
       }
       .invoice-details {
         margin-top: 20px;
-        border: 1px solid #000;
+        /* border: 1px solid #000; */
       }
       .invoice-details td,
       .invoice-details th {
-        border: 1px solid #000;
+        /* border: 1px solid #000; */
         padding: 8px;
         text-align: center;
       }
@@ -90,14 +90,19 @@
         <p><strong>Buyer (Bill to)</strong></p>
         <p>
           <%= data.sales.accountSaleInv.accountName %><br />
-          <%= data.sales.accountSaleInv.accountDetail.address1 %><br />
-          <%= data.sales.accountSaleInv.accountDetail.city %>, <%=
+          <% if (data.sales?.accountSaleInv?.accountDetail?.address1) { %>
+            <%= data.sales.accountSaleInv.accountDetail.address1 %><br />
+        <% } %>
+        <% if (data.sales?.accountSaleInv?.accountDetail?.city && data.sales?.accountSaleInv?.accountDetail?.state && data.sales?.accountSaleInv?.accountDetail?.pincode) { %>
+            <%= data.sales.accountSaleInv.accountDetail.city %>, <%=
           data.sales.accountSaleInv.accountDetail.state %> - <%=
           data.sales.accountSaleInv.accountDetail.pincode %><br />
-          GSTIN/UIN: <%= data.sales.accountSaleInv.accountDetail.gstNumber ||
-          "Unregistered" %><br />
-          State Name: <%= data.sales.accountSaleInv.accountDetail.state %>,
-          Code: <%= data.sales.accountSaleInv.accountDetail.city %>
+        <% } %>
+
+        <% if (data.sales?.accountSaleInv?.accountDetail?.gstNumber) { %>
+            GSTIN/UIN: <%= data.sales.accountSaleInv.accountDetail.gstNumber ||
+            "Unregistered" %><br />
+        <% } %>
         </p>
       </div>
 
