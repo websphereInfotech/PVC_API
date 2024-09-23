@@ -1480,37 +1480,43 @@ exports.permissions = {
             "account_ledger":true,
             "daybook":true,
             "cashbook": true,
-            "wallet_ledger": true
+            "wallet_ledger": true,
+            "account_ledger_pdf": true
         },
         "Admin" :{
             "account_ledger":true,
             "daybook":true,
             "cashbook": true,
-            "wallet_ledger": true
+            "wallet_ledger": true,
+            "account_ledger_pdf": true
         },
         "Account" :{
             "account_ledger":true,
             "daybook":true,
             "cashbook": true,
-            "wallet_ledger": true
+            "wallet_ledger": true,
+            "account_ledger_pdf": true
         },
         "Employee" :{
             "account_ledger":true,
             "daybook":true,
             "cashbook": true,
-            "wallet_ledger": true
+            "wallet_ledger": true,
+            "account_ledger_pdf": true
         },
         "Workers" :{
             "account_ledger":true,
             "daybook":true,
             "cashbook": true,
-            "wallet_ledger": true
+            "wallet_ledger": true,
+            "account_ledger_pdf": true
         },
         "Other" :{
             "account_ledger":true,
             "daybook":true,
             "cashbook": true,
-            "wallet_ledger": true
+            "wallet_ledger": true,
+            "account_ledger_pdf": true
         }
     },
     "Purchase Order": {
