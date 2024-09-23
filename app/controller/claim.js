@@ -8,12 +8,14 @@ const companyUser = require("../models/companyUser");
 const C_WalletLedger = require("../models/C_WalletLedger");
 const Account = require("../models/Account");
 const C_CompanyBalance = require("../models/C_companyBalance");
+const companyBalance = require("../models/companyBalance");
 const { ROLE } = require("../constant/constant");
 const C_Payment = require("../models/C_Payment");
 const C_Receipt = require("../models/C_Receipt");
 const C_Claim = require("../models/C_claim");
 const company = require("../models/company");
 const C_Purpose = require("../models/Purpose");
+const CompanyCashBalance = require("../models/companyCashBalance");
 
 exports.create_claim = async (req, res) => {
   try {
@@ -846,7 +848,17 @@ exports.view_balance = async (req, res) => {
         id: companyId,
       },
     });
-    const companyBalance = await C_CompanyBalance.findOne({
+    const companyBalanceObj = await C_CompanyBalance.findOne({
+      where: {
+        companyId: companyId,
+      },
+    });
+    const mainCompanyBa = await companyBalance.findOne({
+      where: {
+        companyId: companyId,
+      },
+    });
+    const companyCashBalance = await CompanyCashBalance.findOne({
       where: {
         companyId: companyId,
       },
@@ -883,8 +895,12 @@ exports.view_balance = async (req, res) => {
     });
     const companyEntry = {
       name: comapnyData.companyname,
-      cashOnHand: companyBalance.balance,
-      totalBalance: sum + companyBalance.balance,
+      cashOnHand: companyBalanceObj.balance,
+      totalBalance:
+        sum +
+        companyBalanceObj.balance +
+        mainCompanyBa.balance +
+        companyCashBalance.balance,
     };
     return res.status(200).json({
       status: "true",
