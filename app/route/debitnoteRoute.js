@@ -12,6 +12,7 @@ const {
   C_get_all_debitNote,
   C_view_single_debitNote,
   C_delete_debitNote,
+  C_debitNote_pdf
 } = require("../controller/debitNote");
 
 const router = express.Router();
@@ -77,6 +78,12 @@ router.delete(
     "/C_delete_debitNote/:id",
     adminAuth("Debit Note Cash:delete_debitNote"),
     C_delete_debitNote
+);
+
+router.get(
+  "/C_debitNote_pdf/:id",
+  adminAuth("Debit Note Cash:debitNote_pdf"),
+  C_debitNote_pdf
 );
 
 

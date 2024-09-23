@@ -10,6 +10,7 @@ const {
   C_get_all_creditNote,
   C_delete_creditNote,
   C_view_single_creditNote,
+  creditNote_pdf
 } = require("../controller/creditNote");
 const adminAuth = require("../middleware/adminAuth");
 const { validation } = require("../constant/validate");
@@ -43,41 +44,42 @@ router.delete(
   delete_creditNote
 );
 
-
 /*=============================================================================================================
                                          With Type C API
  ============================================================================================================ */
 
-
 router.post(
-    "/C_create_creditNote",
-    adminAuth("Credit Note Cash:create_creditNote"),
-    validation("C_create_creditNote"),
-    C_create_creditNote
+  "/C_create_creditNote",
+  adminAuth("Credit Note Cash:create_creditNote"),
+  validation("C_create_creditNote"),
+  C_create_creditNote
 );
 router.put(
-    "/C_update_creditNote/:id",
-    adminAuth("Credit Note Cash:update_creditNote"),
-    validation("C_create_creditNote"),
-    C_update_creditNote
+  "/C_update_creditNote/:id",
+  adminAuth("Credit Note Cash:update_creditNote"),
+  validation("C_create_creditNote"),
+  C_update_creditNote
 );
 router.get(
-    "/C_get_all_creditNote",
-    adminAuth("Credit Note Cash:view_all_creditNote"),
-    C_get_all_creditNote
+  "/C_get_all_creditNote",
+  adminAuth("Credit Note Cash:view_all_creditNote"),
+  C_get_all_creditNote
 );
 router.get(
-    "/C_view_single_creditNote/:id",
-    adminAuth("Credit Note Cash:view_single_creditNote"),
-    C_view_single_creditNote
+  "/C_view_single_creditNote/:id",
+  adminAuth("Credit Note Cash:view_single_creditNote"),
+  C_view_single_creditNote
 );
 router.delete(
-    "/C_delete_creditNote/:id",
-    adminAuth("Credit Note Cash:delete_creditNote"),
-    C_delete_creditNote
+  "/C_delete_creditNote/:id",
+  adminAuth("Credit Note Cash:delete_creditNote"),
+  C_delete_creditNote
 );
 
-
-
+router.get(
+  "/C_creditNote_pdf/:id",
+  adminAuth("Credit Note Cash:creditNote_pdf"),
+  creditNote_pdf
+);
 
 module.exports = router;

@@ -11,6 +11,9 @@ const AccountDetail = require("../models/AccountDetail");
 const Account = require("../models/Account");
 const Ledger = require("../models/Ledger");
 const C_Ledger = require("../models/C_Ledger");
+const htmlToPdf = require("html-pdf-node");
+const { renderFile } = require("ejs");
+const path = require("node:path");
 
 exports.create_debitNote = async (req, res) => {
   try {
@@ -798,6 +801,56 @@ exports.C_delete_debitNote = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Debit Note Not Found" });
     }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
+exports.C_debitNote_pdf = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { companyId } = req.user;
+
+    const data = await C_DebitNote.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: C_DebitNoteItems,
+          as: "cashDebitNoteItem",
+          include: [{ model: product, as: "DebitProductCash" }],
+        },
+        {
+          model: Account,
+          as: "accountDebitNoCash",
+          include: { model: AccountDetail, as: "accountDetail" },
+        },
+        { model: C_purchaseCash, as: "purchaseDataCash" },
+      ],
+    });
+
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Debit Note Not Found" });
+    }
+
+    const html = await renderFile(
+      path.join(__dirname, "../views/debitNoteCash.ejs"),
+      { data }
+    );
+    htmlToPdf
+      .generatePdf({ content: html }, { printBackground: true, format: "A4" })
+      .then((pdf) => {
+        const base64String = pdf.toString("base64");
+        return res.status(200).json({
+          status: "Success",
+          message: "pdf create successFully",
+          data: base64String,
+        });
+      });
   } catch (error) {
     console.log(error);
     return res

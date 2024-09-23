@@ -1569,42 +1569,48 @@ exports.permissions = {
             "update_debitNote":true,
             "view_all_debitNote":true,
             "view_single_debitNote":true,
-            "delete_debitNote":true
+            "delete_debitNote":true,
+            "debitNote_pdf": true
         },
         "Admin" :{
             "create_debitNote":true,
             "update_debitNote":true,
             "view_all_debitNote":true,
             "view_single_debitNote":true,
-            "delete_debitNote":true
+            "delete_debitNote":true,
+            "debitNote_pdf": true
         },
         "Account" :{
             "create_debitNote":true,
             "update_debitNote":true,
             "view_all_debitNote":true,
             "view_single_debitNote":true,
-            "delete_debitNote":true
+            "delete_debitNote":true,
+            "debitNote_pdf": true
         },
         "Employee" :{
             "create_debitNote":true,
             "update_debitNote":true,
             "view_all_debitNote":true,
             "view_single_debitNote":true,
-            "delete_debitNote":true
+            "delete_debitNote":true,
+            "debitNote_pdf": true
         },
         "Workers" :{
             "create_debitNote":true,
             "update_debitNote":true,
             "view_all_debitNote":true,
             "view_single_debitNote":true,
-            "delete_debitNote":true
+            "delete_debitNote":true,
+            "debitNote_pdf": true
         },
         "Other" :{
             "create_debitNote":true,
             "update_debitNote":true,
             "view_all_debitNote":true,
             "view_single_debitNote":true,
-            "delete_debitNote":true
+            "delete_debitNote":true,
+            "debitNote_pdf": true
         }
     },
     "Credit Note Cash" : {
@@ -1613,42 +1619,48 @@ exports.permissions = {
             "update_creditNote":true,
             "view_all_creditNote":true,
             "delete_creditNote":true,
-            "view_single_creditNote":true
+            "view_single_creditNote":true,
+            "creditNote_pdf": true
         },
         "Admin" :{
             "create_creditNote":true,
             "update_creditNote":true,
             "view_all_creditNote":true,
             "delete_creditNote":true,
-            "view_single_creditNote":true
+            "view_single_creditNote":true,
+            "creditNote_pdf": true
         },
         "Account" :{
             "create_creditNote":true,
             "update_creditNote":true,
             "view_all_creditNote":true,
             "delete_creditNote":true,
-            "view_single_creditNote":true
+            "view_single_creditNote":true,
+            "creditNote_pdf": true
         },
         "Employee" :{
             "create_creditNote":true,
             "update_creditNote":true,
             "view_all_creditNote":true,
             "delete_creditNote":true,
-            "view_single_creditNote":true
+            "view_single_creditNote":true,
+            "creditNote_pdf": true
         },
         "Workers" :{
             "create_creditNote":true,
             "update_creditNote":true,
             "view_all_creditNote":true,
             "delete_creditNote":true,
-            "view_single_creditNote":true
+            "view_single_creditNote":true,
+            "creditNote_pdf": true
         },
         "Other" :{
             "create_creditNote":true,
             "update_creditNote":true,
             "view_all_creditNote":true,
             "delete_creditNote":true,
-            "view_single_creditNote":true
+            "view_single_creditNote":true,
+            "creditNote_pdf": true
         }
     },
     "Wastage" : {

@@ -9,6 +9,9 @@ const User = require("../models/user");
 const AccountDetail = require("../models/AccountDetail");
 const Ledger = require("../models/Ledger");
 const C_Ledger = require("../models/C_Ledger");
+const htmlToPdf = require("html-pdf-node");
+const { renderFile } = require("ejs");
+const path = require("node:path");
 
 exports.create_creditNote = async (req, res) => {
   try {
@@ -772,5 +775,52 @@ exports.C_delete_creditNote = async (req, res) => {
     return res
       .status(500)
       .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
+exports.creditNote_pdf = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.user.companyId;
+    const data = await C_CreditNote.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: C_CreditNoteItems,
+          as: "cashCreditNoteItem",
+          include: [{ model: product, as: "CreditProductCash" }],
+        },
+        {
+          model: Account,
+          as: "accountCreditNoCash",
+          include: { model: AccountDetail, as: "accountDetail" },
+        },
+      ],
+    });
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Credit Note Not Found" });
+    }
+
+    const html = await renderFile(
+      path.join(__dirname, "../views/creditNoteCash.ejs"),
+      { data }
+    );
+    htmlToPdf
+      .generatePdf({ content: html }, { printBackground: true, format: "A4" })
+      .then((pdf) => {
+        const base64String = pdf.toString("base64");
+        return res.status(200).json({
+          status: "Success",
+          message: "pdf create successFully",
+          data: base64String,
+        });
+      });
+  } catch (error) {
+    console.log(error.message);
+    return res
+      .status(500)
+      .json({ status: "false", error: "Internal Server Error" });
   }
 };
