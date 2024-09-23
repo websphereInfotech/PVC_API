@@ -138,22 +138,43 @@
             <div class="company-info">
               <h1><%= data.form.companyname %></h1>
               <p>
-                <%= data.form.address1 %>,<br />
-                <%= data.form.address2 %>,<br />
-                <%= data.form.city %>,<br />
-                <%= data.form.state %>,<br />
-                Pincode: <%= data.form.pincode %>
+                <% if (data?.form?.address1) { %>
+                    <%= data.form.address1 %>,<br />
+                <% } %>
+                <% if (data?.form?.address2) { %>
+                    <%= data.form.address2 %>,<br />
+                <% } %>
+                <% if (data?.form?.city) { %>
+                    <%= data.form.city %>,<br />
+                <% } %>
+                <% if (data?.form?.state) { %>
+                    <%= data.form.state %>,<br />
+                <% } %>
+                <% if (data?.form?.pincode) { %>
+                    Pincode: <%= data.form.pincode %>
+                <% } %>
               </p>
             </div>
             <div class="client-info">
               <h2><%= data.to.accountName %></h2>
               <p>
                 Ledger Account, <br />
-                <%= data.to.accountDetail.address1 %>,<br />
-                <%= data.to.accountDetail.address2 %>,<br />
-                <%= data.to.accountDetail.city %>,<br />
-                <%= data.to.accountDetail.state %>,<br />
-                Pincode: <%= data.to.accountDetail.pincode %>
+                <% if (data.to.accountDetail?.address1) { %>
+                    <%= data.to.accountDetail?.address1 %>,<br />
+                <% } %>
+                <% if (data.to.accountDetail?.address2) { %>
+                    <%= data.to.accountDetail?.address2 %>,<br />
+                <% } %>
+                <% if (data.to.accountDetail?.city) { %>
+                    <%= data.to.accountDetail.city %>,<br />
+                <% } %>
+
+                <% if (data.to.accountDetail?.state) { %>
+                    <%= data.to.accountDetail?.state %>,<br />
+                <% } %>
+                <% if (data.to.accountDetail?.pincode) { %>
+                    Pincode: <%= data.to.accountDetail?.pincode %>
+                <% } %>
               </p>
             </div>
           </div>
