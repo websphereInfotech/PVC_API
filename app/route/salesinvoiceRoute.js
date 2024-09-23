@@ -12,7 +12,8 @@ const {
   C_delete_salesInvoice,
   C_view_salesInvoice,
   C_get_all_salesInvoice,
-  C_view_salesInvoice_pdf
+  C_view_salesInvoice_pdf,
+  salesInvoice_pdf
 } = require("../controller/salesinvoice");
 
 const router = express.Router();
@@ -48,6 +49,12 @@ router.get(
   "/get_all_salesInvoice",
   adminAuth("Sales Invoice:view_all_salesInvoice"),
   get_all_salesInvoice
+);
+
+router.get(
+  "/salesInvoice_pdf/:id",
+  adminAuth("Sales Invoice:salesInvoice_pdf"),
+  salesInvoice_pdf
 );
 
 

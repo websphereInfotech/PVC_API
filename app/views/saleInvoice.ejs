@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sales Tax Invoice</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+      .invoice-container {
+        width: 95%;
+        margin: 0 auto;
+        /* border: 1px solid #000; */
+        padding: 20px;
+      }
+      .header,
+      .footer {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .company-details,
+      .buyer-details {
+        width: 48%;
+        display: inline-block;
+        vertical-align: top;
+      }
+      .company-details {
+        text-align: left;
+      }
+      .buyer-details {
+        text-align: right;
+      }
+      .invoice-details {
+        margin-top: 20px;
+        border: 1px solid #000;
+      }
+      .invoice-details td,
+      .invoice-details th {
+        border: 1px solid #000;
+        padding: 8px;
+        text-align: center;
+      }
+      .invoice-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      .invoice-table th,
+      .invoice-table td {
+        border: 1px solid #000;
+        padding: 8px;
+        text-align: left;
+      }
+      .totals {
+        margin-top: 20px;
+        width: 100%;
+      }
+      .totals td {
+        padding: 8px;
+        text-align: right;
+      }
+      .signature {
+        margin-top: 20px;
+        text-align: right;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="invoice-container">
+      <div class="header">
+        <h1>TAX INVOICE</h1>
+        <p>e-Invoice</p>
+      </div>
+
+      <div class="company-details">
+        <p><strong>SHREE KRISHNA INDUSTRIES</strong></p>
+        <p>
+          Plot No. 120 to 123,<br />
+          Om Textiles Park-3,<br />
+          Umbhel To Parab Village Road,<br />
+          N.H.-8, Kadodara, Surat<br />
+          GSTIN/UIN: 24ABTFS4608J1ZQ<br />
+          State Name: Gujarat, Code: 24<br />
+          E-Mail: vpulvgahasiya@gmail.com
+        </p>
+      </div>
+
+      <div class="buyer-details">
+        <p><strong>Buyer (Bill to)</strong></p>
+        <p>
+          <%= data.sales.accountSaleInv.accountName %><br />
+          <%= data.sales.accountSaleInv.accountDetail.address1 %><br />
+          <%= data.sales.accountSaleInv.accountDetail.city %>, <%=
+          data.sales.accountSaleInv.accountDetail.state %> - <%=
+          data.sales.accountSaleInv.accountDetail.pincode %><br />
+          GSTIN/UIN: <%= data.sales.accountSaleInv.accountDetail.gstNumber ||
+          "Unregistered" %><br />
+          State Name: <%= data.sales.accountSaleInv.accountDetail.state %>,
+          Code: <%= data.sales.accountSaleInv.accountDetail.city %>
+        </p>
+      </div>
+
+      <div class="invoice-details">
+        <table class="invoice-table">
+          <tr>
+            <th>Invoice No.</th>
+            <td><%= data.sales.invoiceno %></td>
+            <th>Date</th>
+            <td>
+              <%= new Date(data.sales.invoicedate).toLocaleDateString() %>
+            </td>
+          </tr>
+          <tr>
+            <th>Dispatch Doc No.</th>
+            <td><%= data.sales?.dispatchno ?? N/A %></td>
+            <th>Delivery Note</th>
+            <td>---</td>
+          </tr>
+          <tr>
+            <th>Dispatched through</th>
+            <td><%= data.sales.dispatchThrough || "N/A" %></td>
+            <th>Destination</th>
+            <td><%= data.sales.destination || "N/A" %></td>
+          </tr>
+          <tr>
+            <th>Motor Vehicle No.</th>
+            <td><%= data.sales.motorVehicleNo || "N/A" %></td>
+            <th></th>
+            <td></td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="invoice-items">
+        <table class="invoice-table">
+          <thead>
+            <tr>
+              <th>Sl No</th>
+              <th>Description of Goods</th>
+              <th>HSN/SAC</th>
+              <th>Quantity</th>
+              <th>Rate</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% data.sales.items.forEach((item, index) => { %>
+            <tr>
+              <td><%= index + 1 %></td>
+              <td><%= item.InvoiceProduct.productname %></td>
+              <td><%= item.InvoiceProduct.HSNcode %></td>
+              <td><%= item.qty %> <%= item.unit %></td>
+              <td>₹ <%= item.rate %></td>
+              <td>₹ <%= item.mrp %></td>
+            </tr>
+            <% }); %>
+            <tr>
+              <td colspan="4"></td>
+              <td><strong>Total</strong></td>
+              <td>₹ <%= data.sales.totalMrp %></td>
+            </tr>
+            <% if (data.sales.totalIgst > 0) { %>
+            <tr>
+              <td colspan="4"></td>
+              <td>IGST</td>
+              <td>₹ <%= data.sales.totalIgst %></td>
+            </tr>
+            <% } else if (data.sales.totalSgst > 0) { %>
+            <tr>
+              <td colspan="4"></td>
+              <td>CGST</td>
+              <td>₹ <%= data.sales.totalSgst %></td>
+            </tr>
+            <tr>
+              <td colspan="4"></td>
+              <td>SGST</td>
+              <td>₹ <%= data.sales.totalSgst %></td>
+            </tr>
+            <% } %>
+            <tr>
+              <td colspan="4"></td>
+              <td><strong>Total Payable</strong></td>
+              <td>₹ <%= data.sales.mainTotal %></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="signature">
+        <p>For <strong>SHREE KRISHNA INDUSTRIES</strong></p>
+        <p>Authorised Signatory</p>
+      </div>
+    </div>
+  </body>
+</html>

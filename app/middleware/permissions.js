@@ -264,42 +264,48 @@ exports.permissions = {
             "update_salesInvoice":true,
             "delete_salesInvoice":true,
             "view_single_salesInvoice":true,
-            "view_all_salesInvoice":true
+            "view_all_salesInvoice":true,
+            "salesInvoice_pdf": true
         },
         "Admin" :{
             "create_salesinvoice":true,
             "update_salesInvoice":true,
             "delete_salesInvoice":true,
             "view_single_salesInvoice":true,
-            "view_all_salesInvoice":true
+            "view_all_salesInvoice":true,
+            "salesInvoice_pdf": true
         },
         "Account" :{
             "create_salesinvoice":true,
             "update_salesInvoice":true,
             "delete_salesInvoice":true,
             "view_single_salesInvoice":true,
-            "view_all_salesInvoice":true
+            "view_all_salesInvoice":true,
+            "salesInvoice_pdf": true
         },
         "Employee" :{
             "create_salesinvoice":true,
             "update_salesInvoice":true,
             "delete_salesInvoice":true,
             "view_single_salesInvoice":true,
-            "view_all_salesInvoice":true
+            "view_all_salesInvoice":true,
+            "salesInvoice_pdf": true
         },
         "Workers" :{
             "create_salesinvoice":true,
             "update_salesInvoice":true,
             "delete_salesInvoice":true,
             "view_single_salesInvoice":true,
-            "view_all_salesInvoice":true
+            "view_all_salesInvoice":true,
+            "salesInvoice_pdf": true
         },
         "Other" :{
             "create_salesinvoice":true,
             "update_salesInvoice":true,
             "delete_salesInvoice":true,
             "view_single_salesInvoice":true,
-            "view_all_salesInvoice":true
+            "view_all_salesInvoice":true,
+            "salesInvoice_pdf": true
         }
     },
     "Delivery Challan" : {
