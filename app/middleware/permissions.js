@@ -220,42 +220,48 @@ exports.permissions = {
             "update_creditNote":true,
             "view_all_creditNote":true,
             "delete_creditNote":true,
-            "view_single_creditNote":true
+            "view_single_creditNote":true,
+            "creditNote_pdf": true,
         },
         "Admin" :{
             "create_creditNote":true,
             "update_creditNote":true,
             "view_all_creditNote":true,
             "delete_creditNote":true,
-            "view_single_creditNote":true
+            "view_single_creditNote":true,
+            "creditNote_pdf": true,
         },
         "Account" :{
             "create_creditNote":true,
             "update_creditNote":true,
             "view_all_creditNote":true,
             "delete_creditNote":true,
-            "view_single_creditNote":true
+            "view_single_creditNote":true,
+            "creditNote_pdf": true,
         },
         "Employee" :{
             "create_creditNote":true,
             "update_creditNote":true,
             "view_all_creditNote":true,
             "delete_creditNote":true,
-            "view_single_creditNote":true
+            "view_single_creditNote":true,
+            "creditNote_pdf": true,
         },
         "Workers" :{
             "create_creditNote":true,
             "update_creditNote":true,
             "view_all_creditNote":true,
             "delete_creditNote":true,
-            "view_single_creditNote":true
+            "view_single_creditNote":true,
+            "creditNote_pdf": true,
         },
         "Other" :{
             "create_creditNote":true,
             "update_creditNote":true,
             "view_all_creditNote":true,
             "delete_creditNote":true,
-            "view_single_creditNote":true
+            "view_single_creditNote":true,
+            "creditNote_pdf": true,
         }
     },
     "Sales Invoice" : {

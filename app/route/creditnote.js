@@ -10,7 +10,7 @@ const {
   C_get_all_creditNote,
   C_delete_creditNote,
   C_view_single_creditNote,
-  creditNote_pdf
+  creditNote_pdf, C_creditNote_pdf
 } = require("../controller/creditNote");
 const adminAuth = require("../middleware/adminAuth");
 const { validation } = require("../constant/validate");
@@ -42,6 +42,12 @@ router.delete(
   "/delete_creditNote/:id",
   adminAuth("Credit Note:delete_creditNote"),
   delete_creditNote
+);
+
+router.get(
+  "/creditNote_pdf/:id",
+  adminAuth("Credit Note:creditNote_pdf"),
+  creditNote_pdf
 );
 
 /*=============================================================================================================
@@ -79,7 +85,7 @@ router.delete(
 router.get(
   "/C_creditNote_pdf/:id",
   adminAuth("Credit Note Cash:creditNote_pdf"),
-  creditNote_pdf
+  C_creditNote_pdf
 );
 
 module.exports = router;

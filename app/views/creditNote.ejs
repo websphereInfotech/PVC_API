@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sales Tax Invoice</title>
+    <title>Credit Note</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -66,7 +66,7 @@
   <body>
     <div class="invoice-container">
       <div class="header">
-        <h1>SALE INVOICE</h1>
+        <h1>CREDIT NOTE</h1>
       </div>
 
       <div class="company-details">
@@ -81,19 +81,19 @@
       </div>
 
       <div class="buyer-details">
-        <p><strong><%= data.sales.accountSaleInv.accountName %></strong></p>
+        <p><strong><%= data.creditNote.accountCreditNo.accountName %></strong></p>
         <p>
-          <% if (data.sales?.accountSaleInv?.accountDetail?.address1) { %>
-            <%= data.sales.accountSaleInv.accountDetail.address1 %><br />
+          <% if (data.creditNote?.accountCreditNo?.accountDetail?.address1) { %>
+            <%= data.creditNote?.accountCreditNo.accountDetail.address1 %><br />
         <% } %>
-        <% if (data.sales?.accountSaleInv?.accountDetail?.city && data.sales?.accountSaleInv?.accountDetail?.state && data.sales?.accountSaleInv?.accountDetail?.pincode) { %>
-            <%= data.sales.accountSaleInv.accountDetail.city %>, <%=
-          data.sales.accountSaleInv.accountDetail.state %> - <%=
-          data.sales.accountSaleInv.accountDetail.pincode %><br />
+        <% if (data.creditNote?.accountCreditNo?.accountDetail?.city && data.creditNote?.accountCreditNo?.accountDetail?.state && data.creditNote?.accountCreditNo?.accountDetail?.pincode) { %>
+            <%= data.creditNote?.accountCreditNo.accountDetail.city %>, <%=
+          data.creditNote?.accountCreditNo.accountDetail.state %> - <%=
+          data.creditNote?.accountCreditNo.accountDetail.pincode %><br />
         <% } %>
 
-        <% if (data.sales?.accountSaleInv?.accountDetail?.gstNumber) { %>
-            GSTIN/UIN: <%= data.sales.accountSaleInv.accountDetail.gstNumber ||
+        <% if (data.creditNote?.accountCreditNo?.accountDetail?.gstNumber) { %>
+            GSTIN/UIN: <%= data.creditNote?.accountCreditNo.accountDetail.gstNumber ||
             "Unregistered" %><br />
         <% } %>
         </p>
@@ -102,30 +102,20 @@
       <div class="invoice-details">
         <table class="invoice-table">
           <tr>
-            <th>Invoice No.</th>
-            <td><%= data.sales.invoiceno %></td>
+            <th>Credit Note No.</th>
+            <td><%= data.creditNote.creditnoteNo %></td>
             <th>Date</th>
             <td>
-              <%= new Date(data.sales.invoicedate).toLocaleDateString() %>
+              <%= new Date(data.creditNote.creditdate).toLocaleDateString() %>
             </td>
           </tr>
           <tr>
-            <th>Dispatch Doc No.</th>
-            <td><%= data.sales?.dispatchno ?? N/A %></td>
-            <th>Delivery Note</th>
-            <td>---</td>
-          </tr>
-          <tr>
-            <th>Dispatched through</th>
-            <td><%= data.sales.dispatchThrough || "N/A" %></td>
-            <th>Destination</th>
-            <td><%= data.sales.destination || "N/A" %></td>
-          </tr>
-          <tr>
-            <th>Motor Vehicle No.</th>
-            <td><%= data.sales.motorVehicleNo || "N/A" %></td>
-            <th></th>
-            <td></td>
+            <th>Org. Invoice No.</th>
+            <td><%= data.creditNote.org_invoiceno ?? N/A %></td>
+            <th>Org. Invoice Date</th>
+            <td>
+                <%= new Date(data.creditNote.org_invoicedate).toLocaleDateString() %>
+              </td>
           </tr>
         </table>
       </div>
@@ -143,11 +133,11 @@
             </tr>
           </thead>
           <tbody>
-            <% data.sales.items.forEach((item, index) => { %>
+            <% data.creditNote.items.forEach((item, index) => { %>
             <tr>
               <td><%= index + 1 %></td>
-              <td><%= item.InvoiceProduct.productname %></td>
-              <td><%= item.InvoiceProduct.HSNcode %></td>
+              <td><%= item.CreditProduct.productname %></td>
+              <td><%= item.CreditProduct.HSNcode %></td>
               <td><%= item.qty %> <%= item.unit %></td>
               <td>₹ <%= item.rate %></td>
               <td>₹ <%= item.mrp %></td>
@@ -156,30 +146,30 @@
             <tr>
               <td colspan="4"></td>
               <td><strong>Total</strong></td>
-              <td>₹ <%= data.sales.totalMrp %></td>
+              <td>₹ <%= data.creditNote.totalMrp %></td>
             </tr>
-            <% if (data.sales.totalIgst > 0) { %>
+            <% if (data.creditNote.totalIgst > 0) { %>
             <tr>
               <td colspan="4"></td>
               <td>IGST</td>
-              <td>₹ <%= data.sales.totalIgst %></td>
+              <td>₹ <%= data.creditNote.totalIgst %></td>
             </tr>
-            <% } else if (data.sales.totalSgst > 0) { %>
+            <% } else if (data.creditNote.totalSgst > 0) { %>
             <tr>
               <td colspan="4"></td>
               <td>CGST</td>
-              <td>₹ <%= data.sales.totalSgst/2 %></td>
+              <td>₹ <%= data.creditNote.totalSgst/2 %></td>
             </tr>
             <tr>
               <td colspan="4"></td>
               <td>SGST</td>
-              <td>₹ <%= data.sales.totalSgst/2 %></td>
+              <td>₹ <%= data.creditNote.totalSgst/2 %></td>
             </tr>
             <% } %>
             <tr>
               <td colspan="4"></td>
               <td><strong>Total Payable</strong></td>
-              <td>₹ <%= data.sales.mainTotal %></td>
+              <td>₹ <%= data.creditNote.mainTotal %></td>
             </tr>
           </tbody>
         </table>

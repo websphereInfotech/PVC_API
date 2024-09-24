@@ -12,6 +12,7 @@ const C_Ledger = require("../models/C_Ledger");
 const htmlToPdf = require("html-pdf-node");
 const { renderFile } = require("ejs");
 const path = require("node:path");
+const Company = require("../models/company");
 
 exports.create_creditNote = async (req, res) => {
   try {
@@ -402,6 +403,54 @@ exports.delete_creditNote = async (req, res) => {
   }
 };
 
+exports.creditNote_pdf = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.user.companyId;
+    const companyData = await Company.findByPk(companyId);
+    const data = await creditNote.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: creditNoteItem,
+          as: "items",
+          include: [{ model: product, as: "CreditProduct" }],
+        },
+        {
+          model: Account,
+          as: "accountCreditNo",
+          include: { model: AccountDetail, as: "accountDetail" },
+        },
+      ],
+    });
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Credit Note Not Found" });
+    }
+
+    const html = await renderFile(
+      path.join(__dirname, "../views/creditNote.ejs"),
+      { data: { form: companyData, creditNote: data } }
+    );
+    htmlToPdf
+      .generatePdf({ content: html }, { printBackground: true, format: "A4" })
+      .then((pdf) => {
+        const base64String = pdf.toString("base64");
+        return res.status(200).json({
+          status: "Success",
+          message: "pdf create successFully",
+          data: base64String,
+        });
+      });
+  } catch (error) {
+    console.log(error.message);
+    return res
+      .status(500)
+      .json({ status: "false", error: "Internal Server Error" });
+  }
+};
+
 /*=============================================================================================================
                                          Without Typc C API
  ============================================================================================================ */
@@ -778,7 +827,7 @@ exports.C_delete_creditNote = async (req, res) => {
   }
 };
 
-exports.creditNote_pdf = async (req, res) => {
+exports.C_creditNote_pdf = async (req, res) => {
   try {
     const { id } = req.params;
     const companyId = req.user.companyId;
