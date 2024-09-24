@@ -1019,42 +1019,48 @@ exports.permissions = {
             "add_salary_payment": true,
             "edit_salary_payment": true,
             "delete_salary_payment": true,
-            "view_all_salary_payment": true
+            "view_all_salary_payment": true,
+            "employee": true,
         },
         "Admin" :{
             "view_all_salary":true,
             "add_salary_payment": true,
             "edit_salary_payment": true,
             "delete_salary_payment": true,
-            "view_all_salary_payment": true
+            "view_all_salary_payment": true,
+            "employee": true,
         },
         "Account" :{
             "view_all_salary":true,
             "add_salary_payment": true,
             "edit_salary_payment": true,
             "delete_salary_payment": true,
-            "view_all_salary_payment": true
+            "view_all_salary_payment": true,
+            "employee": true,
         },
         "Employee" :{
             "view_all_salary":true,
             "add_salary_payment": true,
             "edit_salary_payment": true,
             "delete_salary_payment": true,
-            "view_all_salary_payment": true
+            "view_all_salary_payment": true,
+            "employee": true,
         },
         "Workers" :{
             "view_all_salary":true,
             "add_salary_payment": true,
             "edit_salary_payment": true,
             "delete_salary_payment": true,
-            "view_all_salary_payment": true
+            "view_all_salary_payment": true,
+            "employee": true,
         },
         "Other" :{
             "view_all_salary":true,
             "add_salary_payment": true,
             "edit_salary_payment": true,
             "delete_salary_payment": true,
-            "view_all_salary_payment": true
+            "view_all_salary_payment": true,
+            "employee": true,
         }
     },
     "Machine" : {

@@ -1,5 +1,5 @@
 const {Router} = require("express");
-const {view_all_salary, add_salary_payment, edit_salary_payment, delete_salary_payment, view_all_salary_payment} = require("../controller/salary");
+const {view_all_salary, add_salary_payment, edit_salary_payment, delete_salary_payment, view_all_salary_payment, employee} = require("../controller/salary");
 const adminAuth = require("../middleware/adminAuth");
 const {validation} = require("../constant/validate");
 
@@ -11,5 +11,5 @@ router.post('/add_salary_payment/:salaryId', adminAuth("Salary:add_salary_paymen
 router.put('/edit_salary_payment/:salaryPaymentId', adminAuth("Salary:edit_salary_payment"), validation("add_salary_payment"), edit_salary_payment);
 router.delete('/delete_salary_payment/:salaryPaymentId', adminAuth("Salary:delete_salary_payment"), delete_salary_payment);
 router.get('/view_all_salary_payment/:salaryId', adminAuth("Salary:view_all_salary_payment"), view_all_salary_payment);
-
+router.get('/employee', adminAuth("Salary:employee"),employee)
 module.exports = router;
