@@ -15,7 +15,7 @@ const htmlToPdf = require("html-pdf-node");
 const AccountDetail = require("../models/AccountDetail");
 const C_Ledger = require("../models/C_Ledger");
 const company = require("../models/company");
-
+const ExcelJS = require("exceljs");
 /*=============================================================================================================
                                           Without Type C API
  ============================================================================================================ */
@@ -535,6 +535,91 @@ exports.salesInvoice_pdf = async (req, res) => {
           data: base64String,
         });
       });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+exports.salesInvoice_excel = async (req, res) => {
+  try {
+    const companyId = req.user.companyId;
+    const { formDate, toDate } = req.query;
+
+    const sales = await salesInvoice.findAll({
+      where: {
+        invoicedate: {
+          [Sequelize.Op.between]: [formDate, toDate],
+        },
+        companyId: companyId,
+      },
+      include: [
+        {
+          model: Account,
+          as: "accountSaleInv",
+        },
+        { model: User, as: "createUser", attributes: ["username"] },
+        { model: User, as: "updateUser", attributes: ["username"] },
+      ],
+    });
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Sales");
+    worksheet.columns = [
+      {
+        header: "Invoice No",
+        key: "invoiceno",
+        width: 10,
+      },
+      {
+        header: "Invoice Date",
+        key: "invoicedate",
+        width: 10,
+      },
+      {
+        header: "Party",
+        key: "accountname",
+        width: 15,
+      },
+      {
+        header: "Total Amount",
+        key: "mainTotal",
+        width: 10,
+      },
+      {
+        header: "Created By",
+        key: "createdBy",
+        width: 15,
+      },
+      {
+        header: "Updated By",
+        key: "updatedBy",
+        width: 15,
+      },
+    ];
+
+    for (const sale of sales) {
+      const accountname = sale.accountSaleInv.accountName;
+      const createdBy = sale.createUser.username;
+      const updatedBy = sale.updateUser.username;
+
+      worksheet.addRow({
+        invoiceno: sale.invoiceno,
+        invoicedate: sale.invoicedate,
+        accountname: accountname,
+        mainTotal: sale.mainTotal,
+        createdBy: createdBy,
+        updatedBy: updatedBy
+      })
+    }
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const base64String = buffer.toString("base64");
+    return res.status(200).json({
+      status: "true",
+      message: "Excel File generated successfully.",
+      data: base64String
+    })
   } catch (error) {
     console.log(error);
     return res

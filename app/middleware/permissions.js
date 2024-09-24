@@ -277,7 +277,8 @@ exports.permissions = {
             "delete_salesInvoice":true,
             "view_single_salesInvoice":true,
             "view_all_salesInvoice":true,
-            "salesInvoice_pdf": true
+            "salesInvoice_pdf": true,
+            "salesInvoice_excel": true
         },
         "Admin" :{
             "create_salesinvoice":true,
@@ -285,7 +286,8 @@ exports.permissions = {
             "delete_salesInvoice":true,
             "view_single_salesInvoice":true,
             "view_all_salesInvoice":true,
-            "salesInvoice_pdf": true
+            "salesInvoice_pdf": true,
+            "salesInvoice_excel": true
         },
         "Account" :{
             "create_salesinvoice":true,
@@ -293,7 +295,8 @@ exports.permissions = {
             "delete_salesInvoice":true,
             "view_single_salesInvoice":true,
             "view_all_salesInvoice":true,
-            "salesInvoice_pdf": true
+            "salesInvoice_pdf": true,
+            "salesInvoice_excel": true
         },
         "Employee" :{
             "create_salesinvoice":true,
@@ -301,7 +304,8 @@ exports.permissions = {
             "delete_salesInvoice":true,
             "view_single_salesInvoice":true,
             "view_all_salesInvoice":true,
-            "salesInvoice_pdf": true
+            "salesInvoice_pdf": true,
+            "salesInvoice_excel": true
         },
         "Workers" :{
             "create_salesinvoice":true,
@@ -309,7 +313,8 @@ exports.permissions = {
             "delete_salesInvoice":true,
             "view_single_salesInvoice":true,
             "view_all_salesInvoice":true,
-            "salesInvoice_pdf": true
+            "salesInvoice_pdf": true,
+            "salesInvoice_excel": true
         },
         "Other" :{
             "create_salesinvoice":true,
@@ -317,7 +322,8 @@ exports.permissions = {
             "delete_salesInvoice":true,
             "view_single_salesInvoice":true,
             "view_all_salesInvoice":true,
-            "salesInvoice_pdf": true
+            "salesInvoice_pdf": true,
+            "salesInvoice_excel": true
         }
     },
     "Delivery Challan" : {

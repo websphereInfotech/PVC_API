@@ -13,7 +13,8 @@ const {
   C_view_salesInvoice,
   C_get_all_salesInvoice,
   C_view_salesInvoice_pdf,
-  salesInvoice_pdf
+  salesInvoice_pdf,
+  salesInvoice_excel
 } = require("../controller/salesinvoice");
 
 const router = express.Router();
@@ -55,6 +56,12 @@ router.get(
   "/salesInvoice_pdf/:id",
   adminAuth("Sales Invoice:salesInvoice_pdf"),
   salesInvoice_pdf
+);
+
+router.get(
+  "/salesInvoice_excel",
+  adminAuth("Sales Invoice:salesInvoice_excel"),
+  salesInvoice_excel
 );
 
 
