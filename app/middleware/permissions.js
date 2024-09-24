@@ -435,6 +435,7 @@ exports.permissions = {
             "delete_purchase_Invoice":true,
             "view_single_purchase_Invoice":true,
             "view_all_purchase_Invoice":true,
+            "purchaseInvoice_pdf": true
         },
         "Admin" :{
             "create_purchase_Invoice":true,
@@ -442,6 +443,7 @@ exports.permissions = {
             "delete_purchase_Invoice":true,
             "view_single_purchase_Invoice":true,
             "view_all_purchase_Invoice":true,
+            "purchaseInvoice_pdf": true
         },
         "Account" :{
             "create_purchase_Invoice":true,
@@ -449,6 +451,7 @@ exports.permissions = {
             "delete_purchase_Invoice":true,
             "view_single_purchase_Invoice":true,
             "view_all_purchase_Invoice":true,
+            "purchaseInvoice_pdf": true
         },
         "Employee" :{
             "create_purchase_Invoice":true,
@@ -456,6 +459,7 @@ exports.permissions = {
             "delete_purchase_Invoice":true,
             "view_single_purchase_Invoice":true,
             "view_all_purchase_Invoice":true,
+            "purchaseInvoice_pdf": true
         },
         "Workers" :{
             "create_purchase_Invoice":true,
@@ -463,6 +467,7 @@ exports.permissions = {
             "delete_purchase_Invoice":true,
             "view_single_purchase_Invoice":true,
             "view_all_purchase_Invoice":true,
+            "purchaseInvoice_pdf": true
         },
         "Other" :{
             "create_purchase_Invoice":true,
@@ -470,6 +475,7 @@ exports.permissions = {
             "delete_purchase_Invoice":true,
             "view_single_purchase_Invoice":true,
             "view_all_purchase_Invoice":true,
+            "purchaseInvoice_pdf": true
         }
     },
     "Company Bank Details" : {

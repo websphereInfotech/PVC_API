@@ -13,6 +13,7 @@ const Stock = require("../models/stock");
 const { renderFile } = require("ejs");
 const path = require("node:path");
 const htmlToPdf = require("html-pdf-node");
+const Company = require("../models/company");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -458,6 +459,54 @@ exports.view_purchaseInvoice = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Purchase Invoice Not Found" });
     }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
+exports.purchaseInvoice_pdf = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.user.companyId;
+    const companyData = await Company.findByPk(companyId)
+    const data = await purchaseInvoice.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: purchaseInvoiceItem,
+          as: "items",
+          include: [{ model: product, as: "purchseProduct" }],
+        },
+        {
+          model: Account,
+          as: "accountPurchaseInv",
+          include: { model: AccountDetail, as: "accountDetail" },
+        },
+      ],
+    });
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Purchase Invoice Not Found" });
+    }
+
+    const html = await renderFile(
+      path.join(__dirname, "../views/purchaseInvoice.ejs"),
+      { data: { form: companyData, purchase: data } }
+    );
+    htmlToPdf
+      .generatePdf({ content: html }, { printBackground: true, format: "A4" })
+      .then((pdf) => {
+        const base64String = pdf.toString("base64");
+        return res.status(200).json({
+          status: "Success",
+          message: "pdf create successFully",
+          data: base64String,
+        });
+      });
   } catch (error) {
     console.log(error);
     return res
