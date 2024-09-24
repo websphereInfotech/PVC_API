@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Purchase Tax Invoice</title>
+    <title>Debit Note</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -66,7 +66,7 @@
   <body>
     <div class="invoice-container">
       <div class="header">
-        <h1>PURCHASE INVOICE</h1>
+        <h1>DEBIT NOTE</h1>
       </div>
 
       <div class="company-details">
@@ -81,19 +81,19 @@
       </div>
 
       <div class="buyer-details">
-        <p><strong><%= data.purchase.accountPurchaseInv.accountName %></strong></p>
+        <p><strong><%= data.debitNote.accountDebitNo.accountName %></strong></p>
         <p>
-          <% if (data.purchase?.accountPurchaseInv?.accountDetail?.address1) { %>
-            <%= data.purchase?.accountPurchaseInv.accountDetail.address1 %><br />
+          <% if (data.debitNote.accountDebitNo?.accountDetail?.address1) { %>
+            <%= data.debitNote.accountDebitNo.accountDetail.address1 %><br />
         <% } %>
-        <% if (data.purchase?.accountPurchaseInv?.accountDetail?.city && data.purchase?.accountPurchaseInv?.accountDetail?.state && data.purchase?.accountPurchaseInv?.accountDetail?.pincode) { %>
-            <%= data.purchase?.accountPurchaseInv.accountDetail.city %>, <%=
-          data.purchase?.accountPurchaseInv.accountDetail.state %> - <%=
-          data.purchase?.accountPurchaseInv.accountDetail.pincode %><br />
+        <% if (data.debitNote.accountDebitNo?.accountDetail?.city && data.debitNote.accountDebitNo?.accountDetail?.state && data.debitNote.accountDebitNo?.accountDetail?.pincode) { %>
+            <%= data.debitNote.accountDebitNo.accountDetail.city %>, <%=
+          data.debitNote.accountDebitNo.accountDetail.state %> - <%=
+          data.debitNote.accountDebitNo.accountDetail.pincode %><br />
         <% } %>
 
-        <% if (data.purchase?.accountPurchaseInv?.accountDetail?.gstNumber) { %>
-            GSTIN/UIN: <%= data.purchase?.accountPurchaseInv.accountDetail.gstNumber ||
+        <% if (data.debitNote.accountDebitNo?.accountDetail?.gstNumber) { %>
+            GSTIN/UIN: <%= data.debitNote.accountDebitNo.accountDetail.gstNumber ||
             "Unregistered" %><br />
         <% } %>
         </p>
@@ -102,19 +102,19 @@
       <div class="invoice-details">
         <table class="invoice-table">
           <tr>
-            <th>Voucher No.</th>
-            <td><%= data.purchase.voucherno %></td>
+            <th>Debit Note No.</th>
+            <td><%= data.debitNote.debitnoteno %></td>
             <th>Date</th>
             <td>
-              <%= new Date(data.purchase.invoicedate).toLocaleDateString() %>
+              <%= new Date(data.debitNote.debitdate).toLocaleDateString() %>
             </td>
           </tr>
           <tr>
-            <th>Supply Inv No.</th>
-            <td><%= data.purchase?.supplyInvoiceNo ?? N/A %></td>
-            <th>Due Date</th>
+            <th>Purchase Invoice No.</th>
+            <td><%= data.debitNote?.purchaseData?.supplyInvoiceNo ?? N/A %></td>
+            <th>Purchase Inv Date</th>
             <td>
-                <%= new Date(data.purchase.duedate).toLocaleDateString() %>
+                <%= new Date(data.debitNote.invoicedate).toLocaleDateString() %>
               </td>
           </tr>
         </table>
@@ -133,11 +133,11 @@
             </tr>
           </thead>
           <tbody>
-            <% data.purchase.items.forEach((item, index) => { %>
+            <% data.debitNote.items.forEach((item, index) => { %>
             <tr>
               <td><%= index + 1 %></td>
-              <td><%= item.purchseProduct.productname %></td>
-              <td><%= item.purchseProduct.HSNcode %></td>
+              <td><%= item.DebitProduct.productname %></td>
+              <td><%= item.DebitProduct.HSNcode %></td>
               <td><%= item.qty %> <%= item.unit %></td>
               <td>₹ <%= item.rate %></td>
               <td>₹ <%= item.mrp %></td>
@@ -146,30 +146,30 @@
             <tr>
               <td colspan="4"></td>
               <td><strong>Total</strong></td>
-              <td>₹ <%= data.purchase.totalMrp %></td>
+              <td>₹ <%= data.debitNote.totalMrp %></td>
             </tr>
-            <% if (data.purchase.totalIgst > 0) { %>
+            <% if (data.debitNote.totalIgst > 0) { %>
             <tr>
               <td colspan="4"></td>
               <td>IGST</td>
-              <td>₹ <%= data.purchase.totalIgst %></td>
+              <td>₹ <%= data.debitNote.totalIgst %></td>
             </tr>
-            <% } else if (data.purchase.totalSgst > 0) { %>
+            <% } else if (data.debitNote.totalSgst > 0) { %>
             <tr>
               <td colspan="4"></td>
               <td>CGST</td>
-              <td>₹ <%= data.purchase.totalSgst/2 %></td>
+              <td>₹ <%= data.debitNote.totalSgst/2 %></td>
             </tr>
             <tr>
               <td colspan="4"></td>
               <td>SGST</td>
-              <td>₹ <%= data.purchase.totalSgst/2 %></td>
+              <td>₹ <%= data.debitNote.totalSgst/2 %></td>
             </tr>
             <% } %>
             <tr>
               <td colspan="4"></td>
               <td><strong>Total Payable</strong></td>
-              <td>₹ <%= data.purchase.mainTotal %></td>
+              <td>₹ <%= data.debitNote.mainTotal %></td>
             </tr>
           </tbody>
         </table>

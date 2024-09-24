@@ -176,42 +176,48 @@ exports.permissions = {
             "update_debitNote":true,
             "view_all_debitNote":true,
             "view_single_debitNote":true,
-            "delete_debitNote":true
+            "delete_debitNote":true,
+            "debitNote_pdf": true
         },
         "Admin" :{
             "create_debitNote":true,
             "update_debitNote":true,
             "view_all_debitNote":true,
             "view_single_debitNote":true,
-            "delete_debitNote":true
+            "delete_debitNote":true,
+            "debitNote_pdf": true
         },
         "Account" :{
             "create_debitNote":true,
             "update_debitNote":true,
             "view_all_debitNote":true,
             "view_single_debitNote":true,
-            "delete_debitNote":true
+            "delete_debitNote":true,
+            "debitNote_pdf": true
         },
         "Employee" :{
             "create_debitNote":true,
             "update_debitNote":true,
             "view_all_debitNote":true,
             "view_single_debitNote":true,
-            "delete_debitNote":true
+            "delete_debitNote":true,
+            "debitNote_pdf": true
         },
         "Workers" :{
             "create_debitNote":true,
             "update_debitNote":true,
             "view_all_debitNote":true,
             "view_single_debitNote":true,
-            "delete_debitNote":true
+            "delete_debitNote":true,
+            "debitNote_pdf": true
         },
         "Other" :{
             "create_debitNote":true,
             "update_debitNote":true,
             "view_all_debitNote":true,
             "view_single_debitNote":true,
-            "delete_debitNote":true
+            "delete_debitNote":true,
+            "debitNote_pdf": true
         }
     },
     "Credit Note" : {
