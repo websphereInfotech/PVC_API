@@ -8,7 +8,6 @@ const {
   set_default_comapny,
   view_company_balance,
   view_company_cash_balance,
-  view_single_bank_balance,
 } = require("../controller/company");
 const { validation } = require("../constant/validate");
 const adminAuth = require("../middleware/adminAuth");
@@ -53,11 +52,7 @@ router.get(
   adminAuth("Company:view_company_balance"),
   view_company_balance
 );
-router.get(
-  "/view_single_bank_balance/:id",
-  adminAuth("Company:view_single_bank_balance"),
-  view_single_bank_balance
-);
+
 router.get(
   "/view_company_cash_balance",
   adminAuth("Company Cash:view_company_cash_balance"),

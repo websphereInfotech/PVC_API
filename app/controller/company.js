@@ -5,7 +5,6 @@ const company = require("../models/company");
 const companyBalance = require("../models/companyBalance");
 const CompanyCashBalance = require("../models/companyCashBalance");
 const companyBankDetails = require("../models/companyBankDetails");
-const companySingleBank = require("../models/companySingleBank");
 const companyUser = require("../models/companyUser");
 const permissionAdd = require("../util/permissions");
 const jwt = require("jsonwebtoken");
@@ -335,34 +334,6 @@ exports.view_company_balance = async (req, res) => {
       where: { companyId: req.user.companyId },
     });
 
-    if (data) {
-      return res.status(200).json({
-        status: "true",
-        message: "Company Balance Show Successfully",
-        data: data,
-      });
-    } else {
-      return res
-        .status(404)
-        .json({ status: "false", message: "Company Balance Not Found" });
-    }
-  } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ status: "false", message: "Internal Server Error" });
-  }
-};
-//single bank balance
-exports.view_single_bank_balance = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const data = await companySingleBank.findOne({
-      where: {
-        companyId: req.user.companyId,
-        accountId: id,
-      },
-    });
     if (data) {
       return res.status(200).json({
         status: "true",

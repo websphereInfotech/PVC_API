@@ -7,7 +7,6 @@ const {
   view_reciveclaim,
   isapproved_claim,
   view_single_claim,
-  view_claimBalance_ledger,
   get_all_ClaimUser,
   view_wallet,
   view_balance
@@ -56,11 +55,6 @@ router.get(
   view_single_claim
 );
 
-router.get(
-  "/view_claimBalance_ledger",
-  adminToken("Claim Cash:view_claimBalance_ledger"),
-  view_claimBalance_ledger
-);
 router.get(
   "/get_all_ClaimUser",
   adminToken("Claim Cash:view_all_ClaimUser"),

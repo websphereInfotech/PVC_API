@@ -509,8 +509,6 @@ exports.permissions = {
             "delete_company_bankDetails":true,
             "view_company_bankDetails":true,
             "view_all_company_bankDetails":true,
-            "view_company_bankLedger":true,
-            "view_single_bankLedger":true
         },
         "Admin" :{
             "create_company_bankDetails":true,
@@ -518,8 +516,6 @@ exports.permissions = {
             "delete_company_bankDetails":true,
             "view_company_bankDetails":true,
             "view_all_company_bankDetails":true,
-            "view_company_bankLedger":true,
-            "view_single_bankLedger":true
         },
         "Account" :{
             "create_company_bankDetails":true,
@@ -527,8 +523,6 @@ exports.permissions = {
             "delete_company_bankDetails":true,
             "view_company_bankDetails":true,
             "view_all_company_bankDetails":true,
-            "view_company_bankLedger":true,
-            "view_single_bankLedger":true
         },
         "Employee" :{
             "create_company_bankDetails":true,
@@ -536,8 +530,6 @@ exports.permissions = {
             "delete_company_bankDetails":true,
             "view_company_bankDetails":true,
             "view_all_company_bankDetails":true,
-            "view_company_bankLedger":true,
-            "view_single_bankLedger":true
         },
         "Workers" :{
             "create_company_bankDetails":true,
@@ -545,8 +537,6 @@ exports.permissions = {
             "delete_company_bankDetails":true,
             "view_company_bankDetails":true,
             "view_all_company_bankDetails":true,
-            "view_company_bankLedger":true,
-            "view_single_bankLedger":true
         },
         "Other" :{
             "create_company_bankDetails":true,
@@ -554,8 +544,6 @@ exports.permissions = {
             "delete_company_bankDetails":true,
             "view_company_bankDetails":true,
             "view_all_company_bankDetails":true,
-            "view_company_bankLedger":true,
-            "view_single_bankLedger":true
         },
     },
     "Receipt" : {
@@ -884,7 +872,6 @@ exports.permissions = {
             "view_reciveclaim":true,
             "isapproved_claim":true,
             "view_single_claim":true,
-            "view_claimBalance_ledger":true,
             "view_all_ClaimUser":true,
             "view_user_balance":true,
             "view_wallet": true
@@ -897,7 +884,6 @@ exports.permissions = {
             "view_reciveclaim":true,
             "isapproved_claim":true,
             "view_single_claim":true,
-            "view_claimBalance_ledger":true,
             "view_all_ClaimUser":true,
             "view_user_balance":true,
             "view_wallet": true
@@ -910,7 +896,6 @@ exports.permissions = {
             "view_reciveclaim":true,
             "isapproved_claim":true,
             "view_single_claim":true,
-            "view_claimBalance_ledger":true,
             "view_all_ClaimUser":true,
             "view_user_balance":true,
             "view_wallet": true
@@ -923,7 +908,6 @@ exports.permissions = {
             "view_reciveclaim":true,
             "isapproved_claim":true,
             "view_single_claim":true,
-            "view_claimBalance_ledger":true,
             "view_all_ClaimUser":true,
             "view_user_balance":true,
             "view_wallet": true
@@ -936,7 +920,6 @@ exports.permissions = {
             "view_reciveclaim":true,
             "isapproved_claim":true,
             "view_single_claim":true,
-            "view_claimBalance_ledger":true,
             "view_all_ClaimUser":true,
             "view_user_balance":true,
             "view_wallet": true
@@ -949,7 +932,6 @@ exports.permissions = {
             "view_reciveclaim":true,
             "isapproved_claim":true,
             "view_single_claim":true,
-            "view_claimBalance_ledger":true,
             "view_all_ClaimUser":true,
             "view_user_balance":true,
             "view_wallet": true
