@@ -1,6 +1,8 @@
 const { Sequelize, Op } = require("sequelize");
 const company = require("../models/company");
 const companyBankDetails = require("../models/companyBankDetails");
+const BankBalance = require('../models/BankBalance')
+const BankLedger = require('../models/BankLedger')
 exports.create_company_bankDetails = async (req, res) => {
   try {
     const {
@@ -49,6 +51,11 @@ exports.create_company_bankDetails = async (req, res) => {
       branch,
       nickname,
     });
+
+    await BankBalance.create({
+      companyId,
+      bankId: data.id
+    })
     return res.status(200).json({
       status: "true",
       message: "Bank Details Create Successfully",

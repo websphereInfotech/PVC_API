@@ -2,9 +2,6 @@ const cron = require('node-cron');
 const Stock = require('../models/stock');
 const Product = require('../models/product');
 const Notification = require('../models/notification');
-const RegularMaintenance = require('../models/RegularMaintenance');
-const PreventiveMaintenance = require('../models/PreventiveMaintenance');
-const Machine = require('../models/Machine');
 const Salary = require('../models/salary')
 const moment = require("moment");
 const company = require("../models/company");
@@ -27,54 +24,6 @@ exports.lowStockNotificationJob = cron.schedule('0 0 * * *', async () => {
                 companyId: companyId
             })
         }
-    }
-
-
-
-    // Regular Maintenance Notification Logic......................
-    const today = new Date();
-    const nextWeek = new Date();
-    nextWeek.setDate(today.getDate() + 7);
-
-    const regularMaintenanceDates = await RegularMaintenance.findAll({
-        where: {
-            date: {
-                [Op.between]: [today, nextWeek]
-            }
-        },
-        include: [{model: Machine, as: "machineRegularMaintenance"}]
-    })
-    for(const regularMaintenanceDate of regularMaintenanceDates){
-        const machineName = regularMaintenanceDate.machineRegularMaintenance.name;
-        const date = regularMaintenanceDate.date;
-        const companyId = regularMaintenanceDate.companyId;
-        const notification = `Scheduled regular maintenance on ${machineName} will occur on ${date}. Please plan accordingly`;
-        await Notification.create({
-            notification: notification,
-            type: null,
-            companyId: companyId
-        })
-    }
-
-    // Preventive Maintenance Notification Logic......................
-    const preventiveMaintenanceDates = await PreventiveMaintenance.findAll({
-        where: {
-            date: {
-                [Op.between]: [today, nextWeek]
-            }
-        },
-        include: [{model: Machine, as: "machineRegularMaintenance"}]
-    })
-    for(const preventiveMaintenanceDate of preventiveMaintenanceDates){
-        const machineName = preventiveMaintenanceDate.preventiveMaintenanceDate.name;
-        const date = preventiveMaintenanceDate.date;
-        const companyId = preventiveMaintenanceDate.companyId;
-        const notification = `Scheduled preventive maintenance on ${machineName} will occur on ${date}. Please plan accordingly`;
-        await Notification.create({
-            notification: notification,
-            type: null,
-            companyId: companyId
-        })
     }
 });
 
