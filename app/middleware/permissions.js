@@ -65,7 +65,6 @@ exports.permissions = {
             "view_user_bank_account": true,
             "view_all_user_bank_account": true,
             "wallet_approve": true,
-            "view_balance": true
         },
         "Admin" : {
             "update_user":true,
@@ -874,7 +873,8 @@ exports.permissions = {
             "view_single_claim":true,
             "view_all_ClaimUser":true,
             "view_user_balance":true,
-            "view_wallet": true
+            "view_wallet": true,
+            "view_company_wallet": true
         },
         "Admin" :{
             "create_claim":true,
@@ -886,7 +886,8 @@ exports.permissions = {
             "view_single_claim":true,
             "view_all_ClaimUser":true,
             "view_user_balance":true,
-            "view_wallet": true
+            "view_wallet": true,
+            "view_company_wallet": true
         },
         "Account" :{
             "create_claim":true,
@@ -1373,42 +1374,48 @@ exports.permissions = {
             "daybook":true,
             "cashbook": true,
             "wallet_ledger": true,
-            "account_ledger_pdf": true
+            "account_ledger_pdf": true,
+            "passbook": true
         },
         "Admin" :{
             "account_ledger":true,
             "daybook":true,
             "cashbook": true,
             "wallet_ledger": true,
-            "account_ledger_pdf": true
+            "account_ledger_pdf": true,
+            "passbook": true
         },
         "Account" :{
             "account_ledger":true,
             "daybook":true,
             "cashbook": true,
             "wallet_ledger": true,
-            "account_ledger_pdf": true
+            "account_ledger_pdf": true,
+            "passbook": true
         },
         "Employee" :{
             "account_ledger":true,
             "daybook":true,
             "cashbook": true,
             "wallet_ledger": true,
-            "account_ledger_pdf": true
+            "account_ledger_pdf": true,
+            "passbook": true
         },
         "Workers" :{
             "account_ledger":true,
             "daybook":true,
             "cashbook": true,
             "wallet_ledger": true,
-            "account_ledger_pdf": true
+            "account_ledger_pdf": true,
+            "passbook": true
         },
         "Other" :{
             "account_ledger":true,
             "daybook":true,
             "cashbook": true,
             "wallet_ledger": true,
-            "account_ledger_pdf": true
+            "account_ledger_pdf": true,
+            "passbook": true
         }
     },
     "Purchase Order": {

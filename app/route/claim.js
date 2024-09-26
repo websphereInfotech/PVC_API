@@ -62,5 +62,5 @@ router.get(
 );
 
 router.get('/view_wallet/:id', adminToken("Claim Cash:view_wallet"), view_wallet);
-router.get('/view_balance', adminToken("Login:view_balance"), view_balance);
+router.get('/view_balance', adminToken("Claim Cash:view_company_wallet"), view_balance);
 module.exports = router;
