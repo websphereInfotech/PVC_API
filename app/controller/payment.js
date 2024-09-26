@@ -13,7 +13,8 @@ const CompanyCashBalance = require("../models/companyCashBalance");
 const C_WalletLedger = require("../models/C_WalletLedger");
 const C_UserBalance = require("../models/C_userBalance");
 const C_Cashbook = require("../models/C_Cashbook");
-
+const BankBalance = require("../models/BankBalance");
+const BankLedger = require("../models/BankLedger");
 /*=============================================================================================================
                                          Type C API
  ============================================================================================================ */
@@ -377,10 +378,9 @@ exports.C_delete_paymentCash = async (req, res) => {
         await existingBalance.increment("incomes", { by: oldAmount });
       }
     }
-      return res
-        .status(200)
-        .json({ status: "true", message: "Payment Cash Deleted Successfully" });
-    
+    return res
+      .status(200)
+      .json({ status: "true", message: "Payment Cash Deleted Successfully" });
   } catch (error) {
     console.log(error);
     return res
@@ -481,10 +481,27 @@ exports.create_payment_bank = async (req, res) => {
         where: { companyId: companyId },
       });
 
+      const bankBalance = await BankBalance.findOne({
+        where: {
+          companyId: companyId,
+          bankId: bankAccountId,
+        },
+      });
+
       if (existsingBalance) {
         existsingBalance.balance -= amount;
         await existsingBalance.save();
       }
+
+      if (bankBalance) {
+        await bankBalance.decrement("balance", { by: amount });
+      }
+      await BankLedger.create({
+        bankId: bankAccountId,
+        paymentId: data.id,
+        companyId: companyId,
+        date: paymentdate,
+      });
     }
 
     return res.status(200).json({
@@ -602,6 +619,13 @@ exports.update_payment_bank = async (req, res) => {
         where: { companyId: companyId },
       });
 
+      const bankBalance = await BankBalance.findOne({
+        where: {
+          companyId: companyId,
+          bankId: bankAccountId,
+        },
+      });
+
       const balanceChange = amount - paymentdata.amount;
       const newBalance = existsingBalance.balance - balanceChange;
 
@@ -609,6 +633,23 @@ exports.update_payment_bank = async (req, res) => {
         existsingBalance.balance = newBalance;
         await existsingBalance.save();
       }
+      if (bankBalance) {
+        await bankBalance.increment("balance", { by: paymentdata.amount });
+        await bankBalance.decrement("balance", { by: amount });
+      }
+
+      await BankLedger.update(
+        {
+          date: paymentdate,
+          bankId: bankAccountId,
+        },
+        {
+          where: {
+            companyId: companyId,
+            paymentId: id,
+          },
+        }
+      );
     }
 
     const data = await Payment.findOne({
@@ -660,8 +701,18 @@ exports.delete_payment_bank = async (req, res) => {
         where: { companyId: companyId },
       });
 
+      const bankBalance = await BankBalance.findOne({
+        where: {
+          companyId: companyId,
+          bankId: paymentExist.bankAccountId,
+        },
+      });
+
       if (existsingBalance) {
         await existsingBalance.increment("balance", { by: amount });
+      }
+      if (bankBalance) {
+        await bankBalance.increment("balance", { by: amount });
       }
     }
     await paymentExist.destroy();

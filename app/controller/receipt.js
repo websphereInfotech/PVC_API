@@ -1,6 +1,5 @@
 const C_companyBalance = require("../models/C_companyBalance");
 const C_Receipt = require("../models/C_Receipt");
-const C_userBalance = require("../models/C_userBalance");
 const companyBalance = require("../models/companyBalance");
 const companyCashBalance = require("../models/companyCashBalance");
 const Account = require("../models/Account");
@@ -14,7 +13,8 @@ const C_WalletLedger = require("../models/C_WalletLedger");
 const { TRANSACTION_TYPE, ROLE } = require("../constant/constant");
 const C_UserBalance = require("../models/C_userBalance");
 const C_Cashbook = require("../models/C_Cashbook");
-
+const BankBalance = require("../models/BankBalance");
+const BankLedger = require("../models/BankLedger");
 /*=============================================================================================================
                                            Type C API
  ============================================================================================================ */
@@ -474,10 +474,26 @@ exports.create_receive_bank = async (req, res) => {
       const existsingBalance = await companyBalance.findOne({
         where: { companyId: companyId },
       });
+      const bankBalance = await BankBalance.findOne({
+        where: {
+          companyId: companyId,
+          bankId: bankAccountId,
+        },
+      });
       if (existsingBalance) {
         existsingBalance.balance += amount;
         await existsingBalance.save();
       }
+
+      if (bankBalance) {
+        await bankBalance.increment("balance", { by: amount });
+      }
+      await BankLedger.create({
+        bankId: bankAccountId,
+        receiptId: data.id,
+        companyId: companyId,
+        date: paymentdate,
+      });
     }
     return res.status(200).json({
       status: "true",
@@ -603,11 +619,36 @@ exports.update_receive_bank = async (req, res) => {
         where: { companyId: companyId },
       });
 
+      const bankBalance = await BankBalance.findOne({
+        where: {
+          companyId: companyId,
+          bankId: bankAccountId,
+        },
+      });
+
       const balanceChange = amount - receiveBankId.amount;
       const newBalance = existsingBalance.balance + balanceChange;
 
       existsingBalance.balance = newBalance;
       await existsingBalance.save();
+
+      if (bankBalance) {
+        await bankBalance.decrement("balance", { by: receiveBankId.amount });
+        await bankBalance.increment("balance", { by: amount });
+      }
+
+      await BankLedger.update(
+        {
+          date: paymentdate,
+          bankId: bankAccountId,
+        },
+        {
+          where: {
+            companyId: companyId,
+            receiptId: id,
+          },
+        }
+      );
     }
 
     const data = await Receipt.findOne({
@@ -657,11 +698,19 @@ exports.delete_receive_bank = async (req, res) => {
       const existsingBalance = await companyBalance.findOne({
         where: { companyId: companyId },
       });
+      const bankBalance = await BankBalance.findOne({
+        where: {
+          companyId: companyId,
+          bankId: receiptExist.bankAccountId,
+        },
+      });
       if (existsingBalance) {
         await existsingBalance.decrement("balance", { by: amount });
       }
+      if (bankBalance) {
+        await bankBalance.decrement("balance", { by: amount });
+      }
     }
-
     await receiptExist.destroy();
 
     return res

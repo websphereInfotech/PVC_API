@@ -5,10 +5,10 @@ const company = require("./company");
 const Payment = require("./Payment");
 const companyBankDetails = require("./companyBankDetails");
 const BankLedger = sequelize.define("P_BankLedger", {
-  companyId: { type: DataTypes.INTEGER },
-  bankId: { type: DataTypes.INTEGER },
-  receiptId: { type: DataTypes.INTEGER },
-  paymentId: { type: DataTypes.INTEGER },
+  companyId: { type: DataTypes.INTEGER, allowNull: false },
+  bankId: { type: DataTypes.INTEGER, allowNull: false },
+  receiptId: { type: DataTypes.INTEGER, allowNull: true, defaultValue: null },
+  paymentId: { type: DataTypes.INTEGER, allowNull: true, defaultValue: null },
   date: { type: DataTypes.DATEONLY },
 });
 company.hasMany(BankLedger, {
