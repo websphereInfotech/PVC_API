@@ -704,6 +704,12 @@ exports.delete_receive_bank = async (req, res) => {
           bankId: receiptExist.bankAccountId,
         },
       });
+      if(receiptExist.amount > bankBalance.balance){
+        return res.status(400).json({
+          status: "false",
+          message: "Bank Account has no enough money."
+        })
+      }
       if (existsingBalance) {
         await existsingBalance.decrement("balance", { by: amount });
       }

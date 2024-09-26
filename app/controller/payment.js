@@ -439,6 +439,19 @@ exports.create_payment_bank = async (req, res) => {
           .status(404)
           .json({ status: "false", message: "Bank Account Not Found" });
       }
+      const bankBalance = await BankBalance.findOne({
+        where: {
+          companyId: companyId,
+          bankId: bankAccountId,
+        },
+      });
+
+      if (bankBalance && amount > bankBalance.balance) {
+        return res.status(400).json({
+          status: "false",
+          message: "Bank Account has no enough money.",
+        });
+      }
     }
 
     const data = await Payment.create({
@@ -572,6 +585,21 @@ exports.update_payment_bank = async (req, res) => {
         return res
           .status(404)
           .json({ status: "false", message: "Bank Account Not Found" });
+      }
+      const bankBalance = await BankBalance.findOne({
+        where: {
+          companyId: companyId,
+          bankId: bankAccountId,
+        },
+      });
+
+      const newBalance = bankBalance.balance + paymentdata.amount
+
+      if (bankBalance && amount > newBalance) {
+        return res.status(400).json({
+          status: "false",
+          message: "Bank Account has no enough money.",
+        });
       }
     }
     await Payment.update(

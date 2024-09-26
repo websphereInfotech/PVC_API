@@ -2534,10 +2534,10 @@ exports.C_passbook = async (req, res) => {
               ? +Math.abs(mainOpeningBalance).toFixed(2)
               : 0,
           details: "Opening Balance",
-          openingBalance: 0,
-          personName: "",
+          party: "",
           id: null,
           username: "",
+          vchNo: "",
         });
       }
 
@@ -2551,7 +2551,6 @@ exports.C_passbook = async (req, res) => {
           creditAmount:
             previousClosingBalance.type === "debit" ? openingBalance : 0,
           details: "Opening Balance",
-          openingBalance: 0,
           party: "",
           id: null,
           username: "",

@@ -747,7 +747,7 @@ exports.view_balance = async (req, res) => {
       ],
     });
     let sum = 0;
-    const modifiedResult = result.map((companyUserRecord) => {
+    result.map((companyUserRecord) => {
       if (
         companyUserRecord.users &&
         Array.isArray(companyUserRecord.users.userBalance)
@@ -770,6 +770,7 @@ exports.view_balance = async (req, res) => {
         companyBalanceObj.balance +
         mainCompanyBa.balance +
         companyCashBalance.balance,
+        bankBalance: mainCompanyBa.balance
     };
     return res.status(200).json({
       status: "true",
