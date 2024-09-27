@@ -278,7 +278,8 @@ exports.permissions = {
             "view_all_salesInvoice":true,
             "salesInvoice_pdf": true,
             "salesInvoice_excel": true,
-            "view_salesInvoice_excel": true
+            "view_salesInvoice_excel": true,
+            "view_salesInvoice_jpg": true
         },
         "Admin" :{
             "create_salesinvoice":true,
@@ -288,7 +289,8 @@ exports.permissions = {
             "view_all_salesInvoice":true,
             "salesInvoice_pdf": true,
             "salesInvoice_excel": true,
-            "view_salesInvoice_excel": true
+            "view_salesInvoice_excel": true,
+            "view_salesInvoice_jpg": true
         },
         "Account" :{
             "create_salesinvoice":true,
@@ -298,7 +300,8 @@ exports.permissions = {
             "view_all_salesInvoice":true,
             "salesInvoice_pdf": true,
             "salesInvoice_excel": true,
-            "view_salesInvoice_excel": true
+            "view_salesInvoice_excel": true,
+            "view_salesInvoice_jpg": true
         },
         "Employee" :{
             "create_salesinvoice":true,
@@ -308,7 +311,8 @@ exports.permissions = {
             "view_all_salesInvoice":true,
             "salesInvoice_pdf": true,
             "salesInvoice_excel": true,
-            "view_salesInvoice_excel": true
+            "view_salesInvoice_excel": true,
+            "view_salesInvoice_jpg": true
         },
         "Workers" :{
             "create_salesinvoice":true,
@@ -318,7 +322,8 @@ exports.permissions = {
             "view_all_salesInvoice":true,
             "salesInvoice_pdf": true,
             "salesInvoice_excel": true,
-            "view_salesInvoice_excel": true
+            "view_salesInvoice_excel": true,
+            "view_salesInvoice_jpg": true
         },
         "Other" :{
             "create_salesinvoice":true,
@@ -328,7 +333,8 @@ exports.permissions = {
             "view_all_salesInvoice":true,
             "salesInvoice_pdf": true,
             "salesInvoice_excel": true,
-            "view_salesInvoice_excel": true
+            "view_salesInvoice_excel": true,
+            "view_salesInvoice_jpg": true
         }
     },
     "Delivery Challan" : {

@@ -16,6 +16,7 @@ const AccountDetail = require("../models/AccountDetail");
 const C_Ledger = require("../models/C_Ledger");
 const company = require("../models/company");
 const ExcelJS = require("exceljs");
+const puppeteer = require("puppeteer");
 /*=============================================================================================================
                                           Without Type C API
  ============================================================================================================ */
@@ -784,6 +785,62 @@ exports.view_salesInvoice_excel = async (req, res) => {
     return res.status(200).json({
       status: "true",
       message: "Excel File generated successfully.",
+      data: base64String,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
+exports.view_salesInvoice_jpg = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.user.companyId;
+
+    const companyData = await company.findByPk(companyId);
+
+    const data = await salesInvoice.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: salesInvoiceItem,
+          as: "items",
+          include: [{ model: product, as: "InvoiceProduct" }],
+        },
+        {
+          model: Account,
+          as: "accountSaleInv",
+          include: { model: AccountDetail, as: "accountDetail" },
+        },
+      ],
+    });
+
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Sales Invoice Not Found" });
+    }
+    const html = await renderFile(
+      path.join(__dirname, "../views/saleInvoice.ejs"),
+      { data: { form: companyData, sales: data } }
+    );
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    await page.setContent(html, { waitUntil: "networkidle0" });
+    const base64String = await page.screenshot({
+      type: "jpeg",
+      fullPage: true,
+      encoding: "base64",
+    });
+
+    await browser.close();
+    return res.status(200).json({
+      status: "Success",
+      message: "JPG create successFully",
       data: base64String,
     });
   } catch (error) {

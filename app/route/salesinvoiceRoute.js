@@ -15,7 +15,8 @@ const {
   C_view_salesInvoice_pdf,
   salesInvoice_pdf,
   salesInvoice_excel,
-  view_salesInvoice_excel
+  view_salesInvoice_excel,
+  view_salesInvoice_jpg
 } = require("../controller/salesinvoice");
 
 const router = express.Router();
@@ -71,6 +72,11 @@ router.get(
   view_salesInvoice_excel
 );
 
+router.get(
+  "/view_salesInvoice_jpg",
+  adminAuth("Sales Invoice:view_salesInvoice_jpg"),
+  view_salesInvoice_jpg
+);
 
 /*=============================================================================================================
                                            Type C API
@@ -103,6 +109,10 @@ router.get(
   C_get_all_salesInvoice
 );
 
-router.get('/C_view_salesInvoice_pdf/:id', adminAuth("Sales Cash:view_sales_cash_pdf"), C_view_salesInvoice_pdf)
+router.get(
+  "/C_view_salesInvoice_pdf/:id",
+  adminAuth("Sales Cash:view_sales_cash_pdf"),
+  C_view_salesInvoice_pdf
+);
 
 module.exports = router;
