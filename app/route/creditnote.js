@@ -10,7 +10,9 @@ const {
   C_get_all_creditNote,
   C_delete_creditNote,
   C_view_single_creditNote,
-  creditNote_pdf, C_creditNote_pdf
+  creditNote_pdf,
+  C_creditNote_pdf,
+  creditNote_jpg,
 } = require("../controller/creditNote");
 const adminAuth = require("../middleware/adminAuth");
 const { validation } = require("../constant/validate");
@@ -48,6 +50,12 @@ router.get(
   "/creditNote_pdf/:id",
   adminAuth("Credit Note:creditNote_pdf"),
   creditNote_pdf
+);
+
+router.get(
+  "/creditNote_jpg/:id",
+  adminAuth("Credit Note:creditNote_jpg"),
+  creditNote_jpg
 );
 
 /*=============================================================================================================

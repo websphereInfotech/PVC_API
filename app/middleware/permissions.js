@@ -233,6 +233,7 @@ exports.permissions = {
             "delete_creditNote":true,
             "view_single_creditNote":true,
             "creditNote_pdf": true,
+            "creditNote_jpg": true
         },
         "Admin" :{
             "create_creditNote":true,
@@ -241,6 +242,7 @@ exports.permissions = {
             "delete_creditNote":true,
             "view_single_creditNote":true,
             "creditNote_pdf": true,
+            "creditNote_jpg": true
         },
         "Account" :{
             "create_creditNote":true,
@@ -249,6 +251,7 @@ exports.permissions = {
             "delete_creditNote":true,
             "view_single_creditNote":true,
             "creditNote_pdf": true,
+            "creditNote_jpg": true
         },
         "Employee" :{
             "create_creditNote":true,
@@ -257,6 +260,7 @@ exports.permissions = {
             "delete_creditNote":true,
             "view_single_creditNote":true,
             "creditNote_pdf": true,
+            "creditNote_jpg": true
         },
         "Workers" :{
             "create_creditNote":true,
@@ -265,6 +269,7 @@ exports.permissions = {
             "delete_creditNote":true,
             "view_single_creditNote":true,
             "creditNote_pdf": true,
+            "creditNote_jpg": true
         },
         "Other" :{
             "create_creditNote":true,
@@ -273,6 +278,7 @@ exports.permissions = {
             "delete_creditNote":true,
             "view_single_creditNote":true,
             "creditNote_pdf": true,
+            "creditNote_jpg": true
         }
     },
     "Sales Invoice" : {
