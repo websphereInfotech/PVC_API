@@ -73,7 +73,7 @@ router.get(
 );
 
 router.get(
-  "/view_salesInvoice_jpg",
+  "/view_salesInvoice_jpg/:id",
   adminAuth("Sales Invoice:view_salesInvoice_jpg"),
   view_salesInvoice_jpg
 );
