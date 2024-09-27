@@ -464,7 +464,8 @@ exports.permissions = {
             "delete_purchase_Invoice":true,
             "view_single_purchase_Invoice":true,
             "view_all_purchase_Invoice":true,
-            "purchaseInvoice_pdf": true
+            "purchaseInvoice_pdf": true,
+            "purchaseInvoice_jpg": true
         },
         "Admin" :{
             "create_purchase_Invoice":true,
@@ -472,7 +473,8 @@ exports.permissions = {
             "delete_purchase_Invoice":true,
             "view_single_purchase_Invoice":true,
             "view_all_purchase_Invoice":true,
-            "purchaseInvoice_pdf": true
+            "purchaseInvoice_pdf": true,
+            "purchaseInvoice_jpg": true
         },
         "Account" :{
             "create_purchase_Invoice":true,
@@ -480,7 +482,8 @@ exports.permissions = {
             "delete_purchase_Invoice":true,
             "view_single_purchase_Invoice":true,
             "view_all_purchase_Invoice":true,
-            "purchaseInvoice_pdf": true
+            "purchaseInvoice_pdf": true,
+            "purchaseInvoice_jpg": true
         },
         "Employee" :{
             "create_purchase_Invoice":true,
@@ -488,7 +491,8 @@ exports.permissions = {
             "delete_purchase_Invoice":true,
             "view_single_purchase_Invoice":true,
             "view_all_purchase_Invoice":true,
-            "purchaseInvoice_pdf": true
+            "purchaseInvoice_pdf": true,
+            "purchaseInvoice_jpg": true
         },
         "Workers" :{
             "create_purchase_Invoice":true,
@@ -496,7 +500,8 @@ exports.permissions = {
             "delete_purchase_Invoice":true,
             "view_single_purchase_Invoice":true,
             "view_all_purchase_Invoice":true,
-            "purchaseInvoice_pdf": true
+            "purchaseInvoice_pdf": true,
+            "purchaseInvoice_jpg": true
         },
         "Other" :{
             "create_purchase_Invoice":true,
@@ -504,7 +509,8 @@ exports.permissions = {
             "delete_purchase_Invoice":true,
             "view_single_purchase_Invoice":true,
             "view_all_purchase_Invoice":true,
-            "purchaseInvoice_pdf": true
+            "purchaseInvoice_pdf": true,
+            "purchaseInvoice_jpg": true
         }
     },
     "Company Bank Details" : {
