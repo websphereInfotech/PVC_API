@@ -13,7 +13,8 @@ const {
   C_view_single_debitNote,
   C_delete_debitNote,
   C_debitNote_pdf,
-  debitNote_pdf
+  debitNote_pdf,
+  debitNote_jpg
 } = require("../controller/debitNote");
 
 const router = express.Router();
@@ -52,6 +53,11 @@ router.get(
   debitNote_pdf
 );
 
+router.get(
+  "/debitNote_jpg/:id",
+  adminAuth("Debit Note:debitNote_jpg"),
+  debitNote_jpg
+);
 
 /*=============================================================================================================
                                          With Type C API

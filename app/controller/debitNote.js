@@ -15,6 +15,7 @@ const htmlToPdf = require("html-pdf-node");
 const { renderFile } = require("ejs");
 const path = require("node:path");
 const Company = require("../models/company");
+const puppeteer = require("puppeteer");
 
 exports.create_debitNote = async (req, res) => {
   try {
@@ -419,7 +420,7 @@ exports.debitNote_pdf = async (req, res) => {
     const { id } = req.params;
     const { companyId } = req.user;
 
-    const companyData = await Company.findByPk(companyId)
+    const companyData = await Company.findByPk(companyId);
 
     const data = await debitNote.findOne({
       where: { id: id, companyId: companyId },
@@ -457,7 +458,63 @@ exports.debitNote_pdf = async (req, res) => {
           data: base64String,
         });
       });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
 
+exports.debitNote_jpg = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { companyId } = req.user;
+
+    const companyData = await Company.findByPk(companyId);
+
+    const data = await debitNote.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: debitNoteItem,
+          as: "items",
+          include: [{ model: product, as: "DebitProduct" }],
+        },
+        {
+          model: Account,
+          as: "accountDebitNo",
+          include: { model: AccountDetail, as: "accountDetail" },
+        },
+        { model: purchaseInvoice, as: "purchaseData" },
+      ],
+    });
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Debit Note Not Found" });
+    }
+
+    const html = await renderFile(
+      path.join(__dirname, "../views/debitNote.ejs"),
+      { data: { form: companyData, debitNote: data } }
+    );
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    await page.setContent(html, { waitUntil: "networkidle0" });
+    const base64String = await page.screenshot({
+      type: "jpeg",
+      fullPage: true,
+      encoding: "base64",
+    });
+
+    await browser.close();
+    return res.status(200).json({
+      status: "Success",
+      message: "JPG create successFully",
+      data: base64String,
+    });
   } catch (error) {
     console.log(error);
     return res
