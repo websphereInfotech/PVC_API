@@ -968,3 +968,59 @@ exports.C_debitNote_pdf = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
+exports.C_debitNote_jpg = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { companyId } = req.user;
+
+    const data = await C_DebitNote.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: C_DebitNoteItems,
+          as: "cashDebitNoteItem",
+          include: [{ model: product, as: "DebitProductCash" }],
+        },
+        {
+          model: Account,
+          as: "accountDebitNoCash",
+          include: { model: AccountDetail, as: "accountDetail" },
+        },
+        { model: C_purchaseCash, as: "purchaseDataCash" },
+      ],
+    });
+
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Debit Note Not Found" });
+    }
+
+    const html = await renderFile(
+      path.join(__dirname, "../views/debitNoteCash.ejs"),
+      { data }
+    );
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    await page.setContent(html, { waitUntil: "networkidle0" });
+    const base64String = await page.screenshot({
+      type: "jpeg",
+      fullPage: true,
+      encoding: "base64",
+    });
+
+    await browser.close();
+    return res.status(200).json({
+      status: "Success",
+      message: "JPG create successFully",
+      data: base64String,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
