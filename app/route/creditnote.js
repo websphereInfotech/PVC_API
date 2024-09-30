@@ -13,6 +13,7 @@ const {
   creditNote_pdf,
   C_creditNote_pdf,
   creditNote_jpg,
+  C_creditNote_jpg
 } = require("../controller/creditNote");
 const adminAuth = require("../middleware/adminAuth");
 const { validation } = require("../constant/validate");
@@ -96,4 +97,9 @@ router.get(
   C_creditNote_pdf
 );
 
+router.get(
+  "/C_creditNote_jpg/:id",
+  adminAuth("Credit Note Cash:creditNote_jpg"),
+  C_creditNote_jpg
+);
 module.exports = router;
