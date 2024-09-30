@@ -1275,3 +1275,52 @@ exports.C_view_salesInvoice_pdf = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error." });
   }
 };
+exports.C_view_salesInvoice_jpg = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.user.companyId;
+
+    const data = await C_salesinvoice.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: C_salesinvoiceItem,
+          as: "items",
+          include: [{ model: product, as: "CashProduct" }],
+        },
+        { model: Account, as: "accountSaleCash" },
+      ],
+    });
+
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Sales Cash Not Found" });
+    }
+    const html = await renderFile(
+      path.join(__dirname, "../views/salesCash.ejs"),
+      { data }
+    );
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    await page.setContent(html, { waitUntil: "networkidle0" });
+    const base64String = await page.screenshot({
+      type: "jpeg",
+      fullPage: true,
+      encoding: "base64",
+    });
+
+    await browser.close();
+    return res.status(200).json({
+      status: "Success",
+      message: "JPG create successFully",
+      data: base64String,
+    });
+  } catch (e) {
+    console.error(e);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error." });
+  }
+};

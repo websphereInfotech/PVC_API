@@ -16,7 +16,8 @@ const {
   salesInvoice_pdf,
   salesInvoice_excel,
   view_salesInvoice_excel,
-  view_salesInvoice_jpg
+  view_salesInvoice_jpg,
+  C_view_salesInvoice_jpg
 } = require("../controller/salesinvoice");
 
 const router = express.Router();
@@ -113,6 +114,12 @@ router.get(
   "/C_view_salesInvoice_pdf/:id",
   adminAuth("Sales Cash:view_sales_cash_pdf"),
   C_view_salesInvoice_pdf
+);
+
+router.get(
+  "/C_view_salesInvoice_jpg/:id",
+  adminAuth("Sales Cash:view_sales_cash_jpg"),
+  C_view_salesInvoice_jpg
 );
 
 module.exports = router;

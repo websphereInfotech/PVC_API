@@ -665,7 +665,8 @@ exports.permissions = {
             "delete_sales_cash":true,
             "view_sales_cash":true,
             "view_all_sales_cash":true,
-            "view_sales_cash_pdf": true
+            "view_sales_cash_pdf": true,
+            "view_sales_cash_jpg": true
         },
         "Admin" :{
             "create_sales_cash":true,
@@ -673,7 +674,8 @@ exports.permissions = {
             "delete_sales_cash":true,
             "view_sales_cash":true,
             "view_all_sales_cash":true,
-            "view_sales_cash_pdf": true
+            "view_sales_cash_pdf": true,
+            "view_sales_cash_jpg": true
         },
         "Account" :{
             "create_sales_cash":true,
@@ -681,7 +683,8 @@ exports.permissions = {
             "delete_sales_cash":true,
             "view_sales_cash":true,
             "view_all_sales_cash":true,
-            "view_sales_cash_pdf": true
+            "view_sales_cash_pdf": true,
+            "view_sales_cash_jpg": true
         },
         "Employee" :{
             "create_sales_cash":true,
@@ -689,7 +692,8 @@ exports.permissions = {
             "delete_sales_cash":true,
             "view_sales_cash":true,
             "view_all_sales_cash":true,
-            "view_sales_cash_pdf": true
+            "view_sales_cash_pdf": true,
+            "view_sales_cash_jpg": true
         },
         "Workers" :{
             "create_sales_cash":true,
@@ -697,7 +701,8 @@ exports.permissions = {
             "delete_sales_cash":true,
             "view_sales_cash":true,
             "view_all_sales_cash":true,
-            "view_sales_cash_pdf": true
+            "view_sales_cash_pdf": true,
+            "view_sales_cash_jpg": true
         },
         "Other" :{
             "create_sales_cash":true,
@@ -705,7 +710,8 @@ exports.permissions = {
             "delete_sales_cash":true,
             "view_sales_cash":true,
             "view_all_sales_cash":true,
-            "view_sales_cash_pdf": true
+            "view_sales_cash_pdf": true,
+            "view_sales_cash_jpg": true
         },
     },
     "Receipt Cash" : {
