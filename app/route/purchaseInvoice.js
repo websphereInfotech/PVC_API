@@ -14,7 +14,8 @@ const {
   C_view_purchaseCash,
   C_view_purchaseCash_pdf,
   purchaseInvoice_pdf,
-  purchaseInvoice_jpg
+  purchaseInvoice_jpg,
+  C_view_purchaseCash_jpg
 } = require("../controller/purchaseInvoice");
 
 const router = express.Router();
@@ -98,6 +99,12 @@ router.get(
     "/C_view_purchaseCash_pdf/:id",
     adminAuth("Purchase Cash:view_purchase_cash_pdf"),
     C_view_purchaseCash_pdf
+);
+
+router.get(
+  "/C_view_purchaseCash_jpg/:id",
+  adminAuth("Purchase Cash:view_purchase_cash_jpg"),
+  C_view_purchaseCash_jpg
 );
 
 module.exports = router;

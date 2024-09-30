@@ -809,7 +809,8 @@ exports.permissions = {
             "delete_purchase_cash":true,
             "view_purchase_cash":true,
             "view_all_purchase_cash":true,
-            "view_purchase_cash_pdf": true
+            "view_purchase_cash_pdf": true,
+            "view_purchase_cash_jpg": true
         },
         "Admin" :{
             "create_purchase_cash":true,
@@ -817,7 +818,8 @@ exports.permissions = {
             "delete_purchase_cash":true,
             "view_purchase_cash":true,
             "view_all_purchase_cash":true,
-            "view_purchase_cash_pdf": true
+            "view_purchase_cash_pdf": true,
+            "view_purchase_cash_jpg": true
         },
         "Account" :{
             "create_purchase_cash":true,
@@ -825,7 +827,8 @@ exports.permissions = {
             "delete_purchase_cash":true,
             "view_purchase_cash":true,
             "view_all_purchase_cash":true,
-            "view_purchase_cash_pdf": true
+            "view_purchase_cash_pdf": true,
+            "view_purchase_cash_jpg": true
         },
         "Employee" :{
             "create_purchase_cash":true,
@@ -833,7 +836,8 @@ exports.permissions = {
             "delete_purchase_cash":true,
             "view_purchase_cash":true,
             "view_all_purchase_cash":true,
-            "view_purchase_cash_pdf": true
+            "view_purchase_cash_pdf": true,
+            "view_purchase_cash_jpg": true
         },
         "Workers" :{
             "create_purchase_cash":true,
@@ -841,7 +845,8 @@ exports.permissions = {
             "delete_purchase_cash":true,
             "view_purchase_cash":true,
             "view_all_purchase_cash":true,
-            "view_purchase_cash_pdf": true
+            "view_purchase_cash_pdf": true,
+            "view_purchase_cash_jpg": true
         },
         "Other" :{
             "create_purchase_cash":true,
@@ -849,7 +854,8 @@ exports.permissions = {
             "delete_purchase_cash":true,
             "view_purchase_cash":true,
             "view_all_purchase_cash":true,
-            "view_purchase_cash_pdf": true
+            "view_purchase_cash_pdf": true,
+            "view_purchase_cash_jpg": true
         },
     },
     "Items Cash" : {

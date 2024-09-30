@@ -999,3 +999,50 @@ exports.C_view_purchaseCash_pdf = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error." });
   }
 };
+exports.C_view_purchaseCash_jpg = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.user.companyId;
+    const data = await C_purchaseCash.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: C_purchaseCashItem,
+          as: "items",
+          include: [{ model: product, as: "ProductPurchase" }],
+        },
+        { model: Account, as: "accountPurchaseCash" },
+      ],
+    });
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Purchase Cash Not Found" });
+    }
+    const html = await renderFile(
+      path.join(__dirname, "../views/purchaseCash.ejs"),
+      { data }
+    );
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    await page.setContent(html, { waitUntil: "networkidle0" });
+    const base64String = await page.screenshot({
+      type: "jpeg",
+      fullPage: true,
+      encoding: "base64",
+    });
+
+    await browser.close();
+    return res.status(200).json({
+      status: "Success",
+      message: "JPG create successFully",
+      data: base64String,
+    });
+  } catch (e) {
+    console.error(e);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error." });
+  }
+};
