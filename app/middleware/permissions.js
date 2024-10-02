@@ -666,7 +666,8 @@ exports.permissions = {
             "view_sales_cash":true,
             "view_all_sales_cash":true,
             "view_sales_cash_pdf": true,
-            "view_sales_cash_jpg": true
+            "view_sales_cash_jpg": true,
+            "view_sales_cash_excel": true
         },
         "Admin" :{
             "create_sales_cash":true,
@@ -675,7 +676,8 @@ exports.permissions = {
             "view_sales_cash":true,
             "view_all_sales_cash":true,
             "view_sales_cash_pdf": true,
-            "view_sales_cash_jpg": true
+            "view_sales_cash_jpg": true,
+            "view_sales_cash_excel": true
         },
         "Account" :{
             "create_sales_cash":true,
@@ -684,7 +686,8 @@ exports.permissions = {
             "view_sales_cash":true,
             "view_all_sales_cash":true,
             "view_sales_cash_pdf": true,
-            "view_sales_cash_jpg": true
+            "view_sales_cash_jpg": true,
+            "view_sales_cash_excel": true
         },
         "Employee" :{
             "create_sales_cash":true,
@@ -693,7 +696,8 @@ exports.permissions = {
             "view_sales_cash":true,
             "view_all_sales_cash":true,
             "view_sales_cash_pdf": true,
-            "view_sales_cash_jpg": true
+            "view_sales_cash_jpg": true,
+            "view_sales_cash_excel": true
         },
         "Workers" :{
             "create_sales_cash":true,
@@ -702,7 +706,8 @@ exports.permissions = {
             "view_sales_cash":true,
             "view_all_sales_cash":true,
             "view_sales_cash_pdf": true,
-            "view_sales_cash_jpg": true
+            "view_sales_cash_jpg": true,
+            "view_sales_cash_excel": true
         },
         "Other" :{
             "create_sales_cash":true,
@@ -711,7 +716,8 @@ exports.permissions = {
             "view_sales_cash":true,
             "view_all_sales_cash":true,
             "view_sales_cash_pdf": true,
-            "view_sales_cash_jpg": true
+            "view_sales_cash_jpg": true,
+            "view_sales_cash_excel": true
         },
     },
     "Receipt Cash" : {
