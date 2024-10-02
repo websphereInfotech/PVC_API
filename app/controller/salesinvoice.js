@@ -1438,7 +1438,7 @@ exports.C_view_salesInvoice_excel = async (req, res) => {
       "Sl No",
       "Product",
       "HSN/SAC",
-      "Quantity",
+      "Quantity", 
       "Rate",
       "Amount",
     ]).font = { bold: true };
