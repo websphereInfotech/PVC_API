@@ -1446,7 +1446,7 @@ exports.C_view_salesInvoice_excel = async (req, res) => {
     data.items.forEach((item, index) => {
       const no = index + 1;
       const productName = item.CashProduct.productname;
-      const HSNcode = item.CashProduct.HSNcode;
+      const HSNcode = item.CashProduct.HSNcode; 
       const qty = `${item.qty} ${item.unit}`;
       const rate = item.rate;
       const mrp = item.mrp;
