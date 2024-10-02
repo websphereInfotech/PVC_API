@@ -607,7 +607,7 @@ exports.purchaseInvoice_excel = async (req, res) => {
     worksheet.getColumn("F").width = 20;
 
     worksheet.mergeCells("A1:F1");
-    worksheet.getCell("A1").value = "SALE TAX INVOICE";
+    worksheet.getCell("A1").value = "PURCHASE TAX INVOICE";
     worksheet.getCell("A1").font = { size: 16, bold: true };
     worksheet.getCell("A1").alignment = {
       vertical: "middle",
