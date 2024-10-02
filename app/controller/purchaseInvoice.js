@@ -15,6 +15,7 @@ const path = require("node:path");
 const htmlToPdf = require("html-pdf-node");
 const Company = require("../models/company");
 const puppeteer = require("puppeteer");
+const ExcelJS = require("exceljs");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -559,6 +560,160 @@ exports.purchaseInvoice_jpg = async (req, res) => {
     return res.status(200).json({
       status: "Success",
       message: "JPG create successFully",
+      data: base64String,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
+exports.purchaseInvoice_excel = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.user.companyId;
+    const companyData = await Company.findByPk(companyId);
+    const data = await purchaseInvoice.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: purchaseInvoiceItem,
+          as: "items",
+          include: [{ model: product, as: "purchseProduct" }],
+        },
+        {
+          model: Account,
+          as: "accountPurchaseInv",
+          include: { model: AccountDetail, as: "accountDetail" },
+        },
+      ],
+    });
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Purchase Invoice Not Found" });
+    }
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Invoice");
+
+    worksheet.getColumn("A").width = 20;
+    worksheet.getColumn("B").width = 20;
+    worksheet.getColumn("C").width = 20;
+    worksheet.getColumn("D").width = 20;
+    worksheet.getColumn("E").width = 20;
+    worksheet.getColumn("F").width = 20;
+
+    worksheet.mergeCells("A1:F1");
+    worksheet.getCell("A1").value = "SALE TAX INVOICE";
+    worksheet.getCell("A1").font = { size: 16, bold: true };
+    worksheet.getCell("A1").alignment = {
+      vertical: "middle",
+      horizontal: "center",
+    };
+    worksheet.mergeCells("A2:C2");
+    worksheet.getCell("A2").value = companyData.companyname;
+    worksheet.getCell("A2").font = { bold: true };
+
+    worksheet.mergeCells("A3:C3");
+    worksheet.getCell("A3").value = companyData.address1;
+    worksheet.mergeCells("A4:C4");
+    worksheet.getCell(
+      "A4"
+    ).value = `${companyData.city}, ${companyData.state} - ${companyData.pincode}`;
+    worksheet.mergeCells("A5:C5");
+    worksheet.getCell("A5").value = `GSTIN/UIN: ${companyData.gstnumber}`;
+
+    worksheet.mergeCells("A7:C7");
+    worksheet.getCell("A7").value = `Voucher No.: ${data.voucherno}`;
+
+    worksheet.mergeCells("A8:C8");
+    worksheet.getCell("A8").value = `Supply Inv. No.: ${
+      data?.supplyInvoiceNo ?? "N/A"
+    }`;
+
+    worksheet.mergeCells("D2:F2");
+    worksheet.getCell("D2").value = data.accountPurchaseInv.accountName;
+    worksheet.getCell("D2").font = { bold: true };
+    worksheet.getCell("D2").alignment = { horizontal: "right" };
+
+    worksheet.mergeCells("D3:F3");
+    worksheet.getCell("D3").value =
+      data.accountPurchaseInv?.accountDetail?.address1 ?? "N/A";
+    worksheet.getCell("D3").alignment = { horizontal: "right" };
+
+    worksheet.mergeCells("D4:F4");
+    worksheet.getCell("D4").value =
+      `${data.accountPurchaseInv?.accountDetail?.city}, ${data.accountPurchaseInv?.accountDetail?.state} - ${data.accountPurchaseInv?.accountDetail?.pincode}` ??
+      "N/A";
+    worksheet.getCell("D4").alignment = { horizontal: "right" };
+
+    worksheet.mergeCells("D5:F5");
+    worksheet.getCell("D5").value = `GSTIN/UIN: ${
+      data.accountPurchaseInv?.accountDetail?.gstNumber ?? "Unregistered"
+    }`;
+    worksheet.getCell("D5").alignment = { horizontal: "right" };
+
+    worksheet.mergeCells("D7:F7");
+    worksheet.getCell("D7").value = `Inv. Date: ${
+      new Date(data.invoicedate).toLocaleDateString() ?? "N/A"
+    }`;
+    worksheet.getCell("D7").alignment = { horizontal: "right" };
+
+    worksheet.mergeCells("D8:F8");
+    worksheet.getCell("D8").value = `Due Date: ${
+      new Date(data.duedate).toLocaleDateString() ?? "N/A"
+    }`;
+    worksheet.getCell("D8").alignment = { horizontal: "right" };
+
+    worksheet.addRow([
+      "Sl No",
+      "Product",
+      "HSN/SAC",
+      "Quantity",
+      "Rate",
+      "Amount",
+    ]).font = { bold: true };
+
+    data.items.forEach((item, index) => {
+      const no = index + 1;
+      const productName = item.purchseProduct.productname;
+      const HSNcode = item.purchseProduct.HSNcode;
+      const qty = `${item.qty} ${item.unit}`;
+      const rate = item.rate;
+      const mrp = item.mrp;
+      worksheet.addRow([no, productName, HSNcode, qty, rate, mrp]);
+    });
+
+    worksheet
+      .addRow(["", "", "", "", "Total", data.totalMrp])
+      .eachCell((cell, colNumber) => {
+        if (colNumber === 5 || colNumber === 6) {
+          cell.font = { bold: true };
+        }
+      });
+
+    if (data.totalIgst > 0) {
+      worksheet.addRow(["", "", "", "", "IGST", data.totalIgst]);
+    } else if (data.totalSgst) {
+      worksheet.addRow(["", "", "", "", "SGST", data.totalSgst / 2]);
+      worksheet.addRow(["", "", "", "", "CGST", data.totalSgst / 2]);
+    }
+    worksheet
+      .addRow(["", "", "", "", "Total Amount", data.mainTotal])
+      .eachCell((cell, colNumber) => {
+        if (colNumber === 5 || colNumber === 6) {
+          cell.font = { bold: true };
+        }
+      });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const base64String = buffer.toString("base64");
+    return res.status(200).json({
+      status: "true",
+      message: "Excel File generated successfully.",
       data: base64String,
     });
   } catch (error) {
