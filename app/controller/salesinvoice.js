@@ -1461,20 +1461,6 @@ exports.C_view_salesInvoice_excel = async (req, res) => {
         }
       });
 
-    if (data.totalIgst > 0) {
-      worksheet.addRow(["", "", "", "", "IGST", data.totalIgst]);
-    } else if (data.totalSgst) {
-      worksheet.addRow(["", "", "", "", "SGST", data.totalSgst / 2]);
-      worksheet.addRow(["", "", "", "", "CGST", data.totalSgst / 2]);
-    }
-    worksheet
-      .addRow(["", "", "", "", "Total Amount", data.mainTotal])
-      .eachCell((cell, colNumber) => {
-        if (colNumber === 5 || colNumber === 6) {
-          cell.font = { bold: true };
-        }
-      });
-
     const buffer = await workbook.xlsx.writeBuffer();
     const base64String = buffer.toString("base64");
     return res.status(200).json({

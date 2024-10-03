@@ -15,8 +15,11 @@ const {
   C_debitNote_pdf,
   debitNote_pdf,
   debitNote_jpg,
-  C_debitNote_jpg
+  C_debitNote_jpg,
+  debitNote_single_excel,
+  C_debitNote_single_excel,
 } = require("../controller/debitNote");
+
 
 const router = express.Router();
 
@@ -60,38 +63,42 @@ router.get(
   debitNote_jpg
 );
 
+router.get(
+  "/debitNote_single_excel/:id",
+  adminAuth("Debit Note:debitNote_single_excel"),
+  debitNote_single_excel
+);
+
 /*=============================================================================================================
                                          With Type C API
  ============================================================================================================ */
 
-
-
 router.post(
-    "/C_create_debitNote",
-    adminAuth("Debit Note Cash:create_debitNote"),
-    validation("C_create_debitNote"),
-    C_create_debitNote
+  "/C_create_debitNote",
+  adminAuth("Debit Note Cash:create_debitNote"),
+  validation("C_create_debitNote"),
+  C_create_debitNote
 );
 router.put(
-    "/C_update_debitNote/:id",
-    adminAuth("Debit Note Cash:update_debitNote"),
-    validation("C_create_debitNote"),
-    C_update_debitNote
+  "/C_update_debitNote/:id",
+  adminAuth("Debit Note Cash:update_debitNote"),
+  validation("C_create_debitNote"),
+  C_update_debitNote
 );
 router.get(
-    "/C_get_all_debitNote",
-    adminAuth("Debit Note Cash:view_all_debitNote"),
-    C_get_all_debitNote
+  "/C_get_all_debitNote",
+  adminAuth("Debit Note Cash:view_all_debitNote"),
+  C_get_all_debitNote
 );
 router.get(
-    "/C_view_single_debitNote/:id",
-    adminAuth("Debit Note Cash:view_single_debitNote"),
-    C_view_single_debitNote
+  "/C_view_single_debitNote/:id",
+  adminAuth("Debit Note Cash:view_single_debitNote"),
+  C_view_single_debitNote
 );
 router.delete(
-    "/C_delete_debitNote/:id",
-    adminAuth("Debit Note Cash:delete_debitNote"),
-    C_delete_debitNote
+  "/C_delete_debitNote/:id",
+  adminAuth("Debit Note Cash:delete_debitNote"),
+  C_delete_debitNote
 );
 
 router.get(
@@ -104,6 +111,12 @@ router.get(
   "/C_debitNote_jpg/:id",
   adminAuth("Debit Note Cash:debitNote_jpg"),
   C_debitNote_jpg
+);
+
+router.get(
+  "/C_debitNote_single_excel/:id",
+  adminAuth("Debit Note Cash:debitNote_single_excel"),
+  C_debitNote_single_excel
 );
 
 module.exports = router;
