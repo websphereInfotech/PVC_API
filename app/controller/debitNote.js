@@ -1318,3 +1318,88 @@ exports.C_debitNote_single_excel = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+exports.C_debitNote_excel = async (req, res) => {
+  try {
+    const companyId = req.user.companyId;
+    
+    const { formDate, toDate } = req.query;
+
+    const debits = await C_DebitNote.findAll({
+      where: {
+        debitdate: {
+          [Sequelize.Op.between]: [formDate, toDate],
+        },
+        companyId: companyId,
+      },
+      include: [
+        {
+          model: Account,
+          as: "accountDebitNoCash",
+        },
+        { model: User, as: "debitCreateUserCash", attributes: ["username"] },
+        { model: User, as: "debitUpdateUserCash", attributes: ["username"] },
+      ],
+    });
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Sales");
+    worksheet.columns = [
+      {
+        header: "Debit Note No",
+        key: "debitnoteno",
+        width: 10,
+      },
+      {
+        header: "Date",
+        key: "debitdate",
+        width: 10,
+      },
+      {
+        header: "Party",
+        key: "contactPersonName",
+        width: 15,
+      },
+      {
+        header: "Total Amount",
+        key: "mainTotal",
+        width: 10,
+      },
+      {
+        header: "Created By",
+        key: "createdBy",
+        width: 15,
+      },
+      {
+        header: "Updated By",
+        key: "updatedBy",
+        width: 15,
+      },
+    ];
+
+    for (const debit of debits) {
+      const contactPersonName = debit.accountDebitNoCash.contactPersonName;
+      const createdBy = debit.debitCreateUserCash.username;
+      const updatedBy = debit.debitUpdateUserCash.username;
+
+      worksheet.addRow({
+        debitnoteno: debit.debitnoteno,
+        debitdate: debit.debitdate,
+        contactPersonName: contactPersonName,
+        mainTotal: debit.mainTotal,
+        createdBy: createdBy,
+        updatedBy: updatedBy,
+      });
+    }
+    const buffer = await workbook.xlsx.writeBuffer();
+    const base64String = buffer.toString("base64");
+    return res.status(200).json({
+      status: "true",
+      message: "Excel File generated successfully.",
+      data: base64String,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};

@@ -1279,3 +1279,88 @@ exports.C_creditNote_single_excel = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+exports.C_creditNote_excel = async (req, res) => {
+  try {
+    const companyId = req.user.companyId;
+    
+    const { formDate, toDate } = req.query;
+
+    const credits = await C_CreditNote.findAll({
+      where: {
+        creditdate: {
+          [Sequelize.Op.between]: [formDate, toDate],
+        },
+        companyId: companyId,
+      },
+      include: [
+        {
+          model: Account,
+          as: "accountCreditNoCash",
+        },
+        { model: User, as: "creditCreateUserCash", attributes: ["username"] },
+        { model: User, as: "creditUpdateUserCash", attributes: ["username"] },
+      ],
+    });
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Sales");
+    worksheet.columns = [
+      {
+        header: "Credit Note No",
+        key: "creditnoteNo",
+        width: 10,
+      },
+      {
+        header: "Date",
+        key: "creditdate",
+        width: 10,
+      },
+      {
+        header: "Party",
+        key: "contactPersonName",
+        width: 15,
+      },
+      {
+        header: "Total Amount",
+        key: "mainTotal",
+        width: 10,
+      },
+      {
+        header: "Created By",
+        key: "createdBy",
+        width: 15,
+      },
+      {
+        header: "Updated By",
+        key: "updatedBy",
+        width: 15,
+      },
+    ];
+
+    for (const credit of credits) {
+      const contactPersonName = credit.accountCreditNoCash.contactPersonName;
+      const createdBy = credit.creditCreateUserCash.username;
+      const updatedBy = credit.creditUpdateUserCash.username;
+
+      worksheet.addRow({
+        creditnoteNo: credit.creditnoteNo,
+        creditdate: credit.creditdate,
+        contactPersonName: contactPersonName,
+        mainTotal: credit.mainTotal,
+        createdBy: createdBy,
+        updatedBy: updatedBy,
+      });
+    }
+    const buffer = await workbook.xlsx.writeBuffer();
+    const base64String = buffer.toString("base64");
+    return res.status(200).json({
+      status: "true",
+      message: "Excel File generated successfully.",
+      data: base64String,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};

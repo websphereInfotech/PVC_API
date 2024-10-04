@@ -17,7 +17,7 @@ const {
   debitNote_jpg,
   C_debitNote_jpg,
   debitNote_single_excel,
-  C_debitNote_single_excel,
+  C_debitNote_single_excel,C_debitNote_excel
 } = require("../controller/debitNote");
 
 
@@ -117,6 +117,12 @@ router.get(
   "/C_debitNote_single_excel/:id",
   adminAuth("Debit Note Cash:debitNote_single_excel"),
   C_debitNote_single_excel
+);
+
+router.get(
+  "/C_debitNote_excel",
+  adminAuth("Debit Note Cash:debitNote_excel"),
+  C_debitNote_excel
 );
 
 module.exports = router;

@@ -1337,3 +1337,88 @@ exports.C_purchaseInvoice_excel = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+exports.C_purchaseinvoice_all_excel = async (req, res) => {
+  try {
+    const companyId = req.user.companyId;
+    
+    const { formDate, toDate } = req.query;
+
+    const purchses = await C_purchaseCash.findAll({
+      where: {
+        date: {
+          [Sequelize.Op.between]: [formDate, toDate],
+        },
+        companyId: companyId,
+      },
+      include: [
+        {
+          model: Account,
+          as: "accountPurchaseCash",
+        },
+        { model: User, as: "purchaseCreateUser", attributes: ["username"] },
+        { model: User, as: "purchaseUpdateUser", attributes: ["username"] },
+      ],
+    });
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Sales");
+    worksheet.columns = [
+      {
+        header: "Purchase No",
+        key: "purchaseNo",
+        width: 10,
+      },
+      {
+        header: "Invoice Date",
+        key: "date",
+        width: 10,
+      },
+      {
+        header: "Party",
+        key: "contactPersonName",
+        width: 15,
+      },
+      {
+        header: "Total Amount",
+        key: "totalMrp",
+        width: 10,
+      },
+      {
+        header: "Created By",
+        key: "createdBy",
+        width: 15,
+      },
+      {
+        header: "Updated By",
+        key: "updatedBy",
+        width: 15,
+      },
+    ];
+
+    for (const purchse of purchses) {
+      const contactPersonName = purchse.accountPurchaseCash.contactPersonName;
+      const createdBy = purchse.purchaseCreateUser.username;
+      const updatedBy = purchse.purchaseUpdateUser.username;
+
+      worksheet.addRow({
+        purchaseNo: purchse.purchaseNo,
+        date: purchse.date,
+        contactPersonName: contactPersonName,
+        totalMrp: purchse.totalMrp,
+        createdBy: createdBy,
+        updatedBy: updatedBy,
+      });
+    }
+    const buffer = await workbook.xlsx.writeBuffer();
+    const base64String = buffer.toString("base64");
+    return res.status(200).json({
+      status: "true",
+      message: "Excel File generated successfully.",
+      data: base64String,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};

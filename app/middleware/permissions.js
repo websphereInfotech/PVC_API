@@ -685,7 +685,8 @@ exports.permissions = {
             "view_all_sales_cash":true,
             "view_sales_cash_pdf": true,
             "view_sales_cash_jpg": true,
-            "view_sales_cash_excel": true
+            "view_sales_cash_excel": true,
+            "sales_cash_excel":true
         },
         "Admin" :{
             "create_sales_cash":true,
@@ -695,7 +696,8 @@ exports.permissions = {
             "view_all_sales_cash":true,
             "view_sales_cash_pdf": true,
             "view_sales_cash_jpg": true,
-            "view_sales_cash_excel": true
+            "view_sales_cash_excel": true,
+            "sales_cash_excel":true
         },
         "Account" :{
             "create_sales_cash":true,
@@ -705,7 +707,8 @@ exports.permissions = {
             "view_all_sales_cash":true,
             "view_sales_cash_pdf": true,
             "view_sales_cash_jpg": true,
-            "view_sales_cash_excel": true
+            "view_sales_cash_excel": true,
+            "sales_cash_excel":true
         },
         "Employee" :{
             "create_sales_cash":true,
@@ -715,7 +718,8 @@ exports.permissions = {
             "view_all_sales_cash":true,
             "view_sales_cash_pdf": true,
             "view_sales_cash_jpg": true,
-            "view_sales_cash_excel": true
+            "view_sales_cash_excel": true,
+            "sales_cash_excel":true
         },
         "Workers" :{
             "create_sales_cash":true,
@@ -725,7 +729,8 @@ exports.permissions = {
             "view_all_sales_cash":true,
             "view_sales_cash_pdf": true,
             "view_sales_cash_jpg": true,
-            "view_sales_cash_excel": true
+            "view_sales_cash_excel": true,
+            "sales_cash_excel":true
         },
         "Other" :{
             "create_sales_cash":true,
@@ -735,7 +740,8 @@ exports.permissions = {
             "view_all_sales_cash":true,
             "view_sales_cash_pdf": true,
             "view_sales_cash_jpg": true,
-            "view_sales_cash_excel": true
+            "view_sales_cash_excel": true,
+            "sales_cash_excel":true
         },
     },
     "Receipt Cash" : {
@@ -835,7 +841,8 @@ exports.permissions = {
             "view_all_purchase_cash":true,
             "view_purchase_cash_pdf": true,
             "view_purchase_cash_jpg": true,
-            "view_purchase_cash_excel":true
+            "view_purchase_cash_excel":true,
+            "purchase_cash_excel": true
         },
         "Admin" :{
             "create_purchase_cash":true,
@@ -845,7 +852,8 @@ exports.permissions = {
             "view_all_purchase_cash":true,
             "view_purchase_cash_pdf": true,
             "view_purchase_cash_jpg": true,
-            "view_purchase_cash_excel":true
+            "view_purchase_cash_excel":true,
+            "purchase_cash_excel": true
         },
         "Account" :{
             "create_purchase_cash":true,
@@ -855,7 +863,8 @@ exports.permissions = {
             "view_all_purchase_cash":true,
             "view_purchase_cash_pdf": true,
             "view_purchase_cash_jpg": true,
-            "view_purchase_cash_excel":true
+            "view_purchase_cash_excel":true,
+            "purchase_cash_excel": true
         },
         "Employee" :{
             "create_purchase_cash":true,
@@ -865,7 +874,8 @@ exports.permissions = {
             "view_all_purchase_cash":true,
             "view_purchase_cash_pdf": true,
             "view_purchase_cash_jpg": true,
-            "view_purchase_cash_excel":true
+            "view_purchase_cash_excel":true,
+            "purchase_cash_excel": true
         },
         "Workers" :{
             "create_purchase_cash":true,
@@ -875,7 +885,8 @@ exports.permissions = {
             "view_all_purchase_cash":true,
             "view_purchase_cash_pdf": true,
             "view_purchase_cash_jpg": true,
-            "view_purchase_cash_excel":true
+            "view_purchase_cash_excel":true,
+            "purchase_cash_excel": true
         },
         "Other" :{
             "create_purchase_cash":true,
@@ -885,7 +896,8 @@ exports.permissions = {
             "view_all_purchase_cash":true,
             "view_purchase_cash_pdf": true,
             "view_purchase_cash_jpg": true,
-            "view_purchase_cash_excel":true
+            "view_purchase_cash_excel":true,
+            "purchase_cash_excel": true
         },
     },
     "Items Cash" : {
@@ -1537,7 +1549,8 @@ exports.permissions = {
             "delete_debitNote":true,
             "debitNote_pdf": true,
             "debitNote_jpg": true,
-            "debitNote_single_excel": true
+            "debitNote_single_excel": true,
+            "debitNote_excel": true
         },
         "Admin" :{
             "create_debitNote":true,
@@ -1547,7 +1560,8 @@ exports.permissions = {
             "delete_debitNote":true,
             "debitNote_pdf": true,
             "debitNote_jpg": true,
-            "debitNote_single_excel": true
+            "debitNote_single_excel": true,
+            "debitNote_excel": true
         },
         "Account" :{
             "create_debitNote":true,
@@ -1557,7 +1571,8 @@ exports.permissions = {
             "delete_debitNote":true,
             "debitNote_pdf": true,
             "debitNote_jpg": true,
-            "debitNote_single_excel": true
+            "debitNote_single_excel": true,
+            "debitNote_excel": true
         },
         "Employee" :{
             "create_debitNote":true,
@@ -1567,7 +1582,8 @@ exports.permissions = {
             "delete_debitNote":true,
             "debitNote_pdf": true,
             "debitNote_jpg": true,
-            "debitNote_single_excel": true
+            "debitNote_single_excel": true,
+            "debitNote_excel": true
         },
         "Workers" :{
             "create_debitNote":true,
@@ -1577,7 +1593,8 @@ exports.permissions = {
             "delete_debitNote":true,
             "debitNote_pdf": true,
             "debitNote_jpg": true,
-            "debitNote_single_excel": true
+            "debitNote_single_excel": true,
+            "debitNote_excel": true
         },
         "Other" :{
             "create_debitNote":true,
@@ -1587,7 +1604,8 @@ exports.permissions = {
             "delete_debitNote":true,
             "debitNote_pdf": true,
             "debitNote_jpg": true,
-            "debitNote_single_excel": true
+            "debitNote_single_excel": true,
+            "debitNote_excel": true
         }
     },
     "Credit Note Cash" : {
@@ -1599,7 +1617,8 @@ exports.permissions = {
             "view_single_creditNote":true,
             "creditNote_pdf": true,
             "creditNote_jpg": true,
-            "creditNote_single_excel": true
+            "creditNote_single_excel": true,
+            "creditNote_excel": true
         },
         "Admin" :{
             "create_creditNote":true,
@@ -1609,7 +1628,8 @@ exports.permissions = {
             "view_single_creditNote":true,
             "creditNote_pdf": true,
             "creditNote_jpg": true,
-            "creditNote_single_excel": true
+            "creditNote_single_excel": true,
+            "creditNote_excel": true
         },
         "Account" :{
             "create_creditNote":true,
@@ -1619,7 +1639,8 @@ exports.permissions = {
             "view_single_creditNote":true,
             "creditNote_pdf": true,
             "creditNote_jpg": true,
-            "creditNote_single_excel": true
+            "creditNote_single_excel": true,
+            "creditNote_excel": true
         },
         "Employee" :{
             "create_creditNote":true,
@@ -1629,7 +1650,8 @@ exports.permissions = {
             "view_single_creditNote":true,
             "creditNote_pdf": true,
             "creditNote_jpg": true,
-            "creditNote_single_excel": true
+            "creditNote_single_excel": true,
+            "creditNote_excel": true
         },
         "Workers" :{
             "create_creditNote":true,
@@ -1639,7 +1661,8 @@ exports.permissions = {
             "view_single_creditNote":true,
             "creditNote_pdf": true,
             "creditNote_jpg": true,
-            "creditNote_single_excel": true
+            "creditNote_single_excel": true,
+            "creditNote_excel": true
         },
         "Other" :{
             "create_creditNote":true,
@@ -1649,7 +1672,8 @@ exports.permissions = {
             "view_single_creditNote":true,
             "creditNote_pdf": true,
             "creditNote_jpg": true,
-            "creditNote_single_excel": true
+            "creditNote_single_excel": true,
+            "creditNote_excel": true
         }
     },
     "Wastage" : {
