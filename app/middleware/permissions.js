@@ -178,7 +178,8 @@ exports.permissions = {
             "delete_debitNote":true,
             "debitNote_pdf": true,
             "debitNote_jpg": true,
-            "debitNote_single_excel": true
+            "debitNote_single_excel": true,
+            "debitNote_excel": true
         },
         "Admin" :{
             "create_debitNote":true,
@@ -188,7 +189,8 @@ exports.permissions = {
             "delete_debitNote":true,
             "debitNote_pdf": true,
             "debitNote_jpg": true,
-            "debitNote_single_excel": true
+            "debitNote_single_excel": true,
+            "debitNote_excel": true
         },
         "Account" :{
             "create_debitNote":true,
@@ -198,7 +200,8 @@ exports.permissions = {
             "delete_debitNote":true,
             "debitNote_pdf": true,
             "debitNote_jpg": true,
-            "debitNote_single_excel": true
+            "debitNote_single_excel": true,
+            "debitNote_excel": true
         },
         "Employee" :{
             "create_debitNote":true,
@@ -208,7 +211,8 @@ exports.permissions = {
             "delete_debitNote":true,
             "debitNote_pdf": true,
             "debitNote_jpg": true,
-            "debitNote_single_excel": true
+            "debitNote_single_excel": true,
+            "debitNote_excel": true
         },
         "Workers" :{
             "create_debitNote":true,
@@ -218,7 +222,8 @@ exports.permissions = {
             "delete_debitNote":true,
             "debitNote_pdf": true,
             "debitNote_jpg": true,
-            "debitNote_single_excel": true
+            "debitNote_single_excel": true,
+            "debitNote_excel": true
         },
         "Other" :{
             "create_debitNote":true,
@@ -228,7 +233,8 @@ exports.permissions = {
             "delete_debitNote":true,
             "debitNote_pdf": true,
             "debitNote_jpg": true,
-            "debitNote_single_excel": true
+            "debitNote_single_excel": true,
+            "debitNote_excel": true
         }
     },
     "Credit Note" : {
@@ -240,7 +246,8 @@ exports.permissions = {
             "view_single_creditNote":true,
             "creditNote_pdf": true,
             "creditNote_jpg": true,
-            "creditNote_single_excel":true
+            "creditNote_single_excel":true,
+            "creditNote_excel": true
         },
         "Admin" :{
             "create_creditNote":true,
@@ -250,7 +257,8 @@ exports.permissions = {
             "view_single_creditNote":true,
             "creditNote_pdf": true,
             "creditNote_jpg": true,
-            "creditNote_single_excel":true
+            "creditNote_single_excel":true,
+            "creditNote_excel": true
         },
         "Account" :{
             "create_creditNote":true,
@@ -260,7 +268,8 @@ exports.permissions = {
             "view_single_creditNote":true,
             "creditNote_pdf": true,
             "creditNote_jpg": true,
-            "creditNote_single_excel":true
+            "creditNote_single_excel":true,
+            "creditNote_excel": true
         },
         "Employee" :{
             "create_creditNote":true,
@@ -270,7 +279,8 @@ exports.permissions = {
             "view_single_creditNote":true,
             "creditNote_pdf": true,
             "creditNote_jpg": true,
-            "creditNote_single_excel":true
+            "creditNote_single_excel":true,
+            "creditNote_excel": true
         },
         "Workers" :{
             "create_creditNote":true,
@@ -280,7 +290,8 @@ exports.permissions = {
             "view_single_creditNote":true,
             "creditNote_pdf": true,
             "creditNote_jpg": true,
-            "creditNote_single_excel":true
+            "creditNote_single_excel":true,
+            "creditNote_excel": true
         },
         "Other" :{
             "create_creditNote":true,
@@ -290,7 +301,8 @@ exports.permissions = {
             "view_single_creditNote":true,
             "creditNote_pdf": true,
             "creditNote_jpg": true,
-            "creditNote_single_excel":true
+            "creditNote_single_excel":true,
+            "creditNote_excel": true
         }
     },
     "Sales Invoice" : {
@@ -490,7 +502,8 @@ exports.permissions = {
             "view_all_purchase_Invoice":true,
             "purchaseInvoice_pdf": true,
             "purchaseInvoice_jpg": true,
-            "purchaseInvoice_excel": true
+            "purchaseInvoice_excel": true,
+            "view_all_purchaseInvoice_excel":true
         },
         "Admin" :{
             "create_purchase_Invoice":true,
@@ -500,7 +513,8 @@ exports.permissions = {
             "view_all_purchase_Invoice":true,
             "purchaseInvoice_pdf": true,
             "purchaseInvoice_jpg": true,
-            "purchaseInvoice_excel": true
+            "purchaseInvoice_excel": true,
+            "view_all_purchaseInvoice_excel":true
         },
         "Account" :{
             "create_purchase_Invoice":true,
@@ -510,7 +524,8 @@ exports.permissions = {
             "view_all_purchase_Invoice":true,
             "purchaseInvoice_pdf": true,
             "purchaseInvoice_jpg": true,
-            "purchaseInvoice_excel": true
+            "purchaseInvoice_excel": true,
+            "view_all_purchaseInvoice_excel":true
         },
         "Employee" :{
             "create_purchase_Invoice":true,
@@ -520,7 +535,8 @@ exports.permissions = {
             "view_all_purchase_Invoice":true,
             "purchaseInvoice_pdf": true,
             "purchaseInvoice_jpg": true,
-            "purchaseInvoice_excel": true
+            "purchaseInvoice_excel": true,
+            "view_all_purchaseInvoice_excel":true
         },
         "Workers" :{
             "create_purchase_Invoice":true,
@@ -530,7 +546,8 @@ exports.permissions = {
             "view_all_purchase_Invoice":true,
             "purchaseInvoice_pdf": true,
             "purchaseInvoice_jpg": true,
-            "purchaseInvoice_excel": true
+            "purchaseInvoice_excel": true,
+            "view_all_purchaseInvoice_excel":true
         },
         "Other" :{
             "create_purchase_Invoice":true,
@@ -540,7 +557,8 @@ exports.permissions = {
             "view_all_purchase_Invoice":true,
             "purchaseInvoice_pdf": true,
             "purchaseInvoice_jpg": true,
-            "purchaseInvoice_excel": true
+            "purchaseInvoice_excel": true,
+            "view_all_purchaseInvoice_excel":true
         }
     },
     "Company Bank Details" : {

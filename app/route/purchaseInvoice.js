@@ -18,7 +18,8 @@ const {
   C_view_purchaseCash_jpg,
   purchaseInvoice_excel,
   C_purchaseInvoice_excel,
-  C_purchaseinvoice_all_excel
+  C_purchaseinvoice_all_excel,
+  get_all_purchaseInvoice_excel
 } = require("../controller/purchaseInvoice");
 
 const router = express.Router();
@@ -70,6 +71,12 @@ router.get(
   "/purchaseInvoice_excel/:id",
   adminAuth("Purchase Invoice:purchaseInvoice_excel"),
   purchaseInvoice_excel
+);
+
+router.get(
+  "/get_all_purchaseInvoice_excel",
+  adminAuth("Purchase Invoice:view_all_purchaseInvoice_excel"),
+  get_all_purchaseInvoice_excel
 );
 
 /*=============================================================================================================

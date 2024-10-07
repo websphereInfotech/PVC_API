@@ -1385,17 +1385,7 @@ exports.C_view_salesInvoice_excel = async (req, res) => {
     worksheet.getCell("A5").value = `GSTIN/UIN: ${companyData.gstnumber}`;
 
     worksheet.mergeCells("A7:C7");
-    worksheet.getCell("A7").value = `Invoice No.: ${data.invoiceno}`;
-
-    worksheet.mergeCells("A8:C8");
-    worksheet.getCell("A8").value = `Dispatch Doc No.: ${
-      data?.dispatchno ?? "N/A"
-    }`;
-
-    worksheet.mergeCells("A9:C9");
-    worksheet.getCell("A9").value = `Dispatched through: ${
-      data?.dispatchThrough ?? "N/A"
-    }`;
+    worksheet.getCell("A7").value = `Invoice No.: ${data.saleNo}`;
 
     // Right side....
     worksheet.mergeCells("D2:F2");
@@ -1422,17 +1412,17 @@ exports.C_view_salesInvoice_excel = async (req, res) => {
 
     worksheet.mergeCells("D7:F7");
     worksheet.getCell("D7").value = `Date: ${
-      new Date(data.invoicedate).toLocaleDateString() ?? "N/A"
+      new Date(data.date).toLocaleDateString() ?? "N/A"
     }`;
     worksheet.getCell("D7").alignment = { horizontal: "right" };
 
-    worksheet.mergeCells("D8:F8");
-    worksheet.getCell("D8").value = "Delivery Note: ---";
-    worksheet.getCell("D8").alignment = { horizontal: "right" };
+    // worksheet.mergeCells("D8:F8");
+    // worksheet.getCell("D8").value = "Delivery Note: ---";
+    // worksheet.getCell("D8").alignment = { horizontal: "right" };
 
-    worksheet.mergeCells("D9:F9");
-    worksheet.getCell("D9").value = `Destination: ${data.destination ?? "N/A"}`;
-    worksheet.getCell("D9").alignment = { horizontal: "right" };
+    // worksheet.mergeCells("D9:F9");
+    // worksheet.getCell("D9").value = `Destination: ${data.destination ?? "N/A"}`;
+    // worksheet.getCell("D9").alignment = { horizontal: "right" };
 
     worksheet.addRow([
       "Sl No",

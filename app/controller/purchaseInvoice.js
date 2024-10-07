@@ -721,6 +721,91 @@ exports.purchaseInvoice_excel = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+exports.get_all_purchaseInvoice_excel = async (req, res) => {
+  try {
+    const companyId = req.user.companyId;
+    const { formDate, toDate } = req.query;
+
+    const Purchase = await purchaseInvoice.findAll({
+      where: {
+        invoicedate: {
+          [Sequelize.Op.between]: [formDate, toDate],
+        },
+        companyId: companyId,
+      },
+      include: [
+        {
+          model: Account,
+          as: "accountPurchaseInv",
+        },
+        { model: User, as: "salesCreateUser", attributes: ["username"] },
+        { model: User, as: "salesUpdateUser", attributes: ["username"] },
+      ],
+    });
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Purchase");
+    worksheet.columns = [
+      {
+        header: "Voucher No",
+        key: "voucherno",
+        width: 10,
+      },
+      {
+        header: "Invoice Date",
+        key: "invoicedate",
+        width: 10,
+      },
+      {
+        header: "Party",
+        key: "accountName",
+        width: 15,
+      },
+      {
+        header: "Total Amount",
+        key: "mainTotal",
+        width: 10,
+      },
+      {
+        header: "Created By",
+        key: "createdBy",
+        width: 15,
+      },
+      {
+        header: "Updated By",
+        key: "updatedBy",
+        width: 15,
+      },
+    ];
+
+    for (const purchase of Purchase) {
+      const accountName = purchase.accountPurchaseInv.accountName;
+      const createdBy = purchase.salesCreateUser.username;
+      const updatedBy = purchase.salesUpdateUser.username;
+
+      worksheet.addRow({
+        voucherno: purchase.voucherno,
+        invoicedate: purchase.invoicedate,
+        accountName: accountName,
+        mainTotal: purchase.mainTotal,
+        createdBy: createdBy,
+        updatedBy: updatedBy,
+      });
+    }
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const base64String = buffer.toString("base64");
+    return res.status(200).json({
+      status: "true",
+      message: "Excel File generated successfully.",
+      data: base64String,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
 
 /*=============================================================================================================
                                            Type C API
@@ -1255,12 +1340,7 @@ exports.C_purchaseInvoice_excel = async (req, res) => {
     worksheet.getCell("A5").value = `GSTIN/UIN: ${companyData.gstnumber}`;
 
     worksheet.mergeCells("A7:C7");
-    worksheet.getCell("A7").value = `Voucher No.: ${data.voucherno}`;
-
-    worksheet.mergeCells("A8:C8");
-    worksheet.getCell("A8").value = `Supply Inv. No.: ${
-      data?.supplyInvoiceNo ?? "N/A"
-    }`;
+    worksheet.getCell("A7").value = `Invoice No.: ${data.purchaseNo}`;
 
     worksheet.mergeCells("D2:F2");
     worksheet.getCell("D2").value = data.accountPurchaseCash.accountName;
@@ -1286,15 +1366,9 @@ exports.C_purchaseInvoice_excel = async (req, res) => {
 
     worksheet.mergeCells("D7:F7");
     worksheet.getCell("D7").value = `Inv. Date: ${
-      new Date(data.invoicedate).toLocaleDateString() ?? "N/A"
+      new Date(data.date).toLocaleDateString() ?? "N/A"
     }`;
     worksheet.getCell("D7").alignment = { horizontal: "right" };
-
-    worksheet.mergeCells("D8:F8");
-    worksheet.getCell("D8").value = `Due Date: ${
-      new Date(data.duedate).toLocaleDateString() ?? "N/A"
-    }`;
-    worksheet.getCell("D8").alignment = { horizontal: "right" };
 
     worksheet.addRow([
       "Sl No",
@@ -1360,7 +1434,7 @@ exports.C_purchaseinvoice_all_excel = async (req, res) => {
       ],
     });
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Sales");
+    const worksheet = workbook.addWorksheet("Purchase");
     worksheet.columns = [
       {
         header: "Purchase No",

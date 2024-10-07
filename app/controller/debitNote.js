@@ -581,12 +581,7 @@ exports.debitNote_single_excel = async (req, res) => {
     worksheet.getCell("A5").value = `GSTIN/UIN: ${companyData.gstnumber}`;
 
     worksheet.mergeCells("A7:C7");
-    worksheet.getCell("A7").value = `Voucher No.: ${data.voucherno}`;
-
-    worksheet.mergeCells("A8:C8");
-    worksheet.getCell("A8").value = `Supply Inv. No.: ${
-      data?.supplyInvoiceNo ?? "N/A"
-    }`;
+    worksheet.getCell("A7").value = `Debit No.: ${data.debitnoteno}`;
 
     worksheet.mergeCells("D2:F2");
     worksheet.getCell("D2").value = data.accountDebitNo.accountName;
@@ -612,15 +607,9 @@ exports.debitNote_single_excel = async (req, res) => {
 
     worksheet.mergeCells("D7:F7");
     worksheet.getCell("D7").value = `Inv. Date: ${
-      new Date(data.invoicedate).toLocaleDateString() ?? "N/A"
+      new Date(data.debitdate).toLocaleDateString() ?? "N/A"
     }`;
     worksheet.getCell("D7").alignment = { horizontal: "right" };
-
-    worksheet.mergeCells("D8:F8");
-    worksheet.getCell("D8").value = `Due Date: ${
-      new Date(data.duedate).toLocaleDateString() ?? "N/A"
-    }`;
-    worksheet.getCell("D8").alignment = { horizontal: "right" };
 
     worksheet.addRow([
       "Sl No",
@@ -662,6 +651,91 @@ exports.debitNote_single_excel = async (req, res) => {
           cell.font = { bold: true };
         }
       });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const base64String = buffer.toString("base64");
+    return res.status(200).json({
+      status: "true",
+      message: "Excel File generated successfully.",
+      data: base64String,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+exports.debitNote_excel = async (req, res) => {
+  try {
+    const companyId = req.user.companyId;
+    const { formDate, toDate } = req.query;
+
+    const debits = await debitNote.findAll({
+      where: {
+        debitdate: {
+          [Sequelize.Op.between]: [formDate, toDate],
+        },
+        companyId: companyId,
+      },
+      include: [
+        {
+          model: Account,
+          as: "accountDebitNo",
+        },
+        { model: User, as: "debitCreateUser", attributes: ["username"] },
+        { model: User, as: "debitUpdateUser", attributes: ["username"] },
+      ],
+    });
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Sales");
+    worksheet.columns = [
+      {
+        header: "Debitnote No",
+        key: "debitnoteno",
+        width: 10,
+      },
+      {
+        header: "Date",
+        key: "debitdate",
+        width: 10,
+      },
+      {
+        header: "Party",
+        key: "accountname",
+        width: 15,
+      },
+      {
+        header: "Total Amount",
+        key: "mainTotal",
+        width: 10,
+      },
+      {
+        header: "Created By",
+        key: "createdBy",
+        width: 15,
+      },
+      {
+        header: "Updated By",
+        key: "updatedBy",
+        width: 15,
+      },
+    ];
+
+    for (const debit of debits) {
+      const accountname = debit.accountDebitNo.accountName;
+      const createdBy = debit.debitCreateUser.username;
+      const updatedBy = debit.debitUpdateUser.username;
+
+      worksheet.addRow({
+        debitnoteno: debit.debitnoteno,
+        debitdate: debit.debitdate,
+        accountname: accountname,
+        mainTotal: debit.mainTotal,
+        createdBy: createdBy,
+        updatedBy: updatedBy,
+      });
+    }
 
     const buffer = await workbook.xlsx.writeBuffer();
     const base64String = buffer.toString("base64");
@@ -1236,46 +1310,18 @@ exports.C_debitNote_single_excel = async (req, res) => {
     worksheet.getCell("A5").value = `GSTIN/UIN: ${companyData.gstnumber}`;
 
     worksheet.mergeCells("A7:C7");
-    worksheet.getCell("A7").value = `Voucher No.: ${data.voucherno}`;
-
-    worksheet.mergeCells("A8:C8");
-    worksheet.getCell("A8").value = `Supply Inv. No.: ${
-      data?.supplyInvoiceNo ?? "N/A"
-    }`;
+    worksheet.getCell("A7").value = `Debit No.: ${data.debitnoteno}`;
 
     worksheet.mergeCells("D2:F2");
     worksheet.getCell("D2").value = data.accountDebitNoCash.accountName;
     worksheet.getCell("D2").font = { bold: true };
     worksheet.getCell("D2").alignment = { horizontal: "right" };
 
-    worksheet.mergeCells("D3:F3");
-    worksheet.getCell("D3").value =
-      data.accountDebitNoCash?.accountDetail?.address1 ?? "N/A";
-    worksheet.getCell("D3").alignment = { horizontal: "right" };
-
-    worksheet.mergeCells("D4:F4");
-    worksheet.getCell("D4").value =
-      `${data.accountDebitNoCash?.accountDetail?.city}, ${data.accountDebitNoCash?.accountDetail?.state} - ${data.accountDebitNoCash?.accountDetail?.pincode}` ??
-      "N/A";
-    worksheet.getCell("D4").alignment = { horizontal: "right" };
-
-    worksheet.mergeCells("D5:F5");
-    worksheet.getCell("D5").value = `GSTIN/UIN: ${
-      data.accountDebitNoCash?.accountDetail?.gstNumber ?? "Unregistered"
-    }`;
-    worksheet.getCell("D5").alignment = { horizontal: "right" };
-
     worksheet.mergeCells("D7:F7");
-    worksheet.getCell("D7").value = `Inv. Date: ${
-      new Date(data.invoicedate).toLocaleDateString() ?? "N/A"
+    worksheet.getCell("D7").value = `Date: ${
+      new Date(data.debitdate).toLocaleDateString() ?? "N/A"
     }`;
     worksheet.getCell("D7").alignment = { horizontal: "right" };
-
-    worksheet.mergeCells("D8:F8");
-    worksheet.getCell("D8").value = `Due Date: ${
-      new Date(data.duedate).toLocaleDateString() ?? "N/A"
-    }`;
-    worksheet.getCell("D8").alignment = { horizontal: "right" };
 
     worksheet.addRow([
       "Sl No",
@@ -1341,7 +1387,7 @@ exports.C_debitNote_excel = async (req, res) => {
       ],
     });
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Sales");
+    const worksheet = workbook.addWorksheet("debits");
     worksheet.columns = [
       {
         header: "Debit Note No",

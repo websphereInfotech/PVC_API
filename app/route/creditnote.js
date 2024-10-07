@@ -16,7 +16,8 @@ const {
   C_creditNote_jpg,
   C_creditNote_single_excel,
   creditNote_single_excel,
-  C_creditNote_excel
+  C_creditNote_excel,
+  creditNote_excel
 } = require("../controller/creditNote");
 const adminAuth = require("../middleware/adminAuth");
 const { validation } = require("../constant/validate");
@@ -66,6 +67,12 @@ router.get(
   "/creditNote_single_excel/:id",
   adminAuth("Credit Note:creditNote_single_excel"),
   creditNote_single_excel
+);
+
+router.get(
+  "/creditNote_excel",
+  adminAuth("Credit Note:creditNote_excel"),
+  creditNote_excel
 );
 
 /*=============================================================================================================
