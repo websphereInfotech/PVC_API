@@ -1,7 +1,7 @@
 const Account = require("../models/Account");
 const CompanyBankDetails = require("../models/companyBankDetails");
 const Company = require("../models/company");
-const { Sequelize } = require("sequelize");
+const { Sequelize, Op } = require("sequelize");
 const Ledger = require("../models/Ledger");
 const C_Ledger = require("../models/C_Ledger");
 const purchaseInvoice = require("../models/purchaseInvoice");
@@ -26,6 +26,8 @@ const path = require("node:path");
 const AccountDetails = require("../models/AccountDetail");
 const { ROLE } = require("../constant/constant");
 const BankLedger = require("../models/BankLedger");
+const { Workbook } = require("exceljs");
+const C_salesinvoice = require("../models/C_salesinvoice");
 exports.account_ledger = async (req, res) => {
   try {
     const { id } = req.params;
@@ -1982,6 +1984,579 @@ exports.account_ledger_pdf = async (req, res) => {
   }
 };
 
+exports.account_ledger_excel = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { formDate, toDate } = req.query;
+    const companyId = req.user.companyId; 
+    const companyData = await Company.findByPk(companyId);
+
+    let accounts;
+
+    if (id) {
+      accounts = await Account.findOne({
+        where: { id, companyId, isActive: true },
+        include: [{ model: AccountDetails, as: "accountDetail" }]
+      });
+
+      if (!accounts) {
+        return res.status(404).json({
+          status: "false",
+          message: "Account Not Found.",
+        });
+      }
+    } else {
+      accounts = await Account.findAll({
+        where: { companyId, isActive: true },
+        include: [{ model: AccountDetails, as: "accountDetail" }]
+      });
+
+      if (!accounts || accounts.length === 0) {
+        return res.status(404).json({
+          status: "false",
+          message: "No Active Accounts Found.",
+        });
+      }
+    }
+
+    const allLedgerData = [];
+
+    // If a single account was found, handle it separately for ledger data
+    if (accounts) {
+      const accountIds = Array.isArray(accounts) ? accounts.map(a => a.id) : [accounts.id];
+
+      for (const accountId of accountIds) {
+        const queryData = { accountId, companyId };
+
+        if (formDate && toDate) {
+          queryData.date = {
+            [Sequelize.Op.between]: [formDate, toDate],
+          };
+        }
+
+        const data = await Ledger.findAll({
+          attributes: [
+            "date",
+            [
+              Sequelize.literal(`CASE
+                    WHEN paymentLedger.id IS NOT NULL THEN \`paymentLedger\`.\`amount\`
+                    WHEN salesLedger.id IS NOT NULL THEN \`salesLedger\`.\`mainTotal\`
+                    WHEN debitNoLedger.id IS NOT NULL THEN \`debitNoLedger\`.\`mainTotal\`
+                    ELSE 0
+                END`),
+              "debitAmount",
+            ],
+            [
+              Sequelize.literal(`CASE
+                    WHEN receiptLedger.id IS NOT NULL THEN \`receiptLedger\`.\`amount\`
+                    WHEN purchaseLedger.id IS NOT NULL THEN \`purchaseLedger\`.\`mainTotal\`
+                    WHEN creditNoLedger.id IS NOT NULL THEN \`creditNoLedger\`.\`mainTotal\`
+                    ELSE 0
+                END`),
+              "creditAmount",
+            ],
+            [
+              Sequelize.literal(`CASE
+                    WHEN salesLedger.id IS NOT NULL THEN 'SALES GST'
+                    WHEN purchaseLedger.id IS NOT NULL THEN 'PURCHASE GST'
+                    WHEN creditNoLedger.id IS NOT NULL THEN 'SALES'
+                    WHEN debitNoLedger.id IS NOT NULL THEN 'PURCHASE'
+                    WHEN paymentLedger.id IS NOT NULL THEN
+                        CASE
+                            WHEN paymentLedger.bankAccountId IS NOT NULL THEN \`paymentLedger->paymentBankAccount\`.\`bankname\`
+                            ELSE \`paymentLedger\`.\`transactionType\`
+                        END
+                    WHEN receiptLedger.id IS NOT NULL THEN
+                        CASE
+                            WHEN receiptLedger.bankAccountId IS NOT NULL THEN \`receiptLedger->receiptBankAccount\`.\`bankname\`
+                            ELSE \`receiptLedger\`.\`transactionType\`
+                        END
+                    ELSE ''
+                  END`),
+              "particulars",
+            ],
+            [
+              Sequelize.literal(`CASE
+                    WHEN purchaseLedger.id IS NOT NULL THEN 'TAX INVOICE'
+                    WHEN salesLedger.id IS NOT NULL THEN 'TAX INVOICE'
+                    WHEN receiptLedger.id IS NOT NULL THEN 'Receipt'
+                    WHEN paymentLedger.id IS NOT NULL THEN 'Payment'
+                    WHEN debitNoLedger.id IS NOT NULL THEN 'DEBIT NOTE'
+                    WHEN creditNoLedger.id IS NOT NULL THEN 'CREDIT NOTE'
+                    ELSE ''
+                  END`),
+              "vchType",
+            ],
+            [
+              Sequelize.literal(`CASE
+                    WHEN purchaseLedger.id IS NOT NULL THEN \`purchaseLedger\`.\`voucherno\`
+                    WHEN salesLedger.id IS NOT NULL THEN \`salesLedger\`.\`invoiceno\`
+                    WHEN receiptLedger.id IS NOT NULL THEN \`receiptLedger\`.\`voucherno\`
+                    WHEN paymentLedger.id IS NOT NULL THEN \`paymentLedger\`.\`voucherno\`
+                    WHEN creditNoLedger.id IS NOT NULL THEN \`creditNoLedger\`.\`creditnoteNo\`
+                    WHEN debitNoLedger.id IS NOT NULL THEN \`debitNoLedger\`.\`debitnoteno\`
+                    ELSE ''
+                  END`),
+              "vchNo",
+            ]
+          ],
+          include: [
+            {
+              model: purchaseInvoice,
+              as: "purchaseLedger",
+              attributes: [],
+            },
+            {
+              model: Payment,
+              as: "paymentLedger",
+              include: {
+                model: CompanyBankDetails,
+                as: "paymentBankAccount",
+                attributes: [],
+              },
+              attributes: [],
+            },
+            {
+              model: salesInvoice,
+              as: "salesLedger",
+              attributes: [],
+            },
+            {
+              model: Receipt,
+              as: "receiptLedger",
+              include: {
+                model: CompanyBankDetails,
+                as: "receiptBankAccount",
+                attributes: [],
+              },
+              attributes: [],
+            },
+            {
+              model: Account,
+              as: "accountLedger",
+              attributes: [],
+            },
+            {
+              model: CreditNote,
+              as: "creditNoLedger",
+              attributes: [],
+            },
+            {
+              model: DebitNote,
+              as: "debitNoLedger",
+              attributes: [],
+            },
+          ],
+          where: queryData,
+          order: [
+            ["date", "ASC"],
+            ["id", "ASC"],
+          ],
+        });
+
+        if (data && data.length > 0) {
+          data.forEach(ledger => {
+            const ledgerEntry = {
+              date: ledger.dataValues.date,
+              debitAmount: ledger.dataValues.debitAmount,
+              creditAmount: ledger.dataValues.creditAmount,
+              particulars: ledger.dataValues.particulars,
+              vchType: ledger.dataValues.vchType,
+              vchNo: ledger.dataValues.vchNo,
+            };
+            allLedgerData.push(ledgerEntry);
+          });
+        }
+      }
+    }
+
+    const workbook = new Workbook();
+    const worksheet = workbook.addWorksheet('Account Ledger');
+
+    worksheet.getColumn("A").width = 20;
+    worksheet.getColumn("B").width = 20;
+    worksheet.getColumn("C").width = 20;
+    worksheet.getColumn("D").width = 20;
+    worksheet.getColumn("E").width = 20;
+    worksheet.getColumn("F").width = 20;
+
+    worksheet.mergeCells("A1:F1");
+    worksheet.getCell("A1").value = "Account Ledger";
+    worksheet.getCell("A1").font = { size: 16, bold: true };
+    worksheet.getCell("A1").alignment = {
+      vertical: "middle",
+      horizontal: "center",
+    };
+
+    worksheet.mergeCells("A2:C2");
+    worksheet.getCell("A2").value = companyData.companyname;
+    worksheet.getCell("A2").font = { bold: true };
+
+    worksheet.mergeCells("A3:C3");
+    worksheet.getCell("A3").value = companyData.address1;
+    worksheet.mergeCells("A4:C4");
+    worksheet.getCell("A4").value = `${companyData.city}, ${companyData.state} - ${companyData.pincode}`;
+    worksheet.mergeCells("A5:C5");
+    worksheet.getCell("A5").value = `GSTIN/UIN: ${companyData.gstnumber}`;
+
+    // If an account was found, include its details
+    if (accounts) {
+      worksheet.mergeCells("D2:F2");
+      worksheet.getCell("D2").value = accounts.accountName;
+      worksheet.getCell("D2").font = { bold: true };
+      worksheet.getCell("D2").alignment = { horizontal: "right" };
+
+      worksheet.mergeCells("D3:F3");
+      worksheet.getCell("D3").value = accounts.accountDetail?.address1 ?? "N/A";
+      worksheet.getCell("D3").alignment = { horizontal: "right" };
+
+      worksheet.mergeCells("D4:F4");
+      worksheet.getCell("D4").value =
+        `${accounts.accountDetail?.city}, ${accounts.accountDetail?.state} - ${accounts.accountDetail?.pincode}` ??
+        "N/A";
+      worksheet.getCell("D4").alignment = { horizontal: "right" };
+
+      worksheet.mergeCells("D5:F5");
+      worksheet.getCell("D5").value = `GSTIN/UIN: ${
+        accounts.accountDetail?.gstNumber ?? "Unregistered"
+      }`;
+      worksheet.getCell("D5").alignment = { horizontal: "right" };
+    }
+    worksheet.addRow([
+      "Date",
+      "Particulars",
+      "Vch Type",
+      "Vch No",
+      "Debit Amount",
+      "Credit Amount"
+    ]).font = { bold: true };
+
+    allLedgerData.forEach(ledger => {
+      const date = ledger.date
+      const Particulars = ledger.particulars
+      const voucharetype = ledger.vchType
+      const vouchareno = ledger.vchNo
+      const DebitAmount = ledger.debitAmount
+      const CreditAmount = ledger.creditAmount
+      worksheet.addRow([date,Particulars,voucharetype,vouchareno, DebitAmount, CreditAmount]);
+
+    });
+    // if(accounts){
+
+    //   const closingBalanceAmount = accounts.closingBalance?.amount || 0; // default to 0 if not defined
+  
+    //   const closingBalanceLabel = closingBalanceAmount >= 0 ? "Credit" : "Debit"; // Adjust the condition based on your logic
+      
+    //   // Create the closing balance row
+    //   worksheet
+    //     .addRow(["", "", "", "", `${closingBalanceLabel} Closing Balance`, Math.abs(closingBalanceAmount)]) // Use Math.abs to show positive value
+    //     .eachCell((cell, colNumber) => {
+    //       if (colNumber === 5 || colNumber === 6) {
+    //         cell.font = { bold: true };
+    //       }
+    //     });
+    // }
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const base64Data = buffer.toString('base64');
+
+    res.json({
+      status: "true",
+      message: "Account Ledger generated successfully.",
+      data: base64Data,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
+exports.C_account_ledger_excel = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { formDate, toDate } = req.query;
+    const companyId = req.user.companyId; 
+    const companyData = await Company.findByPk(companyId);
+
+    let accounts;
+
+    if (id) {
+      accounts = await Account.findOne({
+        where: { id, companyId, isActive: true },
+        include: [{ model: AccountDetails, as: "accountDetail" }]
+      });
+
+      if (!accounts) {
+        return res.status(404).json({
+          status: "false",
+          message: "Account Not Found.",
+        });
+      }
+    } else {
+      accounts = await Account.findAll({
+        where: { companyId, isActive: true },
+        include: [{ model: AccountDetails, as: "accountDetail" }]
+      });
+
+      if (!accounts || accounts.length === 0) {
+        return res.status(404).json({
+          status: "false",
+          message: "No Active Accounts Found.",
+        });
+      }
+    }
+
+    const allLedgerData = [];
+
+    // If a single account was found, handle it separately for ledger data
+    if (accounts) {
+      const accountIds = Array.isArray(accounts) ? accounts.map(a => a.id) : [accounts.id];
+
+      for (const accountId of accountIds) {
+        const queryData = { accountId, companyId };
+
+        if (formDate && toDate) {
+          queryData.date = {
+            [Sequelize.Op.between]: [formDate, toDate],
+          };
+        }
+
+        const data = await C_Ledger.findAll({
+          attributes: [
+            "date",
+            [
+              Sequelize.literal(`CASE
+                    WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`amount\`
+                    WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`mainTotal\`
+                    WHEN debitNoLedgerCash.id IS NOT NULL THEN \`debitNoLedgerCash\`.\`mainTotal\`
+                    ELSE 0
+                END`),
+              "debitAmount",
+            ],
+            [
+              Sequelize.literal(`CASE
+                    WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`amount\`
+                    WHEN purchaseLedgerCash.id IS NOT NULL THEN \`purchaseLedgerCash\`.\`mainTotal\`
+                    WHEN creditNoLedgerCash.id IS NOT NULL THEN \`creditNoLedgerCash\`.\`mainTotal\`
+                    ELSE 0
+                END`),
+              "creditAmount",
+            ],
+            [
+              Sequelize.literal(`CASE
+                    WHEN salesLedgerCash.id IS NOT NULL THEN 'SALES GST'
+                    WHEN purchaseLedgerCash.id IS NOT NULL THEN 'PURCHASE GST'
+                    WHEN creditNoLedgerCash.id IS NOT NULL THEN 'SALES'
+                    WHEN debitNoLedgerCash.id IS NOT NULL THEN 'PURCHASE'
+                    WHEN paymentLedgerCash.id IS NOT NULL THEN
+                        CASE
+                            WHEN paymentLedgerCash.bankAccountId IS NOT NULL THEN \`paymentLedgerCash->paymentBankAccount\`.\`bankname\`
+                            ELSE \`paymentLedgerCash\`.\`transactionType\`
+                        END
+                    WHEN receiptLedgerCash.id IS NOT NULL THEN
+                        CASE
+                            WHEN receiptLedgerCash.bankAccountId IS NOT NULL THEN \`receiptLedgerCash->receiptBankAccount\`.\`bankname\`
+                            ELSE \`receiptLedgerCash\`.\`transactionType\`
+                        END
+                    ELSE ''
+                  END`),
+              "particulars",
+            ],
+            [
+              Sequelize.literal(`CASE
+                    WHEN purchaseLedgerCash.id IS NOT NULL THEN 'TAX INVOICE'
+                    WHEN salesLedgerCash.id IS NOT NULL THEN 'TAX INVOICE'
+                    WHEN receiptLedgerCash.id IS NOT NULL THEN 'Receipt'
+                    WHEN paymentLedgerCash.id IS NOT NULL THEN 'Payment'
+                    WHEN debitNoLedgerCash.id IS NOT NULL THEN 'DEBIT NOTE'
+                    WHEN creditNoLedgerCash.id IS NOT NULL THEN 'CREDIT NOTE'
+                    ELSE ''
+                  END`),
+              "vchType",
+            ],
+            [
+              Sequelize.literal(`CASE
+                    WHEN purchaseLedgerCash.id IS NOT NULL THEN \`purchaseLedgerCash\`.\`voucherno\`
+                    WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`invoiceno\`
+                    WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`voucherno\`
+                    WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`voucherno\`
+                    WHEN creditNoLedgerCash.id IS NOT NULL THEN \`creditNoLedgerCash\`.\`creditnoteNo\`
+                    WHEN debitNoLedgerCash.id IS NOT NULL THEN \`debitNoLedgerCash\`.\`debitnoteno\`
+                    ELSE ''
+                  END`),
+              "vchNo",
+            ]
+          ],
+          include: [
+            {
+              model: C_PurchaseCash,
+              as: "purchaseLedgerCash",
+              attributes: [],
+            },
+            {
+              model: C_Payment,
+              as: "paymentLedgerCash",
+              include: {
+                model: CompanyBankDetails,
+                as: "paymentBankAccount",
+                attributes: [],
+              },
+              attributes: [],
+            },
+            {
+              model: C_salesinvoice,
+              as: "salesLedgerCash",
+              attributes: [],
+            },
+            {
+              model: C_Receipt,
+              as: "receiptLedgerCash",
+              include: {
+                model: CompanyBankDetails,
+                as: "receiptBankAccount",
+                attributes: [],
+              },
+              attributes: [],
+            },
+            {
+              model: Account,
+              as: "accountLedger",
+              attributes: [],
+            },
+            {
+              model: C_CreditNote,
+              as: "creditNoLedger",
+              attributes: [],
+            },
+            {
+              model: C_DebitNote,
+              as: "debitNoLedger",
+              attributes: [],
+            },
+          ],
+          where: queryData,
+          order: [
+            ["date", "ASC"],
+            ["id", "ASC"],
+          ],
+        });
+
+        if (data && data.length > 0) {
+          data.forEach(ledger => {
+            const ledgerEntry = {
+              date: ledger.dataValues.date,
+              debitAmount: ledger.dataValues.debitAmount,
+              creditAmount: ledger.dataValues.creditAmount,
+              particulars: ledger.dataValues.particulars,
+              vchType: ledger.dataValues.vchType,
+              vchNo: ledger.dataValues.vchNo,
+            };
+            allLedgerData.push(ledgerEntry);
+          });
+        }
+      }
+    }
+
+    const workbook = new Workbook();
+    const worksheet = workbook.addWorksheet('Account Ledger');
+
+    worksheet.getColumn("A").width = 20;
+    worksheet.getColumn("B").width = 20;
+    worksheet.getColumn("C").width = 20;
+    worksheet.getColumn("D").width = 20;
+    worksheet.getColumn("E").width = 20;
+    worksheet.getColumn("F").width = 20;
+
+    worksheet.mergeCells("A1:F1");
+    worksheet.getCell("A1").value = "Account Ledger";
+    worksheet.getCell("A1").font = { size: 16, bold: true };
+    worksheet.getCell("A1").alignment = {
+      vertical: "middle",
+      horizontal: "center",
+    };
+
+    worksheet.mergeCells("A2:C2");
+    worksheet.getCell("A2").value = companyData.companyname;
+    worksheet.getCell("A2").font = { bold: true };
+
+    worksheet.mergeCells("A3:C3");
+    worksheet.getCell("A3").value = companyData.address1;
+    worksheet.mergeCells("A4:C4");
+    worksheet.getCell("A4").value = `${companyData.city}, ${companyData.state} - ${companyData.pincode}`;
+    worksheet.mergeCells("A5:C5");
+    worksheet.getCell("A5").value = `GSTIN/UIN: ${companyData.gstnumber}`;
+
+    // If an account was found, include its details
+    if (accounts) {
+      worksheet.mergeCells("D2:F2");
+      worksheet.getCell("D2").value = accounts.accountName;
+      worksheet.getCell("D2").font = { bold: true };
+      worksheet.getCell("D2").alignment = { horizontal: "right" };
+
+      worksheet.mergeCells("D3:F3");
+      worksheet.getCell("D3").value = accounts.accountDetail?.address1 ?? "N/A";
+      worksheet.getCell("D3").alignment = { horizontal: "right" };
+
+      worksheet.mergeCells("D4:F4");
+      worksheet.getCell("D4").value =
+        `${accounts.accountDetail?.city}, ${accounts.accountDetail?.state} - ${accounts.accountDetail?.pincode}` ??
+        "N/A";
+      worksheet.getCell("D4").alignment = { horizontal: "right" };
+
+      worksheet.mergeCells("D5:F5");
+      worksheet.getCell("D5").value = `GSTIN/UIN: ${
+        accounts.accountDetail?.gstNumber ?? "Unregistered"
+      }`;
+      worksheet.getCell("D5").alignment = { horizontal: "right" };
+    }
+    worksheet.addRow([
+      "Date",
+      "Particulars",
+      "Vch Type",
+      "Vch No",
+      "Debit Amount",
+      "Credit Amount"
+    ]).font = { bold: true };
+
+    allLedgerData.forEach(ledger => {
+      const date = ledger.date
+      const Particulars = ledger.particulars
+      const voucharetype = ledger.vchType
+      const vouchareno = ledger.vchNo
+      const DebitAmount = ledger.debitAmount
+      const CreditAmount = ledger.creditAmount
+      worksheet.addRow([date,Particulars,voucharetype,vouchareno, DebitAmount, CreditAmount]);
+
+    });
+    // if(accounts){
+
+    //   const closingBalanceAmount = accounts.closingBalance?.amount || 0; // default to 0 if not defined
+  
+    //   const closingBalanceLabel = closingBalanceAmount >= 0 ? "Credit" : "Debit"; // Adjust the condition based on your logic
+      
+    //   // Create the closing balance row
+    //   worksheet
+    //     .addRow(["", "", "", "", `${closingBalanceLabel} Closing Balance`, Math.abs(closingBalanceAmount)]) // Use Math.abs to show positive value
+    //     .eachCell((cell, colNumber) => {
+    //       if (colNumber === 5 || colNumber === 6) {
+    //         cell.font = { bold: true };
+    //       }
+    //     });
+    // }
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const base64Data = buffer.toString('base64');
+
+    res.json({
+      status: "true",
+      message: "Account Ledger generated successfully.",
+      data: base64Data,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+};
 exports.C_account_ledger_pdf = async (req, res) => {
   try {
     const { id } = req.params;

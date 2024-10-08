@@ -1436,22 +1436,26 @@ exports.permissions = {
         "Super Admin" :{
             "account_ledger":true,
             "daybook":true,
-            "account_ledger_pdf": true
+            "account_ledger_pdf": true,
+            "account_ledger_excel": true
         },
         "Admin" :{
             "account_ledger":true,
             "daybook":true,
-            "account_ledger_pdf": true
+            "account_ledger_pdf": true,
+            "account_ledger_excel": true
         },
         "Account" :{
             "account_ledger":true,
             "daybook":true,
-            "account_ledger_pdf": true
+            "account_ledger_pdf": true,
+            "account_ledger_excel": true
         },
         "Employee" :{
             "account_ledger":true,
             "daybook":true,
-            "account_ledger_pdf": true
+            "account_ledger_pdf": true,
+            "account_ledger_excel": true
         },
         "Workers" :{
             "account_ledger":true,
@@ -1461,7 +1465,8 @@ exports.permissions = {
         "Other" :{
             "account_ledger":true,
             "daybook":true,
-            "account_ledger_pdf": true
+            "account_ledger_pdf": true,
+            "account_ledger_excel": true
         }
     },
     "Ledger Cash": {
