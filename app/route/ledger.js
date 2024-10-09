@@ -9,9 +9,11 @@ const {
   C_wallet_ledger,
   C_cashbook,
   account_ledger_pdf,
+  account_ledger_jpg,
   C_account_ledger_pdf,
   C_passbook,
-  account_ledger_excel
+  account_ledger_excel,
+  C_account_ledger_excel
 } = require("../controller/ledger");
 
 const router = express.Router();
@@ -20,6 +22,12 @@ router.get(
   "/account_ledger/:id",
   adminAuth("Ledger:account_ledger"),
   account_ledger
+);
+
+router.get(
+  "/account_ledger_jpg/:id",
+  adminAuth("Ledger:account_ledger_jpg"),
+  account_ledger_jpg
 );
 
 router.get(
@@ -32,6 +40,12 @@ router.get(
   "/C_account_ledger/:id",
   adminAuth("Ledger Cash:account_ledger"),
   C_account_ledger
+);
+
+router.get(
+  "/C_account_ledger_excel/:id",
+  adminAuth("Ledger Cash:account_ledger_excel"),
+  C_account_ledger_excel
 );
 
 router.get("/daybook", adminAuth("Ledger:daybook"), daybook);

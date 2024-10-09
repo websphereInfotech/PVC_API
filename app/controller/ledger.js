@@ -28,6 +28,8 @@ const { ROLE } = require("../constant/constant");
 const BankLedger = require("../models/BankLedger");
 const { Workbook } = require("exceljs");
 const C_salesinvoice = require("../models/C_salesinvoice");
+const puppeteer = require("puppeteer");
+
 exports.account_ledger = async (req, res) => {
   try {
     const { id } = req.params;
@@ -1984,6 +1986,119 @@ exports.account_ledger_pdf = async (req, res) => {
   }
 };
 
+exports.account_ledger_jpg = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { companyId } = req.user;
+    const { formDate, toDate } = req.query;
+
+    // Fetch company and account data
+    const companyData = await Company.findByPk(companyId);
+    const accountData = await Account.findOne({
+      where: { id: id, companyId: companyId },
+      include: [{ model: AccountDetails, as: "accountDetail" }],
+    });
+
+    if (!accountData) {
+      return res.status(404).json({ status: "false", message: "Account Not Found" });
+    }
+
+    const queryData = { accountId: id };
+    if (formDate && toDate) {
+      queryData.date = {
+        [Sequelize.Op.between]: [formDate, toDate],
+      };
+    }
+
+    const accountRecords = await Ledger.findAll({
+      where: queryData,
+      order: [["date", "ASC"]],
+    });
+
+    // Organize records by year
+    const years = {};
+    accountRecords.forEach((record) => {
+      const year = new Date(record.date).getFullYear();
+      if (!years[year]) {
+        years[year] = {
+          dateRange: `${formDate} - ${toDate}`,
+          records: {},
+          totals: { totalDebit: 0, totalCredit: 0 },
+          closingBalance: {},
+        };
+      }
+      
+      const date = record.date;
+      if (!years[year].records[date]) {
+        years[year].records[date] = [];
+      }
+
+      // Calculate totals
+      if (record.debitAmount) {
+        years[year].totals.totalDebit += record.debitAmount;
+      }
+      if (record.creditAmount) {
+        years[year].totals.totalCredit += record.creditAmount;
+      }
+
+      // Push the record into the corresponding date
+      years[year].records[date].push({
+        particulars: record.particulars,
+        vchType: record.vchType,
+        vchNo: record.vchNo,
+        debitAmount: record.debitAmount,
+        creditAmount: record.creditAmount,
+      });
+    });
+
+    // Calculate closing balances for each year
+    for (let year in years) {
+      const totalDebit = years[year].totals.totalDebit;
+      const totalCredit = years[year].totals.totalCredit;
+      const closingBalance = totalCredit - totalDebit;
+
+      years[year].closingBalance = {
+        type: closingBalance >= 0 ? "debit" : "credit",
+        amount: Math.abs(closingBalance),
+      };
+
+      years[year].totalAmount = Math.abs(closingBalance) + totalDebit + totalCredit;
+    }
+
+    // Render the EJS template
+    const html = await renderFile(
+      path.join(__dirname, "../views/accountLedger.ejs"),
+      {
+        data: {
+          form: companyData,
+          to: accountData,
+          years: years,
+        },
+      }
+    );
+
+    // Use Puppeteer to generate a JPEG image
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0" });
+    const base64String = await page.screenshot({
+      type: "jpeg",
+      fullPage: true,
+      encoding: "base64",
+    });
+
+    await browser.close();
+    return res.status(200).json({
+      status: "Success",
+      message: "JPG created successfully",
+      data: base64String,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
 exports.account_ledger_excel = async (req, res) => {
   try {
     const { id } = req.params;
@@ -2231,6 +2346,9 @@ exports.account_ledger_excel = async (req, res) => {
       "Credit Amount"
     ]).font = { bold: true };
 
+    let totalDebit = 0
+    let totalCredit = 0
+
     allLedgerData.forEach(ledger => {
       const date = ledger.date
       const Particulars = ledger.particulars
@@ -2238,24 +2356,20 @@ exports.account_ledger_excel = async (req, res) => {
       const vouchareno = ledger.vchNo
       const DebitAmount = ledger.debitAmount
       const CreditAmount = ledger.creditAmount
+      totalDebit += DebitAmount;
+      totalCredit += CreditAmount;
       worksheet.addRow([date,Particulars,voucharetype,vouchareno, DebitAmount, CreditAmount]);
 
     });
-    // if(accounts){
-
-    //   const closingBalanceAmount = accounts.closingBalance?.amount || 0; // default to 0 if not defined
-  
-    //   const closingBalanceLabel = closingBalanceAmount >= 0 ? "Credit" : "Debit"; // Adjust the condition based on your logic
-      
-    //   // Create the closing balance row
-    //   worksheet
-    //     .addRow(["", "", "", "", `${closingBalanceLabel} Closing Balance`, Math.abs(closingBalanceAmount)]) // Use Math.abs to show positive value
-    //     .eachCell((cell, colNumber) => {
-    //       if (colNumber === 5 || colNumber === 6) {
-    //         cell.font = { bold: true };
-    //       }
-    //     });
-    // }
+    worksheet.addRow(["", "", "", "", totalDebit, totalCredit]);
+    const closingBalance = totalCredit - totalDebit;
+    worksheet.addRow(["", "", "", "Closing Balance", closingBalance >= 0 ? closingBalance : "", closingBalance < 0 ? Math.abs(closingBalance) : ""]);
+    if (closingBalance >= 0) {
+      totalDebit += closingBalance;
+  } else {
+      totalCredit += Math.abs(closingBalance);
+  }
+    worksheet.addRow(["", "", "", "", totalDebit, totalCredit]);
 
     const buffer = await workbook.xlsx.writeBuffer();
     const base64Data = buffer.toString('base64');
@@ -2308,7 +2422,6 @@ exports.C_account_ledger_excel = async (req, res) => {
 
     const allLedgerData = [];
 
-    // If a single account was found, handle it separately for ledger data
     if (accounts) {
       const accountIds = Array.isArray(accounts) ? accounts.map(a => a.id) : [accounts.id];
 
@@ -2322,45 +2435,62 @@ exports.C_account_ledger_excel = async (req, res) => {
         }
 
         const data = await C_Ledger.findAll({
+          where: queryData,
           attributes: [
             "date",
             [
               Sequelize.literal(`CASE
-                    WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`amount\`
-                    WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`mainTotal\`
-                    WHEN debitNoLedgerCash.id IS NOT NULL THEN \`debitNoLedgerCash\`.\`mainTotal\`
-                    ELSE 0
-                END`),
+                WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`amount\`
+                WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`totalMrp\`
+                WHEN debitNoLedgerCash.id IS NOT NULL THEN \`debitNoLedgerCash\`.\`mainTotal\`
+                ELSE 0
+              END`),
               "debitAmount",
             ],
             [
               Sequelize.literal(`CASE
-                    WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`amount\`
-                    WHEN purchaseLedgerCash.id IS NOT NULL THEN \`purchaseLedgerCash\`.\`mainTotal\`
-                    WHEN creditNoLedgerCash.id IS NOT NULL THEN \`creditNoLedgerCash\`.\`mainTotal\`
-                    ELSE 0
-                END`),
+                WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`amount\`
+                WHEN purchaseLedgerCash.id IS NOT NULL THEN \`purchaseLedgerCash\`.\`totalMrp\`
+                WHEN creditNoLedgerCash.id IS NOT NULL THEN \`creditNoLedgerCash\`.\`mainTotal\`
+                ELSE 0
+              END`),
               "creditAmount",
             ],
             [
               Sequelize.literal(`CASE
-                    WHEN salesLedgerCash.id IS NOT NULL THEN 'SALES GST'
-                    WHEN purchaseLedgerCash.id IS NOT NULL THEN 'PURCHASE GST'
-                    WHEN creditNoLedgerCash.id IS NOT NULL THEN 'SALES'
-                    WHEN debitNoLedgerCash.id IS NOT NULL THEN 'PURCHASE'
-                    WHEN paymentLedgerCash.id IS NOT NULL THEN
-                        CASE
-                            WHEN paymentLedgerCash.bankAccountId IS NOT NULL THEN \`paymentLedgerCash->paymentBankAccount\`.\`bankname\`
-                            ELSE \`paymentLedgerCash\`.\`transactionType\`
-                        END
-                    WHEN receiptLedgerCash.id IS NOT NULL THEN
-                        CASE
-                            WHEN receiptLedgerCash.bankAccountId IS NOT NULL THEN \`receiptLedgerCash->receiptBankAccount\`.\`bankname\`
-                            ELSE \`receiptLedgerCash\`.\`transactionType\`
-                        END
-                    ELSE ''
-                  END`),
+                WHEN salesLedgerCash.id IS NOT NULL THEN 'CASH'
+                WHEN purchaseLedgerCash.id IS NOT NULL THEN 'CASH'
+                WHEN receiptLedgerCash.id IS NOT NULL THEN 'CASH'
+                WHEN paymentLedgerCash.id IS NOT NULL THEN 'CASH'
+                WHEN creditNoLedgerCash.id IS NOT NULL THEN 'SALES'
+                WHEN debitNoLedgerCash.id IS NOT NULL THEN 'PURCHASE'
+                ELSE ''
+              END`),
               "particulars",
+            ],
+            [
+              Sequelize.literal(`CASE
+                WHEN purchaseLedgerCash.id IS NOT NULL THEN 'PURCHASE'
+                WHEN salesLedgerCash.id IS NOT NULL THEN 'SALES'
+                WHEN receiptLedgerCash.id IS NOT NULL THEN 'Receipt'
+                WHEN paymentLedgerCash.id IS NOT NULL THEN 'Payment'
+                WHEN creditNoLedgerCash.id IS NOT NULL THEN 'CREDIT NOTE'
+                WHEN debitNoLedgerCash.id IS NOT NULL THEN 'DEBIT NOTE'
+                ELSE ''
+              END`),
+              "vchType",
+            ],
+            [
+              Sequelize.literal(`CASE
+                WHEN purchaseLedgerCash.id IS NOT NULL THEN \`purchaseLedgerCash\`.\`purchaseNo\`
+                WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`saleNo\`
+                WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`receiptNo\`
+                WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`paymentNo\`
+                WHEN creditNoLedgerCash.id IS NOT NULL THEN \`creditNoLedgerCash\`.\`creditnoteNo\`
+                WHEN debitNoLedgerCash.id IS NOT NULL THEN \`debitNoLedgerCash\`.\`debitnoteno\`
+                ELSE ''
+              END`),
+              "vchNo",
             ],
             [
               Sequelize.literal(`CASE
@@ -2376,10 +2506,10 @@ exports.C_account_ledger_excel = async (req, res) => {
             ],
             [
               Sequelize.literal(`CASE
-                    WHEN purchaseLedgerCash.id IS NOT NULL THEN \`purchaseLedgerCash\`.\`voucherno\`
-                    WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`invoiceno\`
-                    WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`voucherno\`
-                    WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`voucherno\`
+                    WHEN purchaseLedgerCash.id IS NOT NULL THEN \`purchaseLedgerCash\`.\`purchaseNo\`
+                    WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`saleNo\`
+                    WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`receiptNo\`
+                    WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`paymentNo\`
                     WHEN creditNoLedgerCash.id IS NOT NULL THEN \`creditNoLedgerCash\`.\`creditnoteNo\`
                     WHEN debitNoLedgerCash.id IS NOT NULL THEN \`debitNoLedgerCash\`.\`debitnoteno\`
                     ELSE ''
@@ -2396,11 +2526,6 @@ exports.C_account_ledger_excel = async (req, res) => {
             {
               model: C_Payment,
               as: "paymentLedgerCash",
-              include: {
-                model: CompanyBankDetails,
-                as: "paymentBankAccount",
-                attributes: [],
-              },
               attributes: [],
             },
             {
@@ -2411,26 +2536,21 @@ exports.C_account_ledger_excel = async (req, res) => {
             {
               model: C_Receipt,
               as: "receiptLedgerCash",
-              include: {
-                model: CompanyBankDetails,
-                as: "receiptBankAccount",
-                attributes: [],
-              },
               attributes: [],
             },
             {
               model: Account,
-              as: "accountLedger",
+              as: "accountLedgerCash",
               attributes: [],
             },
             {
               model: C_CreditNote,
-              as: "creditNoLedger",
+              as: "creditNoLedgerCash",
               attributes: [],
             },
             {
               model: C_DebitNote,
-              as: "debitNoLedger",
+              as: "debitNoLedgerCash",
               attributes: [],
             },
           ],
@@ -2458,7 +2578,7 @@ exports.C_account_ledger_excel = async (req, res) => {
     }
 
     const workbook = new Workbook();
-    const worksheet = workbook.addWorksheet('Account Ledger');
+    const worksheet = workbook.addWorksheet('Account Ledger Cash');
 
     worksheet.getColumn("A").width = 20;
     worksheet.getColumn("B").width = 20;
@@ -2468,7 +2588,7 @@ exports.C_account_ledger_excel = async (req, res) => {
     worksheet.getColumn("F").width = 20;
 
     worksheet.mergeCells("A1:F1");
-    worksheet.getCell("A1").value = "Account Ledger";
+    worksheet.getCell("A1").value = "Account Ledger Cash";
     worksheet.getCell("A1").font = { size: 16, bold: true };
     worksheet.getCell("A1").alignment = {
       vertical: "middle",
@@ -2486,10 +2606,9 @@ exports.C_account_ledger_excel = async (req, res) => {
     worksheet.mergeCells("A5:C5");
     worksheet.getCell("A5").value = `GSTIN/UIN: ${companyData.gstnumber}`;
 
-    // If an account was found, include its details
     if (accounts) {
       worksheet.mergeCells("D2:F2");
-      worksheet.getCell("D2").value = accounts.accountName;
+      worksheet.getCell("D2").value = accounts.contactPersonName;
       worksheet.getCell("D2").font = { bold: true };
       worksheet.getCell("D2").alignment = { horizontal: "right" };
 
@@ -2517,6 +2636,8 @@ exports.C_account_ledger_excel = async (req, res) => {
       "Debit Amount",
       "Credit Amount"
     ]).font = { bold: true };
+    let totalDebit = 0
+    let totalCredit = 0
 
     allLedgerData.forEach(ledger => {
       const date = ledger.date
@@ -2525,24 +2646,20 @@ exports.C_account_ledger_excel = async (req, res) => {
       const vouchareno = ledger.vchNo
       const DebitAmount = ledger.debitAmount
       const CreditAmount = ledger.creditAmount
+      totalDebit += DebitAmount;
+      totalCredit += CreditAmount;
       worksheet.addRow([date,Particulars,voucharetype,vouchareno, DebitAmount, CreditAmount]);
 
     });
-    // if(accounts){
-
-    //   const closingBalanceAmount = accounts.closingBalance?.amount || 0; // default to 0 if not defined
-  
-    //   const closingBalanceLabel = closingBalanceAmount >= 0 ? "Credit" : "Debit"; // Adjust the condition based on your logic
-      
-    //   // Create the closing balance row
-    //   worksheet
-    //     .addRow(["", "", "", "", `${closingBalanceLabel} Closing Balance`, Math.abs(closingBalanceAmount)]) // Use Math.abs to show positive value
-    //     .eachCell((cell, colNumber) => {
-    //       if (colNumber === 5 || colNumber === 6) {
-    //         cell.font = { bold: true };
-    //       }
-    //     });
-    // }
+    worksheet.addRow(["", "", "", "", totalDebit, totalCredit]);
+    const closingBalance = totalCredit - totalDebit;
+    worksheet.addRow(["", "", "", "Closing Balance", closingBalance >= 0 ? closingBalance : "", closingBalance < 0 ? Math.abs(closingBalance) : ""]);
+    if (closingBalance >= 0) {
+      totalDebit += closingBalance;
+    } else {
+      totalCredit += Math.abs(closingBalance);
+    }
+    worksheet.addRow(["", "", "", "", totalDebit, totalCredit]);
 
     const buffer = await workbook.xlsx.writeBuffer();
     const base64Data = buffer.toString('base64');
@@ -2557,6 +2674,7 @@ exports.C_account_ledger_excel = async (req, res) => {
     return res.status(500).json({ status: "false", message: "Internal Server Error" });
   }
 };
+
 exports.C_account_ledger_pdf = async (req, res) => {
   try {
     const { id } = req.params;

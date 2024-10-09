@@ -1437,36 +1437,42 @@ exports.permissions = {
             "account_ledger":true,
             "daybook":true,
             "account_ledger_pdf": true,
-            "account_ledger_excel": true
+            "account_ledger_excel": true,
+            "account_ledger_jpg": true
         },
         "Admin" :{
             "account_ledger":true,
             "daybook":true,
             "account_ledger_pdf": true,
-            "account_ledger_excel": true
+            "account_ledger_excel": true,
+            "account_ledger_jpg": true
         },
         "Account" :{
             "account_ledger":true,
             "daybook":true,
             "account_ledger_pdf": true,
-            "account_ledger_excel": true
+            "account_ledger_excel": true,
+            "account_ledger_jpg": true
         },
         "Employee" :{
             "account_ledger":true,
             "daybook":true,
             "account_ledger_pdf": true,
-            "account_ledger_excel": true
+            "account_ledger_excel": true,
+            "account_ledger_jpg": true
         },
         "Workers" :{
             "account_ledger":true,
             "daybook":true,
-            "account_ledger_pdf": true
+            "account_ledger_pdf": true,
+            "account_ledger_jpg": true
         },
         "Other" :{
             "account_ledger":true,
             "daybook":true,
             "account_ledger_pdf": true,
-            "account_ledger_excel": true
+            "account_ledger_excel": true,
+            "account_ledger_jpg": true
         }
     },
     "Ledger Cash": {
@@ -1476,7 +1482,8 @@ exports.permissions = {
             "cashbook": true,
             "wallet_ledger": true,
             "account_ledger_pdf": true,
-            "passbook": true
+            "passbook": true,
+            "account_ledger_excel": true
         },
         "Admin" :{
             "account_ledger":true,
@@ -1484,7 +1491,8 @@ exports.permissions = {
             "cashbook": true,
             "wallet_ledger": true,
             "account_ledger_pdf": true,
-            "passbook": true
+            "passbook": true,
+            "account_ledger_excel": true
         },
         "Account" :{
             "account_ledger":true,
@@ -1492,7 +1500,8 @@ exports.permissions = {
             "cashbook": true,
             "wallet_ledger": true,
             "account_ledger_pdf": true,
-            "passbook": true
+            "passbook": true,
+            "account_ledger_excel": true
         },
         "Employee" :{
             "account_ledger":true,
@@ -1500,7 +1509,8 @@ exports.permissions = {
             "cashbook": true,
             "wallet_ledger": true,
             "account_ledger_pdf": true,
-            "passbook": true
+            "passbook": true,
+            "account_ledger_excel": true
         },
         "Workers" :{
             "account_ledger":true,
@@ -1508,7 +1518,8 @@ exports.permissions = {
             "cashbook": true,
             "wallet_ledger": true,
             "account_ledger_pdf": true,
-            "passbook": true
+            "passbook": true,
+            "account_ledger_excel": true
         },
         "Other" :{
             "account_ledger":true,
@@ -1516,7 +1527,8 @@ exports.permissions = {
             "cashbook": true,
             "wallet_ledger": true,
             "account_ledger_pdf": true,
-            "passbook": true
+            "passbook": true,
+            "account_ledger_excel": true
         }
     },
     "Purchase Order": {
