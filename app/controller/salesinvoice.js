@@ -851,6 +851,54 @@ exports.view_salesInvoice_jpg = async (req, res) => {
   }
 };
 
+exports.salesInvoice_html = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.user.companyId;
+
+    const companyData = await company.findByPk(companyId);
+
+    const data = await salesInvoice.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: salesInvoiceItem,
+          as: "items",
+          include: [{ model: product, as: "InvoiceProduct" }],
+        },
+        {
+          model: Account,
+          as: "accountSaleInv",
+          include: { model: AccountDetail, as: "accountDetail" },
+        },
+      ],
+    });
+
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Sales Invoice Not Found" });
+    }
+    const html = await renderFile(
+      path.join(__dirname, "../views/saleInvoice.ejs"),
+      { data: { form: companyData, sales: data } }
+    );
+    const base64HTML = Buffer.from(html).toString("base64");
+
+    res.setHeader("Content-Type", "application/json");
+    return res.status(200).json({
+      status: "Success",
+      message: "Html Document Created Successfully",
+      data: base64HTML,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
 /*=============================================================================================================
                                            Type C API
  ============================================================================================================ */
@@ -1316,6 +1364,47 @@ exports.C_view_salesInvoice_jpg = async (req, res) => {
       status: "Success",
       message: "JPG create successFully",
       data: base64String,
+    });
+  } catch (e) {
+    console.error(e);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error." });
+  }
+};
+exports.C_salesInvoice_html = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.user.companyId;
+
+    const data = await C_salesinvoice.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: C_salesinvoiceItem,
+          as: "items",
+          include: [{ model: product, as: "CashProduct" }],
+        },
+        { model: Account, as: "accountSaleCash" },
+      ],
+    });
+
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Sales Cash Not Found" });
+    }
+    const html = await renderFile(
+      path.join(__dirname, "../views/salesCash.ejs"),
+      { data }
+    );
+    const base64HTML = Buffer.from(html).toString("base64");
+
+    res.setHeader("Content-Type", "application/json");
+    return res.status(200).json({
+      status: "Success",
+      message: "Html Document Created Successfully",
+      data: base64HTML,
     });
   } catch (e) {
     console.error(e);

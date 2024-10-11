@@ -247,7 +247,8 @@ exports.permissions = {
             "creditNote_pdf": true,
             "creditNote_jpg": true,
             "creditNote_single_excel":true,
-            "creditNote_excel": true
+            "creditNote_excel": true,
+            "creditNote_html":true
         },
         "Admin" :{
             "create_creditNote":true,
@@ -258,7 +259,8 @@ exports.permissions = {
             "creditNote_pdf": true,
             "creditNote_jpg": true,
             "creditNote_single_excel":true,
-            "creditNote_excel": true
+            "creditNote_excel": true,
+            "creditNote_html":true
         },
         "Account" :{
             "create_creditNote":true,
@@ -269,7 +271,8 @@ exports.permissions = {
             "creditNote_pdf": true,
             "creditNote_jpg": true,
             "creditNote_single_excel":true,
-            "creditNote_excel": true
+            "creditNote_excel": true,
+            "creditNote_html":true
         },
         "Employee" :{
             "create_creditNote":true,
@@ -280,7 +283,8 @@ exports.permissions = {
             "creditNote_pdf": true,
             "creditNote_jpg": true,
             "creditNote_single_excel":true,
-            "creditNote_excel": true
+            "creditNote_excel": true,
+            "creditNote_html":true
         },
         "Workers" :{
             "create_creditNote":true,
@@ -291,7 +295,8 @@ exports.permissions = {
             "creditNote_pdf": true,
             "creditNote_jpg": true,
             "creditNote_single_excel":true,
-            "creditNote_excel": true
+            "creditNote_excel": true,
+            "creditNote_html":true
         },
         "Other" :{
             "create_creditNote":true,
@@ -302,7 +307,8 @@ exports.permissions = {
             "creditNote_pdf": true,
             "creditNote_jpg": true,
             "creditNote_single_excel":true,
-            "creditNote_excel": true
+            "creditNote_excel": true,
+            "creditNote_html":true
         }
     },
     "Sales Invoice" : {
@@ -315,7 +321,8 @@ exports.permissions = {
             "salesInvoice_pdf": true,
             "salesInvoice_excel": true,
             "view_salesInvoice_excel": true,
-            "view_salesInvoice_jpg": true
+            "view_salesInvoice_jpg": true,
+            "salesInvoice_html": true
         },
         "Admin" :{
             "create_salesinvoice":true,
@@ -326,7 +333,8 @@ exports.permissions = {
             "salesInvoice_pdf": true,
             "salesInvoice_excel": true,
             "view_salesInvoice_excel": true,
-            "view_salesInvoice_jpg": true
+            "view_salesInvoice_jpg": true,
+            "salesInvoice_html": true
         },
         "Account" :{
             "create_salesinvoice":true,
@@ -337,7 +345,8 @@ exports.permissions = {
             "salesInvoice_pdf": true,
             "salesInvoice_excel": true,
             "view_salesInvoice_excel": true,
-            "view_salesInvoice_jpg": true
+            "view_salesInvoice_jpg": true,
+            "salesInvoice_html": true
         },
         "Employee" :{
             "create_salesinvoice":true,
@@ -348,7 +357,8 @@ exports.permissions = {
             "salesInvoice_pdf": true,
             "salesInvoice_excel": true,
             "view_salesInvoice_excel": true,
-            "view_salesInvoice_jpg": true
+            "view_salesInvoice_jpg": true,
+            "salesInvoice_html": true
         },
         "Workers" :{
             "create_salesinvoice":true,
@@ -359,7 +369,8 @@ exports.permissions = {
             "salesInvoice_pdf": true,
             "salesInvoice_excel": true,
             "view_salesInvoice_excel": true,
-            "view_salesInvoice_jpg": true
+            "view_salesInvoice_jpg": true,
+            "salesInvoice_html": true
         },
         "Other" :{
             "create_salesinvoice":true,
@@ -370,7 +381,8 @@ exports.permissions = {
             "salesInvoice_pdf": true,
             "salesInvoice_excel": true,
             "view_salesInvoice_excel": true,
-            "view_salesInvoice_jpg": true
+            "view_salesInvoice_jpg": true,
+            "salesInvoice_html": true
         }
     },
     "Delivery Challan" : {
@@ -503,7 +515,8 @@ exports.permissions = {
             "purchaseInvoice_pdf": true,
             "purchaseInvoice_jpg": true,
             "purchaseInvoice_excel": true,
-            "view_all_purchaseInvoice_excel":true
+            "view_all_purchaseInvoice_excel":true,
+            "purchaseInvoice_html":true
         },
         "Admin" :{
             "create_purchase_Invoice":true,
@@ -514,7 +527,8 @@ exports.permissions = {
             "purchaseInvoice_pdf": true,
             "purchaseInvoice_jpg": true,
             "purchaseInvoice_excel": true,
-            "view_all_purchaseInvoice_excel":true
+            "view_all_purchaseInvoice_excel":true,
+            "purchaseInvoice_html":true
         },
         "Account" :{
             "create_purchase_Invoice":true,
@@ -525,7 +539,8 @@ exports.permissions = {
             "purchaseInvoice_pdf": true,
             "purchaseInvoice_jpg": true,
             "purchaseInvoice_excel": true,
-            "view_all_purchaseInvoice_excel":true
+            "view_all_purchaseInvoice_excel":true,
+            "purchaseInvoice_html":true
         },
         "Employee" :{
             "create_purchase_Invoice":true,
@@ -536,7 +551,8 @@ exports.permissions = {
             "purchaseInvoice_pdf": true,
             "purchaseInvoice_jpg": true,
             "purchaseInvoice_excel": true,
-            "view_all_purchaseInvoice_excel":true
+            "view_all_purchaseInvoice_excel":true,
+            "purchaseInvoice_html":true
         },
         "Workers" :{
             "create_purchase_Invoice":true,
@@ -547,7 +563,8 @@ exports.permissions = {
             "purchaseInvoice_pdf": true,
             "purchaseInvoice_jpg": true,
             "purchaseInvoice_excel": true,
-            "view_all_purchaseInvoice_excel":true
+            "view_all_purchaseInvoice_excel":true,
+            "purchaseInvoice_html":true
         },
         "Other" :{
             "create_purchase_Invoice":true,
@@ -558,7 +575,8 @@ exports.permissions = {
             "purchaseInvoice_pdf": true,
             "purchaseInvoice_jpg": true,
             "purchaseInvoice_excel": true,
-            "view_all_purchaseInvoice_excel":true
+            "view_all_purchaseInvoice_excel":true,
+            "purchaseInvoice_html":true
         }
     },
     "Company Bank Details" : {
@@ -704,7 +722,8 @@ exports.permissions = {
             "view_sales_cash_pdf": true,
             "view_sales_cash_jpg": true,
             "view_sales_cash_excel": true,
-            "sales_cash_excel":true
+            "sales_cash_excel":true,
+            "sales_cash_html": true
         },
         "Admin" :{
             "create_sales_cash":true,
@@ -715,7 +734,8 @@ exports.permissions = {
             "view_sales_cash_pdf": true,
             "view_sales_cash_jpg": true,
             "view_sales_cash_excel": true,
-            "sales_cash_excel":true
+            "sales_cash_excel":true,
+            "sales_cash_html": true
         },
         "Account" :{
             "create_sales_cash":true,
@@ -726,7 +746,8 @@ exports.permissions = {
             "view_sales_cash_pdf": true,
             "view_sales_cash_jpg": true,
             "view_sales_cash_excel": true,
-            "sales_cash_excel":true
+            "sales_cash_excel":true,
+            "sales_cash_html": true
         },
         "Employee" :{
             "create_sales_cash":true,
@@ -737,7 +758,8 @@ exports.permissions = {
             "view_sales_cash_pdf": true,
             "view_sales_cash_jpg": true,
             "view_sales_cash_excel": true,
-            "sales_cash_excel":true
+            "sales_cash_excel":true,
+            "sales_cash_html": true
         },
         "Workers" :{
             "create_sales_cash":true,
@@ -748,7 +770,8 @@ exports.permissions = {
             "view_sales_cash_pdf": true,
             "view_sales_cash_jpg": true,
             "view_sales_cash_excel": true,
-            "sales_cash_excel":true
+            "sales_cash_excel":true,
+            "sales_cash_html": true
         },
         "Other" :{
             "create_sales_cash":true,
@@ -759,7 +782,8 @@ exports.permissions = {
             "view_sales_cash_pdf": true,
             "view_sales_cash_jpg": true,
             "view_sales_cash_excel": true,
-            "sales_cash_excel":true
+            "sales_cash_excel":true,
+            "sales_cash_html": true
         },
     },
     "Receipt Cash" : {
@@ -860,7 +884,8 @@ exports.permissions = {
             "view_purchase_cash_pdf": true,
             "view_purchase_cash_jpg": true,
             "view_purchase_cash_excel":true,
-            "purchase_cash_excel": true
+            "purchase_cash_excel": true,
+            "purchase_cash_html": true
         },
         "Admin" :{
             "create_purchase_cash":true,
@@ -871,7 +896,8 @@ exports.permissions = {
             "view_purchase_cash_pdf": true,
             "view_purchase_cash_jpg": true,
             "view_purchase_cash_excel":true,
-            "purchase_cash_excel": true
+            "purchase_cash_excel": true,
+            "purchase_cash_html": true
         },
         "Account" :{
             "create_purchase_cash":true,
@@ -882,7 +908,8 @@ exports.permissions = {
             "view_purchase_cash_pdf": true,
             "view_purchase_cash_jpg": true,
             "view_purchase_cash_excel":true,
-            "purchase_cash_excel": true
+            "purchase_cash_excel": true,
+            "purchase_cash_html": true
         },
         "Employee" :{
             "create_purchase_cash":true,
@@ -893,7 +920,8 @@ exports.permissions = {
             "view_purchase_cash_pdf": true,
             "view_purchase_cash_jpg": true,
             "view_purchase_cash_excel":true,
-            "purchase_cash_excel": true
+            "purchase_cash_excel": true,
+            "purchase_cash_html": true
         },
         "Workers" :{
             "create_purchase_cash":true,
@@ -904,7 +932,8 @@ exports.permissions = {
             "view_purchase_cash_pdf": true,
             "view_purchase_cash_jpg": true,
             "view_purchase_cash_excel":true,
-            "purchase_cash_excel": true
+            "purchase_cash_excel": true,
+            "purchase_cash_html": true
         },
         "Other" :{
             "create_purchase_cash":true,
@@ -915,7 +944,8 @@ exports.permissions = {
             "view_purchase_cash_pdf": true,
             "view_purchase_cash_jpg": true,
             "view_purchase_cash_excel":true,
-            "purchase_cash_excel": true
+            "purchase_cash_excel": true,
+            "purchase_cash_html": true
         },
     },
     "Items Cash" : {
@@ -1438,41 +1468,47 @@ exports.permissions = {
             "daybook":true,
             "account_ledger_pdf": true,
             "account_ledger_excel": true,
-            "account_ledger_jpg": true
+            "account_ledger_jpg": true,
+            "account_ledger_html": true
         },
         "Admin" :{
             "account_ledger":true,
             "daybook":true,
             "account_ledger_pdf": true,
             "account_ledger_excel": true,
-            "account_ledger_jpg": true
+            "account_ledger_jpg": true,
+            "account_ledger_html": true
         },
         "Account" :{
             "account_ledger":true,
             "daybook":true,
             "account_ledger_pdf": true,
             "account_ledger_excel": true,
-            "account_ledger_jpg": true
+            "account_ledger_jpg": true,
+            "account_ledger_html": true
         },
         "Employee" :{
             "account_ledger":true,
             "daybook":true,
             "account_ledger_pdf": true,
             "account_ledger_excel": true,
-            "account_ledger_jpg": true
+            "account_ledger_jpg": true,
+            "account_ledger_html": true
         },
         "Workers" :{
             "account_ledger":true,
             "daybook":true,
             "account_ledger_pdf": true,
-            "account_ledger_jpg": true
+            "account_ledger_jpg": true,
+            "account_ledger_html": true
         },
         "Other" :{
             "account_ledger":true,
             "daybook":true,
             "account_ledger_pdf": true,
             "account_ledger_excel": true,
-            "account_ledger_jpg": true
+            "account_ledger_jpg": true,
+            "account_ledger_html": true
         }
     },
     "Ledger Cash": {
@@ -1483,7 +1519,9 @@ exports.permissions = {
             "wallet_ledger": true,
             "account_ledger_pdf": true,
             "passbook": true,
-            "account_ledger_excel": true
+            "account_ledger_excel": true,
+            "account_ledger_jpg": true,
+            "account_ledger_html": true
         },
         "Admin" :{
             "account_ledger":true,
@@ -1492,7 +1530,9 @@ exports.permissions = {
             "wallet_ledger": true,
             "account_ledger_pdf": true,
             "passbook": true,
-            "account_ledger_excel": true
+            "account_ledger_excel": true,
+            "account_ledger_jpg": true,
+            "account_ledger_html": true
         },
         "Account" :{
             "account_ledger":true,
@@ -1501,7 +1541,9 @@ exports.permissions = {
             "wallet_ledger": true,
             "account_ledger_pdf": true,
             "passbook": true,
-            "account_ledger_excel": true
+            "account_ledger_excel": true,
+            "account_ledger_jpg": true,
+            "account_ledger_html": true
         },
         "Employee" :{
             "account_ledger":true,
@@ -1510,7 +1552,9 @@ exports.permissions = {
             "wallet_ledger": true,
             "account_ledger_pdf": true,
             "passbook": true,
-            "account_ledger_excel": true
+            "account_ledger_excel": true,
+            "account_ledger_jpg": true,
+            "account_ledger_html": true
         },
         "Workers" :{
             "account_ledger":true,
@@ -1519,7 +1563,9 @@ exports.permissions = {
             "wallet_ledger": true,
             "account_ledger_pdf": true,
             "passbook": true,
-            "account_ledger_excel": true
+            "account_ledger_excel": true,
+            "account_ledger_jpg": true,
+            "account_ledger_html": true
         },
         "Other" :{
             "account_ledger":true,
@@ -1528,7 +1574,9 @@ exports.permissions = {
             "wallet_ledger": true,
             "account_ledger_pdf": true,
             "passbook": true,
-            "account_ledger_excel": true
+            "account_ledger_excel": true,
+            "account_ledger_jpg": true,
+            "account_ledger_html": true
         }
     },
     "Purchase Order": {
@@ -1653,7 +1701,8 @@ exports.permissions = {
             "creditNote_pdf": true,
             "creditNote_jpg": true,
             "creditNote_single_excel": true,
-            "creditNote_excel": true
+            "creditNote_excel": true,
+            "creditNote_html":true
         },
         "Admin" :{
             "create_creditNote":true,
@@ -1664,7 +1713,8 @@ exports.permissions = {
             "creditNote_pdf": true,
             "creditNote_jpg": true,
             "creditNote_single_excel": true,
-            "creditNote_excel": true
+            "creditNote_excel": true,
+            "creditNote_html":true
         },
         "Account" :{
             "create_creditNote":true,
@@ -1675,7 +1725,8 @@ exports.permissions = {
             "creditNote_pdf": true,
             "creditNote_jpg": true,
             "creditNote_single_excel": true,
-            "creditNote_excel": true
+            "creditNote_excel": true,
+            "creditNote_html":true
         },
         "Employee" :{
             "create_creditNote":true,
@@ -1686,7 +1737,8 @@ exports.permissions = {
             "creditNote_pdf": true,
             "creditNote_jpg": true,
             "creditNote_single_excel": true,
-            "creditNote_excel": true
+            "creditNote_excel": true,
+            "creditNote_html":true
         },
         "Workers" :{
             "create_creditNote":true,
@@ -1697,7 +1749,8 @@ exports.permissions = {
             "creditNote_pdf": true,
             "creditNote_jpg": true,
             "creditNote_single_excel": true,
-            "creditNote_excel": true
+            "creditNote_excel": true,
+            "creditNote_html":true
         },
         "Other" :{
             "create_creditNote":true,
@@ -1708,7 +1761,8 @@ exports.permissions = {
             "creditNote_pdf": true,
             "creditNote_jpg": true,
             "creditNote_single_excel": true,
-            "creditNote_excel": true
+            "creditNote_excel": true,
+            "creditNote_html":true
         }
     },
     "Wastage" : {

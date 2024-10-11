@@ -1989,95 +1989,307 @@ exports.account_ledger_pdf = async (req, res) => {
 exports.account_ledger_jpg = async (req, res) => {
   try {
     const { id } = req.params;
-    const { companyId } = req.user;
     const { formDate, toDate } = req.query;
-
-    // Fetch company and account data
-    const companyData = await Company.findByPk(companyId);
-    const accountData = await Account.findOne({
-      where: { id: id, companyId: companyId },
-      include: [{ model: AccountDetails, as: "accountDetail" }],
+    const companyId = req.user.companyId;
+    const accountExist = await Account.findOne({
+      where: { id, companyId, isActive: true },
+      include: [{model: AccountDetails, as: "accountDetail"}]
     });
-
-    if (!accountData) {
-      return res.status(404).json({ status: "false", message: "Account Not Found" });
+    if (!accountExist) {
+      return res.status(404).json({
+        status: "false",
+        message: "Account Not Found.",
+      });
     }
 
+    const company = await Company.findByPk(companyId);
+
     const queryData = { accountId: id };
+
+    if (companyId) {
+      queryData.companyId = companyId;
+    }
+
     if (formDate && toDate) {
       queryData.date = {
         [Sequelize.Op.between]: [formDate, toDate],
       };
     }
-
-    const accountRecords = await Ledger.findAll({
+    const data = await Ledger.findAll({
+      attributes: [
+        "date",
+        [
+          Sequelize.literal(`CASE
+                    WHEN paymentLedger.id IS NOT NULL THEN \`paymentLedger\`.\`amount\`
+                    WHEN salesLedger.id IS NOT NULL THEN \`salesLedger\`.\`mainTotal\`
+                    WHEN debitNoLedger.id IS NOT NULL THEN \`debitNoLedger\`.\`mainTotal\`
+                    ELSE 0
+                END`),
+          "debitAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
+                    WHEN receiptLedger.id IS NOT NULL THEN \`receiptLedger\`.\`amount\`
+                    WHEN purchaseLedger.id IS NOT NULL THEN \`purchaseLedger\`.\`mainTotal\`
+                    WHEN creditNoLedger.id IS NOT NULL THEN \`creditNoLedger\`.\`mainTotal\`
+                    ELSE 0
+                END`),
+          "creditAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
+                    WHEN salesLedger.id IS NOT NULL THEN 'SALES GST'
+                    WHEN purchaseLedger.id IS NOT NULL THEN 'PURCHASE GST'
+                    WHEN creditNoLedger.id IS NOT NULL THEN 'SALES'
+                    WHEN debitNoLedger.id IS NOT NULL THEN 'PURCHASE'
+                    WHEN paymentLedger.id IS NOT NULL THEN
+                        CASE
+                            WHEN paymentLedger.bankAccountId IS NOT NULL THEN \`paymentLedger->paymentBankAccount\`.\`bankname\`
+                            ELSE \`paymentLedger\`.\`transactionType\`
+                        END
+                    WHEN receiptLedger.id IS NOT NULL THEN
+                        CASE
+                            WHEN receiptLedger.bankAccountId IS NOT NULL THEN \`receiptLedger->receiptBankAccount\`.\`bankname\`
+                            ELSE \`receiptLedger\`.\`transactionType\`
+                        END
+                    ELSE ''
+                  END`),
+          "particulars",
+        ],
+        [
+          Sequelize.literal(`CASE
+                    WHEN purchaseLedger.id IS NOT NULL THEN 'TAX INVOICE'
+                    WHEN salesLedger.id IS NOT NULL THEN 'TAX INVOICE'
+                    WHEN receiptLedger.id IS NOT NULL THEN 'Receipt'
+                    WHEN paymentLedger.id IS NOT NULL THEN 'Payment'
+                    WHEN debitNoLedger.id IS NOT NULL THEN 'DEBIT NOTE'
+                    WHEN creditNoLedger.id IS NOT NULL THEN 'CREDIT NOTE'
+                    ELSE ''
+                  END`),
+          "vchType",
+        ],
+        [
+          Sequelize.literal(`CASE
+                    WHEN purchaseLedger.id IS NOT NULL THEN \`purchaseLedger\`.\`voucherno\`
+                    WHEN salesLedger.id IS NOT NULL THEN \`salesLedger\`.\`invoiceno\`
+                    WHEN receiptLedger.id IS NOT NULL THEN \`receiptLedger\`.\`voucherno\`
+                    WHEN paymentLedger.id IS NOT NULL THEN \`paymentLedger\`.\`voucherno\`
+                    WHEN creditNoLedger.id IS NOT NULL THEN \`creditNoLedger\`.\`creditnoteNo\`
+                    WHEN debitNoLedger.id IS NOT NULL THEN \`debitNoLedger\`.\`debitnoteno\`
+                    ELSE ''
+                  END`),
+          "vchNo",
+        ],
+        [
+          Sequelize.literal(`
+                  (
+                    SELECT
+                      IFNULL(SUM(
+                        IFNULL(CASE
+                          WHEN receiptLedger.id IS NOT NULL THEN receiptLedger.amount
+                          WHEN purchaseLedger.id IS NOT NULL THEN purchaseLedger.mainTotal
+                          WHEN creditNoLedger.id IS NOT NULL THEN creditNoLedger.mainTotal
+                          ELSE 0
+                        END, 0) -
+                        IFNULL(CASE
+                          WHEN paymentLedger.id IS NOT NULL THEN paymentLedger.amount
+                          WHEN salesLedger.id IS NOT NULL THEN salesLedger.mainTotal
+                          WHEN debitNoLedger.id IS NOT NULL THEN debitNoLedger.mainTotal
+                          ELSE 0
+                        END, 0)
+                      ), 0)
+                    FROM
+                      \`P_Ledgers\` AS cl2
+                      LEFT OUTER JOIN \`P_Payments\` AS paymentLedger ON cl2.paymentId = paymentLedger.id
+                      LEFT OUTER JOIN \`P_purchaseInvoices\` AS purchaseLedger ON cl2.purchaseInvId = purchaseLedger.id
+                      LEFT OUTER JOIN \`P_Receipts\` AS receiptLedger ON cl2.receiptId = receiptLedger.id
+                      LEFT OUTER JOIN \`P_salesInvoices\` AS salesLedger ON cl2.saleInvId = salesLedger.id
+                      LEFT OUTER JOIN \`P_creditNotes\` AS creditNoLedger ON cl2.creditNoId = creditNoLedger.id
+                      LEFT OUTER JOIN \`P_debitNotes\` AS debitNoLedger ON cl2.debitNoId = debitNoLedger.id
+                    WHERE
+                      cl2.accountId = \`P_Ledger\`.\`accountId\`
+                      AND cl2.companyId = ${companyId}
+                      AND (cl2.date < \`P_Ledger\`.\`date\` OR (cl2.date = \`P_Ledger\`.\`date\` AND cl2.id < \`P_Ledger\`.\`id\`))
+                  )`),
+          "openingBalance",
+        ],
+      ],
+      include: [
+        {
+          model: purchaseInvoice,
+          as: "purchaseLedger",
+          attributes: [],
+        },
+        {
+          model: Payment,
+          as: "paymentLedger",
+          include: {
+            model: CompanyBankDetails,
+            as: "paymentBankAccount",
+            attributes: [],
+          },
+          attributes: [],
+        },
+        {
+          model: salesInvoice,
+          as: "salesLedger",
+          attributes: [],
+        },
+        {
+          model: Receipt,
+          as: "receiptLedger",
+          include: {
+            model: CompanyBankDetails,
+            as: "receiptBankAccount",
+            attributes: [],
+          },
+          attributes: [],
+        },
+        {
+          model: Account,
+          as: "accountLedger",
+          attributes: [],
+        },
+        {
+          model: CreditNote,
+          as: "creditNoLedger",
+          attributes: [],
+        },
+        {
+          model: DebitNote,
+          as: "debitNoLedger",
+          attributes: [],
+        },
+      ],
       where: queryData,
-      order: [["date", "ASC"]],
+      order: [
+        ["date", "ASC"],
+        ["id", "ASC"],
+      ],
     });
 
-    // Organize records by year
-    const years = {};
-    accountRecords.forEach((record) => {
-      const year = new Date(record.date).getFullYear();
-      if (!years[year]) {
-        years[year] = {
-          dateRange: `${formDate} - ${toDate}`,
-          records: {},
-          totals: { totalDebit: 0, totalCredit: 0 },
-          closingBalance: {},
-        };
-      }
-      
-      const date = record.date;
-      if (!years[year].records[date]) {
-        years[year].records[date] = [];
-      }
-
-      // Calculate totals
-      if (record.debitAmount) {
-        years[year].totals.totalDebit += record.debitAmount;
-      }
-      if (record.creditAmount) {
-        years[year].totals.totalCredit += record.creditAmount;
-      }
-
-      // Push the record into the corresponding date
-      years[year].records[date].push({
-        particulars: record.particulars,
-        vchType: record.vchType,
-        vchNo: record.vchNo,
-        debitAmount: record.debitAmount,
-        creditAmount: record.creditAmount,
+    const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
+    const ledgerArray = [...data];
+    if (+openingBalance !== 0) {
+      ledgerArray.unshift({
+        date: formDate,
+        debitAmount:
+          openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        creditAmount:
+          openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        particulars: "Opening Balance",
+        vchType: "",
+        vchNo: "",
+        openingBalance: 0,
       });
-    });
+    }
+    const groupedRecords = {};
+    const fromFinancialYear = getFinancialYear(formDate);
+    const toFinancialYear = getFinancialYear(toDate);
 
-    // Calculate closing balances for each year
-    for (let year in years) {
-      const totalDebit = years[year].totals.totalDebit;
-      const totalCredit = years[year].totals.totalCredit;
-      const closingBalance = totalCredit - totalDebit;
+    let currentFinancialYear = fromFinancialYear;
 
-      years[year].closingBalance = {
-        type: closingBalance >= 0 ? "debit" : "credit",
-        amount: Math.abs(closingBalance),
+    let previousClosingBalance = {
+      type: "credit",
+      amount: 0,
+    };
+
+    while (currentFinancialYear <= toFinancialYear) {
+      const [startYear, endYear] = currentFinancialYear.split("-").map(Number);
+      const filteredRecords = filterRecordsByFinancialYear(
+        ledgerArray,
+        startYear,
+        endYear
+      );
+      const newOpeningBalance = previousClosingBalance.amount;
+
+      if (newOpeningBalance > 0) {
+        filteredRecords.unshift({
+          date: `${startYear}-04-01`,
+          debitAmount:
+            previousClosingBalance.type === "credit" ? newOpeningBalance : 0,
+          creditAmount:
+            previousClosingBalance.type === "debit" ? newOpeningBalance : 0,
+          particulars: "Opening Balance",
+          vchType: "",
+          vchNo: "",
+        });
+      }
+
+      const totals = filteredRecords.reduce(
+        (acc, ledger) => {
+          if (ledger.dataValues) {
+            acc.totalCredit += ledger.dataValues.creditAmount || 0;
+            acc.totalDebit += ledger.dataValues.debitAmount || 0;
+          } else {
+            acc.totalCredit += ledger.creditAmount || 0;
+            acc.totalDebit += ledger.debitAmount || 0;
+          }
+          return acc;
+        },
+        { totalCredit: 0, totalDebit: 0 }
+      );
+
+      const totalCredit = totals.totalCredit;
+      const totalDebit = totals.totalDebit;
+
+      const closingBalanceAmount = totalDebit - totalCredit;
+      const closingBalance = {
+        type: closingBalanceAmount < 0 ? "debit" : "credit",
+        amount: +Math.abs(closingBalanceAmount).toFixed(2),
       };
 
-      years[year].totalAmount = Math.abs(closingBalance) + totalDebit + totalCredit;
+      previousClosingBalance = closingBalance;
+
+      const records = filteredRecords.reduce((acc, obj) => {
+        const dateKey = obj.date;
+        const date = new Date(dateKey);
+        const formattedDate = `${date.getDate()}-${date.toLocaleString(
+          "default",
+          {
+            month: "short",
+          }
+        )}-${String(date.getFullYear()).slice(-2)}`;
+
+        if (!acc[formattedDate]) {
+          acc[formattedDate] = [];
+        }
+        acc[formattedDate].push(obj);
+        return acc;
+      }, {});
+
+      const daterang = getFinancialYearDates(
+        startYear,
+        endYear,
+        formDate,
+        toDate
+      );
+      Object.keys(records).forEach((date) => {
+        records[date] = records[date].map((entry) => {
+          if (entry.dataValues) {
+            return { ...entry.dataValues, date: entry.date };
+          }
+          return entry;
+        });
+      });
+      groupedRecords[currentFinancialYear] = {
+        dateRange: daterang,
+        totals,
+        totalAmount:
+          totals.totalCredit < totals.totalDebit
+            ? totals.totalDebit
+            : totals.totalCredit,
+        closingBalance,
+        records,
+      };
+      currentFinancialYear = `${startYear + 1}-${endYear + 1}`;
     }
 
-    // Render the EJS template
     const html = await renderFile(
       path.join(__dirname, "../views/accountLedger.ejs"),
-      {
-        data: {
-          form: companyData,
-          to: accountData,
-          years: years,
-        },
-      }
+      { data: { form: company, to: accountExist, years: groupedRecords } }
     );
-
-    // Use Puppeteer to generate a JPEG image
+    
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
@@ -2092,6 +2304,323 @@ exports.account_ledger_jpg = async (req, res) => {
       status: "Success",
       message: "JPG created successfully",
       data: base64String,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
+exports.account_ledger_html = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { formDate, toDate } = req.query;
+    const companyId = req.user.companyId;
+    const accountExist = await Account.findOne({
+      where: { id, companyId, isActive: true },
+      include: [{model: AccountDetails, as: "accountDetail"}]
+    });
+    if (!accountExist) {
+      return res.status(404).json({
+        status: "false",
+        message: "Account Not Found.",
+      });
+    }
+
+    const company = await Company.findByPk(companyId);
+
+    const queryData = { accountId: id };
+
+    if (companyId) {
+      queryData.companyId = companyId;
+    }
+
+    if (formDate && toDate) {
+      queryData.date = {
+        [Sequelize.Op.between]: [formDate, toDate],
+      };
+    }
+    const data = await Ledger.findAll({
+      attributes: [
+        "date",
+        [
+          Sequelize.literal(`CASE
+                    WHEN paymentLedger.id IS NOT NULL THEN \`paymentLedger\`.\`amount\`
+                    WHEN salesLedger.id IS NOT NULL THEN \`salesLedger\`.\`mainTotal\`
+                    WHEN debitNoLedger.id IS NOT NULL THEN \`debitNoLedger\`.\`mainTotal\`
+                    ELSE 0
+                END`),
+          "debitAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
+                    WHEN receiptLedger.id IS NOT NULL THEN \`receiptLedger\`.\`amount\`
+                    WHEN purchaseLedger.id IS NOT NULL THEN \`purchaseLedger\`.\`mainTotal\`
+                    WHEN creditNoLedger.id IS NOT NULL THEN \`creditNoLedger\`.\`mainTotal\`
+                    ELSE 0
+                END`),
+          "creditAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
+                    WHEN salesLedger.id IS NOT NULL THEN 'SALES GST'
+                    WHEN purchaseLedger.id IS NOT NULL THEN 'PURCHASE GST'
+                    WHEN creditNoLedger.id IS NOT NULL THEN 'SALES'
+                    WHEN debitNoLedger.id IS NOT NULL THEN 'PURCHASE'
+                    WHEN paymentLedger.id IS NOT NULL THEN
+                        CASE
+                            WHEN paymentLedger.bankAccountId IS NOT NULL THEN \`paymentLedger->paymentBankAccount\`.\`bankname\`
+                            ELSE \`paymentLedger\`.\`transactionType\`
+                        END
+                    WHEN receiptLedger.id IS NOT NULL THEN
+                        CASE
+                            WHEN receiptLedger.bankAccountId IS NOT NULL THEN \`receiptLedger->receiptBankAccount\`.\`bankname\`
+                            ELSE \`receiptLedger\`.\`transactionType\`
+                        END
+                    ELSE ''
+                  END`),
+          "particulars",
+        ],
+        [
+          Sequelize.literal(`CASE
+                    WHEN purchaseLedger.id IS NOT NULL THEN 'TAX INVOICE'
+                    WHEN salesLedger.id IS NOT NULL THEN 'TAX INVOICE'
+                    WHEN receiptLedger.id IS NOT NULL THEN 'Receipt'
+                    WHEN paymentLedger.id IS NOT NULL THEN 'Payment'
+                    WHEN debitNoLedger.id IS NOT NULL THEN 'DEBIT NOTE'
+                    WHEN creditNoLedger.id IS NOT NULL THEN 'CREDIT NOTE'
+                    ELSE ''
+                  END`),
+          "vchType",
+        ],
+        [
+          Sequelize.literal(`CASE
+                    WHEN purchaseLedger.id IS NOT NULL THEN \`purchaseLedger\`.\`voucherno\`
+                    WHEN salesLedger.id IS NOT NULL THEN \`salesLedger\`.\`invoiceno\`
+                    WHEN receiptLedger.id IS NOT NULL THEN \`receiptLedger\`.\`voucherno\`
+                    WHEN paymentLedger.id IS NOT NULL THEN \`paymentLedger\`.\`voucherno\`
+                    WHEN creditNoLedger.id IS NOT NULL THEN \`creditNoLedger\`.\`creditnoteNo\`
+                    WHEN debitNoLedger.id IS NOT NULL THEN \`debitNoLedger\`.\`debitnoteno\`
+                    ELSE ''
+                  END`),
+          "vchNo",
+        ],
+        [
+          Sequelize.literal(`
+                  (
+                    SELECT
+                      IFNULL(SUM(
+                        IFNULL(CASE
+                          WHEN receiptLedger.id IS NOT NULL THEN receiptLedger.amount
+                          WHEN purchaseLedger.id IS NOT NULL THEN purchaseLedger.mainTotal
+                          WHEN creditNoLedger.id IS NOT NULL THEN creditNoLedger.mainTotal
+                          ELSE 0
+                        END, 0) -
+                        IFNULL(CASE
+                          WHEN paymentLedger.id IS NOT NULL THEN paymentLedger.amount
+                          WHEN salesLedger.id IS NOT NULL THEN salesLedger.mainTotal
+                          WHEN debitNoLedger.id IS NOT NULL THEN debitNoLedger.mainTotal
+                          ELSE 0
+                        END, 0)
+                      ), 0)
+                    FROM
+                      \`P_Ledgers\` AS cl2
+                      LEFT OUTER JOIN \`P_Payments\` AS paymentLedger ON cl2.paymentId = paymentLedger.id
+                      LEFT OUTER JOIN \`P_purchaseInvoices\` AS purchaseLedger ON cl2.purchaseInvId = purchaseLedger.id
+                      LEFT OUTER JOIN \`P_Receipts\` AS receiptLedger ON cl2.receiptId = receiptLedger.id
+                      LEFT OUTER JOIN \`P_salesInvoices\` AS salesLedger ON cl2.saleInvId = salesLedger.id
+                      LEFT OUTER JOIN \`P_creditNotes\` AS creditNoLedger ON cl2.creditNoId = creditNoLedger.id
+                      LEFT OUTER JOIN \`P_debitNotes\` AS debitNoLedger ON cl2.debitNoId = debitNoLedger.id
+                    WHERE
+                      cl2.accountId = \`P_Ledger\`.\`accountId\`
+                      AND cl2.companyId = ${companyId}
+                      AND (cl2.date < \`P_Ledger\`.\`date\` OR (cl2.date = \`P_Ledger\`.\`date\` AND cl2.id < \`P_Ledger\`.\`id\`))
+                  )`),
+          "openingBalance",
+        ],
+      ],
+      include: [
+        {
+          model: purchaseInvoice,
+          as: "purchaseLedger",
+          attributes: [],
+        },
+        {
+          model: Payment,
+          as: "paymentLedger",
+          include: {
+            model: CompanyBankDetails,
+            as: "paymentBankAccount",
+            attributes: [],
+          },
+          attributes: [],
+        },
+        {
+          model: salesInvoice,
+          as: "salesLedger",
+          attributes: [],
+        },
+        {
+          model: Receipt,
+          as: "receiptLedger",
+          include: {
+            model: CompanyBankDetails,
+            as: "receiptBankAccount",
+            attributes: [],
+          },
+          attributes: [],
+        },
+        {
+          model: Account,
+          as: "accountLedger",
+          attributes: [],
+        },
+        {
+          model: CreditNote,
+          as: "creditNoLedger",
+          attributes: [],
+        },
+        {
+          model: DebitNote,
+          as: "debitNoLedger",
+          attributes: [],
+        },
+      ],
+      where: queryData,
+      order: [
+        ["date", "ASC"],
+        ["id", "ASC"],
+      ],
+    });
+
+    const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
+    const ledgerArray = [...data];
+    if (+openingBalance !== 0) {
+      ledgerArray.unshift({
+        date: formDate,
+        debitAmount:
+          openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        creditAmount:
+          openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        particulars: "Opening Balance",
+        vchType: "",
+        vchNo: "",
+        openingBalance: 0,
+      });
+    }
+    const groupedRecords = {};
+    const fromFinancialYear = getFinancialYear(formDate);
+    const toFinancialYear = getFinancialYear(toDate);
+
+    let currentFinancialYear = fromFinancialYear;
+
+    let previousClosingBalance = {
+      type: "credit",
+      amount: 0,
+    };
+
+    while (currentFinancialYear <= toFinancialYear) {
+      const [startYear, endYear] = currentFinancialYear.split("-").map(Number);
+      const filteredRecords = filterRecordsByFinancialYear(
+        ledgerArray,
+        startYear,
+        endYear
+      );
+      const newOpeningBalance = previousClosingBalance.amount;
+
+      if (newOpeningBalance > 0) {
+        filteredRecords.unshift({
+          date: `${startYear}-04-01`,
+          debitAmount:
+            previousClosingBalance.type === "credit" ? newOpeningBalance : 0,
+          creditAmount:
+            previousClosingBalance.type === "debit" ? newOpeningBalance : 0,
+          particulars: "Opening Balance",
+          vchType: "",
+          vchNo: "",
+        });
+      }
+
+      const totals = filteredRecords.reduce(
+        (acc, ledger) => {
+          if (ledger.dataValues) {
+            acc.totalCredit += ledger.dataValues.creditAmount || 0;
+            acc.totalDebit += ledger.dataValues.debitAmount || 0;
+          } else {
+            acc.totalCredit += ledger.creditAmount || 0;
+            acc.totalDebit += ledger.debitAmount || 0;
+          }
+          return acc;
+        },
+        { totalCredit: 0, totalDebit: 0 }
+      );
+
+      const totalCredit = totals.totalCredit;
+      const totalDebit = totals.totalDebit;
+
+      const closingBalanceAmount = totalDebit - totalCredit;
+      const closingBalance = {
+        type: closingBalanceAmount < 0 ? "debit" : "credit",
+        amount: +Math.abs(closingBalanceAmount).toFixed(2),
+      };
+
+      previousClosingBalance = closingBalance;
+
+      const records = filteredRecords.reduce((acc, obj) => {
+        const dateKey = obj.date;
+        const date = new Date(dateKey);
+        const formattedDate = `${date.getDate()}-${date.toLocaleString(
+          "default",
+          {
+            month: "short",
+          }
+        )}-${String(date.getFullYear()).slice(-2)}`;
+
+        if (!acc[formattedDate]) {
+          acc[formattedDate] = [];
+        }
+        acc[formattedDate].push(obj);
+        return acc;
+      }, {});
+
+      const daterang = getFinancialYearDates(
+        startYear,
+        endYear,
+        formDate,
+        toDate
+      );
+      Object.keys(records).forEach((date) => {
+        records[date] = records[date].map((entry) => {
+          if (entry.dataValues) {
+            return { ...entry.dataValues, date: entry.date };
+          }
+          return entry;
+        });
+      });
+      groupedRecords[currentFinancialYear] = {
+        dateRange: daterang,
+        totals,
+        totalAmount:
+          totals.totalCredit < totals.totalDebit
+            ? totals.totalDebit
+            : totals.totalCredit,
+        closingBalance,
+        records,
+      };
+      currentFinancialYear = `${startYear + 1}-${endYear + 1}`;
+    }
+
+    const html = await renderFile(
+      path.join(__dirname, "../views/accountLedger.ejs"),
+      { data: { form: company, to: accountExist, years: groupedRecords } }
+    );
+    const base64HTML = Buffer.from(html).toString("base64");
+
+    res.setHeader("Content-Type", "application/json");
+    return res.status(200).json({
+      status: "Success",
+      message: "Html Document Created Successfully",
+      data: base64HTML,
     });
   } catch (error) {
     console.log(error);
@@ -2972,6 +3501,607 @@ exports.C_account_ledger_pdf = async (req, res) => {
     return res
       .status(500)
       .json({ status: "false", message: "Internal Server Error." });
+  }
+};
+
+exports.C_account_ledger_jpg = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { formDate, toDate } = req.query;
+    const companyId = req.user.companyId;
+    const queryData = { accountId: id, companyId: companyId };
+
+    const accountExist = await Account.findOne({
+      where: { id, companyId, isActive: true },
+    });
+    if (!accountExist) {
+      return res.status(404).json({
+        status: "false",
+        message: "Account Not Found.",
+      });
+    }
+
+    const user = await User.findOne({where: {
+      role: ROLE.SUPER_ADMIN
+    }});
+
+    if (formDate && toDate) {
+      queryData.date = {
+        [Sequelize.Op.between]: [formDate, toDate],
+      };
+    }
+
+    const data = await C_Ledger.findAll({
+      where: queryData,
+      attributes: [
+        "date",
+        [
+          Sequelize.literal(`CASE
+            WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`amount\`
+            WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`totalMrp\`
+            WHEN debitNoLedgerCash.id IS NOT NULL THEN \`debitNoLedgerCash\`.\`mainTotal\`
+            ELSE 0
+        END`),
+          "debitAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
+            WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`amount\`
+            WHEN purchaseLedgerCash.id IS NOT NULL THEN \`purchaseLedgerCash\`.\`totalMrp\`
+            WHEN creditNoLedgerCash.id IS NOT NULL THEN \`creditNoLedgerCash\`.\`mainTotal\`
+            ELSE 0
+        END`),
+          "creditAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
+            WHEN salesLedgerCash.id IS NOT NULL THEN 'CASH'
+            WHEN purchaseLedgerCash.id IS NOT NULL THEN 'CASH'
+            WHEN receiptLedgerCash.id IS NOT NULL THEN 'CASH'
+            WHEN paymentLedgerCash.id IS NOT NULL THEN 'CASH'
+            WHEN creditNoLedgerCash.id IS NOT NULL THEN 'SALES'
+            WHEN debitNoLedgerCash.id IS NOT NULL THEN 'PURCHASE'
+            ELSE ''
+        END`),
+          "particulars",
+        ],
+        [
+          Sequelize.literal(`CASE
+            WHEN purchaseLedgerCash.id IS NOT NULL THEN 'PURCHASE'
+            WHEN salesLedgerCash.id IS NOT NULL THEN 'SALES'
+            WHEN receiptLedgerCash.id IS NOT NULL THEN 'Receipt'
+            WHEN paymentLedgerCash.id IS NOT NULL THEN 'Payment'
+             WHEN creditNoLedgerCash.id IS NOT NULL THEN 'CREDIT NOTE'
+            WHEN debitNoLedgerCash.id IS NOT NULL THEN 'DEBIT NOTE'
+            ELSE ''
+        END`),
+          "vchType",
+        ],
+        [
+          Sequelize.literal(`CASE
+            WHEN purchaseLedgerCash.id IS NOT NULL THEN \`purchaseLedgerCash\`.\`purchaseNo\`
+            WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`saleNo\`
+            WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`receiptNo\`
+            WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`paymentNo\`
+            WHEN creditNoLedgerCash.id IS NOT NULL THEN \`creditNoLedgerCash\`.\`creditnoteNo\`
+            WHEN debitNoLedgerCash.id IS NOT NULL THEN \`debitNoLedgerCash\`.\`debitnoteno\`
+            ELSE ''
+        END`),
+          "vchNo",
+        ],
+        [
+          Sequelize.literal(`
+          (
+            SELECT
+              IFNULL(SUM(
+                IFNULL(CASE
+                  WHEN receiptLedgerCash.id IS NOT NULL THEN receiptLedgerCash.amount
+                  WHEN purchaseLedgerCash.id IS NOT NULL THEN purchaseLedgerCash.totalMrp
+                  WHEN creditNoLedgerCash.id IS NOT NULL THEN creditNoLedgerCash.mainTotal
+                  ELSE 0
+                END, 0) -
+                IFNULL(CASE
+                  WHEN paymentLedgerCash.id IS NOT NULL THEN paymentLedgerCash.amount
+                  WHEN salesLedgerCash.id IS NOT NULL THEN salesLedgerCash.totalMrp
+                  WHEN debitNoLedgerCash.id IS NOT NULL THEN debitNoLedgerCash.mainTotal
+                  ELSE 0
+                END, 0)
+              ), 0)
+            FROM
+              \`P_C_Ledgers\` AS cl2
+              LEFT OUTER JOIN \`P_C_Payments\` AS paymentLedgerCash ON cl2.paymentId = paymentLedgerCash.id
+              LEFT OUTER JOIN \`P_C_purchaseCashes\` AS purchaseLedgerCash ON cl2.purchaseId = purchaseLedgerCash.id
+              LEFT OUTER JOIN \`P_C_Receipts\` AS receiptLedgerCash ON cl2.receiptId = receiptLedgerCash.id
+              LEFT OUTER JOIN \`P_C_salesInvoices\` AS salesLedgerCash ON cl2.saleId = salesLedgerCash.id
+              LEFT OUTER JOIN \`P_C_DebitNotes\` AS debitNoLedgerCash ON cl2.debitNoId = debitNoLedgerCash.id
+              LEFT OUTER JOIN \`P_C_CreditNotes\` AS creditNoLedgerCash ON cl2.creditNoId = creditNoLedgerCash.id
+            WHERE
+              cl2.accountId = \`P_C_Ledger\`.\`accountId\`
+              AND cl2.companyId = ${companyId}
+              AND (cl2.date < \`P_C_Ledger\`.\`date\` OR (cl2.date = \`P_C_Ledger\`.\`date\` AND cl2.id < \`P_C_Ledger\`.\`id\`))
+          )`),
+          "openingBalance",
+        ],
+      ],
+      include: [
+        {
+          model: C_PurchaseCash,
+          as: "purchaseLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_Payment,
+          as: "paymentLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_Salesinvoice,
+          as: "salesLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_Receipt,
+          as: "receiptLedgerCash",
+          attributes: [],
+        },
+        {
+          model: Account,
+          as: "accountLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_CreditNote,
+          as: "creditNoLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_DebitNote,
+          as: "debitNoLedgerCash",
+          attributes: [],
+        },
+      ],
+      order: [
+        ["date", "ASC"],
+        ["id", "ASC"],
+      ],
+    });
+
+    const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
+    const ledgerArray = [...data];
+    if (+openingBalance !== 0) {
+      ledgerArray.unshift({
+        date: formDate,
+        debitAmount:
+          openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        creditAmount:
+          openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        particulars: "Opening Balance",
+        vchType: "",
+        vchNo: "",
+        openingBalance: 0,
+      });
+    }
+    const groupedRecords = {};
+    const fromFinancialYear = getFinancialYear(formDate);
+    const toFinancialYear = getFinancialYear(toDate);
+
+    let currentFinancialYear = fromFinancialYear;
+
+    let previousClosingBalance = {
+      type: "credit",
+      amount: 0,
+    };
+
+    while (currentFinancialYear <= toFinancialYear) {
+      const [startYear, endYear] = currentFinancialYear.split("-").map(Number);
+      const filteredRecords = filterRecordsByFinancialYear(
+        ledgerArray,
+        startYear,
+        endYear
+      );
+      const newOpeningBalance = previousClosingBalance.amount;
+
+      if (newOpeningBalance > 0) {
+        filteredRecords.unshift({
+          date: `${startYear}-04-01`,
+          debitAmount:
+            previousClosingBalance.type === "credit" ? newOpeningBalance : 0,
+          creditAmount:
+            previousClosingBalance.type === "debit" ? newOpeningBalance : 0,
+          particulars: "Opening Balance",
+          vchType: "",
+          vchNo: "",
+        });
+      }
+
+      const totals = filteredRecords.reduce(
+        (acc, ledger) => {
+          if (ledger.dataValues) {
+            acc.totalCredit += ledger.dataValues.creditAmount || 0;
+            acc.totalDebit += ledger.dataValues.debitAmount || 0;
+          } else {
+            acc.totalCredit += ledger.creditAmount || 0;
+            acc.totalDebit += ledger.debitAmount || 0;
+          }
+          return acc;
+        },
+        { totalCredit: 0, totalDebit: 0 }
+      );
+
+      const totalCredit = totals.totalCredit;
+      const totalDebit = totals.totalDebit;
+
+      const closingBalanceAmount = totalDebit - totalCredit;
+      const closingBalance = {
+        type: closingBalanceAmount < 0 ? "debit" : "credit",
+        amount: +Math.abs(closingBalanceAmount).toFixed(2),
+      };
+
+      previousClosingBalance = closingBalance;
+
+      const records = filteredRecords.reduce((acc, obj) => {
+        const dateKey = obj.date;
+        const date = new Date(dateKey);
+        const formattedDate = `${date.getDate()}-${date.toLocaleString(
+          "default",
+          {
+            month: "short",
+          }
+        )}-${String(date.getFullYear()).slice(-2)}`;
+
+        if (!acc[formattedDate]) {
+          acc[formattedDate] = [];
+        }
+        acc[formattedDate].push(obj);
+        return acc;
+      }, {});
+
+      const daterang = getFinancialYearDates(
+        startYear,
+        endYear,
+        formDate,
+        toDate
+      );
+      Object.keys(records).forEach((date) => {
+        records[date] = records[date].map((entry) => {
+          if (entry.dataValues) {
+            return { ...entry.dataValues, date: entry.date };
+          }
+          return entry;
+        });
+      });
+      groupedRecords[currentFinancialYear] = {
+        dateRange: daterang,
+        totals,
+        totalAmount:
+          totals.totalCredit < totals.totalDebit
+            ? totals.totalDebit
+            : totals.totalCredit,
+        closingBalance,
+        records,
+      };
+      currentFinancialYear = `${startYear + 1}-${endYear + 1}`;
+    }
+    const html = await renderFile(
+      path.join(__dirname, "../views/accountCashLedger.ejs"),
+      { data: { form: user, to: accountExist, years: groupedRecords } }
+    );
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0" });
+    const base64String = await page.screenshot({
+      type: "jpeg",
+      fullPage: true,
+      encoding: "base64",
+    });
+
+    await browser.close();
+    return res.status(200).json({
+      status: "Success",
+      message: "JPG created successfully",
+      data: base64String,
+    });
+  } catch (e) {
+    console.log(e);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error." });
+  }
+};
+
+exports.C_account_ledger_html = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { formDate, toDate } = req.query;
+    const companyId = req.user.companyId;
+    const queryData = { accountId: id, companyId: companyId };
+
+    const accountExist = await Account.findOne({
+      where: { id, companyId, isActive: true },
+    });
+    if (!accountExist) {
+      return res.status(404).json({
+        status: "false",
+        message: "Account Not Found.",
+      });
+    }
+
+    const user = await User.findOne({where: {
+      role: ROLE.SUPER_ADMIN
+    }});
+
+    if (formDate && toDate) {
+      queryData.date = {
+        [Sequelize.Op.between]: [formDate, toDate],
+      };
+    }
+
+    const data = await C_Ledger.findAll({
+      where: queryData,
+      attributes: [
+        "date",
+        [
+          Sequelize.literal(`CASE
+            WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`amount\`
+            WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`totalMrp\`
+            WHEN debitNoLedgerCash.id IS NOT NULL THEN \`debitNoLedgerCash\`.\`mainTotal\`
+            ELSE 0
+        END`),
+          "debitAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
+            WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`amount\`
+            WHEN purchaseLedgerCash.id IS NOT NULL THEN \`purchaseLedgerCash\`.\`totalMrp\`
+            WHEN creditNoLedgerCash.id IS NOT NULL THEN \`creditNoLedgerCash\`.\`mainTotal\`
+            ELSE 0
+        END`),
+          "creditAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
+            WHEN salesLedgerCash.id IS NOT NULL THEN 'CASH'
+            WHEN purchaseLedgerCash.id IS NOT NULL THEN 'CASH'
+            WHEN receiptLedgerCash.id IS NOT NULL THEN 'CASH'
+            WHEN paymentLedgerCash.id IS NOT NULL THEN 'CASH'
+            WHEN creditNoLedgerCash.id IS NOT NULL THEN 'SALES'
+            WHEN debitNoLedgerCash.id IS NOT NULL THEN 'PURCHASE'
+            ELSE ''
+        END`),
+          "particulars",
+        ],
+        [
+          Sequelize.literal(`CASE
+            WHEN purchaseLedgerCash.id IS NOT NULL THEN 'PURCHASE'
+            WHEN salesLedgerCash.id IS NOT NULL THEN 'SALES'
+            WHEN receiptLedgerCash.id IS NOT NULL THEN 'Receipt'
+            WHEN paymentLedgerCash.id IS NOT NULL THEN 'Payment'
+             WHEN creditNoLedgerCash.id IS NOT NULL THEN 'CREDIT NOTE'
+            WHEN debitNoLedgerCash.id IS NOT NULL THEN 'DEBIT NOTE'
+            ELSE ''
+        END`),
+          "vchType",
+        ],
+        [
+          Sequelize.literal(`CASE
+            WHEN purchaseLedgerCash.id IS NOT NULL THEN \`purchaseLedgerCash\`.\`purchaseNo\`
+            WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`saleNo\`
+            WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`receiptNo\`
+            WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`paymentNo\`
+            WHEN creditNoLedgerCash.id IS NOT NULL THEN \`creditNoLedgerCash\`.\`creditnoteNo\`
+            WHEN debitNoLedgerCash.id IS NOT NULL THEN \`debitNoLedgerCash\`.\`debitnoteno\`
+            ELSE ''
+        END`),
+          "vchNo",
+        ],
+        [
+          Sequelize.literal(`
+          (
+            SELECT
+              IFNULL(SUM(
+                IFNULL(CASE
+                  WHEN receiptLedgerCash.id IS NOT NULL THEN receiptLedgerCash.amount
+                  WHEN purchaseLedgerCash.id IS NOT NULL THEN purchaseLedgerCash.totalMrp
+                  WHEN creditNoLedgerCash.id IS NOT NULL THEN creditNoLedgerCash.mainTotal
+                  ELSE 0
+                END, 0) -
+                IFNULL(CASE
+                  WHEN paymentLedgerCash.id IS NOT NULL THEN paymentLedgerCash.amount
+                  WHEN salesLedgerCash.id IS NOT NULL THEN salesLedgerCash.totalMrp
+                  WHEN debitNoLedgerCash.id IS NOT NULL THEN debitNoLedgerCash.mainTotal
+                  ELSE 0
+                END, 0)
+              ), 0)
+            FROM
+              \`P_C_Ledgers\` AS cl2
+              LEFT OUTER JOIN \`P_C_Payments\` AS paymentLedgerCash ON cl2.paymentId = paymentLedgerCash.id
+              LEFT OUTER JOIN \`P_C_purchaseCashes\` AS purchaseLedgerCash ON cl2.purchaseId = purchaseLedgerCash.id
+              LEFT OUTER JOIN \`P_C_Receipts\` AS receiptLedgerCash ON cl2.receiptId = receiptLedgerCash.id
+              LEFT OUTER JOIN \`P_C_salesInvoices\` AS salesLedgerCash ON cl2.saleId = salesLedgerCash.id
+              LEFT OUTER JOIN \`P_C_DebitNotes\` AS debitNoLedgerCash ON cl2.debitNoId = debitNoLedgerCash.id
+              LEFT OUTER JOIN \`P_C_CreditNotes\` AS creditNoLedgerCash ON cl2.creditNoId = creditNoLedgerCash.id
+            WHERE
+              cl2.accountId = \`P_C_Ledger\`.\`accountId\`
+              AND cl2.companyId = ${companyId}
+              AND (cl2.date < \`P_C_Ledger\`.\`date\` OR (cl2.date = \`P_C_Ledger\`.\`date\` AND cl2.id < \`P_C_Ledger\`.\`id\`))
+          )`),
+          "openingBalance",
+        ],
+      ],
+      include: [
+        {
+          model: C_PurchaseCash,
+          as: "purchaseLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_Payment,
+          as: "paymentLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_Salesinvoice,
+          as: "salesLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_Receipt,
+          as: "receiptLedgerCash",
+          attributes: [],
+        },
+        {
+          model: Account,
+          as: "accountLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_CreditNote,
+          as: "creditNoLedgerCash",
+          attributes: [],
+        },
+        {
+          model: C_DebitNote,
+          as: "debitNoLedgerCash",
+          attributes: [],
+        },
+      ],
+      order: [
+        ["date", "ASC"],
+        ["id", "ASC"],
+      ],
+    });
+
+    const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
+    const ledgerArray = [...data];
+    if (+openingBalance !== 0) {
+      ledgerArray.unshift({
+        date: formDate,
+        debitAmount:
+          openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        creditAmount:
+          openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        particulars: "Opening Balance",
+        vchType: "",
+        vchNo: "",
+        openingBalance: 0,
+      });
+    }
+    const groupedRecords = {};
+    const fromFinancialYear = getFinancialYear(formDate);
+    const toFinancialYear = getFinancialYear(toDate);
+
+    let currentFinancialYear = fromFinancialYear;
+
+    let previousClosingBalance = {
+      type: "credit",
+      amount: 0,
+    };
+
+    while (currentFinancialYear <= toFinancialYear) {
+      const [startYear, endYear] = currentFinancialYear.split("-").map(Number);
+      const filteredRecords = filterRecordsByFinancialYear(
+        ledgerArray,
+        startYear,
+        endYear
+      );
+      const newOpeningBalance = previousClosingBalance.amount;
+
+      if (newOpeningBalance > 0) {
+        filteredRecords.unshift({
+          date: `${startYear}-04-01`,
+          debitAmount:
+            previousClosingBalance.type === "credit" ? newOpeningBalance : 0,
+          creditAmount:
+            previousClosingBalance.type === "debit" ? newOpeningBalance : 0,
+          particulars: "Opening Balance",
+          vchType: "",
+          vchNo: "",
+        });
+      }
+
+      const totals = filteredRecords.reduce(
+        (acc, ledger) => {
+          if (ledger.dataValues) {
+            acc.totalCredit += ledger.dataValues.creditAmount || 0;
+            acc.totalDebit += ledger.dataValues.debitAmount || 0;
+          } else {
+            acc.totalCredit += ledger.creditAmount || 0;
+            acc.totalDebit += ledger.debitAmount || 0;
+          }
+          return acc;
+        },
+        { totalCredit: 0, totalDebit: 0 }
+      );
+
+      const totalCredit = totals.totalCredit;
+      const totalDebit = totals.totalDebit;
+
+      const closingBalanceAmount = totalDebit - totalCredit;
+      const closingBalance = {
+        type: closingBalanceAmount < 0 ? "debit" : "credit",
+        amount: +Math.abs(closingBalanceAmount).toFixed(2),
+      };
+
+      previousClosingBalance = closingBalance;
+
+      const records = filteredRecords.reduce((acc, obj) => {
+        const dateKey = obj.date;
+        const date = new Date(dateKey);
+        const formattedDate = `${date.getDate()}-${date.toLocaleString(
+          "default",
+          {
+            month: "short",
+          }
+        )}-${String(date.getFullYear()).slice(-2)}`;
+
+        if (!acc[formattedDate]) {
+          acc[formattedDate] = [];
+        }
+        acc[formattedDate].push(obj);
+        return acc;
+      }, {});
+
+      const daterang = getFinancialYearDates(
+        startYear,
+        endYear,
+        formDate,
+        toDate
+      );
+      Object.keys(records).forEach((date) => {
+        records[date] = records[date].map((entry) => {
+          if (entry.dataValues) {
+            return { ...entry.dataValues, date: entry.date };
+          }
+          return entry;
+        });
+      });
+      groupedRecords[currentFinancialYear] = {
+        dateRange: daterang,
+        totals,
+        totalAmount:
+          totals.totalCredit < totals.totalDebit
+            ? totals.totalDebit
+            : totals.totalCredit,
+        closingBalance,
+        records,
+      };
+      currentFinancialYear = `${startYear + 1}-${endYear + 1}`;
+    }
+    const html = await renderFile(
+      path.join(__dirname, "../views/accountCashLedger.ejs"),
+      { data: { form: user, to: accountExist, years: groupedRecords } }
+    );
+    const base64HTML = Buffer.from(html).toString("base64");
+
+    res.setHeader("Content-Type", "application/json");
+    return res.status(200).json({
+      status: "Success",
+      message: "Html Document Created Successfully",
+      data: base64HTML,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ status: "false", message: "Internal Server Error." });
   }
 };
 

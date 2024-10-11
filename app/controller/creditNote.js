@@ -510,6 +510,52 @@ exports.creditNote_jpg = async (req, res) => {
   }
 };
 
+exports.creditNote_html = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.user.companyId;
+    const companyData = await Company.findByPk(companyId);
+    const data = await creditNote.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: creditNoteItem,
+          as: "items",
+          include: [{ model: product, as: "CreditProduct" }],
+        },
+        {
+          model: Account,
+          as: "accountCreditNo",
+          include: { model: AccountDetail, as: "accountDetail" },
+        },
+      ],
+    });
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Credit Note Not Found" });
+    }
+
+    const html = await renderFile(
+      path.join(__dirname, "../views/creditNote.ejs"),
+      { data: { form: companyData, creditNote: data } }
+    );
+    const base64HTML = Buffer.from(html).toString("base64");
+
+    res.setHeader("Content-Type", "application/json");
+    return res.status(200).json({
+      status: "Success",
+      message: "Html Document Created Successfully",
+      data: base64HTML,
+    });
+  } catch (error) {
+    console.log(error.message);
+    return res
+      .status(500)
+      .json({ status: "false", error: "Internal Server Error" });
+  }
+};
+
 exports.creditNote_single_excel = async (req, res) => {
   try {
     const { id } = req.params;
@@ -1215,6 +1261,51 @@ exports.C_creditNote_jpg = async (req, res) => {
       status: "Success",
       message: "JPG create successFully",
       data: base64String,
+    });
+  } catch (error) {
+    console.log(error.message);
+    return res
+      .status(500)
+      .json({ status: "false", error: "Internal Server Error" });
+  }
+};
+
+exports.C_creditNote_html = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.user.companyId;
+    const data = await C_CreditNote.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: C_CreditNoteItems,
+          as: "cashCreditNoteItem",
+          include: [{ model: product, as: "CreditProductCash" }],
+        },
+        {
+          model: Account,
+          as: "accountCreditNoCash",
+          include: { model: AccountDetail, as: "accountDetail" },
+        },
+      ],
+    });
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Credit Note Not Found" });
+    }
+
+    const html = await renderFile(
+      path.join(__dirname, "../views/creditNoteCash.ejs"),
+      { data }
+    );
+    const base64HTML = Buffer.from(html).toString("base64");
+
+    res.setHeader("Content-Type", "application/json");
+    return res.status(200).json({
+      status: "Success",
+      message: "Html Document Created Successfully",
+      data: base64HTML,
     });
   } catch (error) {
     console.log(error.message);

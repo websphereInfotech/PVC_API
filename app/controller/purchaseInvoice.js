@@ -568,6 +568,51 @@ exports.purchaseInvoice_jpg = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+exports.purchaseInvoice_html = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.user.companyId;
+    const companyData = await Company.findByPk(companyId);
+    const data = await purchaseInvoice.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: purchaseInvoiceItem,
+          as: "items",
+          include: [{ model: product, as: "purchseProduct" }],
+        },
+        {
+          model: Account,
+          as: "accountPurchaseInv",
+          include: { model: AccountDetail, as: "accountDetail" },
+        },
+      ],
+    });
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Purchase Invoice Not Found" });
+    }
+
+    const html = await renderFile(
+      path.join(__dirname, "../views/purchaseInvoice.ejs"),
+      { data: { form: companyData, purchase: data } }
+    );
+    const base64HTML = Buffer.from(html).toString("base64");
+
+    res.setHeader("Content-Type", "application/json");
+    return res.status(200).json({
+      status: "Success",
+      message: "Html Document Created Successfully",
+      data: base64HTML,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
 exports.purchaseInvoice_excel = async (req, res) => {
   try {
     const { id } = req.params;
@@ -1275,6 +1320,45 @@ exports.C_view_purchaseCash_jpg = async (req, res) => {
       status: "Success",
       message: "JPG create successFully",
       data: base64String,
+    });
+  } catch (e) {
+    console.error(e);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error." });
+  }
+};
+exports.C_purchaseCash_html = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyId = req.user.companyId;
+    const data = await C_purchaseCash.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: C_purchaseCashItem,
+          as: "items",
+          include: [{ model: product, as: "ProductPurchase" }],
+        },
+        { model: Account, as: "accountPurchaseCash" },
+      ],
+    });
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Purchase Cash Not Found" });
+    }
+    const html = await renderFile(
+      path.join(__dirname, "../views/purchaseCash.ejs"),
+      { data }
+    );
+    const base64HTML = Buffer.from(html).toString("base64");
+
+    res.setHeader("Content-Type", "application/json");
+    return res.status(200).json({
+      status: "Success",
+      message: "Html Document Created Successfully",
+      data: base64HTML,
     });
   } catch (e) {
     console.error(e);

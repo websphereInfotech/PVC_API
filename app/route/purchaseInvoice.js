@@ -19,7 +19,9 @@ const {
   purchaseInvoice_excel,
   C_purchaseInvoice_excel,
   C_purchaseinvoice_all_excel,
-  get_all_purchaseInvoice_excel
+  get_all_purchaseInvoice_excel,
+  C_purchaseCash_html,
+  purchaseInvoice_html
 } = require("../controller/purchaseInvoice");
 
 const router = express.Router();
@@ -71,6 +73,12 @@ router.get(
   "/purchaseInvoice_excel/:id",
   adminAuth("Purchase Invoice:purchaseInvoice_excel"),
   purchaseInvoice_excel
+);
+
+router.get(
+  "/purchaseInvoice_html/:id",
+  adminAuth("Purchase Invoice:purchaseInvoice_html"),
+  purchaseInvoice_html
 );
 
 router.get(
@@ -133,6 +141,12 @@ router.get(
   "/C_purchaseinvoice_all_excel",
   adminAuth("Purchase Cash:purchase_cash_excel"),
   C_purchaseinvoice_all_excel
+);
+
+router.get(
+  "/C_purchaseCash_html/:id",
+  adminAuth("Purchase Cash:purchase_cash_html"),
+  C_purchaseCash_html
 );
 
 module.exports = router;
