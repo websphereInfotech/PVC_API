@@ -179,7 +179,8 @@ exports.permissions = {
             "debitNote_pdf": true,
             "debitNote_jpg": true,
             "debitNote_single_excel": true,
-            "debitNote_excel": true
+            "debitNote_excel": true,
+            "debitNote_html": true
         },
         "Admin" :{
             "create_debitNote":true,
@@ -190,7 +191,8 @@ exports.permissions = {
             "debitNote_pdf": true,
             "debitNote_jpg": true,
             "debitNote_single_excel": true,
-            "debitNote_excel": true
+            "debitNote_excel": true,
+            "debitNote_html": true
         },
         "Account" :{
             "create_debitNote":true,
@@ -201,7 +203,8 @@ exports.permissions = {
             "debitNote_pdf": true,
             "debitNote_jpg": true,
             "debitNote_single_excel": true,
-            "debitNote_excel": true
+            "debitNote_excel": true,
+            "debitNote_html": true
         },
         "Employee" :{
             "create_debitNote":true,
@@ -212,7 +215,8 @@ exports.permissions = {
             "debitNote_pdf": true,
             "debitNote_jpg": true,
             "debitNote_single_excel": true,
-            "debitNote_excel": true
+            "debitNote_excel": true,
+            "debitNote_html": true
         },
         "Workers" :{
             "create_debitNote":true,
@@ -223,7 +227,8 @@ exports.permissions = {
             "debitNote_pdf": true,
             "debitNote_jpg": true,
             "debitNote_single_excel": true,
-            "debitNote_excel": true
+            "debitNote_excel": true,
+            "debitNote_html": true
         },
         "Other" :{
             "create_debitNote":true,
@@ -234,7 +239,8 @@ exports.permissions = {
             "debitNote_pdf": true,
             "debitNote_jpg": true,
             "debitNote_single_excel": true,
-            "debitNote_excel": true
+            "debitNote_excel": true,
+            "debitNote_html": true
         }
     },
     "Credit Note" : {
@@ -1633,7 +1639,8 @@ exports.permissions = {
             "debitNote_pdf": true,
             "debitNote_jpg": true,
             "debitNote_single_excel": true,
-            "debitNote_excel": true
+            "debitNote_excel": true,
+            "debitNote_html": true
         },
         "Admin" :{
             "create_debitNote":true,
@@ -1644,7 +1651,8 @@ exports.permissions = {
             "debitNote_pdf": true,
             "debitNote_jpg": true,
             "debitNote_single_excel": true,
-            "debitNote_excel": true
+            "debitNote_excel": true,
+            "debitNote_html": true
         },
         "Account" :{
             "create_debitNote":true,
@@ -1655,7 +1663,8 @@ exports.permissions = {
             "debitNote_pdf": true,
             "debitNote_jpg": true,
             "debitNote_single_excel": true,
-            "debitNote_excel": true
+            "debitNote_excel": true,
+            "debitNote_html": true
         },
         "Employee" :{
             "create_debitNote":true,
@@ -1666,7 +1675,8 @@ exports.permissions = {
             "debitNote_pdf": true,
             "debitNote_jpg": true,
             "debitNote_single_excel": true,
-            "debitNote_excel": true
+            "debitNote_excel": true,
+            "debitNote_html": true
         },
         "Workers" :{
             "create_debitNote":true,
@@ -1677,7 +1687,8 @@ exports.permissions = {
             "debitNote_pdf": true,
             "debitNote_jpg": true,
             "debitNote_single_excel": true,
-            "debitNote_excel": true
+            "debitNote_excel": true,
+            "debitNote_html": true
         },
         "Other" :{
             "create_debitNote":true,
@@ -1688,7 +1699,8 @@ exports.permissions = {
             "debitNote_pdf": true,
             "debitNote_jpg": true,
             "debitNote_single_excel": true,
-            "debitNote_excel": true
+            "debitNote_excel": true,
+            "debitNote_html": true
         }
     },
     "Credit Note Cash" : {

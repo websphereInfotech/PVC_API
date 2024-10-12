@@ -19,7 +19,9 @@ const {
   debitNote_single_excel,
   C_debitNote_single_excel,
   C_debitNote_excel,
-  debitNote_excel
+  debitNote_excel,
+  debitNote_html,
+  C_debitNote_html
 } = require("../controller/debitNote");
 
 
@@ -77,6 +79,11 @@ router.get(
   debitNote_excel
 );
 
+router.get(
+  "/debitNote_html/:id",
+  adminAuth("Debit Note:debitNote_html"),
+  debitNote_html
+);
 /*=============================================================================================================
                                          With Type C API
  ============================================================================================================ */
@@ -119,6 +126,12 @@ router.get(
   "/C_debitNote_jpg/:id",
   adminAuth("Debit Note Cash:debitNote_jpg"),
   C_debitNote_jpg
+);
+
+router.get(
+  "/C_debitNote_html/:id",
+  adminAuth("Debit Note Cash:debitNote_html"),
+  C_debitNote_html
 );
 
 router.get(

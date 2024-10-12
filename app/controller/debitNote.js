@@ -524,6 +524,55 @@ exports.debitNote_jpg = async (req, res) => {
   }
 };
 
+exports.debitNote_html = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { companyId } = req.user;
+
+    const companyData = await Company.findByPk(companyId);
+
+    const data = await debitNote.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: debitNoteItem,
+          as: "items",
+          include: [{ model: product, as: "DebitProduct" }],
+        },
+        {
+          model: Account,
+          as: "accountDebitNo",
+          include: { model: AccountDetail, as: "accountDetail" },
+        },
+        { model: purchaseInvoice, as: "purchaseData" },
+      ],
+    });
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Debit Note Not Found" });
+    }
+
+    const html = await renderFile(
+      path.join(__dirname, "../views/debitNote.ejs"),
+      { data: { form: companyData, debitNote: data } }
+    );
+    const base64HTML = Buffer.from(html).toString("base64");
+
+    res.setHeader("Content-Type", "application/json");
+    return res.status(200).json({
+      status: "Success",
+      message: "Html Document Created Successfully",
+      data: base64HTML,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
 exports.debitNote_single_excel = async (req, res) => {
   try {
     const { id } = req.params;
@@ -1245,6 +1294,53 @@ exports.C_debitNote_jpg = async (req, res) => {
       status: "Success",
       message: "JPG create successFully",
       data: base64String,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+exports.C_debitNote_html = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { companyId } = req.user;
+
+    const data = await C_DebitNote.findOne({
+      where: { id: id, companyId: companyId },
+      include: [
+        {
+          model: C_DebitNoteItems,
+          as: "cashDebitNoteItem",
+          include: [{ model: product, as: "DebitProductCash" }],
+        },
+        {
+          model: Account,
+          as: "accountDebitNoCash",
+          include: { model: AccountDetail, as: "accountDetail" },
+        },
+        { model: C_purchaseCash, as: "purchaseDataCash" },
+      ],
+    });
+
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Debit Note Not Found" });
+    }
+
+    const html = await renderFile(
+      path.join(__dirname, "../views/debitNoteCash.ejs"),
+      { data }
+    );
+    const base64HTML = Buffer.from(html).toString("base64");
+
+    res.setHeader("Content-Type", "application/json");
+    return res.status(200).json({
+      status: "Success",
+      message: "Html Document Created Successfully",
+      data: base64HTML,
     });
   } catch (error) {
     console.log(error);

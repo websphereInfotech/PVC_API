@@ -140,7 +140,7 @@ router.get(
 );
 
 router.get(
-  "/C_creditNote_html",
+  "/C_creditNote_html/:id",
   adminAuth("Credit Note Cash:creditNote_html"),
   C_creditNote_html
 );
