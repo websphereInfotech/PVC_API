@@ -1,6 +1,6 @@
 const C_Purpose = require("../models/Purpose");
 const User = require("../models/user");
-const {Op} = require("sequelize");
+const {Op, Sequelize} = require("sequelize");
 exports.create_purpose = async (req, res) => {
   try {
     const { name } = req.body;

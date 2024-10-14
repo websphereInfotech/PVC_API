@@ -1375,7 +1375,7 @@ exports.C_creditNote_single_excel = async (req, res) => {
     worksheet.getCell("A7").value = `Voucher No.: ${data.creditnoteNo}`;
 
     worksheet.mergeCells("D2:F2");
-    worksheet.getCell("D2").value = data.accountCreditNoCash.accountName;
+    worksheet.getCell("D2").value = data.accountCreditNoCash.contactPersonName;
     worksheet.getCell("D2").font = { bold: true };
     worksheet.getCell("D2").alignment = { horizontal: "right" };
 

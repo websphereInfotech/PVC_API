@@ -1427,7 +1427,7 @@ exports.C_purchaseInvoice_excel = async (req, res) => {
     worksheet.getCell("A7").value = `Invoice No.: ${data.purchaseNo}`;
 
     worksheet.mergeCells("D2:F2");
-    worksheet.getCell("D2").value = data.accountPurchaseCash.accountName;
+    worksheet.getCell("D2").value = data.accountPurchaseCash.contactPersonName;
     worksheet.getCell("D2").font = { bold: true };
     worksheet.getCell("D2").alignment = { horizontal: "right" };
 
