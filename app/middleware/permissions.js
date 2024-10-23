@@ -1231,7 +1231,9 @@ exports.permissions = {
     "Dashboard" : {
         "Super Admin" :{
             "total_sales":true,
-            "total_purchase": true
+            "total_purchase": true,
+            "total_receive": true,
+            "total_payment": true
         },
         "Admin" :{
             "total_sales":true,
@@ -1252,6 +1254,12 @@ exports.permissions = {
         "Other" :{
             "total_sales":true,
             "total_purchase": true
+        }
+    },
+    "Dashboard Cash" : {
+        "Super Admin" :{
+            "total_receive": true,
+            "total_payment": true
         }
     },
     "Item Group" : {
