@@ -2,7 +2,8 @@
   "name": "mysql",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "migrate-undo": "npx sequelize-cli db:migrate:undo --config app/config/config.js --migrations-path app/migrations",
     "migrate-generate": "npx sequelize-cli model:generate --name permission --attributes role:string,resourse:string,permissionValue:boolean,permission:string --models-path app/models --migrations-path app/migrations",
