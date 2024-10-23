@@ -46,6 +46,6 @@ app.use(logRequestMiddleware);
 
 app.use("/admin", initRoutes);
 
-app.get("/", (req, res) => res.send("Hello World PVC!"));
+app.get("/", (req, res) => res.send("Hello World PVC World!"));
 
 app.listen(port, () => console.log(`Example app listening on port ${port}`));
