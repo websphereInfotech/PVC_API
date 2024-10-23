@@ -30,8 +30,8 @@ jobs:
         sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$VPS_IP << 'EOF'
           cd /root/stage/BE
           git pull origin dev
-          pnpm install
-          pnpm run migrate-run
-          pnpm run seeder-all
+          npm install
+          npm run migrate-run
+          npm run seeder-all
           pm2 restart STAGE_SERVER
         EOF
