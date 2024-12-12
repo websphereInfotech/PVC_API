@@ -498,7 +498,35 @@ exports.view_user_balance = async (req, res) => {
 
 exports.view_wallet = async (req, res) => {
   try {
-    const { role, userId, companyId } = req.user;
+    const { userId, companyId } = req.user;
+    let userWallet = null;
+
+    userWallet = await C_userBalance.findOne({
+      where: {
+        userId: userId,
+        companyId: companyId,
+      },
+      include: [
+        { model: User, attributes: ["username", "email"], as: "userBalance" },
+      ],
+    });
+
+    return res.status(200).json({
+      status: "true",
+      message: "User Wallet Show Successfully",
+      data: { userWallet },
+    });
+  } catch (e) {
+    console.log(e);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
+exports.view_all_wallet = async (req, res) => {
+  try {
+    const { userId, companyId } = req.user;
     const { id } = req.params;
     let userWallet = null;
     let walletEntry = {
@@ -507,74 +535,73 @@ exports.view_wallet = async (req, res) => {
       closingBalance: null,
       totalAmount: null,
     };
-    if (role === ROLE.SUPER_ADMIN) {
-      const userExist = await User.findOne({
-        where: {
-          id: id,
+    const userExist = await User.findOne({
+      where: {
+        id: id,
+      },
+    });
+    if (!userExist) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "User Not Found" });
+    }
+    userWallet = await C_userBalance.findOne({
+      where: {
+        userId: id,
+        companyId: companyId,
+      },
+      include: [
+        { model: User, attributes: ["username", "email"], as: "userBalance" },
+      ],
+    });
+    const data = await C_WalletLedger.findAll({
+      where: {
+        userId: id,
+        isApprove: {
+          [Sequelize.Op.is]: false,
         },
-      });
-      if (!userExist) {
-        return res
-          .status(404)
-          .json({ status: "false", message: "User Not Found" });
-      }
-      userWallet = await C_userBalance.findOne({
-        where: {
-          userId: id,
-          companyId: companyId,
-        },
-        include: [
-          { model: User, attributes: ["username", "email"], as: "userBalance" },
-        ],
-      });
-      const data = await C_WalletLedger.findAll({
-        where: {
-          userId: id,
-          isApprove: {
-            [Sequelize.Op.is]: false,
-          },
-        },
-        attributes: [
-          "date",
-          "id",
-          "isApprove",
-          [
-            Sequelize.literal(`CASE
+      },
+      attributes: [
+        "date",
+        "id",
+        "isApprove",
+        [
+          Sequelize.literal(`CASE
             WHEN walletPayment.id IS NOT NULL THEN \`walletPayment\`.\`amount\`
             WHEN \`walletClaim\`.\`toUserId\` = ${userId} THEN \`walletClaim\`.\`amount\`
             ELSE 0
         END`),
-            "debitAmount",
-          ],
-          [
-            Sequelize.literal(`CASE
+          "debitAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
             WHEN walletReceipt.id IS NOT NULL THEN \`walletReceipt\`.\`amount\`
             WHEN \`walletClaim\`.\`fromUserId\` = ${userId} THEN \`walletClaim\`.\`amount\`
             ELSE 0
         END`),
-            "creditAmount",
-          ],
-          [
-            Sequelize.literal(`CASE
+          "creditAmount",
+        ],
+        [
+          Sequelize.literal(`CASE
             WHEN walletPayment.id IS NOT NULL THEN \`walletPayment\`.\`description\`
             WHEN walletReceipt.id IS NOT NULL THEN \`walletReceipt\`.\`description\`
             WHEN walletClaim.id IS NOT NULL THEN \`walletClaim\`.\`description\`
             ELSE ''
         END`),
-            "details",
-          ],
-          [
-            Sequelize.literal(`CASE
+          "details",
+        ],
+        [
+          Sequelize.literal(`CASE
             WHEN walletPayment.id IS NOT NULL THEN \`walletPayment->accountPaymentCash\`.\`contactPersonName\`
             WHEN walletReceipt.id IS NOT NULL THEN \`walletReceipt->accountReceiptCash\`.\`contactPersonName\`
             WHEN \`walletClaim\`.\`fromUserId\` = ${userId} THEN \`walletClaim->toUser\`.\`username\`
           WHEN \`walletClaim\`.\`toUserId\` = ${userId} THEN \`walletClaim->fromUser\`.\`username\`
             ELSE ''
         END`),
-            "personName",
-          ],
-          [
-            Sequelize.literal(`
+          "personName",
+        ],
+        [
+          Sequelize.literal(`
     (
         SELECT
             IFNULL(SUM(
@@ -600,101 +627,90 @@ exports.view_wallet = async (req, res) => {
             AND wl2.isApprove = false
             AND (wl2.date < \`P_C_WalletLedger\`.\`date\` OR (wl2.date = \`P_C_WalletLedger\`.\`date\` AND wl2.id < \`P_C_WalletLedger\`.\`id\`))
     )`),
-            "openingBalance",
+          "openingBalance",
+        ],
+      ],
+      include: [
+        {
+          model: C_Payment,
+          as: "walletPayment",
+          include: [
+            {
+              model: Account,
+              as: "accountPaymentCash",
+            },
           ],
-        ],
-        include: [
-          {
-            model: C_Payment,
-            as: "walletPayment",
-            include: [
-              {
-                model: Account,
-                as: "accountPaymentCash",
-              },
-            ],
-            attributes: [],
-          },
-          {
-            model: C_Receipt,
-            as: "walletReceipt",
-            include: [
-              {
-                model: Account,
-                as: "accountReceiptCash",
-              },
-            ],
-            attributes: [],
-          },
-          {
-            model: C_Claim,
-            as: "walletClaim",
-            include: [
-              { model: User, as: "toUser" },
-              { model: User, as: "fromUser" },
-            ],
-            attributes: [],
-          },
-        ],
-        order: [
-          ["date", "ASC"],
-          ["id", "ASC"],
-        ],
-      });
-      const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
-      const walletLedgerArray = [...data];
-      if (+openingBalance !== 0) {
-        walletLedgerArray.unshift({
-          date: formDate,
-          debitAmount:
-            openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-          creditAmount:
-            openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-          details: "Opening Balance",
-          openingBalance: 0,
-          personName: "",
-          id: null,
-        });
-      }
-      const totals = walletLedgerArray.reduce(
-        (acc, ledger) => {
-          if (ledger.dataValues) {
-            acc.totalCredit += ledger.dataValues.creditAmount || 0;
-            acc.totalDebit += ledger.dataValues.debitAmount || 0;
-          } else {
-            acc.totalCredit += ledger.creditAmount || 0;
-            acc.totalDebit += ledger.debitAmount || 0;
-          }
-          return acc;
+          attributes: [],
         },
-        { totalCredit: 0, totalDebit: 0 }
-      );
-
-      const totalCredit = totals.totalCredit;
-      const totalDebit = totals.totalDebit;
-      const closingBalanceAmount = totalDebit - totalCredit;
-      const closingBalance = {
-        type: closingBalanceAmount < 0 ? "debit" : "credit",
-        amount: +Math.abs(closingBalanceAmount).toFixed(2),
-      };
-      walletEntry.records = walletLedgerArray;
-      walletEntry.totals = totals;
-      walletEntry.totalAmount =
-        totals.totalCredit < totals.totalDebit
-          ? totals.totalDebit
-          : totals.totalCredit;
-      walletEntry.closingBalance = closingBalance;
-    } else {
-      userWallet = await C_userBalance.findOne({
-        where: {
-          userId: userId,
-          companyId: companyId,
+        {
+          model: C_Receipt,
+          as: "walletReceipt",
+          include: [
+            {
+              model: Account,
+              as: "accountReceiptCash",
+            },
+          ],
+          attributes: [],
         },
-        include: [
-          { model: User, attributes: ["username", "email"], as: "userBalance" },
-        ],
+        {
+          model: C_Claim,
+          as: "walletClaim",
+          include: [
+            { model: User, as: "toUser" },
+            { model: User, as: "fromUser" },
+          ],
+          attributes: [],
+        },
+      ],
+      order: [
+        ["date", "ASC"],
+        ["id", "ASC"],
+      ],
+    });
+    const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
+    const walletLedgerArray = [...data];
+    if (+openingBalance !== 0) {
+      walletLedgerArray.unshift({
+        date: formDate,
+        debitAmount:
+          openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        creditAmount:
+          openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+        details: "Opening Balance",
+        openingBalance: 0,
+        personName: "",
+        id: null,
       });
     }
+    const totals = walletLedgerArray.reduce(
+      (acc, ledger) => {
+        if (ledger.dataValues) {
+          acc.totalCredit += ledger.dataValues.creditAmount || 0;
+          acc.totalDebit += ledger.dataValues.debitAmount || 0;
+        } else {
+          acc.totalCredit += ledger.creditAmount || 0;
+          acc.totalDebit += ledger.debitAmount || 0;
+        }
+        return acc;
+      },
+      { totalCredit: 0, totalDebit: 0 }
+    );
+
+    const totalCredit = totals.totalCredit;
+    const totalDebit = totals.totalDebit;
+    const closingBalanceAmount = totalDebit - totalCredit;
+    const closingBalance = {
+      type: closingBalanceAmount < 0 ? "debit" : "credit",
+      amount: +Math.abs(closingBalanceAmount).toFixed(2),
+    };
+    walletEntry.records = walletLedgerArray;
+    walletEntry.totals = totals;
+    walletEntry.totalAmount =
+      totals.totalCredit < totals.totalDebit
+        ? totals.totalDebit
+        : totals.totalCredit;
+    walletEntry.closingBalance = closingBalance;
 
     return res.status(200).json({
       status: "true",
@@ -770,7 +786,7 @@ exports.view_balance = async (req, res) => {
         companyBalanceObj.balance +
         mainCompanyBa.balance +
         companyCashBalance.balance,
-        bankBalance: mainCompanyBa.balance
+      bankBalance: mainCompanyBa.balance,
     };
     return res.status(200).json({
       status: "true",

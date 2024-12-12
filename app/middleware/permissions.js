@@ -1006,6 +1006,7 @@ exports.permissions = {
             "view_all_ClaimUser":true,
             "view_user_balance":true,
             "view_wallet": true,
+            "view_all_wallet": true,
             "view_company_wallet": true
         },
         "Admin" :{
@@ -1019,6 +1020,7 @@ exports.permissions = {
             "view_all_ClaimUser":true,
             "view_user_balance":true,
             "view_wallet": true,
+            "view_all_wallet": true,
             "view_company_wallet": true
         },
         "Account" :{
@@ -1259,7 +1261,9 @@ exports.permissions = {
     "Dashboard Cash" : {
         "Super Admin" :{
             "total_receive": true,
-            "total_payment": true
+            "total_payment": true,
+            "total_sales" : true,
+            "total_purchase" : true
         }
     },
     "Item Group" : {
