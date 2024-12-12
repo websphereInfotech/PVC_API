@@ -1006,6 +1006,7 @@ exports.permissions = {
             "view_all_ClaimUser":true,
             "view_user_balance":true,
             "view_wallet": true,
+            "view_all_wallet": true,
             "view_company_wallet": true
         },
         "Admin" :{
@@ -1019,6 +1020,7 @@ exports.permissions = {
             "view_all_ClaimUser":true,
             "view_user_balance":true,
             "view_wallet": true,
+            "view_all_wallet": true,
             "view_company_wallet": true
         },
         "Account" :{
