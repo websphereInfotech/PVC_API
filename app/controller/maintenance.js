@@ -51,7 +51,7 @@ exports.create_maintenance = async (req, res) => {
         qty: item.qty,
       });
     }
-    await data.addMaintenanceTypes(maintenanceType);
+    // await data.addMMaintenanceTypes(maintenanceType);
     return res.status(200).json({
       status: "true",
       message: "Maintenance Create Successfully.",
