@@ -4,7 +4,7 @@ const Product = require("../models/product");
 const User = require("../models/user");
 const {Sequelize} = require("sequelize");
 const Stock = require("../models/stock");
-const Wastage = require("../models/Wastage");
+// const Wastage = require("../models/Wastage");
 
 exports.create_bom = async (req, res) => {
     try {
@@ -113,7 +113,7 @@ exports.create_bom = async (req, res) => {
             message: "Production created successfully.",
         })
     }catch (e) {
-        console.log(e);
+        console.log('error = = =>' ,e);
         return res.status(500).json({
             status: "false",
             message: "Internal Server Error.",
@@ -155,7 +155,7 @@ exports.update_bom = async (req, res) => {
                 message: "Product Item Not Found.",
             })
         }
-        const wastageExist = await Wastage.findOne({where: {
+        const wastageExist = await Product.findOne({where: {
                 id: wastageId,
                 companyId: companyId,
             }});
@@ -330,7 +330,7 @@ exports.view_all_bom = async (req,res)=>{
                     attributes: ['username']
                 },
                 {
-                    model: Wastage,
+                    model: Product,
                     as: "bomWastage",
                 }
             ]
@@ -388,7 +388,7 @@ exports.view_bom = async (req,res)=>{
                     attributes: ['username']
                 },
                 {
-                    model: Wastage,
+                    model: Product,
                     as: "bomWastage",
                 }
             ]
