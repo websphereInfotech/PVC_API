@@ -52,7 +52,7 @@ Product.hasMany(Bom, {foreignKey: "productId", as: "bomProduct" });
 Bom.belongsTo(Product, {foreignKey: "productId", as: "bomProduct" });
 
 
-Product.hasMany(Bom, { foreignKey: "pwastageId", as: "bomWastage" });
-Bom.belongsTo(Product, { foreignKey: "pwastageId", as: "bomWastage" });
+// Product.hasMany(Bom, { foreignKey: "pwastageId", as: "bomWastage" });
+// Bom.belongsTo(Product, { foreignKey: "pwastageId", as: "bomWastage" });
 
 module.exports = Bom;

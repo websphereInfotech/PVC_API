@@ -333,10 +333,10 @@ exports.view_all_bom = async (req,res)=>{
                     as: "bomCreatedUser",
                     attributes: ['username']
                 },
-                {
-                    model: Product,
-                    as: "bomWastage",
-                }
+                // {
+                //     model: Product,
+                //     as: "bomWastage",
+                // }
             ]
         })
         return res.status(200).json({
@@ -391,10 +391,10 @@ exports.view_bom = async (req,res)=>{
                     as: "bomCreatedUser",
                     attributes: ['username']
                 },
-                {
-                    model: Product,
-                    as: "bomWastage",
-                }
+                // {
+                //     model: Product,
+                //     as: "bomWastage",
+                // }
             ]
         })
         return res.status(200).json({
