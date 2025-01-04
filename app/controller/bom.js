@@ -88,7 +88,7 @@ exports.create_bom = async (req, res) => {
             where: {wastageId}
         })
         if(wastageStock){
-            await itemStock.increment('qty',{by: wastageQty})
+            await wastageStock.increment('qty',{by: wastageQty})
         }
 
 
