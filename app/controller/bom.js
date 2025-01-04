@@ -75,7 +75,7 @@ exports.create_bom = async (req, res) => {
             shift: shift,
             endTime: endTime,
             startTime: startTime,
-            wastageId,
+            pWastageId:wastageId,
             wastageQty
         })
 
@@ -222,7 +222,7 @@ exports.update_bom = async (req, res) => {
                 shift,
                 endTime,
                 startTime,
-                wastageId,
+                pWastageId:wastageId,
                 wastageQty
             },
             {
