@@ -3,7 +3,7 @@ const sequelize = require("../config/index");
 const User = require("./user");
 const Company = require("./company");
 const Product = require("./product");
-const Wastage = require("./Wastage");
+// const Wastage = require("./Wastage");
 const {WORKER_SHIFT} = require("../constant/constant");
 
 const Bom = sequelize.define("P_Bom", {

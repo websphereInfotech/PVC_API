@@ -59,6 +59,8 @@ exports.create_bom = async (req, res) => {
         const totalWeight = (qty * weight) + Number(wastageQty);
         const dividedWeight = Math.floor((totalWeight / totalQty) * 100) / 100;
 
+        console.log('Test createBOM before');
+
         const createBOM = await Bom.create({
             bomNo: bomNo,
             date: date,
@@ -76,6 +78,8 @@ exports.create_bom = async (req, res) => {
             wastageId,
             wastageQty
         })
+
+        console.log('Test createBOM after');
 
         const itemStock = await Stock.findOne({
             where: {productId}
