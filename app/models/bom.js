@@ -51,6 +51,10 @@ Bom.belongsTo(Company, {foreignKey: "companyId", as: "bomCompany" });
 Product.hasMany(Bom, {foreignKey: "productId", as: "bomProduct" });
 Bom.belongsTo(Product, {foreignKey: "productId", as: "bomProduct" });
 
+
+Product.hasMany(Bom, { foreignKey: "wastageId", as: "bomWastageProduct" });
+Bom.belongsTo(Product, { foreignKey: "wastageId", as: "bomWastageProduct" });
+
 // Product.hasMany(Bom, {foreignKey: "wastageId", as: "bomWastage" });
 // Bom.belongsTo(Product, {foreignKey: "wastageId", as: "bomWastage" });
 
