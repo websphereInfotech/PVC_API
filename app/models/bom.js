@@ -29,7 +29,7 @@ const Bom = sequelize.define("P_Bom", {
         type: DataTypes.TIME,
         allowNull: false
     },
-    wastageId: {
+    pWastageId: {
         type: DataTypes.INTEGER,
         allowNull: false
     },
