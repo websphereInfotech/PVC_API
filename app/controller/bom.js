@@ -89,7 +89,7 @@ exports.create_bom = async (req, res) => {
         }
         
         const wastageStock = await Stock.findOne({
-            where: {wastageId}
+            where: {productId:wastageId}
         })
         if(wastageStock){
             await wastageStock.increment('qty',{by: wastageQty})
