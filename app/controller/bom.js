@@ -34,6 +34,7 @@ exports.create_bom = async (req, res) => {
         const wastageExist = await Product.findOne({where: {
                 id: wastageId,
                 companyId: companyId,
+                isActive: true
             }});
         if(!wastageExist){
             return res.status(404).json({
