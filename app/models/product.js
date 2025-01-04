@@ -57,6 +57,10 @@ const product = sequelize.define("P_product", {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+  wastage : {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
   companyId: { type: DataTypes.INTEGER },
   weight: {
     type: DataTypes.FLOAT,

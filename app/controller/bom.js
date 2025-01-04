@@ -82,6 +82,14 @@ exports.create_bom = async (req, res) => {
         if(itemStock){
             await itemStock.increment('qty',{by: qty})
         }
+        
+        const wastageStock = await Stock.findOne({
+            where: {wastageId}
+        })
+        if(wastageStock){
+            await itemStock.increment('qty',{by: wastageQty})
+        }
+
 
         for(const item of items){
             const totalQty = Math.floor((item.qty * dividedWeight) * 100) / 100;
