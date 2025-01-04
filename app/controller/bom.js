@@ -31,7 +31,7 @@ exports.create_bom = async (req, res) => {
             })
         }
 
-        const wastageExist = await Wastage.findOne({where: {
+        const wastageExist = await Product.findOne({where: {
                 id: wastageId,
                 companyId: companyId,
             }});
