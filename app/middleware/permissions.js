@@ -72,6 +72,7 @@ exports.permissions = {
             "view_user":true,
             "user_logout":true,
             "view_all_JoinComapny":true,
+            "view_all_user":true,
         },
         "Account" : {
             "update_user":true,
