@@ -29,7 +29,7 @@ const Bom = sequelize.define("P_Bom", {
         type: DataTypes.TIME,
         allowNull: false
     },
-    pWastageId: {
+    WastageId: {
         type: DataTypes.INTEGER,
         allowNull: false
     },
@@ -52,7 +52,7 @@ Product.hasMany(Bom, {foreignKey: "productId", as: "bomProduct" });
 Bom.belongsTo(Product, {foreignKey: "productId", as: "bomProduct" });
 
 
-Product.hasMany(Bom, { foreignKey: "pwastageId", as: "bomWastage" });
-Bom.belongsTo(Product, { foreignKey: "pwastageId", as: "bomWastage" });
+Product.hasMany(Bom, { foreignKey: "WastageId", as: "bomWastage" });
+Bom.belongsTo(Product, { foreignKey: "WastageId", as: "bomWastage" });
 
 module.exports = Bom;
