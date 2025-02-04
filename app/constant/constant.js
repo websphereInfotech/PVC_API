@@ -31,6 +31,7 @@ exports.ACCOUNT_GROUPS_TYPE = {
     SUNDRY_DEBTORS: "Sundry Debtors",
     UNSECURED_LOANS: "Unsecured Loans",
     CASH_IN_HAND: "Cash In Hand",
+    EXPENSE: "Expenses (Company)",
 }
 
 exports.MACHINE_SCHEDULE_TYPE = {

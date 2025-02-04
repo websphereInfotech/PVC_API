@@ -837,6 +837,50 @@ exports.permissions = {
             "delete_receipt":true
         },
     },
+    "Expense" : {
+        "Super Admin" :{
+            "create_expense":true,
+            "update_expense":true,
+            "delete_expense":true,
+            "view_expense":true,
+            "view_all_expense":true
+        },
+        "Admin" :{
+           "create_expense":true,
+            "update_expense":true,
+            "delete_expense":true,
+            "view_expense":true,
+            "view_all_expense":true
+        },
+        "Account" :{
+            "create_expense":true,
+            "update_expense":true,
+            "delete_expense":true,
+            "view_expense":true,
+            "view_all_expense":true
+        },
+        "Employee" :{
+           "create_expense":true,
+            "update_expense":true,
+            "delete_expense":true,
+            "view_expense":true,
+            "view_all_expense":true
+        },
+        "Workers" :{
+           "create_expense":true,
+            "update_expense":true,
+            "delete_expense":true,
+            "view_expense":true,
+            "view_all_expense":true
+        },
+        "Other" :{
+           "create_expense":true,
+            "update_expense":true,
+            "delete_expense":true,
+            "view_expense":true,
+            "view_all_expense":true
+        },
+    },
     "Payment Cash" : {
         "Super Admin" :{
             "create_payment":true,
@@ -1071,6 +1115,26 @@ exports.permissions = {
             "view_all_ClaimUser":true,
             "view_user_balance":true,
             "view_wallet": true
+        },
+    },
+    "Order Processing" : {
+        "Super Admin" :{
+            "view_orderProcessing":true,
+        },
+        "Admin" :{
+            "view_orderProcessing":true,
+        },
+        "Account" :{
+            "view_orderProcessing":true,
+        },
+        "Employee" :{
+            "view_orderProcessing":true,
+        },
+        "Workers" :{
+            "view_orderProcessing":true,
+        },
+        "Other" :{
+            "view_orderProcessing":true,
         },
     },
     "Production" : {

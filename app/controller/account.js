@@ -10,7 +10,10 @@ exports.view_all_account_group = async (req, res) => {
         const companyId = req.user.companyId;
         const accountGroups = await AccountGroup.findAll({
             where: {
-                companyId: companyId
+                companyId: companyId,
+                // name: {
+                //     [Op.ne]: ACCOUNT_GROUPS_TYPE.EXPENSE
+                // }
             }
         });
 
@@ -225,7 +228,10 @@ exports.C_view_all_account = async (req, res) => {
                     model: AccountGroup,
                     where: {
                         name: {
-                            [Op.ne]: ACCOUNT_GROUPS_TYPE.CASH_IN_HAND
+                            [Op.and]: [
+                                { [Op.ne]: ACCOUNT_GROUPS_TYPE.CASH_IN_HAND },
+                                // { [Op.ne]: ACCOUNT_GROUPS_TYPE.EXPENSE }
+                            ]
                         }
                     },
                     as: "accountGroup"
