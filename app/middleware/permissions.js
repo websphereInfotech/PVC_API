@@ -2030,4 +2030,218 @@ exports.permissions = {
             "delete_maintenance": true
         }
     },
+    "Employee" : {
+        "Super Admin" :{
+            "create_employee":true,
+            "update_employee": true,
+            "view_all_employee": true,
+            "view_one_employee": true,
+            "delete_employee": true
+        },
+        "Admin" :{
+            "create_employee":true,
+            "update_employee": true,
+            "view_all_employee": true,
+            "view_one_employee": true,
+            "delete_employee": true
+        },
+        "Account" :{
+            "create_employee":true,
+            "update_employee": true,
+            "view_all_employee": true,
+            "view_one_employee": true,
+            "delete_employee": true
+        },
+        "Employee" :{
+            "create_employee":true,
+            "update_employee": true,
+            "view_all_employee": true,
+            "view_one_employee": true,
+            "delete_employee": true
+        },
+        "Workers" :{
+            "create_employee":true,
+            "update_employee": true,
+            "view_all_employee": true,
+            "view_one_employee": true,
+            "delete_employee": true
+        },
+        "Other" :{
+            "create_employee":true,
+            "update_employee": true,
+            "view_all_employee": true,
+            "view_one_employee": true,
+            "delete_employee": true
+        },
+    },
+    "Attendence" : {
+        "Super Admin" :{
+            "create_attendence":true,
+            "update_attendence": true,
+            "view_all_attendence": true,
+            "view_one_attendence": true,
+            "delete_attendence": true
+        },
+        "Admin" :{
+            "create_attendence":true,
+            "update_attendence": true,
+            "view_all_attendence": true,
+            "view_one_attendence": true,
+            "delete_attendence": true
+        },
+        "Account" :{
+            "create_attendence":true,
+            "update_attendence": true,
+            "view_all_attendence": true,
+            "view_one_attendence": true,
+            "delete_attendence": true
+        },
+        "Employee" :{
+            "create_attendence":true,
+            "update_attendence": true,
+            "view_all_attendence": true,
+            "view_one_attendence": true,
+            "delete_attendence": true
+        },
+        "Workers" :{
+            "create_attendence":true,
+            "update_attendence": true,
+            "view_all_attendence": true,
+            "view_one_attendence": true,
+            "delete_attendence": true
+        },
+        "Other" :{
+            "create_attendence":true,
+            "update_attendence": true,
+            "view_all_attendence": true,
+            "view_one_attendence": true,
+            "delete_attendence": true
+        },
+    },
+    "Leave" : {
+        "Super Admin" :{
+            "create_Leave":true,
+            "update_Leave": true,
+            "view_all_Leave": true,
+            "view_one_Leave": true,
+            "delete_Leave": true
+        },
+        "Admin" :{
+            "create_Leave":true,
+            "update_Leave": true,
+            "view_all_Leave": true,
+            "view_one_Leave": true,
+            "delete_Leave": true
+        },
+        "Account" :{
+            "create_Leave":true,
+            "update_Leave": true,
+            "view_all_Leave": true,
+            "view_one_Leave": true,
+            "delete_Leave": true
+        },
+        "Employee" :{
+            "create_Leave":true,
+            "update_Leave": true,
+            "view_all_Leave": true,
+            "view_one_Leave": true,
+            "delete_Leave": true
+        },
+        "Workers" :{
+            "create_Leave":true,
+            "update_Leave": true,
+            "view_all_Leave": true,
+            "view_one_Leave": true,
+            "delete_Leave": true
+        },
+        "Other" :{
+            "create_Leave":true,
+            "update_Leave": true,
+            "view_all_Leave": true,
+            "view_one_Leave": true,
+            "delete_Leave": true
+        },
+    },
+    "Shift" : {
+        "Super Admin" :{
+            "create_shift":true,
+            "update_shift": true,
+            "view_all_shift": true,
+            "view_one_shift": true,
+            "delete_shift": true
+        },
+        "Admin" :{
+            "create_shift":true,
+            "update_shift": true,
+            "view_all_shift": true,
+            "view_one_shift": true,
+            "delete_shift": true
+        },
+        "Account" :{
+            "create_shift":true,
+            "update_shift": true,
+            "view_all_shift": true,
+            "view_one_shift": true,
+            "delete_shift": true
+        },
+        "Employee" :{
+            "create_shift":true,
+            "update_shift": true,
+            "view_all_shift": true,
+            "view_one_shift": true,
+            "delete_shift": true
+        },
+        "Workers" :{
+            "create_shift":true,
+            "update_shift": true,
+            "view_all_shift": true,
+            "view_one_shift": true,
+            "delete_shift": true
+        },
+        "Other" :{
+            "create_shift":true,
+            "update_shift": true,
+            "view_all_shift": true,
+            "view_one_shift": true,
+            "delete_shift": true
+        },
+    },
+    "Bonus Config": {
+        "Super Admin" :{
+            "create_bonus":true,
+            "update_bonus": true,
+            "view_bonus": true,
+            "delete_bonus": true
+        },
+        "Admin" :{
+            "create_bonus":true,
+            "update_bonus": true,
+            "view_bonus": true,
+            "delete_bonus": true
+        },
+        "Account" :{
+            "create_bonus":true,
+            "update_bonus": true,
+            "view_bonus": true,
+            "delete_bonus": true
+        },
+        "Employee" :{
+            "create_bonus":true,
+            "update_bonus": true,
+            "view_bonus": true,
+            "delete_bonus": true
+        },
+        "Workers" :{
+            "create_bonus":true,
+            "update_bonus": true,
+            "view_bonus": true,
+            "delete_bonus": true
+        },
+        "Other" :{
+            "create_bonus":true,
+            "update_bonus": true,
+            "view_bonus": true,
+            "delete_bonus": true
+        },
+    }
 }

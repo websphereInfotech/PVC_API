@@ -32,5 +32,11 @@ router.use('/wastage', require('./wastage'))
 router.use('/maintenanceType', require('./maintenanceType'))
 router.use('/purpose', require('./purpose'))
 router.use('/maintenance', require('./maintenance'))
+router.use('/shift', require('./shift'))
+router.use('/bonusConfiguration', require('./bonusConfiguration'))
+router.use('/employee', require('./employee'))
+router.use('/leave', require('./leave'))
+router.use('/attendance', require('./attendance'))
+router.use('/systemSettings', require('./systemSettings'))
 
 module.exports = router;
