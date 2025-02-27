@@ -8,37 +8,29 @@ const { Sequelize, Op } = require("sequelize");
 /** POST: Create a new bonus configuration. */
 exports.create_bonusConfiguration = async (req, res) => {
     try {
-        const { month, minAttendance, maxAttendance, bonusPercentage } = req.body;
+        const bonusConfigurations  = req.body;
 
-        const bonusExists =  await BonusConfiguration.findOne({
-            where: {
-                month
-            }
-        });
-        if(bonusExists){
+        if (!Array.isArray(bonusConfigurations) || bonusConfigurations.length === 0) {
             return res.status(400).json({
                 status: "false",
-                message: "Bonus Configuration already exists"
+                message: "Invalid request. Provide an array of bonus configurations."
             });
         }
 
-        const bonus = await BonusConfiguration.create({
-            month,
-            minAttendance,
-            maxAttendance,
-            bonusPercentage
+        const bonuses = await BonusConfiguration.bulkCreate(bonusConfigurations, {
+            updateOnDuplicate: ["bonusPercentage"],
         });
-        if(!bonus) {
+        if(!bonuses) {
             return res.status(400).json({
                 status: "false",
-                message: "Unable to create Bonus Configuration"
+                message: "Unable to create Bonus Configurations"
             });
         }
 
         return res.status(200).json({
             status: "true",
-            message: "Bonus Configuration created successfully",
-            data: bonus
+            message: "Bonus Configurations created successfully",
+            data: bonuses
         });
     }catch (error) {
         console.error(error);
@@ -51,57 +43,29 @@ exports.create_bonusConfiguration = async (req, res) => {
 /** PUT: Update an existing bonus configuration. */
 exports.update_bonusConfiguration = async (req, res) => {
     try {
-        const { month, minAttendance, maxAttendance, bonusPercentage } = req.body;
-        const { id } = req.params;
+        const bonusConfigurations  = req.body;
 
-        const bonus = await BonusConfiguration.findOne({
-            where: {
-                id
-            }
-        });
-        if(!bonus){
-            return res.status(404).json({
+        if (!Array.isArray(bonusConfigurations) || bonusConfigurations.length === 0) {
+            return res.status(400).json({
                 status: "false",
-                message: "Bonus Configuration Not Found"
+                message: "Invalid request. Provide an array of bonus configurations."
             });
         }
 
-        const bonusExists = await BonusConfiguration.findOne({
-            where: {
-                month,
-                id: {
-                    [Sequelize.Op.ne]: id
-                }
-            }
+        const bonuses = await BonusConfiguration.bulkCreate(bonusConfigurations, {
+            updateOnDuplicate: ["bonusPercentage"],
         });
-        if(bonusExists){
+        if(!bonuses) {
             return res.status(400).json({
                 status: "false",
-                message: "Bonus Configuration already exists"
-            });
-        }
-
-        const updatedBonus = await BonusConfiguration.update({
-            month,
-            minAttendance,
-            maxAttendance,
-            bonusPercentage
-        }, {
-            where: {
-                id
-            }
-        });
-        if(!updatedBonus) {
-            return res.status(400).json({
-                status: "false",
-                message: "Unable to update Bonus Configuration"
+                message: "Unable to update Bonus Configurations"
             });
         }
 
         return res.status(200).json({
             status: "true",
             message: "Bonus Configuration updated successfully",
-            data: updatedBonus
+            data: bonuses
         });
     }catch (error) {
         console.error(error);

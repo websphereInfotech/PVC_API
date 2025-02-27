@@ -18,6 +18,14 @@ const BonusConfiguration = sequelize.define("P_bonusConfiguration", {
         type: DataTypes.INTEGER(11),
         allowNull: false
     }
+}, {
+    indexes: [
+        {
+            unique: true,
+            name: "unique_bonus_config",
+            fields: ["month", "minAttendance", "maxAttendance"], // Composite Unique Key
+        }
+    ]
 });
 
 module.exports = BonusConfiguration;

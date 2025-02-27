@@ -9,7 +9,7 @@ const router = express.Router();
  ============================================================================================================ */
 
 router.post("/create_bonus_configuration", create_bonusConfiguration);
-router.put("/update_bonus_configuration/:id", update_bonusConfiguration);
+router.put("/update_bonus_configuration", update_bonusConfiguration);
 router.get("/view_all_bonus_configurations", get_bonusConfigurations);
 router.get("/view_bonus_configuration/:id", get_bonusConfiguration);
 router.delete("/delete_bonus_configuration/:id", delete_bonusConfiguration);

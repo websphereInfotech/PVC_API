@@ -4,6 +4,7 @@ const Employee = require("../models/employee");
 const moment = require("moment");
 const Leave = require("../models/leave");
 const Shift = require("../models/shift");
+const BonusConfiguration = require("../models/bonusConfiguration");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -108,7 +109,18 @@ exports.get_all_attendances = async (req, res) => {
             whereClause[Op.and] = [];
 
             if(date) {
-                whereClause[Op.and].push(Sequelize.literal(`P_attendance.date = '${date}'`));
+                if (date.length === 7) { // For month filter (YYYY-MM)
+                    const startDate = `${date}-01`;
+                    const endDate = moment(startDate).endOf("month").format("YYYY-MM-DD");
+        
+                    whereClause[Op.and].push({
+                        date: {
+                            [Op.between]: [startDate, endDate]
+                        }
+                    });
+                } else if (date.length === 10) { // For single date filter (YYYY-MM-DD)
+                    whereClause[Op.and].push({ date });
+                }
             } 
 
             if(employeeId) {
@@ -319,6 +331,128 @@ exports.update_attendance = async (req, res) => {
             status: "true",
             message: "Attendance Updated Successfully",
             data: attendance
+        });
+    } catch(error) {
+        console.error(error);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
+};
+
+const attendanceMetrics = [
+    {
+        min: 0,
+        max: 20,
+        performance: "Poor",
+    },
+    {
+        min: 21,
+        max: 40,
+        performance: "Average",
+    },
+    {   
+        min: 41,
+        max: 60,
+        performance: "Good",
+    },
+    {
+        min: 61,
+        max: 80,
+        performance: "Very Good",
+    },
+    {
+        min: 81,
+        max: 100,
+        performance: "Excellent",
+    },
+];
+
+const getAttendancePerformance = (attendancePercentage) => {
+    const attendanceMetric = attendanceMetrics.find((metric) => attendancePercentage >= metric.min && attendancePercentage <= metric.max);
+    return attendanceMetric.performance;
+};
+
+/** GET: Get monthly attendance percentage with performance metrics */
+exports.get_monthly_attendance_performance_metrics = async (req, res) => {
+    try {
+        const { employeeId } = req.query;
+        const date = moment().format("YYYY-MM").toString();
+        console.log('date: ', date);
+
+        const startDate = moment().startOf("month").toDate(); // First day of the month
+        const endDate = moment().endOf("month").toDate(); // Last day of the month
+
+        const attendances = await Attendance.findAll({
+            where: {
+                employeeId,
+                date: {
+                    [Op.between]: [startDate, endDate], // Matches any date within the month
+                }
+            },
+            include: [
+                {
+                    model: Leave,
+                    as: "leave",
+                },
+            ]
+        });
+        if(!attendances.length) {
+            return res.status(404).json({
+                status: "false",
+                message: "Attendances Not Found",
+            });
+        }
+
+        const totalDays = attendances.length;
+        let totalPresentDays = 0;
+        let totalLateInDays = 0;
+        attendances.forEach((attendance) => {
+            if (attendance.status === "Present") {
+                const leave = attendance.leave;
+                
+                if (!leave || leave.status === "Rejected" || (leave.status === "Approved" && leave.leaveDuration === "Full Day")) {
+                    totalPresentDays++;
+                } else if (leave.status === "Approved") {
+                    totalPresentDays += 0.5;
+                }
+            }
+
+            if(attendance.latePunch) {
+                totalLateInDays++;
+            }
+        });
+        const totalAbsentDays = totalDays - totalPresentDays;
+        const attendancePercentage = parseFloat(((totalPresentDays / totalDays) * 100).toFixed(2));
+        const performance = getAttendancePerformance(attendancePercentage);
+
+        let bonusEligibility = false;
+        const bonusConfiguration = await BonusConfiguration.findAll({
+            where: {
+                month: date,
+            }
+        });
+        if(bonusConfiguration.length) {
+            const configuration = bonusConfiguration.find((config) => totalPresentDays >= config.minAttendance && totalPresentDays <= config.maxAttendance);
+            if(configuration) {
+                bonusEligibility = true;
+            }
+        }
+
+        const performanceMetrics = {
+            totalDays,
+            totalPresentDays,
+            totalAbsentDays,
+            attendancePercentage,
+            performance,
+            bonusEligibility,
+            totalLateInDays
+        };
+
+        res.status(200).json({
+            status: "true",
+            message: "Monthly Attendance Percentage Fetched Successfully",
+            data: performanceMetrics
         });
     } catch(error) {
         console.error(error);

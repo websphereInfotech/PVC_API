@@ -1,9 +1,12 @@
+const { forgotPasswordMail } = require("../util/smtp-mails");
 const Employee = require("../models/employee");
 const { Sequelize, Op } = require("sequelize");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Shift = require("../models/shift");
 const Leave = require("../models/leave");
+const EmployeeSalary = require("../models/employeeSalary");
+const moment = require("moment");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -12,13 +15,13 @@ const Leave = require("../models/leave");
 /** POST: Create a new employee. */
 exports.create_employee = async (req, res) => {
     try {
-        const { firstName, lastName, email, phoneNumber, address, dob, panNumber, aadharNumber, shiftId, role, salaryPerDay, hireDate, leaveBalance } = req.body;
+        const { firstName, lastName, email, phoneNumber, address, dob, panNumber, aadharNumber, shiftId, role, salaryPerDay, hireDate, sickLeaves, casualLeaves } = req.body;
 
         // TODO: lastName, role and panCard non-required.
-        if(!firstName || !email || !shiftId || !salaryPerDay || !hireDate || !leaveBalance) {
+        if(!firstName || !email || !shiftId || !salaryPerDay || !hireDate) {
             return res.status(400).json({
                 status: "false",
-                message: "Please provide all required fields: firstName, email, shiftId, salaryPerDay, hireDate, leaveBalance"
+                message: "Please provide all required fields: firstName, email, shiftId, salaryPerDay, hireDate"
             });
         }
 
@@ -51,7 +54,8 @@ exports.create_employee = async (req, res) => {
             role,
             salaryPerDay,
             hireDate,
-            leaveBalance
+            sickLeaves,
+            casualLeaves
         });
         if(!employee) {
             return res.status(400).json({
@@ -77,7 +81,7 @@ exports.create_employee = async (req, res) => {
 exports.update_employee = async (req, res) => {
     try {
         const { id } = req.params;
-        const { firstName, lastName, email, phoneNumber, address, dob, panNumber, aadharNumber, shiftId, role, salaryPerDay, hireDate, leaveBalance } = req.body;
+        const { firstName, lastName, email, phoneNumber, address, dob, panNumber, aadharNumber, shiftId, role, salaryPerDay, hireDate, sickLeaves, casualLeaves } = req.body;
 
         const employee = await Employee.findByPk(id);
         if(!employee) {
@@ -114,7 +118,8 @@ exports.update_employee = async (req, res) => {
             role,
             salaryPerDay,
             hireDate,
-            leaveBalance
+            sickLeaves, 
+            casualLeaves
         });
         if(!updatedEmployee) {
             return res.status(400).json({
@@ -345,7 +350,141 @@ exports.employee_login = async (req, res) => {
         return res.status(200).json({
             status: "true",
             message: "Logged in successfully",
-            token,
+            data: {
+                token,
+                employee
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
+};
+
+/** POST: Forgot password. */
+exports.forgot_password = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const employee = await Employee.findOne({
+            where: {
+                email,
+                isActive: true
+            }
+        });
+        if(!employee) {
+            return res.status(400).json({
+                status: "false",
+                message: "Employee not found"
+            });
+        }
+
+        const newPassword = forgotPasswordMail(email);
+        const hashedPassword = await bcrypt.hash(newPassword.toString(), 10);
+
+        employee.password = hashedPassword;
+        await employee.save();
+
+        return res.status(200).json({
+            status: "true",
+            message: "New password sent to your email"
+        });
+    } catch (error) {
+        console.error(error);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
+};
+
+/** GET API: Get employee salary history. */
+exports.get_employee_salary_history = async (req, res) => {
+    try {
+        const { employeeId } = req.params;
+
+        const employee = await Employee.findOne({
+            where: {
+                id: employeeId
+            }
+        });
+        if(!employee) {
+            return res.status(404).json({
+                status: "false",
+                message: "Employee not found"
+            });
+        }
+
+        const employeeSalary = await EmployeeSalary.findAll({
+            where: {
+                employeeId
+            }
+        });
+        if(!employeeSalary.length) {
+            return res.status(404).json({
+                status: "false",
+                message: "No salary history found for employee",
+                employeeSalary
+            });
+        }
+
+        return res.status(200).json({
+            status: "true",
+            message: "Employee salary history fetched successfully",
+            data: employeeSalary    
+        });
+    } catch (error) {
+        console.error(error);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
+};
+
+/** GET: Get employee's last month and yearly bonus. */
+exports.get_employee_bonus = async (req, res) => {
+    try {
+        const { employeeId } = req.params;
+
+        const date = moment().subtract(1, 'months').format('YYYY-MM');
+        console.log('date: ', date);
+
+        const employee = await Employee.findOne({
+            where: {
+                id: employeeId
+            }
+        });
+        if(!employee) {
+            return res.status(404).json({
+                status: "false",
+                message: "Employee not found"
+            });
+        }
+
+        const employeeSalary = await EmployeeSalary.findOne({
+            where: {
+                employeeId,
+                month: date
+            }
+        });
+        if(!employeeSalary) {
+            return res.status(404).json({
+                status: "false",
+                message: "No bonus data found for employee",
+                employeeSalary
+            }); 
+        }
+
+        const bonus = {
+            lastMonthBonus: employeeSalary.bonusAmount,
+            yearlyBonus: employee.bonus
+        };
+
+        return res.status(200).json({
+            status: "true",
+            message: "Employee bonus fetched successfully",
+            data: bonus
         });
     } catch (error) {
         console.error(error);

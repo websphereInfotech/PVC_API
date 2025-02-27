@@ -9,6 +9,7 @@ const sequelize = new Sequelize({
   password: DB_PASSWORD,
   host: DB_HOST,
   dialect: 'mysql',
+  logging: true
 });
 
 try {

@@ -1,6 +1,7 @@
 const Employee = require("../models/employee");
 const Leave = require("../models/leave");
 const { Sequelize, Op } = require("sequelize");
+const moment = require("moment");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -227,18 +228,32 @@ exports.update_leave_request = async (req, res) => {
 /** GET: Get all leave requests. */
 exports.get_leave_requests = async (req, res) => {
     try {
-        const { search, employeeId } = req.query;
+        const { date, employeeId } = req.query;
         const whereClause = {};
 
-        if(employeeId) {
+        if(employeeId || date) {
             whereClause[Op.and] = [];
-            whereClause[Op.and].push(Sequelize.literal(`employeeId = ${employeeId}`));
+
+            if(date) {
+                if (date.length === 7) { // For month filter (YYYY-MM)
+                    const startDate = `${date}-01`;
+                    const endDate = moment(startDate).endOf("month").format("YYYY-MM-DD");
+        
+                    whereClause[Op.and].push({
+                        date: {
+                            [Op.between]: [startDate, endDate]
+                        }
+                    });
+                } else if (date.length === 10) { // For single date filter (YYYY-MM-DD)
+                    whereClause[Op.and].push({ date });
+                }
+            } 
+
+            if(employeeId) {
+                whereClause[Op.and].push(Sequelize.literal(`employeeId = ${employeeId}`));
+            }
         }
 
-        if (search) {
-            whereClause[Op.or] = [];
-            whereClause[Op.or].push(Sequelize.literal(`month like '%${search}%'`));
-        }
 
         const leaveRequests = await Leave.findAll({
             where: whereClause
@@ -413,6 +428,55 @@ exports.approve_reject_leave_Request = async (req, res) => {
             message: `Leave request ${status.toLowerCase()} successfully`
         });
     } catch (error) {
+        console.error(error);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
+};
+
+/** GET: Get total leaves for the running month */
+exports.get_total_leaves = async (req, res) => {
+    try {
+        const { employeeId } = req.query;
+
+        const startDate = moment().startOf("month").toDate(); // First day of the month
+        const endDate = moment().endOf("month").toDate(); // Last day of the month
+
+        const totalLeaves = await Leave.findAll({
+            where: {
+                employeeId,
+                date: {
+                    [Op.between]: [startDate, endDate]
+                }
+            }
+        });
+
+        let casualLeaves = 0;
+        let sickLeaves = 0;
+        let unPaidLeaves = 0;
+        totalLeaves.forEach(leave => {
+            if(leave.leaveType === "Casual Leave") {
+                casualLeaves++;
+            } else if(leave.leaveType === "Sick Leave") {
+                sickLeaves++;
+            } else {
+                unPaidLeaves++;
+            }
+        });
+
+        const leaveData = {
+            casualLeaves,
+            sickLeaves,
+            unPaidLeaves
+        };
+
+        return res.status(200).json({
+            status: "true",
+            message: "Total leaves fetched successfully",
+            data: leaveData
+        });
+    } catch(error) {
         console.error(error);
         return res
             .status(500)

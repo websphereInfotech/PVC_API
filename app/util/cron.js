@@ -14,6 +14,7 @@ const Shift = require('../models/shift');
 const EmployeeOvertime = require('../models/employeeOvertime');
 const BonusConfiguration = require('../models/bonusConfiguration');
 const EmployeeSalary = require('../models/employeeSalary');
+const SystemSettings = require('../models/systemSettings');
 
 exports.lowStockNotificationJob = cron.schedule('0 0 * * *', async () => {
     const itemStocks = await Stock.findAll({
@@ -263,11 +264,20 @@ exports.calculateEmployeesMonthlyBonusJob = cron.schedule('0 3 1 * *', async () 
             console.log('leaves: ', leaves);
             
             let numberOfLeaves = 0;
+            let penaltyDays = 0;
             leaves.forEach((leave) => {
                 if(leave.leaveDuration === "Full Day") {
                     numberOfLeaves++;
                 }else {
                     numberOfLeaves += 0.5;
+                }
+
+                if(leave.leaveType === "Unpaid Leave") {
+                    if(leave.leaveDuration === "Full Day") {
+                        penaltyDays++;
+                    }else {
+                        penaltyDays += 0.5;
+                    }
                 }
             });
 
@@ -305,6 +315,7 @@ exports.calculateEmployeesMonthlyBonusJob = cron.schedule('0 3 1 * *', async () 
             const attendancePercentage = parseFloat(((totalWorkedDays / totalWorkingDays) * 100).toFixed(2));
             console.log('attendancePercentage: ', attendancePercentage);
 
+            // Calculate monthly bonus
             let bonus = 0;
             bonusConfigurations.forEach((configuration) => {
                 if(totalWorkedDays >= configuration.minAttendance && totalWorkedDays < configuration.maxAttendance) {
@@ -313,6 +324,7 @@ exports.calculateEmployeesMonthlyBonusJob = cron.schedule('0 3 1 * *', async () 
                 }
             });
 
+            // Calculate employee's overtime hours for the month and overtime amount for the month
             let overtimeHours = 0;
             let overtimeAmount = 0;
             const employeeOvertimes = await EmployeeOvertime.findAll({
@@ -330,12 +342,26 @@ exports.calculateEmployeesMonthlyBonusJob = cron.schedule('0 3 1 * *', async () 
                 });
             }
 
+            // Calculate employee's monthly penalty based on unpaid leaves
+            let penaltyAmount = 0;
+            const penaltyPercentage = await SystemSettings.findOne({
+                where: {
+                    field: "penalty"
+                }
+            });
+            if(penaltyPercentage) {
+                const penalty = (employee.salaryPerDay * 26) * (penaltyPercentage.value / 100); // 26 is number of days for monthly salary.
+                penaltyAmount = penaltyDays * penalty;
+            }
+
+            // Create employee monthly salary record with all other required information
             await EmployeeSalary.create({
                 employeeId: employee.id,
                 month: date,
                 salary: employee.salaryPerDay * totalWorkedDays,
                 bonusAmount: bonus,
                 overtimeAmount,
+                penaltyAmount,
                 overtimeHours,
                 numberOfWorkedDays: totalWorkedDays,
                 numberOfLeaves
