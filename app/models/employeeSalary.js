@@ -27,15 +27,15 @@ const EmployeeSalary = sequelize.define("P_employee_salary", {
         allowNull: false
     },
     overtimeHours: {
-        type: DataTypes.FLOAT(2, 2),
+        type: DataTypes.DECIMAL(10, 2),
         allowNull: false
     },
     numberOfWorkedDays: {
-        type: DataTypes.FLOAT(2, 2),
+        type: DataTypes.DECIMAL(10, 2),
         allowNull: false
     },
     numberOfLeaves  : {
-        type: DataTypes.FLOAT(2, 2),
+        type: DataTypes.DECIMAL(10, 2),
         allowNull: false
     }
 });

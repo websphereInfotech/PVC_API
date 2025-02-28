@@ -433,7 +433,7 @@ exports.get_monthly_attendance_performance_metrics = async (req, res) => {
             }
         });
         if(bonusConfiguration.length) {
-            const configuration = bonusConfiguration.find((config) => totalPresentDays >= config.minAttendance && totalPresentDays <= config.maxAttendance);
+            const configuration = bonusConfiguration.find((config) => attendancePercentage >= config.minAttendance && attendancePercentage <= config.maxAttendance);
             if(configuration) {
                 bonusEligibility = true;
             }

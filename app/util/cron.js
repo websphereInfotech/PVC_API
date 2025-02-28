@@ -318,7 +318,7 @@ exports.calculateEmployeesMonthlyBonusJob = cron.schedule('0 3 1 * *', async () 
             // Calculate monthly bonus
             let bonus = 0;
             bonusConfigurations.forEach((configuration) => {
-                if(totalWorkedDays >= configuration.minAttendance && totalWorkedDays < configuration.maxAttendance) {
+                if(attendancePercentage >= configuration.minAttendance && attendancePercentage <= configuration.maxAttendance) {
                     bonus = (employee.salaryPerDay * 26) * (bonusPercentage / 100); // 26 is number of days for monthly salary.
                     console.log('bonus: ', bonus);
                 }
@@ -380,7 +380,7 @@ exports.calculateEmployeesMonthlyBonusJob = cron.schedule('0 3 1 * *', async () 
     }
 });
 
-exports.employeesLeavesSettlementJob = cron.schedule('0 1 * * *', async () => {
+exports.employeesLeavesSettlementJob = cron.schedule('0 2 1 * *', async () => {
     try {
         const employees = await Employee.findAll();
         if(!employees.length) {
@@ -395,6 +395,7 @@ exports.employeesLeavesSettlementJob = cron.schedule('0 1 * * *', async () => {
 
             employee.sickLeaves = 1;
             employee.casualLeaves += 1;
+            employee.overtime = 0;
             await employee.save();
 
             await forLoop(i + 1);

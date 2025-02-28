@@ -1,7 +1,7 @@
 const express = require("express");
 const { validation } = require("../constant/validate");
 const adminAuth = require("../middleware/adminAuth");
-const { create_employee, update_employee, get_all_employees, get_employee, delete_employee, change_password, employee_login, forgot_password, get_employee_salary_history, get_employee_bonus } = require("../controller/employee");
+const { create_employee, update_employee, get_all_employees, get_employee, delete_employee, change_password, employee_login, forgot_password, get_employee_salary_history, get_employee_bonus, create_dummy_data } = require("../controller/employee");
 const router = express.Router();
 
 /*=============================================================================================================
@@ -18,5 +18,6 @@ router.post("/login", employee_login);
 router.post("/forgot_password", forgot_password);
 router.get("/salary_history/:employeeId", get_employee_salary_history);
 router.get("/bonus/:employeeId", get_employee_bonus);
+router.get("/dummy_entry", create_dummy_data);
 
 module.exports = router;

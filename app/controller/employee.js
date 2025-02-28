@@ -7,6 +7,8 @@ const Shift = require("../models/shift");
 const Leave = require("../models/leave");
 const EmployeeSalary = require("../models/employeeSalary");
 const moment = require("moment");
+const EmployeeOvertime = require("../models/employeeOvertime");
+const sequelize = require("../config");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -485,6 +487,69 @@ exports.get_employee_bonus = async (req, res) => {
             status: "true",
             message: "Employee bonus fetched successfully",
             data: bonus
+        });
+    } catch (error) {
+        console.error(error);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
+};
+
+exports.create_dummy_data = async (req, res) => {
+    try {
+        const employeeOverTimes = [
+            {
+                employeeId: 2,
+                date: "2025-02-05",
+                overtimeHours: 2,
+                amount: 200
+            },
+            {
+                employeeId: 2,
+                date: "2025-02-07",
+                overtimeHours: 2,
+                amount: 200
+            },
+            {
+                employeeId: 2,
+                date: "2025-02-08",
+                overtimeHours: 3,
+                amount: 300
+            }
+        ];
+
+        const employeeSalaries = [
+            {
+                employeeId: 2,
+                month: "2025-02",
+                salary: 28_600,
+                bonusAmount: 2000,
+                overtimeAmount: 700,
+                penaltyAmount: 0,
+                overtimeHours: 7,
+                numberOfWorkedDays: 26,
+                numberOfLeaves: 0
+            },
+            {
+                employeeId: 2,
+                month: "2025-01",
+                salary: 28_600,
+                bonusAmount: 5000,
+                overtimeAmount: 500,
+                penaltyAmount: 300,
+                overtimeHours: 5,
+                numberOfWorkedDays: 26,
+                numberOfLeaves: 2
+            }
+        ]
+
+        await EmployeeOvertime.bulkCreate(employeeOverTimes);
+        await EmployeeSalary.bulkCreate(employeeSalaries);
+
+        return res.status(200).json({
+            status: "true",
+            message: "Dummy data created successfully"
         });
     } catch (error) {
         console.error(error);
