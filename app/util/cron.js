@@ -402,8 +402,36 @@ exports.employeesLeavesSettlementJob = cron.schedule('0 2 1 * *', async () => {
         };
 
         await forLoop(0);
+
+        console.log("Employee leaves settlement done successfully.");
     } catch(error) {
         console.log("error: ", error);
     }
 });
     
+exports.employeeBonusResetJob = cron.schedule('0 3 1 1 *', async () => {
+    try {
+        const employees = await Employee.findAll();
+        if(!employees.length) {
+            console.log("No employees found.");
+            return;
+        }
+
+        const forLoop = async (i) => {
+            if(i === employees.length) return;
+
+            const employee = employees[i];
+
+            employee.bonus = 0;
+            await employee.save();
+
+            await forLoop(i + 1);
+        };
+
+        await forLoop(0);
+
+        console.log("Employee bonuses reset successfully.");
+    } catch(error) {
+        console.log("error: ", error);
+    }
+});
