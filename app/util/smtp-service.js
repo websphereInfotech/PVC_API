@@ -14,7 +14,6 @@ const smtpConfig = {
         rejectunauthorized: false
     }
 };
-console.log('smtpConfig: ', smtpConfig);
 
 const transporter = nodemailer.createTransport(smtpConfig);
 

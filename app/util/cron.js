@@ -393,8 +393,8 @@ exports.employeesLeavesSettlementJob = cron.schedule('0 2 1 * *', async () => {
 
             const employee = employees[i];
 
-            employee.sickLeaves = 1;
-            employee.casualLeaves += 1;
+            employee.emergencyLeaves += 1;
+            employee.personalLeaves += 1;
             employee.overtime = 0;
             await employee.save();
 

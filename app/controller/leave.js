@@ -26,33 +26,33 @@ exports.create_leave_request = async (req, res) => {
             });
         }
 
-        // Calculate the casual and sick leave balance
-        let casualLeave = 0;
-        let sickLeave = 0;
-        if(leaveType === "Casual Leave") {
+        // Calculate the personal and emergency leave balance
+        let personalLeaves = 0;
+        let emergencyLeaves = 0;
+        if(leaveType === "Personal Leave") {
             if(leaveDuration === "Full Day") {
-                casualLeave++;
+                personalLeaves++;
             }else {
-                casualLeave += 0.5;
+                personalLeaves += 0.5;
             }
-        } else if(leaveType === "Sick Leave") {
+        } else if(leaveType === "Emergency Leave") {
             if(leaveDuration === "Full Day") {
-                sickLeave++;
+                emergencyLeaves++;
             }else {
-                sickLeave += 0.5;
+                emergencyLeaves += 0.5;
             }
         }
 
         // Check if the employee has sufficient leave balance
-        if(employee.sickLeaves < sickLeave) {
+        if(employee.emergencyLeaves < emergencyLeaves) {
             return res.status(400).json({
                 status: "false",
-                message: "Insufficient sick leaves, please select a different leave type"
+                message: "Insufficient emergency leaves, please select a different leave type"
             })
-        } else if(employee.casualLeaves < casualLeave) {
+        } else if(employee.personalLeaves < personalLeaves) {
             return res.status(400).json({
                 status: "false",
-                message: "Insufficient casual leaves, please select a different leave type"
+                message: "Insufficient personal leaves, please select a different leave type"
             });
         }
 
@@ -83,9 +83,9 @@ exports.create_leave_request = async (req, res) => {
         }
 
         // Update the employee's leave balance
-        if(casualLeave > 0 || sickLeave > 0) {
-            employee.casualLeaves -= casualLeave;
-            employee.sickLeaves -= sickLeave;
+        if(personalLeaves > 0 || emergencyLeaves > 0) {
+            employee.personalLeaves -= personalLeaves;
+            employee.emergencyLeaves -= emergencyLeaves;
             await employee.save();
         } 
 
@@ -116,7 +116,7 @@ exports.update_leave_request = async (req, res) => {
         if(!leaveRequest){
             return res.status(404).json({
                 status: "false",
-                message: "Leave request Not Found"
+                message: "Leave request not found"
             });
         }
 
@@ -135,60 +135,60 @@ exports.update_leave_request = async (req, res) => {
             });
         }
 
-        let casualLeave = 0;
-        let sickLeave = 0;
+        let personalLeaves = 0;
+        let emergencyLeaves = 0;
         const employee = await Employee.findOne({
             where: {
                 id: leaveRequest.employeeId
             }
         });
         if(employee) {
-            // Calculate the casual and sick leave balance
-            let employeeCasualLeave = employee.casualLeaves;
-            let employeeSickLeave = employee.sickLeaves;
-            if(leaveRequest.leaveType === "Casual Leave") {
+            // Calculate the personal and emergency leave balance
+            let employeePersonalLeaves = employee.personalLeaves;
+            let employeeEmergencyLeaves = employee.emergencyLeaves;
+            if(leaveRequest.leaveType === "Personal Leave") {
                 if(leaveRequest.leaveDuration === "Full Day") {
-                    employeeCasualLeave++;
+                    employeePersonalLeaves++;
                 }else {
-                    employeeCasualLeave += 0.5;
+                    employeePersonalLeaves += 0.5;
                 }
-            } else if(leaveRequest.leaveType === "Sick Leave") {
+            } else if(leaveRequest.leaveType === "Emergency Leave") {
                 if(leaveRequest.leaveDuration === "Full Day") {
-                    employeeSickLeave++;
+                    employeeEmergencyLeaves++;
                 }else {
-                    employeeSickLeave += 0.5;
+                    employeeEmergencyLeaves += 0.5;
                 }
             }
 
-            if(leaveType === "Casual Leave") {
+            if(leaveType === "Personal Leave") {
                 if(leaveDuration === "Full Day") {
-                    casualLeave++;
+                    personalLeaves++;
                 }else {
-                    casualLeave += 0.5;
+                    personalLeaves += 0.5;
                 }
-            } else if(leaveType === "Sick Leave") {
+            } else if(leaveType === "Emergency Leave") {
                 if(leaveDuration === "Full Day") {
-                    sickLeave++;
+                    emergencyLeaves++;
                 }else {
-                    sickLeave += 0.5;
+                    emergencyLeaves += 0.5;
                 }
             }
 
             // Check if the employee has sufficient leave balance
-            if(employeeSickLeave < sickLeave) {
+            if(employeeEmergencyLeaves < emergencyLeaves) {
                 return res.status(400).json({
                     status: "false",
-                    message: "Insufficient sick leaves, please select a different leave type"
+                    message: "Insufficient emergency leaves, please select a different leave type"
                 })
-            } else if(employeeCasualLeave < casualLeave) {
+            } else if(employeePersonalLeaves < personalLeaves) {
                 return res.status(400).json({
                     status: "false",
-                    message: "Insufficient casual leaves, please select a different leave type"
+                    message: "Insufficient personal leaves, please select a different leave type"
                 });
             }
 
-            employeeSickLeave -= sickLeave;
-            employeeCasualLeave -= casualLeave;
+            employeeEmergencyLeaves -= emergencyLeaves;
+            employeePersonalLeaves -= personalLeaves;
         }
 
         const updatedLeaveRequest = await Leave.update({
@@ -208,8 +208,8 @@ exports.update_leave_request = async (req, res) => {
             });
         }
         
-        employee.casualLeaves = employeeCasualLeave;
-        employee.sickLeaves = employeeSickLeave;
+        employee.personalLeaves = employeePersonalLeaves;
+        employee.emergencyLeaves = employeeEmergencyLeaves;
         await employee.save();  
 
         return res.status(200).json({
@@ -261,7 +261,7 @@ exports.get_leave_requests = async (req, res) => {
         if(!leaveRequests.length) {
             return res.status(404).json({
                 status: "false",
-                message: "Leave requests Not Found",
+                message: "Leave requests not found",
                 data: leaveRequests
             });
         }
@@ -292,7 +292,7 @@ exports.get_leave_request = async (req, res) => {
         if(!leaveRequest){
             return res.status(404).json({
                 status: "false",
-                message: "Leave request Not Found",
+                message: "Leave request not found",
                 data: leaveRequest
             });
         }
@@ -323,7 +323,7 @@ exports.delete_leave_Request = async (req, res) => {
         if(!leaveRequest){
             return res.status(404).json({
                 status: "false",
-                message: "Leave request Not Found"
+                message: "Leave request not found"
             });
         }
 
@@ -332,29 +332,28 @@ exports.delete_leave_Request = async (req, res) => {
                 id: leaveRequest.employeeId
             }
         });
-        if(employee) {
-            let casualLeave = 0;
-            let sickLeave = 0;
+        if(employee && leaveRequest.status === "Pending") {
+            let personalLeaves = 0;
+            let emergencyLeaves = 0;
 
-            if(employee.leaveType === "Casual Leave") {
+            if(employee.leaveType === "Personal Leave") {
                 if(employee.leaveDuration === "Full Day") {
-                    casualLeave++;
+                    personalLeaves++;
                 }else {
-                    casualLeave += 0.5;
+                    personalLeaves += 0.5;
                 }
-            } else if(employee.leaveType === "Sick Leave") {
+            } else if(employee.leaveType === "Emergency Leave") {
                 if(employee.leaveDuration === "Full Day") {
-                    sickLeave++;
+                    emergencyLeaves++;
                 }else {
-                    sickLeave += 0.5;
+                    emergencyLeaves += 0.5;
                 }
             }
 
-            employee.sickLeaves += sickLeave;
-            employee.casualLeaves += casualLeave;
+            employee.emergencyLeaves += emergencyLeaves;
+            employee.personalLeaves += personalLeaves;
             await employee.save();
         }
-
 
         await leaveRequest.destroy();
         return res.status(200).json({
@@ -384,7 +383,7 @@ exports.approve_reject_leave_Request = async (req, res) => {
         if(!leaveRequest){
             return res.status(404).json({
                 status: "false",
-                message: "Leave request Not Found"
+                message: "Leave request not found"
             });
         }
 
@@ -395,25 +394,25 @@ exports.approve_reject_leave_Request = async (req, res) => {
                 }
             });
             if(employee) {
-                let casualLeave = 0;
-                let sickLeave = 0;
+                let personalLeaves = 0;
+                let emergencyLeaves = 0;
 
-                if(employee.leaveType === "Casual Leave") {
+                if(employee.leaveType === "Personal Leave") {
                     if(employee.leaveDuration === "Full Day") {
-                        casualLeave++;
+                        personalLeaves++;
                     }else {
-                        casualLeave += 0.5;
+                        personalLeaves += 0.5;
                     }
-                } else if(employee.leaveType === "Sick Leave") {
+                } else if(employee.leaveType === "Emergency Leave") {
                     if(employee.leaveDuration === "Full Day") {
-                        sickLeave++;
+                        emergencyLeaves++;
                     }else {
-                        sickLeave += 0.5;
+                        emergencyLeaves += 0.5;
                     }
                 }
 
-                employee.sickLeaves += sickLeave;
-                employee.casualLeaves += casualLeave;
+                employee.emergencyLeaves += emergencyLeaves;
+                employee.personalLeaves += personalLeaves;
                 await employee.save();
             }
         }
@@ -452,23 +451,19 @@ exports.get_total_leaves = async (req, res) => {
             }
         });
 
-        let casualLeaves = 0;
-        let sickLeaves = 0;
-        let unPaidLeaves = 0;
+        let personalLeaves = 0;
+        let emergencyLeaves = 0;
         totalLeaves.forEach(leave => {
-            if(leave.leaveType === "Casual Leave") {
-                casualLeaves++;
-            } else if(leave.leaveType === "Sick Leave") {
-                sickLeaves++;
-            } else {
-                unPaidLeaves++;
+            if(leave.leaveType === "Personal Leave") {
+                personalLeaves++;
+            } else if(leave.leaveType === "Emergency Leave") {
+                emergencyLeaves++;
             }
         });
 
         const leaveData = {
-            casualLeaves,
-            sickLeaves,
-            unPaidLeaves
+            personalLeaves,
+            emergencyLeaves
         };
 
         return res.status(200).json({

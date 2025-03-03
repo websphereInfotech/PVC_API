@@ -11,7 +11,7 @@ const Leave = sequelize.define("P_leave", {
         allowNull: false
     },
     leaveType: {
-        type: DataTypes.ENUM('Casual Leave', 'Sick Leave', 'Unpaid Leave'),
+        type: DataTypes.ENUM('Personal Leave', 'Emergency Leave'),
         allowNull: false
     },
     leaveDuration: {

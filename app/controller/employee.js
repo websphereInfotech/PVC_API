@@ -8,7 +8,8 @@ const Leave = require("../models/leave");
 const EmployeeSalary = require("../models/employeeSalary");
 const moment = require("moment");
 const EmployeeOvertime = require("../models/employeeOvertime");
-const sequelize = require("../config");
+const fs = require("fs");
+const path = require("path");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -17,7 +18,7 @@ const sequelize = require("../config");
 /** POST: Create a new employee. */
 exports.create_employee = async (req, res) => {
     try {
-        const { firstName, lastName, email, phoneNumber, address, dob, panNumber, aadharNumber, shiftId, role, salaryPerDay, hireDate, sickLeaves, casualLeaves } = req.body;
+        const { firstName, lastName, email, phoneNumber, address, dob, panNumber, aadharNumber, shiftId, role, salaryPerDay, hireDate, emergencyLeaves, personalLeaves } = req.body;
 
         // TODO: lastName, role and panCard non-required.
         if(!firstName || !email || !shiftId || !salaryPerDay || !hireDate) {
@@ -56,8 +57,8 @@ exports.create_employee = async (req, res) => {
             role,
             salaryPerDay,
             hireDate,
-            sickLeaves,
-            casualLeaves
+            emergencyLeaves,
+            personalLeaves
         });
         if(!employee) {
             return res.status(400).json({
@@ -83,7 +84,7 @@ exports.create_employee = async (req, res) => {
 exports.update_employee = async (req, res) => {
     try {
         const { id } = req.params;
-        const { firstName, lastName, email, phoneNumber, address, dob, panNumber, aadharNumber, shiftId, role, salaryPerDay, hireDate, sickLeaves, casualLeaves } = req.body;
+        const { firstName, lastName, email, phoneNumber, address, dob, panNumber, aadharNumber, shiftId, role, salaryPerDay, hireDate, emergencyLeaves, personalLeaves } = req.body;
 
         const employee = await Employee.findByPk(id);
         if(!employee) {
@@ -120,8 +121,8 @@ exports.update_employee = async (req, res) => {
             role,
             salaryPerDay,
             hireDate,
-            sickLeaves, 
-            casualLeaves
+            emergencyLeaves, 
+            personalLeaves
         });
         if(!updatedEmployee) {
             return res.status(400).json({
@@ -496,6 +497,7 @@ exports.get_employee_bonus = async (req, res) => {
     }
 };
 
+/** POST: Create dummy data for employee salary and overtimes. */
 exports.create_dummy_data = async (req, res) => {
     try {
         const employeeOverTimes = [
@@ -550,6 +552,52 @@ exports.create_dummy_data = async (req, res) => {
         return res.status(200).json({
             status: "true",
             message: "Dummy data created successfully"
+        });
+    } catch (error) {
+        console.error(error);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
+};
+
+/** POST: Save profile picture of an employee. */
+exports.save_profile_picture = async (req, res) => {
+    try {
+        const { file } = req;
+        const employeeId = req.params.employeeId;
+        const { removeProfilePicture } = req.body;
+
+        if(!file && !removeProfilePicture) {
+            return res.status(400).json({ 
+                status: "false", 
+                message: "No file uploaded" 
+            });
+        }
+        console.log('file: ', file);
+
+        const employee = await Employee.findByPk(employeeId);
+        if (!employee) {
+            return res.status(404).json({
+                status: "false",
+                message: "Employee not found"
+            });
+        }
+
+        // Remove profile picture from local
+        if (employee.profilePicture) {
+            const profilePicturePath = path.join(__dirname, '../public/profile-picture', employee.profilePicture.split('/').pop());
+            if (fs.existsSync(profilePicturePath)) {
+                fs.unlinkSync(profilePicturePath);
+            }
+        }
+
+        employee.profilePicture = removeProfilePicture ? null : `${process.env.API_URL}/profile-picture/${file.filename}`;
+        await employee.save();
+
+        return res.status(200).json({
+            status: "true",
+            message: `Profile picture ${removeProfilePicture ? "removed" : "saved"} successfully`
         });
     } catch (error) {
         console.error(error);

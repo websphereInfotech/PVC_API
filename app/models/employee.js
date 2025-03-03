@@ -40,6 +40,10 @@ const Employee = sequelize.define("P_employee", {
         type: DataTypes.STRING(12),
         allowNull: true
     },
+    profilePicture: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
     bonus: {
         type: DataTypes.DECIMAL(10, 2),
         defaultValue: 0,
@@ -66,12 +70,12 @@ const Employee = sequelize.define("P_employee", {
         type: DataTypes.DATEONLY,
         allowNull: false
     },
-    sickLeaves: {
+    emergencyLeaves: {
         type: DataTypes.INTEGER(11),
         allowNull: false,
         defaultValue: 1
     },
-    casualLeaves: {
+    personalLeaves: {
         type: DataTypes.INTEGER(11),
         allowNull: false,
         defaultValue: 1
