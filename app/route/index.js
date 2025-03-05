@@ -34,9 +34,11 @@ router.use('/purpose', require('./purpose'))
 router.use('/maintenance', require('./maintenance'))
 router.use('/shift', require('./shift'))
 router.use('/bonusConfiguration', require('./bonusConfiguration'))
+router.use('/penaltyConfiguration', require('./penaltyConfiguration'))
 router.use('/employee', require('./employee'))
 router.use('/leave', require('./leave'))
 router.use('/attendance', require('./attendance'))
 router.use('/systemSettings', require('./systemSettings'))
+router.use('/holiday', require('./holiday'))
 
 module.exports = router;

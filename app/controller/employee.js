@@ -617,3 +617,54 @@ exports.save_profile_picture = async (req, res) => {
             .json({ status: "false", message: "Internal Server Error" });
     }
 };
+
+/** POST: Reset employee bonus. */
+exports.reset_employee_bonus = async (req, res) => {
+    try {
+        const { employeeId } = req.body;
+
+        if(employeeId) {
+            const employee = await Employee.findByPk(employeeId);
+            if (!employee) {
+                return res.status(404).json({
+                    status: "false",
+                    message: "Employee not found"
+                });
+            }
+    
+            employee.bonus = 0;
+            await employee.save();
+        } else {
+            const employees = await Employee.findAll();
+            if(!employees.length) {
+                return res.status(404).json({
+                    status: "false",
+                    message: "No employees found"
+                });
+            }
+
+            const forLoop = async (i) => {
+                if(i === employees.length) return;
+    
+                const employee = employees[i];
+    
+                employee.bonus = 0;
+                await employee.save();
+    
+                await forLoop(i + 1);
+            };
+    
+            await forLoop(0);
+        }
+
+        return res.status(200).json({
+            status: "true",
+            message: "Employee bonus reset successfully"
+        });
+    } catch (error) {
+        console.error(error);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
+};

@@ -1,7 +1,7 @@
 const express = require("express");
 const { validation } = require("../constant/validate");
 const adminAuth = require("../middleware/adminAuth");
-const { create_employee, update_employee, get_all_employees, get_employee, delete_employee, change_password, employee_login, forgot_password, get_employee_salary_history, get_employee_bonus, create_dummy_data, save_profile_picture } = require("../controller/employee");
+const { create_employee, update_employee, get_all_employees, get_employee, delete_employee, change_password, employee_login, forgot_password, get_employee_salary_history, get_employee_bonus, create_dummy_data, save_profile_picture, reset_employee_bonus } = require("../controller/employee");
 const router = express.Router();
 const multer = require("multer");
 const fs = require("fs");
@@ -45,5 +45,6 @@ router.get("/salary_history/:employeeId", get_employee_salary_history);
 router.get("/bonus/:employeeId", get_employee_bonus);
 router.post("/dummy_entry", create_dummy_data);
 router.post("/profile_picture/:employeeId", upload.single("file"), save_profile_picture);
+router.post("/reset_bonus", reset_employee_bonus);
 
 module.exports = router;

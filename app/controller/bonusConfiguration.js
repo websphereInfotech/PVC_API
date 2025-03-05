@@ -199,6 +199,7 @@ exports.get_bonus_percentage_by_attendance_percentage = async (attendancePercent
             data.bonusPercentage = bonusConfiguration.dutyAbove100;
         }
 
+        data.workingDays = bonusConfiguration.workingDays;
         return data;
     }catch (error) {
         console.error(error);

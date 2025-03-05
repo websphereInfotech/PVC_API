@@ -16,6 +16,8 @@ const BonusConfiguration = require('../models/bonusConfiguration');
 const EmployeeSalary = require('../models/employeeSalary');
 const SystemSettings = require('../models/systemSettings');
 const { get_bonus_percentage_by_attendance_percentage } = require('../controller/bonusConfiguration');
+const PenaltyConfiguration = require('../models/penaltyConfiguration');
+const { get_total_penalty_amount } = require('../controller/penaltyConfiguration');
 
 exports.lowStockNotificationJob = cron.schedule('0 0 * * *', async () => {
     const itemStocks = await Stock.findAll({
@@ -259,24 +261,16 @@ exports.calculateEmployeesMonthlySalaryJob = cron.schedule('0 3 1 * *', async ()
             console.log('leaves: ', leaves);
             
             let numberOfLeaves = 0;
-            let penaltyDays = 0;
             leaves.forEach((leave) => {
                 if(leave.leaveDuration === "Full Day") {
                     numberOfLeaves++;
                 }else {
                     numberOfLeaves += 0.5;
                 }
-
-                if(leave.leaveType === "Unpaid Leave") {
-                    if(leave.leaveDuration === "Full Day") {
-                        penaltyDays++;
-                    }else {
-                        penaltyDays += 0.5;
-                    }
-                }
             });
 
             let totalWorkedDays = 0;
+            let penaltyDays = 0;
             const attendances = await Attendance.findAll({
                 include: {
                     model: Leave,
@@ -293,14 +287,20 @@ exports.calculateEmployeesMonthlySalaryJob = cron.schedule('0 3 1 * *', async ()
                 attendances.forEach((attendance) => {
                     const leave = attendance.leave;
 
-                    if(leave) {
-                        if(leave.leaveDuration === "First Half" && attendance.status === "Present") {
-                            totalWorkedDays += 0.5;
-                        }else if(leave.leaveDuration === "Second Half" && attendance.status === "Present") {
-                            totalWorkedDays += 0.5;
+                    if(attendance.status === "Present") {
+                        if(leave) {
+                            if(leave.leaveDuration === "First Half") {
+                                totalWorkedDays += 0.5;
+                            }else if(leave.leaveDuration === "Second Half") {
+                                totalWorkedDays += 0.5;
+                            }
+                        }else {
+                            totalWorkedDays++;
                         }
-                    }else if(attendance.status === "Present") {
-                        totalWorkedDays++;
+                    }else if(leave && leave.leaveDuration !== "Full Day") {
+                        penaltyDays++;
+                    } else if(!leave) {
+                        penaltyDays++;
                     }
                 });
             }
@@ -335,19 +335,10 @@ exports.calculateEmployeesMonthlySalaryJob = cron.schedule('0 3 1 * *', async ()
             }
 
             // Calculate employee's monthly penalty based on unpaid leaves
-            let penaltyAmount = 0;
-            const penaltyPercentage = await SystemSettings.findOne({
-                where: {
-                    field: "penalty"
-                }
-            });
-            if(penaltyPercentage) {
-                const penalty = (employee.salaryPerDay * 26) * (penaltyPercentage.value / 100); // 26 is number of days for monthly salary.
-                penaltyAmount = penaltyDays * penalty;
-            }
+            const finalPenaltyDays = penaltyDays - (attendances.length - bonusConfiguration.workingDays);
+            const penaltyAmount = await get_total_penalty_amount(finalPenaltyDays, employee.salaryPerDay);
 
             // Add employee referral bonus into monthly salary
-            // TODO -> Need to update static working days 26
             let referralBonus = 0;
             if(employee.referral) {
                 const referralBonusPercentage = await SystemSettings.findOne({
@@ -356,19 +347,18 @@ exports.calculateEmployeesMonthlySalaryJob = cron.schedule('0 3 1 * *', async ()
                     }
                 });
                 if(referralBonusPercentage) {
-                    referralBonus = (employee.referral.salaryPerDay * 26) * (referralBonusPercentage.value / 100); // 26 is number of days for monthly salary.
+                    referralBonus = (employee.referral.salaryPerDay * bonusConfiguration.workingDays) * (referralBonusPercentage.value / 100);
                 }
             }
 
             // Calculate employee's monthly discipline bonus
-            // TODO -> Need to update static working days 26
             let disciplineBonus = 0;
             const disciplineBonusInDays = await SystemSettings.findOne({
                 where: {
                     field: "disciplineBonus"
                 }
             });
-            if(totalWorkedDays === 26 && disciplineBonusInDays) {
+            if(totalWorkedDays === bonusConfiguration.workingDays && disciplineBonusInDays) {
                 disciplineBonus = employee.salaryPerDay * disciplineBonusInDays;
             }
 
