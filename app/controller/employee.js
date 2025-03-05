@@ -18,7 +18,7 @@ const path = require("path");
 /** POST: Create a new employee. */
 exports.create_employee = async (req, res) => {
     try {
-        const { firstName, lastName, email, phoneNumber, address, dob, panNumber, aadharNumber, shiftId, role, salaryPerDay, hireDate, emergencyLeaves, personalLeaves } = req.body;
+        const { firstName, lastName, email, phoneNumber, address, dob, panNumber, aadharNumber, shiftId, role, salaryPerDay, hireDate, emergencyLeaves, personalLeaves, referredBy } = req.body;
 
         // TODO: lastName, role and panCard non-required.
         if(!firstName || !email || !shiftId || !salaryPerDay || !hireDate) {
@@ -58,7 +58,8 @@ exports.create_employee = async (req, res) => {
             salaryPerDay,
             hireDate,
             emergencyLeaves,
-            personalLeaves
+            personalLeaves,
+            referredBy
         });
         if(!employee) {
             return res.status(400).json({
@@ -84,7 +85,7 @@ exports.create_employee = async (req, res) => {
 exports.update_employee = async (req, res) => {
     try {
         const { id } = req.params;
-        const { firstName, lastName, email, phoneNumber, address, dob, panNumber, aadharNumber, shiftId, role, salaryPerDay, hireDate, emergencyLeaves, personalLeaves } = req.body;
+        const { firstName, lastName, email, phoneNumber, address, dob, panNumber, aadharNumber, shiftId, role, salaryPerDay, hireDate, emergencyLeaves, personalLeaves, referredBy } = req.body;
 
         const employee = await Employee.findByPk(id);
         if(!employee) {
@@ -122,7 +123,8 @@ exports.update_employee = async (req, res) => {
             salaryPerDay,
             hireDate,
             emergencyLeaves, 
-            personalLeaves
+            personalLeaves,
+            referredBy
         });
         if(!updatedEmployee) {
             return res.status(400).json({
@@ -406,10 +408,12 @@ exports.forgot_password = async (req, res) => {
 exports.get_employee_salary_history = async (req, res) => {
     try {
         const { employeeId } = req.params;
+        const { date } = req.query;
 
         const employee = await Employee.findOne({
             where: {
-                id: employeeId
+                id: employeeId,
+                isActive: true
             }
         });
         if(!employee) {
@@ -419,10 +423,16 @@ exports.get_employee_salary_history = async (req, res) => {
             });
         }
 
+        const whereClause = {};
+        whereClause[Op.and] = [];
+        whereClause[Op.and].push(Sequelize.literal(`employeeId = ${employeeId}`));
+
+        if(date) {
+            whereClause[Op.and].push(Sequelize.literal(`month like '%${date}%'`));
+        }
+
         const employeeSalary = await EmployeeSalary.findAll({
-            where: {
-                employeeId
-            }
+            where: whereClause
         });
         if(!employeeSalary.length) {
             return res.status(404).json({
@@ -455,7 +465,8 @@ exports.get_employee_bonus = async (req, res) => {
 
         const employee = await Employee.findOne({
             where: {
-                id: employeeId
+                id: employeeId,
+                isActive: true
             }
         });
         if(!employee) {

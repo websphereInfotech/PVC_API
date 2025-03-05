@@ -6,15 +6,27 @@ const BonusConfiguration = sequelize.define("P_bonusConfiguration", {
         type: DataTypes.STRING(10),
         allowNull: false
     },
-    minAttendance: {
+    duty0To50: {
         type: DataTypes.INTEGER(11),
         allowNull: false
     },
-    maxAttendance: {
+    duty51To75: {
         type: DataTypes.INTEGER(11),
         allowNull: false
     },
-    bonusPercentage: {
+    duty76To90: {
+        type: DataTypes.INTEGER(11),
+        allowNull: false
+    },
+    duty91To100: {
+        type: DataTypes.INTEGER(11),
+        allowNull: false
+    },
+    dutyAbove100: {
+        type: DataTypes.INTEGER(11),
+        allowNull: false
+    },
+    workingDays: {
         type: DataTypes.INTEGER(11),
         allowNull: false
     }
@@ -22,8 +34,7 @@ const BonusConfiguration = sequelize.define("P_bonusConfiguration", {
     indexes: [
         {
             unique: true,
-            name: "unique_bonus_config",
-            fields: ["month", "minAttendance", "maxAttendance"], // Composite Unique Key
+            fields: ["month"],
         }
     ]
 });

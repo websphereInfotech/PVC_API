@@ -80,6 +80,10 @@ const Employee = sequelize.define("P_employee", {
         allowNull: false,
         defaultValue: 1
     },
+    referredBy: {
+        type: DataTypes.INTEGER(11),
+        allowNull: true
+    },
     isActive: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
@@ -89,5 +93,6 @@ const Employee = sequelize.define("P_employee", {
 
 Employee.belongsTo(Shift, { foreignKey: 'shiftId', as: 'shift' });
 Employee.hasMany(Leave, { foreignKey: 'employeeId', as: 'leaves' });
+Employee.belongsTo(Employee, { foreignKey: 'referredBy', as: 'referral' });
 
 module.exports = Employee;

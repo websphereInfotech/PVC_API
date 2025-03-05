@@ -18,7 +18,7 @@ exports.create_bonusConfiguration = async (req, res) => {
         }
 
         const bonuses = await BonusConfiguration.bulkCreate(bonusConfigurations, {
-            updateOnDuplicate: ["bonusPercentage"],
+            updateOnDuplicate: ["duty0To50", "duty51To75", "duty76To90", "duty91To100", "dutyAbove100", "workingDays"],
         });
         if(!bonuses) {
             return res.status(400).json({
@@ -53,7 +53,7 @@ exports.update_bonusConfiguration = async (req, res) => {
         }
 
         const bonuses = await BonusConfiguration.bulkCreate(bonusConfigurations, {
-            updateOnDuplicate: ["bonusPercentage"],
+            updateOnDuplicate: ["duty0To50", "duty51To75", "duty76To90", "duty91To100", "dutyAbove100", "workingDays"],
         });
         if(!bonuses) {
             return res.status(400).json({
@@ -168,5 +168,40 @@ exports.delete_bonusConfiguration = async (req, res) => {
         return res
             .status(500)
             .json({ status: "false", message: "Internal Server Error" });
+    }
+};
+
+exports.get_bonus_percentage_by_attendance_percentage = async (attendancePercentage, date) => {
+    try {
+        const data = {
+            bonusPercentage: 0,
+            workingDays: 0
+        }
+
+        const bonusConfiguration = await BonusConfiguration.findOne({
+            where: {
+                month: date,
+            }
+        });
+        if(!bonusConfiguration){
+            return data;
+        }
+
+        if(attendancePercentage <= 50) {
+            data.bonusPercentage = bonusConfiguration.duty0To50;
+        }else if(attendancePercentage <= 75) {
+            data.bonusPercentage = bonusConfiguration.duty51To75;
+        }else if(attendancePercentage <= 90) {
+            data.bonusPercentage = bonusConfiguration.duty76To90;
+        } else if(attendancePercentage <= 100) {
+            data.bonusPercentage = bonusConfiguration.duty91To100;
+        } else {
+            data.bonusPercentage = bonusConfiguration.dutyAbove100;
+        }
+
+        return data;
+    }catch (error) {
+        console.error(error);
+        return data;
     }
 };

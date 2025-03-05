@@ -5,6 +5,7 @@ const moment = require("moment");
 const Leave = require("../models/leave");
 const Shift = require("../models/shift");
 const BonusConfiguration = require("../models/bonusConfiguration");
+const { get_bonus_percentage_by_attendance_percentage } = require("./bonusConfiguration");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -427,16 +428,10 @@ exports.get_monthly_attendance_performance_metrics = async (req, res) => {
         const performance = getAttendancePerformance(attendancePercentage);
 
         let bonusEligibility = false;
-        const bonusConfiguration = await BonusConfiguration.findAll({
-            where: {
-                month: date,
-            }
-        });
-        if(bonusConfiguration.length) {
-            const configuration = bonusConfiguration.find((config) => attendancePercentage >= config.minAttendance && attendancePercentage <= config.maxAttendance);
-            if(configuration) {
-                bonusEligibility = true;
-            }
+        
+        const bonusConfiguration = await get_bonus_percentage_by_attendance_percentage(attendancePercentage, date);
+        if(bonusConfiguration.bonusPercentage) {
+            bonusEligibility = true;
         }
 
         const performanceMetrics = {

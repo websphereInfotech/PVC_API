@@ -43,7 +43,7 @@ router.post("/login", employee_login);
 router.post("/forgot_password", forgot_password);
 router.get("/salary_history/:employeeId", get_employee_salary_history);
 router.get("/bonus/:employeeId", get_employee_bonus);
-router.get("/dummy_entry", create_dummy_data);
+router.post("/dummy_entry", create_dummy_data);
 router.post("/profile_picture/:employeeId", upload.single("file"), save_profile_picture);
 
 module.exports = router;

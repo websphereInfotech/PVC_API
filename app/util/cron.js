@@ -15,6 +15,7 @@ const EmployeeOvertime = require('../models/employeeOvertime');
 const BonusConfiguration = require('../models/bonusConfiguration');
 const EmployeeSalary = require('../models/employeeSalary');
 const SystemSettings = require('../models/systemSettings');
+const { get_bonus_percentage_by_attendance_percentage } = require('../controller/bonusConfiguration');
 
 exports.lowStockNotificationJob = cron.schedule('0 0 * * *', async () => {
     const itemStocks = await Stock.findAll({
@@ -229,25 +230,19 @@ exports.calculateEmployeesOvertimeJob = cron.schedule('0 1 * * *', async () => {
     }
 }); 
 
-exports.calculateEmployeesMonthlyBonusJob = cron.schedule('0 3 1 * *', async () => {
+exports.calculateEmployeesMonthlySalaryJob = cron.schedule('0 3 1 * *', async () => {
     try {
         const date = moment().subtract(2, 'day').format("YYYY-MM");
-
-        const bonusConfigurations = await BonusConfiguration.findAll({
-            where: {
-                month: date
-            }
-        });
-        if(!bonusConfigurations.length) {
-            console.log('No bonus configurations found for this month: ', date);
-            return;
-        }
 
         const employees = await Employee.findAll({ 
             include: [
                 { 
                     model: Leave, 
                     as: 'leaves' 
+                },
+                {
+                    model: Employee,
+                    as: 'referral'
                 }
             ] 
         });
@@ -282,7 +277,6 @@ exports.calculateEmployeesMonthlyBonusJob = cron.schedule('0 3 1 * *', async () 
             });
 
             let totalWorkedDays = 0;
-            let totalWorkingDays = 0;
             const attendances = await Attendance.findAll({
                 include: {
                     model: Leave,
@@ -297,7 +291,6 @@ exports.calculateEmployeesMonthlyBonusJob = cron.schedule('0 3 1 * *', async () 
             });
             if(attendances.length) {
                 attendances.forEach((attendance) => {
-                    totalWorkingDays++;
                     const leave = attendance.leave;
 
                     if(leave) {
@@ -312,17 +305,16 @@ exports.calculateEmployeesMonthlyBonusJob = cron.schedule('0 3 1 * *', async () 
                 });
             }
 
-            const attendancePercentage = parseFloat(((totalWorkedDays / totalWorkingDays) * 100).toFixed(2));
+            const bonusConfiguration = await get_bonus_percentage_by_attendance_percentage(attendancePercentage, date);
+            const attendancePercentage = parseFloat(((totalWorkedDays / bonusConfiguration.workingDays) * 100).toFixed(2));
             console.log('attendancePercentage: ', attendancePercentage);
 
             // Calculate monthly bonus
             let bonus = 0;
-            bonusConfigurations.forEach((configuration) => {
-                if(attendancePercentage >= configuration.minAttendance && attendancePercentage <= configuration.maxAttendance) {
-                    bonus = (employee.salaryPerDay * 26) * (bonusPercentage / 100); // 26 is number of days for monthly salary.
-                    console.log('bonus: ', bonus);
-                }
-            });
+            if(bonusConfiguration.bonusPercentage) {
+                bonus = (employee.salaryPerDay * bonusConfiguration.workingDays) + (employee.salaryPerDay * (bonusConfiguration.bonusPercentage / 100));
+                console.log('bonus: ', bonus);  
+            }
 
             // Calculate employee's overtime hours for the month and overtime amount for the month
             let overtimeHours = 0;
@@ -354,17 +346,45 @@ exports.calculateEmployeesMonthlyBonusJob = cron.schedule('0 3 1 * *', async () 
                 penaltyAmount = penaltyDays * penalty;
             }
 
+            // Add employee referral bonus into monthly salary
+            // TODO -> Need to update static working days 26
+            let referralBonus = 0;
+            if(employee.referral) {
+                const referralBonusPercentage = await SystemSettings.findOne({
+                    where: {
+                        field: "referralBonus"
+                    }
+                });
+                if(referralBonusPercentage) {
+                    referralBonus = (employee.referral.salaryPerDay * 26) * (referralBonusPercentage.value / 100); // 26 is number of days for monthly salary.
+                }
+            }
+
+            // Calculate employee's monthly discipline bonus
+            // TODO -> Need to update static working days 26
+            let disciplineBonus = 0;
+            const disciplineBonusInDays = await SystemSettings.findOne({
+                where: {
+                    field: "disciplineBonus"
+                }
+            });
+            if(totalWorkedDays === 26 && disciplineBonusInDays) {
+                disciplineBonus = employee.salaryPerDay * disciplineBonusInDays;
+            }
+
             // Create employee monthly salary record with all other required information
             await EmployeeSalary.create({
                 employeeId: employee.id,
-                month: date,
+                month: date, 
                 salary: employee.salaryPerDay * totalWorkedDays,
                 bonusAmount: bonus,
                 overtimeAmount,
                 penaltyAmount,
+                referralBonusAmount: referralBonus,
+                disciplineBonusAmount: disciplineBonus,
                 overtimeHours,
                 numberOfWorkedDays: totalWorkedDays,
-                numberOfLeaves
+                numberOfLeaves,
             });
 
             await Employee.increment(["bonus"], { by: bonus, where: { id: employee.id } });

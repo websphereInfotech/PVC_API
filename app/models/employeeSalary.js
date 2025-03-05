@@ -26,6 +26,14 @@ const EmployeeSalary = sequelize.define("P_employee_salary", {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false
     },
+    referralBonusAmount: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false
+    },
+    disciplineBonusAmount: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false
+    },
     overtimeHours: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false
