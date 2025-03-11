@@ -10,6 +10,8 @@ const moment = require("moment");
 const EmployeeOvertime = require("../models/employeeOvertime");
 const fs = require("fs");
 const path = require("path");
+const Attendance = require("../models/attendance");
+const Holiday = require("../models/holiday");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -149,7 +151,7 @@ exports.update_employee = async (req, res) => {
 /** GET: Get all employees. */
 exports.get_all_employees = async (req, res) => {
     try {   
-        const { search } = req.query;
+        const { search, bonusEligible } = req.query;
         const whereClause = {};
         whereClause[Op.and] = [];
         whereClause[Op.and].push(Sequelize.literal(`isActive = true`));
@@ -184,6 +186,23 @@ exports.get_all_employees = async (req, res) => {
                 status: "false", 
                 message: "No employees found",
                 data:  employees
+            });
+        }
+
+        if(bonusEligible === 'true') {
+            const bonusEligibleEmployees = employees.filter(employee => isJoiningDateGreaterThan6Months(employee.hireDate));
+            if(!bonusEligibleEmployees.length) {
+                return res.status(404).json({ 
+                    status: "false", 
+                    message: "No bonus eligible employees found",
+                    data: bonusEligibleEmployees
+                });
+            }
+
+            return res.status(200).json({ 
+                status: "true", 
+                message: "Employees fetched successfully",
+                data: bonusEligibleEmployees 
             });
         }
 
@@ -513,19 +532,19 @@ exports.create_dummy_data = async (req, res) => {
     try {
         const employeeOverTimes = [
             {
-                employeeId: 2,
+                employeeId: 3,
                 date: "2025-02-05",
                 overtimeHours: 2,
                 amount: 200
             },
             {
-                employeeId: 2,
+                employeeId: 3,
                 date: "2025-02-07",
                 overtimeHours: 2,
                 amount: 200
             },
             {
-                employeeId: 2,
+                employeeId: 3,
                 date: "2025-02-08",
                 overtimeHours: 3,
                 amount: 300
@@ -534,7 +553,7 @@ exports.create_dummy_data = async (req, res) => {
 
         const employeeSalaries = [
             {
-                employeeId: 2,
+                employeeId: 3,
                 month: "2025-02",
                 salary: 28_600,
                 bonusAmount: 2000,
@@ -545,7 +564,7 @@ exports.create_dummy_data = async (req, res) => {
                 numberOfLeaves: 0
             },
             {
-                employeeId: 2,
+                employeeId: 3,
                 month: "2025-01",
                 salary: 28_600,
                 bonusAmount: 5000,
@@ -618,6 +637,10 @@ exports.save_profile_picture = async (req, res) => {
     }
 };
 
+const isJoiningDateGreaterThan6Months = (joiningDate) => {
+    return moment(joiningDate).isSameOrBefore(moment().subtract(6, 'months'));
+}
+
 /** POST: Reset employee bonus. */
 exports.reset_employee_bonus = async (req, res) => {
     try {
@@ -631,9 +654,11 @@ exports.reset_employee_bonus = async (req, res) => {
                     message: "Employee not found"
                 });
             }
-    
-            employee.bonus = 0;
-            await employee.save();
+
+            if(isJoiningDateGreaterThan6Months(employee.hireDate)) {
+                employee.bonus = 0;
+                await employee.save();
+            }
         } else {
             const employees = await Employee.findAll();
             if(!employees.length) {
@@ -648,8 +673,10 @@ exports.reset_employee_bonus = async (req, res) => {
     
                 const employee = employees[i];
     
-                employee.bonus = 0;
-                await employee.save();
+                if(isJoiningDateGreaterThan6Months(employee.hireDate)) {
+                    employee.bonus = 0;
+                    await employee.save();
+                }
     
                 await forLoop(i + 1);
             };
@@ -662,6 +689,113 @@ exports.reset_employee_bonus = async (req, res) => {
             message: "Employee bonus reset successfully"
         });
     } catch (error) {
+        console.error(error);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
+};
+
+/** GET: Get single employee monthly salary report. */
+exports.get_employee_monthly_salary_report = async (req, res) => {
+    try {
+        const { employeeId } = req.params;
+        const { date } = req.query;
+
+        if(!date) {
+            return res.status(400).json({
+                status: "false",
+                message: "Please provide date"
+            });
+        }
+
+        if(date.length !== 7) {
+            return res.status(400).json({
+                status: "false",
+                message: "Invalid date format"
+            });
+        }
+
+        const startDate = `${date}-01`;
+        const endDate = moment(startDate).endOf("month").format("YYYY-MM-DD");
+
+        const attendances = await Attendance.findAll({
+            where: {
+                employeeId,
+                date: {
+                    [Op.between]: [startDate, endDate]
+                }
+            },
+            include: [
+                {
+                    model: Employee,
+                    as: "employee",
+                    include: {
+                        model: Shift,
+                        as: "shift"
+                    }
+                },
+                {
+                    model: Leave,
+                    as: "leave"
+                }
+            ]
+        });
+        if(!attendances.length) {
+            return res.status(404).json({
+                status: "false",
+                message: "No attendance found for employee"
+            });
+        }
+
+        const holidays = await Holiday.findAll({
+            where: {
+                date: {
+                    [Op.between]: [startDate, endDate]
+                }
+            }
+        });
+        
+        const employeeSalaryReport = [];
+        let penaltyOccurrence = 0;
+        attendances.forEach(attendance => {
+            const inTime = moment(attendance.inTime, 'YYYY-MM-DD hh:mm:ss A');
+            const outTime = moment(attendance.outTime, 'YYYY-MM-DD hh:mm:ss A');
+            const totalWorkedHours = moment.duration(outTime.diff(inTime)).asHours();
+            const overtimeHours = parseFloat((totalWorkedHours - attendance.workingHours).toFixed(2));
+            
+            const isHoliday = holidays.find(holiday => holiday.date === attendance.date);
+
+            let penalty = 0;
+            if(!isHoliday) {
+                if(attendance.status === "absent" && !attendance.leave) {
+                    penalty++;
+                } else if(attendance.leave && attendance.leave.leaveDuration !== "Full Day") {
+                    penalty++;
+                }
+            }
+
+            const report = {
+                date: attendance.date,
+                salaryPerDay: attendance.employee.salaryPerDay,
+                overtimeHours: attendance.overtimeHours,
+                workingHours: attendance.workingHours,
+                workedHours: totalWorkedHours,
+                overtimeAmount: parseFloat(((attendance.employee.salaryPerDay / attendance.workingHours) * overtimeHours).toFixed(2)),
+                isLate: attendance.latePunch,
+                isHoliday: isHoliday ? true : false,
+                leave: attendance.leave,
+                penaltyOccurrence: penalty > 0 ? penaltyOccurrence++ : penalty,
+            };
+            employeeSalaryReport.push(report);
+        });
+
+        return res.status(200).json({
+            status: "true",
+            message: "Employee monthly salary report fetched successfully",
+            data: employeeSalaryReport
+        });
+    } catch(error) {
         console.error(error);
         return res
             .status(500)

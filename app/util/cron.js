@@ -18,6 +18,8 @@ const SystemSettings = require('../models/systemSettings');
 const { get_bonus_percentage_by_attendance_percentage } = require('../controller/bonusConfiguration');
 const PenaltyConfiguration = require('../models/penaltyConfiguration');
 const { get_total_penalty_amount } = require('../controller/penaltyConfiguration');
+const EmployeePunch = require('../models/employeePunch');
+const { update_employee_punching_data } = require('../controller/attendance');
 
 exports.lowStockNotificationJob = cron.schedule('0 0 * * *', async () => {
     const itemStocks = await Stock.findAll({
@@ -418,30 +420,127 @@ exports.employeesLeavesSettlementJob = cron.schedule('0 2 1 * *', async () => {
         console.log("error: ", error);
     }
 });
-    
-exports.employeeBonusResetJob = cron.schedule('0 3 1 1 *', async () => {
+   
+/** NOT NEEDED ANY MORE */
+// exports.employeeBonusResetJob = cron.schedule('0 3 1 1 *', async () => {
+//     try {
+//         const employees = await Employee.findAll();
+//         if(!employees.length) {
+//             console.log("No employees found.");
+//             return;
+//         }
+
+//         const forLoop = async (i) => {
+//             if(i === employees.length) return;
+
+//             const employee = employees[i];
+
+//             employee.bonus = 0;
+//             await employee.save();
+
+//             await forLoop(i + 1);
+//         };
+
+//         await forLoop(0);
+
+//         console.log("Employee bonuses reset successfully.");
+//     } catch(error) {
+//         console.log("error: ", error);
+//     }
+// });
+
+exports.employeePunchingAttendance = cron.schedule('*/30 * * * * *', async () => {
     try {
-        const employees = await Employee.findAll();
+        const date = moment().format("DD/MM/YYYY");
+
+        let employeesPunchingData = await EmployeePunch.findAll({
+            where: {
+                date
+            }
+        });
+        if(!employeesPunchingData.length) {
+           console.log("Employee punching data not found for the day: ", date);
+           return;
+        }
+
+        const employees = await Employee.findAll({
+            where: {
+                isActive: true
+            }
+        });
         if(!employees.length) {
-            console.log("No employees found.");
+            console.log("Employees not found for the day: ", date);
             return;
         }
 
+        employeesPunchingData = employeesPunchingData.map((data) => data.dataValues);
+        
+        const employeeAttendance = [];
         const forLoop = async (i) => {
             if(i === employees.length) return;
 
             const employee = employees[i];
 
-            employee.bonus = 0;
-            await employee.save();
+            const employeePunchingData = [];
+            employeesPunchingData.forEach((data) => {
+                if(data.emp_id == employee.id) {
+                    employeePunchingData.push(data);
+                }
+            });
+            if(!employeePunchingData.length) return await forLoop(i + 1);
+
+            employeePunchingData.sort((a, b) => new Date(a.punch1) - new Date(b.punch1));
+
+            let lastPunch = null;
+            const punchData = {
+                emp_id: employee.id,
+                date: moment().format("YYYY-MM-DD"),
+                InTime: null,
+                BreakInTime: null,
+                BreakOutTime: null,
+                OutTime: null
+            };
+
+            for(const punch of employeePunchingData) {
+                const punchTime = moment(`${date} ${punch.punch1}`, "DD/MM/YYYY HH:mm:ss");
+
+                // Ignore duplicate punches within 5 minutes
+                if (lastPunch && punchTime.diff(lastPunch, "minutes") < 5) {
+                    continue;
+                }
+
+                lastPunch = punchTime;
+
+                // Assign punches based on time ranges
+                if (!punchData.InTime) {
+                    punchData.InTime = punchTime;
+                    continue;
+                }
+                if (!punchData.BreakInTime) {
+                    punchData.BreakInTime = punchTime;
+                    continue;
+                }
+                if (!punchData.BreakOutTime) {
+                    punchData.BreakOutTime = punchTime;
+                    continue;
+                }
+                if (!punchData.OutTime) {
+                    punchData.OutTime = punchTime;
+                }
+            }
+
+            employeeAttendance.push(punchData);
 
             await forLoop(i + 1);
         };
 
         await forLoop(0);
 
-        console.log("Employee bonuses reset successfully.");
+        await update_employee_punching_data(employeeAttendance);
+
+        console.log("Employee punching attendance management done successfully.");
     } catch(error) {
-        console.log("error: ", error);
+        console.error(error);
+        console.log("Employee punching attendance management failed");
     }
 });

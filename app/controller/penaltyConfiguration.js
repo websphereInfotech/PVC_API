@@ -185,15 +185,15 @@ exports.get_total_penalty_amount = async (penaltyDays, perDaySalary) => {
         }
 
         if(penaltyDays >= 5) {
-            penaltyAmount = (perDaySalary * penaltyConfiguration.firstPenalty / 100) + (perDaySalary * penaltyConfiguration.secondPenalty / 100) + (perDaySalary * penaltyConfiguration.thirdPenalty / 100) + (perDaySalary * penaltyConfiguration.fourthPenalty / 100) + (perDaySalary * penaltyConfiguration.fifthPenalty / 100);
+            penaltyAmount = perDaySalary * penaltyConfiguration.fifthPenalty / 100;
         } else if(penaltyDays === 4) {
-            penaltyAmount = (perDaySalary * penaltyConfiguration.firstPenalty / 100) + (perDaySalary * penaltyConfiguration.secondPenalty / 100) + (perDaySalary * penaltyConfiguration.thirdPenalty / 100) + (perDaySalary * penaltyConfiguration.fourthPenalty / 100);
+            penaltyAmount = perDaySalary * penaltyConfiguration.fourthPenalty / 100;
         } else if(penaltyDays === 3) {
-            penaltyAmount = (perDaySalary * penaltyConfiguration.firstPenalty / 100) + (perDaySalary * penaltyConfiguration.secondPenalty / 100) + (perDaySalary * penaltyConfiguration.thirdPenalty / 100);
+            penaltyAmount = perDaySalary * penaltyConfiguration.thirdPenalty / 100;
         } else if(penaltyDays === 2) {
-            penaltyAmount = (perDaySalary * penaltyConfiguration.firstPenalty / 100) + (perDaySalary * penaltyConfiguration.secondPenalty / 100);
+            penaltyAmount = perDaySalary * penaltyConfiguration.secondPenalty / 100;
         } else if(penaltyDays === 1) {
-            penaltyAmount = (perDaySalary * penaltyConfiguration.firstPenalty / 100);
+            penaltyAmount = perDaySalary * penaltyConfiguration.firstPenalty / 100;
         }
 
         return penaltyAmount;

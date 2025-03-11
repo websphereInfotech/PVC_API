@@ -6,6 +6,7 @@ const Leave = require("../models/leave");
 const Shift = require("../models/shift");
 const BonusConfiguration = require("../models/bonusConfiguration");
 const { get_bonus_percentage_by_attendance_percentage } = require("./bonusConfiguration");
+const EmployeePunch = require("../models/employeePunch");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -454,5 +455,190 @@ exports.get_monthly_attendance_performance_metrics = async (req, res) => {
         return res
             .status(500)
             .json({ status: "false", message: "Internal Server Error" });
+    }
+};
+
+/** POST: Manage employee attendance at every 30sec. */
+exports.manage_employee_attendance = async (req, res) => {
+    try {
+        const date = moment().format("DD/MM/YYYY");
+
+        let employeesPunchingData = await EmployeePunch.findAll({
+            where: {
+                date
+            }
+        });
+        if(!employeesPunchingData.length) {
+            return res.status(404).json({
+                status: "false",
+                message: "Punching Data Not Found",
+                data: employeesPunchingData
+            });
+        }
+
+        const employees = await Employee.findAll({
+            where: {
+                isActive: true
+            }
+        });
+        if(!employees.length) {
+            return res.status(404).json({
+                status: "false",
+                message: "Employees Not Found",
+                data: employees
+            });
+        }
+
+        employeesPunchingData = employeesPunchingData.map((data) => data.dataValues);
+        
+        const employeeAttendance = [];
+        const forLoop = async (i) => {
+            if(i === employees.length) return;
+
+            const employee = employees[i];
+
+            const employeePunchingData = [];
+            employeesPunchingData.forEach((data) => {
+                if(data.emp_id == employee.id) {
+                    employeePunchingData.push(data);
+                }
+            });
+            if(!employeePunchingData.length) return await forLoop(i + 1);
+
+            employeePunchingData.sort((a, b) => new Date(a.punch1) - new Date(b.punch1));
+
+            let lastPunch = null;
+            const punchData = {
+                emp_id: employee.id,
+                date: moment().format("YYYY-MM-DD"),
+                InTime: null,
+                BreakInTime: null,
+                BreakOutTime: null,
+                OutTime: null
+            };
+
+            for(const punch of employeePunchingData) {
+                const punchTime = moment(`${date} ${punch.punch1}`, "DD/MM/YYYY HH:mm:ss");
+
+                // Ignore duplicate punches within 5 minutes
+                if (lastPunch && punchTime.diff(lastPunch, "minutes") < 5) {
+                    continue;
+                }
+
+                lastPunch = punchTime;
+
+                // Assign punches based on time ranges
+                if (!punchData.InTime) {
+                    punchData.InTime = punchTime;
+                    continue;
+                }
+                if (!punchData.BreakInTime) {
+                    punchData.BreakInTime = punchTime;
+                    continue;
+                }
+                if (!punchData.BreakOutTime) {
+                    punchData.BreakOutTime = punchTime;
+                    continue;
+                }
+                if (!punchData.OutTime) {
+                    punchData.OutTime = punchTime;
+                }
+            }
+
+            employeeAttendance.push(punchData);
+
+            await forLoop(i + 1);
+        };
+
+        await forLoop(0);
+
+        await this.update_employee_punching_data(employeeAttendance);
+
+        res.status(200).json({
+            status: "true",
+            message: "Employee Attendance Managed Successfully",
+            data: employeeAttendance
+        });
+    } catch(error) {
+        console.error(error);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
+};
+
+/** Update employee punching data into employee attendance table. */
+exports.update_employee_punching_data = async (employeeAttendance) => {
+    try {
+        const forLoop = async (i) => {
+            if(i === employeeAttendance.length) return;
+
+            const employeePunchData = employeeAttendance[i];
+
+            const attendance = await Attendance.findOne({
+                where: {
+                    employeeId: employeePunchData.emp_id,
+                    date: employeePunchData.date
+                }
+            });
+            if(!attendance) {
+                console.log("Attendance not found for employee: ", employeePunchData.emp_id);
+                return await forLoop(i + 1);
+            }
+
+            const employee = await Employee.findByPk(attendance.employeeId, {
+                include: {
+                    model: Shift,
+                    as: "shift",
+                }
+            });
+            if(!employee) {
+                console.log("Employee not found for employee id: ", attendance.employeeId);
+                return await forLoop(i + 1);
+            }
+
+            const shiftStartTime = moment(employee.shift.shiftStartTime, 'hh:mm:ss A');
+            const shiftEndTime = moment(employee.shift.shiftEndTime, 'hh:mm:ss A');
+
+            if(employeePunchData.InTime) {
+                const clockInTime = moment(employeePunchData.InTime).format("YYYY-MM-DD HH:mm:ss");
+                
+                attendance.inTime = clockInTime;
+                attendance.status = "Present";
+    
+                if(moment(clockInTime, "YYYY-MM-DD HH:mm:ss").isAfter(shiftStartTime)) {
+                    attendance.latePunch = true;
+                }
+            } 
+
+            if(employeePunchData.BreakInTime) {
+                attendance.breakStart = moment(employeePunchData.BreakInTime).format("YYYY-MM-DD HH:mm:ss");
+            } 
+            
+            if(employeePunchData.BreakOutTime) {
+                attendance.breakEnd = moment(employeePunchData.BreakOutTime).format("YYYY-MM-DD HH:mm:ss");
+            } 
+            
+            if(employeePunchData.OutTime) {
+                attendance.outTime = moment(employeePunchData.OutTime).format("YYYY-MM-DD HH:mm:ss");
+    
+                const inTime = moment(attendance.inTime, 'YYYY-MM-DD hh:mm:ss A');
+                const outTime = moment(attendance.outTime, 'YYYY-MM-DD hh:mm:ss A');
+    
+                const totalWorkedHours = moment.duration(outTime.diff(inTime)).asHours();
+                const totalWorkingHours = moment.duration(shiftEndTime.diff(shiftStartTime)).asHours();
+                
+                attendance.workingHours = parseFloat(totalWorkingHours.toFixed(2));
+                attendance.overtimeHours = parseFloat((totalWorkedHours - totalWorkingHours).toFixed(2));
+            }
+    
+            await attendance.save();
+
+            await forLoop(i + 1);
+        }
+
+        await forLoop(0);
+    } catch(error) {
+        console.error(error);
     }
 };
