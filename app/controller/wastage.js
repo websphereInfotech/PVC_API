@@ -1,5 +1,6 @@
 const Wastage = require("../models/Wastage");
 const User = require("../models/user");
+const item = require("../models/product");
 const {Op} = require("sequelize");
 exports.create_wastage = async (req, res) => {
   try {
@@ -69,24 +70,36 @@ exports.get_all_wastage = async (req, res) => {
   try {
     const companyId = req.user.companyId;
     const { search } = req.query;
-    const whereClause = { companyId: companyId };
+    const whereClause = { companyId: companyId, isActive: true, wastage: true };
     if (search) {
-      whereClause.name = { [Op.like]: `%${search}%` };
+      whereClause.productname = { [Op.like]: `%${search}%` };
     }
-
-    const data = await Wastage.findAll({
+    const data = await item.findAll({
       where: whereClause,
-      include: [
-        {
-          model: User,
-          as: "wastageCreateUser",
-        },
-        {
-          model: User,
-          as: "wastageUpdateUser",
-        },
-      ],
+      include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
     });
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Item Not Found" });
+    }
+    // if (search) {
+    //   whereClause.name = { [Op.like]: `%${search}%` };
+    // }
+
+    // const data = await Wastage.findAll({
+    //   where: whereClause,
+    //   include: [
+    //     {
+    //       model: User,
+    //       as: "wastageCreateUser",
+    //     },
+    //     {
+    //       model: User,
+    //       as: "wastageUpdateUser",
+    //     },
+    //   ],
+    // });
 
     return res.status(200).json({
       status: "true",

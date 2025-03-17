@@ -4,7 +4,7 @@ const Product = require("../models/product");
 const User = require("../models/user");
 const {Sequelize} = require("sequelize");
 const Stock = require("../models/stock");
-const Wastage = require("../models/Wastage");
+// const Wastage = require("../models/Wastage");
 
 exports.create_bom = async (req, res) => {
     try {
@@ -31,9 +31,10 @@ exports.create_bom = async (req, res) => {
             })
         }
 
-        const wastageExist = await Wastage.findOne({where: {
+        const wastageExist = await Product.findOne({where: {
                 id: wastageId,
                 companyId: companyId,
+                isActive: true
             }});
         if(!wastageExist){
             return res.status(404).json({
@@ -58,6 +59,8 @@ exports.create_bom = async (req, res) => {
         const totalWeight = (qty * weight) + Number(wastageQty);
         const dividedWeight = Math.floor((totalWeight / totalQty) * 100) / 100;
 
+        console.log('Test createBOM before');
+
         const createBOM = await Bom.create({
             bomNo: bomNo,
             date: date,
@@ -72,9 +75,11 @@ exports.create_bom = async (req, res) => {
             shift: shift,
             endTime: endTime,
             startTime: startTime,
-            wastageId,
+            WastageId:wastageId,
             wastageQty
         })
+
+        console.log('Test createBOM after');
 
         const itemStock = await Stock.findOne({
             where: {productId}
@@ -82,6 +87,14 @@ exports.create_bom = async (req, res) => {
         if(itemStock){
             await itemStock.increment('qty',{by: qty})
         }
+        
+        const wastageStock = await Stock.findOne({
+            where: {productId:wastageId}
+        })
+        if(wastageStock){
+            await wastageStock.increment('qty',{by: wastageQty})
+        }
+
 
         for(const item of items){
             const totalQty = Math.floor((item.qty * dividedWeight) * 100) / 100;
@@ -104,7 +117,7 @@ exports.create_bom = async (req, res) => {
             message: "Production created successfully.",
         })
     }catch (e) {
-        console.log(e);
+        console.log('error = = =>' ,e);
         return res.status(500).json({
             status: "false",
             message: "Internal Server Error.",
@@ -146,7 +159,7 @@ exports.update_bom = async (req, res) => {
                 message: "Product Item Not Found.",
             })
         }
-        const wastageExist = await Wastage.findOne({where: {
+        const wastageExist = await Product.findOne({where: {
                 id: wastageId,
                 companyId: companyId,
             }});
@@ -209,7 +222,7 @@ exports.update_bom = async (req, res) => {
                 shift,
                 endTime,
                 startTime,
-                wastageId,
+                WastageId:wastageId,
                 wastageQty
             },
             {
@@ -321,7 +334,7 @@ exports.view_all_bom = async (req,res)=>{
                     attributes: ['username']
                 },
                 {
-                    model: Wastage,
+                    model: Product,
                     as: "bomWastage",
                 }
             ]
@@ -379,7 +392,7 @@ exports.view_bom = async (req,res)=>{
                     attributes: ['username']
                 },
                 {
-                    model: Wastage,
+                    model: Product,
                     as: "bomWastage",
                 }
             ]

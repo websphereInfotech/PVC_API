@@ -4,6 +4,7 @@ const Product = require("../models/product");
 const MaintenanenceItem = require("../models/MaintenanenceItem");
 const User = require("../models/user");
 const MaintenanceType = require("../models/MaintenanceType");
+const stock = require("../models/stock");
 
 exports.create_maintenance = async (req, res) => {
   try {
@@ -50,8 +51,15 @@ exports.create_maintenance = async (req, res) => {
         productId: item.productId,
         qty: item.qty,
       });
+
+      const itemStock = await stock.findOne({
+        where: {productId: item.productId},
+      })
+      if(itemStock){
+          await itemStock.decrement('qty',{by: item.qty})
+      }
     }
-    await data.addMMaintenanceTypes(maintenanceType);
+    // await data.addMMaintenanceTypes(maintenanceType);
     return res.status(200).json({
       status: "true",
       message: "Maintenance Create Successfully.",
@@ -110,8 +118,8 @@ exports.update_maintenance = async (req, res) => {
     }
     Object.assign(maintenanceExist, req.body, { updateBy: userId });
     await maintenanceExist.save();
-    await maintenanceExist.setMMaintenanceTypes([]);
-    await maintenanceExist.setMMaintenanceTypes(maintenanceType);
+    // await maintenanceExist.setMMaintenanceTypes([]);
+    // await maintenanceExist.setMMaintenanceTypes(maintenanceType);
 
     for (const item of items) {
       const existingItem = existingItems.find((ei) => ei.id === item.id);
@@ -124,6 +132,13 @@ exports.update_maintenance = async (req, res) => {
           },
           { where: { id: existingItem.id } }
         );
+        const itemStock = await stock.findOne({
+          where: {productId: item.productId},
+        })
+        if(itemStock){
+            await itemStock.decrement('qty',{by: item.qty})
+            await itemStock.increment('qty',{by: existingItem.qty})
+        }
       } else {
         await MaintenanenceItem.create({
           maintenanceId: id,
@@ -166,6 +181,7 @@ exports.view_all_maintenance = async (req, res) => {
         { model: Machine, as: "machineMaintenance" },
         { model: User, as: "maintenanceUpdateUser" },
         { model: User, as: "maintenanceCreateUser" },
+        { model: MaintenanenceItem, as: "maintenanceItems", include: [{model: Product, as: "maintenanceProduct"}] }
       ],
     });
     return res.status(200).json({
@@ -192,14 +208,14 @@ exports.view_one_maintenance = async (req, res) => {
       },
       include: [
         { model: Machine, as: "machineMaintenance" },
-        {
-          model: MaintenanceType,
-          as: "mMaintenanceTypes",
-          attributes: ["name", "id"],
-          through: {
-            attributes: [],
-          },
-        },
+        // {
+        //   model: MaintenanceType,
+        //   as: "mMaintenanceTypes",
+        //   attributes: ["name", "id"],
+        //   through: {
+        //     attributes: [],
+        //   },
+        // },
         { model: MaintenanenceItem, as: "maintenanceItems", include: [{model: Product, as: "maintenanceProduct"}] },
       ],
     });

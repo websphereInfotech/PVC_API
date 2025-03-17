@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Stag CI/CD
 
 on:
   push:

@@ -26,7 +26,8 @@ exports.create_item = async (req, res) => {
       salesprice,
       gstrate,
       HSNcode,
-      cess
+      cess,
+      isWastage
     } = req.body;
     const userId = req.user.userId
     const companyId = req.user.companyId;
@@ -93,6 +94,7 @@ exports.create_item = async (req, res) => {
       gstrate,
       HSNcode,
       cess,
+      wastage: isWastage,
       weight,
       lowStockQty,
       companyId: req.user.companyId,
@@ -137,7 +139,8 @@ exports.update_item = async (req, res) => {
       salesprice,
       gstrate,
       HSNcode,
-      cess
+      cess,
+      isWastage
     } = req.body;
     const userId = req.user.userId;
     const companyId = req.user.companyId;
@@ -220,6 +223,7 @@ exports.update_item = async (req, res) => {
         gstrate: gstrate,
         HSNcode: HSNcode,
         cess: cess,
+        wastage: isWastage,
         weight: weight,
         lowStockQty: lowStockQty,
         companyId: req.user.companyId,

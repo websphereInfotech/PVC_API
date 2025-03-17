@@ -31,13 +31,13 @@ router.post(
   validation("create_user"),
   create_user
 );
-router.get("/get_all_user", adminAuth("Login:delete_user"), get_all_user);
+router.get("/get_all_user", adminAuth("Login:view_all_user"), get_all_user);
 
 router.get("/view_user/:id", adminAuth("Login:view_user"), view_user);
 
 router.delete(
   "/delete_user/:id",
-  adminAuth("Login:view_all_user"),
+  adminAuth("Login:delete_user"),
   delete_user
 );
 router.put(

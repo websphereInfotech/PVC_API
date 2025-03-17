@@ -3,7 +3,7 @@ const sequelize = require("../config/index");
 const User = require("./user");
 const Company = require("./company");
 const Product = require("./product");
-const Wastage = require("./Wastage");
+// const Wastage = require("./Wastage");
 const {WORKER_SHIFT} = require("../constant/constant");
 
 const Bom = sequelize.define("P_Bom", {
@@ -29,7 +29,7 @@ const Bom = sequelize.define("P_Bom", {
         type: DataTypes.TIME,
         allowNull: false
     },
-    wastageId: {
+    WastageId: {
         type: DataTypes.INTEGER,
         allowNull: false
     },
@@ -51,7 +51,8 @@ Bom.belongsTo(Company, {foreignKey: "companyId", as: "bomCompany" });
 Product.hasMany(Bom, {foreignKey: "productId", as: "bomProduct" });
 Bom.belongsTo(Product, {foreignKey: "productId", as: "bomProduct" });
 
-Wastage.hasMany(Bom, {foreignKey: "wastageId", as: "bomWastage" });
-Bom.belongsTo(Wastage, {foreignKey: "wastageId", as: "bomWastage" });
+
+Product.hasMany(Bom, { foreignKey: "WastageId", as: "bomWastage" });
+Bom.belongsTo(Product, { foreignKey: "WastageId", as: "bomWastage" });
 
 module.exports = Bom;

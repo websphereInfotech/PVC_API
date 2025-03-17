@@ -43,6 +43,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use(logRequestMiddleware);
+app.use("/profile-picture", express.static(`${__dirname}/app/public/profile-picture`));
 
 app.use("/admin", initRoutes);
 

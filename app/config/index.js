@@ -9,11 +9,12 @@ const sequelize = new Sequelize({
   password: DB_PASSWORD,
   host: DB_HOST,
   dialect: 'mysql',
+  logging: true
 });
 
 try {
   sequelize.authenticate();
-  // sequelize.sync({alter: true});
+  sequelize.sync({alter: true});
   console.log("Connection has been established successfully.");
 } catch (error) {
   console.error("Unable to connect to the database:", error);
