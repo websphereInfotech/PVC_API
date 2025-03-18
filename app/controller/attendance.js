@@ -499,7 +499,7 @@ exports.manage_employee_attendance = async (req, res) => {
 
             const employeePunchingData = [];
             employeesPunchingData.forEach((data) => {
-                if(data.emp_id == employee.id) {
+                if(data.empId == employee.id) {
                     employeePunchingData.push(data);
                 }
             });

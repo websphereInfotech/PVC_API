@@ -483,7 +483,7 @@ exports.employeePunchingAttendance = cron.schedule('*/30 * * * * *', async () =>
 
             const employeePunchingData = [];
             employeesPunchingData.forEach((data) => {
-                if(data.emp_id == employee.id) {
+                if(data.empId == employee.id) {
                     employeePunchingData.push(data);
                 }
             });
