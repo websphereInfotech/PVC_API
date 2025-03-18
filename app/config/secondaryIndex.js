@@ -16,7 +16,7 @@ const sequelize = new Sequelize({
 try {
   sequelize.authenticate();
   sequelize.sync({alter: false});
-  console.log("Connection has been established successfully.");
+  console.log("Connection has been established successfully..., SECONDARY_DB");
 } catch (error) {
   console.error("Unable to connect to the database:", error);
   // process.exit(1);

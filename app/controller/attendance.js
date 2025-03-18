@@ -505,7 +505,7 @@ exports.manage_employee_attendance = async (req, res) => {
             });
             if(!employeePunchingData.length) return await forLoop(i + 1);
 
-            employeePunchingData.sort((a, b) => new Date(a.punch1) - new Date(b.punch1));
+            employeePunchingData.sort((a, b) => new Date(a.time) - new Date(b.time));
 
             let lastPunch = null;
             const punchData = {
@@ -518,7 +518,7 @@ exports.manage_employee_attendance = async (req, res) => {
             };
 
             for(const punch of employeePunchingData) {
-                const punchTime = moment(`${date} ${punch.punch1}`, "DD/MM/YYYY HH:mm:ss");
+                const punchTime = moment(`${date} ${punch.time}`, "DD/MM/YYYY HH:mm:ss");
 
                 // Ignore duplicate punches within 5 minutes
                 if (lastPunch && punchTime.diff(lastPunch, "minutes") < 5) {
