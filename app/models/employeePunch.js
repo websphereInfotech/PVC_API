@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../config/index");
+const sequelize = require("../config/secondaryIndex");
 
 const EmployeePunch = sequelize.define("P_employee_punch", {
     emp_id: {
