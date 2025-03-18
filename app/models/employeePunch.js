@@ -20,7 +20,8 @@ const EmployeePunch = sequelize.define("attendance", {
     }
 },{
     tableName: "attendance",
-    freezeTableName: true
+    freezeTableName: true,
+    timestamps: false
 });
 
 module.exports = EmployeePunch;
