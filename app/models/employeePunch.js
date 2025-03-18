@@ -18,6 +18,9 @@ const EmployeePunch = sequelize.define("attendance", {
         type: DataTypes.STRING(255),
         allowNull: true
     }
+},{
+    tableName: "attendance",
+    freezeTableName: true
 });
 
 module.exports = EmployeePunch;
