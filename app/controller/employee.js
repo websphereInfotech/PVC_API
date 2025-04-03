@@ -226,13 +226,11 @@ exports.get_all_employees = async (req, res) => {
 /** GET: Get a single employee by id. */
 exports.get_employee = async (req, res) => {
     try {
-        const companyId = req.user.companyId;
         const { id } = req.params;
 
         const employee = await Employee.findOne({
             where: {
                 id,
-                companyId,
                 isActive: true
             },
             include: {
