@@ -162,49 +162,42 @@ exports.update_employee = async (req, res) => {
 /** GET: Get all employees. */
 exports.get_all_employees = async (req, res) => {
     try {   
-        companyId = req.user.companyId;
+        const companyId = req.user.companyId;
         const { search, bonusEligible } = req.query;
-        const whereClause = {};
-        whereClause[Op.and] = [];
-        whereClause[Op.and].push(Sequelize.literal(`isActive = true`));
-        whereClause[Op.and].push(Sequelize.literal(`companyId = ${companyId}`));
+        const whereClause = { [Op.and]: [{ isActive: true }, { companyId }] };
 
         if (search) {
-            whereClause[Op.or] = [];
-            whereClause[Op.or].push(Sequelize.literal(`firstName like '%${search}%'`));
-            whereClause[Op.or].push(Sequelize.literal(`lastName like '%${search}%'`));
-            whereClause[Op.or].push(Sequelize.literal(`email like '%${search}%'`));
-            whereClause[Op.or].push(Sequelize.literal(`phoneNumber like '%${search}%'`));
-            whereClause[Op.or].push(Sequelize.literal(`address like '%${search}%'`));
-            whereClause[Op.or].push(Sequelize.literal(`panNumber like '%${search}%'`));
-            whereClause[Op.or].push(Sequelize.literal(`aadharNumber like '%${search}%'`));
-            whereClause[Op.or].push(Sequelize.literal(`role like '%${search}%'`));
+            whereClause[Op.or] = [
+                { firstName: { [Op.like]: `%${search}%` } },
+                { lastName: { [Op.like]: `%${search}%` } },
+                { email: { [Op.like]: `%${search}%` } },
+                { phoneNumber: { [Op.like]: `%${search}%` } },
+                { address: { [Op.like]: `%${search}%` } },
+                { panNumber: { [Op.like]: `%${search}%` } },
+                { aadharNumber: { [Op.like]: `%${search}%` } },
+                { role: { [Op.like]: `%${search}%` } },
+            ];
         }
 
         const employees = await Employee.findAll({
             where: whereClause,
             include: [
-                {
-                    model: Shift,
-                    as: "shift"
-                },
-                {
-                    model: Leave,
-                    as: "leaves"
-                }
-            ] 
+                { model: Shift, as: "shift" },
+                { model: Leave, as: "leaves" }
+            ]
         });
-        if(!employees.length) {
+
+        if (!employees.length) {
             return res.status(404).json({ 
                 status: "false", 
                 message: "No employees found",
-                data:  employees
+                data: employees
             });
         }
 
-        if(bonusEligible === 'true') {
+        if (bonusEligible === 'true') {
             const bonusEligibleEmployees = employees.filter(employee => isJoiningDateGreaterThan6Months(employee.hireDate));
-            if(!bonusEligibleEmployees.length) {
+            if (!bonusEligibleEmployees.length) {
                 return res.status(404).json({ 
                     status: "false", 
                     message: "No bonus eligible employees found",
@@ -226,11 +219,9 @@ exports.get_all_employees = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        return res
-            .status(500)
-            .json({ status: "false", message: "Internal Server Error" });
+        return res.status(500).json({ status: "false", message: "Internal Server Error" });
     }
-};  
+};
 
 /** GET: Get a single employee by id. */
 exports.get_employee = async (req, res) => {
