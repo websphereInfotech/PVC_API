@@ -8,6 +8,7 @@ const { Sequelize, Op } = require("sequelize");
 /** POST: Create a new bonus configuration. */
 exports.create_bonusConfiguration = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const bonusConfigurations  = req.body;
 
         if (!Array.isArray(bonusConfigurations) || bonusConfigurations.length === 0) {
@@ -16,6 +17,10 @@ exports.create_bonusConfiguration = async (req, res) => {
                 message: "Invalid request. Provide an array of bonus configurations."
             });
         }
+
+        bonusConfigurations.forEach((bonusConfiguration) => {
+            bonusConfiguration.companyId = companyId;
+        });
 
         const bonuses = await BonusConfiguration.bulkCreate(bonusConfigurations, {
             updateOnDuplicate: ["duty0To50", "duty51To75", "duty76To90", "duty91To100", "dutyAbove100", "workingDays"],
@@ -43,6 +48,7 @@ exports.create_bonusConfiguration = async (req, res) => {
 /** PUT: Update an existing bonus configuration. */
 exports.update_bonusConfiguration = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const bonusConfigurations  = req.body;
 
         if (!Array.isArray(bonusConfigurations) || bonusConfigurations.length === 0) {
@@ -51,6 +57,10 @@ exports.update_bonusConfiguration = async (req, res) => {
                 message: "Invalid request. Provide an array of bonus configurations."
             });
         }
+
+        bonusConfigurations.forEach((bonusConfiguration) => {
+            bonusConfiguration.companyId = companyId;
+        });
 
         const bonuses = await BonusConfiguration.bulkCreate(bonusConfigurations, {
             updateOnDuplicate: ["duty0To50", "duty51To75", "duty76To90", "duty91To100", "dutyAbove100", "workingDays"],
@@ -78,8 +88,11 @@ exports.update_bonusConfiguration = async (req, res) => {
 /** GET: Get all bonus configurations. */
 exports.get_bonusConfigurations = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { search } = req.query;
-        const whereClause = {};
+        const whereClause = {
+            companyId
+        };
 
         if (search) {
             whereClause[Op.or] = [];
@@ -113,10 +126,12 @@ exports.get_bonusConfigurations = async (req, res) => {
 /** GET: Get a single bonus configuration by id. */
 exports.get_bonusConfiguration = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { id } = req.params;
 
         const bonus = await BonusConfiguration.findOne({
             where: {
+                companyId,
                 id
             }
         });
@@ -144,10 +159,12 @@ exports.get_bonusConfiguration = async (req, res) => {
 /** DELETE: Delete a single bonus configuration by id. */
 exports.delete_bonusConfiguration = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { id } = req.params;
 
         const bonus = await BonusConfiguration.findOne({
             where: {
+                companyId,
                 id
             }
         });

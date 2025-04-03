@@ -2,6 +2,10 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 
 const BonusConfiguration = sequelize.define("P_bonusConfiguration", {
+    companyId: {
+        type: DataTypes.INTEGER(11),
+        allowNull: false
+    },
     month: {
         type: DataTypes.STRING(10),
         allowNull: false

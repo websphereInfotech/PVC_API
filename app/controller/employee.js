@@ -20,6 +20,7 @@ const Holiday = require("../models/holiday");
 /** POST: Create a new employee. */
 exports.create_employee = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { firstName, lastName, email, phoneNumber, address, dob, panNumber, aadharNumber, shiftId, role, salaryPerDay, hireDate, emergencyLeaves, personalLeaves, referredBy } = req.body;
 
         // TODO: lastName, role and panCard non-required.
@@ -46,6 +47,7 @@ exports.create_employee = async (req, res) => {
         const hashedPassword = await bcrypt.hash("Test@123", 10);
 
         const employee = await Employee.create({
+            companyId,
             firstName,
             lastName,
             email,
@@ -87,9 +89,16 @@ exports.create_employee = async (req, res) => {
 exports.update_employee = async (req, res) => {
     try {
         const { id } = req.params;
+        const companyId = req.user.companyId;
         const { firstName, lastName, email, phoneNumber, address, dob, panNumber, aadharNumber, shiftId, role, salaryPerDay, hireDate, emergencyLeaves, personalLeaves, referredBy } = req.body;
 
-        const employee = await Employee.findByPk(id);
+        const employee = await Employee.findOne({
+            where: {
+                id,
+                companyId,
+                isActive: true
+            }
+        });
         if(!employee) {
             return res.status(404).json({ 
                 status: "false", 
@@ -99,6 +108,7 @@ exports.update_employee = async (req, res) => {
 
         const emailExists = await Employee.findOne({
             where: {
+                companyId,
                 email,
                 isActive: true,
                 id: { [Sequelize.Op.ne]: id }
@@ -112,6 +122,7 @@ exports.update_employee = async (req, res) => {
         }
 
         const updatedEmployee = await employee.update({
+            companyId,
             firstName,
             lastName,
             email,
@@ -151,10 +162,12 @@ exports.update_employee = async (req, res) => {
 /** GET: Get all employees. */
 exports.get_all_employees = async (req, res) => {
     try {   
+        companyId = req.user.companyId;
         const { search, bonusEligible } = req.query;
         const whereClause = {};
         whereClause[Op.and] = [];
         whereClause[Op.and].push(Sequelize.literal(`isActive = true`));
+        whereClause[Op.and].push(Sequelize.literal(`companyId = ${companyId}`));
 
         if (search) {
             whereClause[Op.or] = [];
@@ -222,9 +235,15 @@ exports.get_all_employees = async (req, res) => {
 /** GET: Get a single employee by id. */
 exports.get_employee = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { id } = req.params;
 
-        const employee = await Employee.findByPk(id, {
+        const employee = await Employee.findOne({
+            where: {
+                id,
+                companyId,
+                isActive: true
+            },
             include: {
                 model: Shift,
                 as: "shift"
@@ -254,9 +273,16 @@ exports.get_employee = async (req, res) => {
 /** DELETE: Delete an employee. */
 exports.delete_employee = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { id } = req.params;
 
-        const employee = await Employee.findByPk(id);
+        const employee = await Employee.findOne({
+            where: {
+                id,
+                companyId,
+                isActive: true
+            }
+        });
         if(!employee) {
             return res.status(404).json({ 
                 status: "false", 
@@ -286,7 +312,12 @@ exports.change_password = async (req, res) => {
         const { id } = req.params;
         const { oldPassword, newPassword, confirmPassword } = req.body;
 
-        const employee = await Employee.findByPk(id);
+        const employee = await Employee.findOne({
+            where: {
+                id,
+                isActive: true
+            }
+        });
         if(!employee) {
             return res.status(404).json({
                 status: "false",
@@ -360,6 +391,7 @@ exports.employee_login = async (req, res) => {
 
         const token = jwt.sign(
             {
+                companyId: employee.companyId,
                 employeeId: employee.id,
                 firstName: employee.firstName,
                 lastName: employee.lastName,
@@ -644,10 +676,17 @@ const isJoiningDateGreaterThan6Months = (joiningDate) => {
 /** POST: Reset employee bonus. */
 exports.reset_employee_bonus = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { employeeId } = req.body;
 
         if(employeeId) {
-            const employee = await Employee.findByPk(employeeId);
+            const employee = await Employee.findOne({
+                where: {
+                    id: employeeId,
+                    companyId,
+                    isActive: true
+                }
+            });
             if (!employee) {
                 return res.status(404).json({
                     status: "false",
@@ -660,7 +699,12 @@ exports.reset_employee_bonus = async (req, res) => {
                 await employee.save();
             }
         } else {
-            const employees = await Employee.findAll();
+            const employees = await Employee.findAll({
+                where: {
+                    companyId,
+                    isActive: true
+                }
+            });
             if(!employees.length) {
                 return res.status(404).json({
                     status: "false",

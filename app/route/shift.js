@@ -8,10 +8,10 @@ const router = express.Router();
                                           Without Type C API
  ============================================================================================================ */
 
-router.post("/create_shift", create_shift);
-router.put("/update_shift/:id", update_shift);
-router.get("/view_all_shift", get_shifts);
-router.get("/view_shift/:id", get_shift);
-router.delete("/delete_shift/:id", delete_shift);
+router.post("/create_shift", adminAuth("Shift:create_shift"), create_shift);
+router.put("/update_shift/:id", adminAuth("Shift:update_shift"), update_shift);
+router.get("/view_all_shift", adminAuth("Shift:view_all_shift"), get_shifts);
+router.get("/view_shift/:id", adminAuth("Shift:view_one_shift"), get_shift);
+router.delete("/delete_shift/:id", adminAuth("Shift:delete_shift"), delete_shift);
 
 module.exports = router;

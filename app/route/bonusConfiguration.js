@@ -8,10 +8,10 @@ const router = express.Router();
                                           Without Type C API
  ============================================================================================================ */
 
-router.post("/create_bonus_configuration", create_bonusConfiguration);
-router.put("/update_bonus_configuration", update_bonusConfiguration);
-router.get("/view_all_bonus_configurations", get_bonusConfigurations);
-router.get("/view_bonus_configuration/:id", get_bonusConfiguration);
-router.delete("/delete_bonus_configuration/:id", delete_bonusConfiguration);
+router.post("/create_bonus_configuration", adminAuth("Bonus Config:create_bonus"), create_bonusConfiguration);
+router.put("/update_bonus_configuration", adminAuth("Bonus Config:update_bonus"), update_bonusConfiguration);
+router.get("/view_all_bonus_configurations", adminAuth("Bonus Config:view_bonus"), get_bonusConfigurations);
+router.get("/view_bonus_configuration/:id", adminAuth("Bonus Config:view_bonus"), get_bonusConfiguration);
+router.delete("/delete_bonus_configuration/:id", adminAuth("Bonus Config:delete_bonus"), delete_bonusConfiguration);
 
 module.exports = router;

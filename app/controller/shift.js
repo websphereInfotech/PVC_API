@@ -8,10 +8,12 @@ const { Sequelize } = require("sequelize");
 /** POST: Create a new shift. */
 exports.create_shift = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { shiftName, shiftStartTime, shiftEndTime, breakStartTime, breakEndTime, maxOvertimeHours } = req.body;
 
         const shiftExists =  await Shift.findOne({
             where: {
+                companyId,
                 shiftName
             }
         });
@@ -23,6 +25,7 @@ exports.create_shift = async (req, res) => {
         }
 
         const shift = await Shift.create({
+            companyId,
             shiftName,
             shiftStartTime,
             shiftEndTime,
@@ -53,11 +56,13 @@ exports.create_shift = async (req, res) => {
 /** PUT: Update an existing shift. */
 exports.update_shift = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { shiftName, shiftStartTime, shiftEndTime, breakStartTime, breakEndTime, maxOvertimeHours } = req.body;
         const { id } = req.params;
 
         const shift = await Shift.findOne({
             where: {
+                companyId,
                 id
             }
         });
@@ -70,6 +75,7 @@ exports.update_shift = async (req, res) => {
 
         const shiftExists = await Shift.findOne({
             where: {
+                companyId,
                 shiftName,
                 id: {
                     [Sequelize.Op.ne]: id
@@ -84,6 +90,7 @@ exports.update_shift = async (req, res) => {
         }
 
         const updatedShift = await Shift.update({
+            companyId,
             shiftName,
             shiftStartTime,
             shiftEndTime,
@@ -118,8 +125,11 @@ exports.update_shift = async (req, res) => {
 /** GET: Get all shifts. */
 exports.get_shifts = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { search } = req.query;
-        const whereClause = {};
+        const whereClause = {
+            companyId
+        };
 
         if (search) {
             whereClause[Op.or] = [];
@@ -153,10 +163,12 @@ exports.get_shifts = async (req, res) => {
 /** GET: Get a single shift by id. */
 exports.get_shift = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { id } = req.params;
 
         const shift = await Shift.findOne({
             where: {
+                companyId,
                 id
             }
         });
@@ -184,10 +196,12 @@ exports.get_shift = async (req, res) => {
 /** DELETE: Delete a shift by id. */
 exports.delete_shift = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { id } = req.params;
 
         const shift = await Shift.findOne({
             where: {
+                companyId,
                 id
             }
         });

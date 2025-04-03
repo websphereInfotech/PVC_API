@@ -8,10 +8,10 @@ const router = express.Router();
                                           Without Type C API
  ============================================================================================================ */
 
-router.post("/create_holiday", create_holiday);
-router.put("/update_holiday/:id", update_holiday);
-router.get("/view_all_holidays", get_holidays);
-router.get("/view_holiday/:id", get_holiday);
-router.delete("/delete_holiday/:id", delete_holiday);
+router.post("/create_holiday", adminAuth("Holiday:create_holiday"), create_holiday);
+router.put("/update_holiday/:id", adminAuth("Holiday:update_holiday"), update_holiday);
+router.get("/view_all_holidays", adminAuth("Holiday:view_holiday"), get_holidays);
+router.get("/view_holiday/:id", adminAuth("Holiday:view_holiday"), get_holiday);
+router.delete("/delete_holiday/:id", adminAuth("Holiday:delete_holiday"), delete_holiday);
 
 module.exports = router;

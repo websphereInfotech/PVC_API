@@ -15,7 +15,8 @@ const EmployeePunch = require("../models/employeePunch");
 /** POST: Create all employees attendance entry */
 exports.create_attendance = async (req, res) => {
     try {
-        const data = await create_all_employees_attendance();
+        const companyId = req.user.companyId;
+        const data = await create_all_employees_attendance(companyId);
 
         if(data.ATTENDANCE_ALREADY_EXISTS) {
             return res.status(409).json({
@@ -47,12 +48,13 @@ exports.create_attendance = async (req, res) => {
 };
 
 /** Create attendance entry for all employees */
-const create_all_employees_attendance = async () => {
+const create_all_employees_attendance = async (companyId) => {
     try {
         const date = moment().format("YYYY-MM-DD"); // Get current date
 
         const attendanceExists = await Attendance.findOne({
             where: {
+                companyId,
                 date
             }
         });
@@ -63,6 +65,7 @@ const create_all_employees_attendance = async () => {
 
         const employees = await Employee.findAll({
             where: {
+                companyId,
                 isActive: true
             },
             include: {
@@ -81,6 +84,7 @@ const create_all_employees_attendance = async () => {
             const leave = employee.leaves.find((leave) => leave.date === date);
 
             const attendance = {
+                companyId,
                 employeeId: employee.id,
                 leaveId: leave?.id,
                 date,
@@ -104,11 +108,13 @@ const create_all_employees_attendance = async () => {
 /** GET: Get all attendances with date and employee filter. */
 exports.get_all_attendances = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { date, employeeId } = req.query;
         const whereClause = {};
 
         if(date || employeeId) {
             whereClause[Op.and] = [];
+            whereClause[Op.and].push(Sequelize.literal(`P_attendance.companyId = ${companyId}`));
 
             if(date) {
                 if (date.length === 7) { // For month filter (YYYY-MM)
@@ -167,10 +173,16 @@ exports.get_all_attendances = async (req, res) => {
 /** POST: Approve an existing attendance */
 exports.approve_attendance = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { id } = req.params;
         const { approvedBy } = req.body;
 
-        const attendance = await Attendance.findByPk(id);
+        const attendance = await Attendance.findOne({
+            where: {
+                id,
+                companyId
+            }
+        });
         if(!attendance) {
             return res.status(404).json({
                 status: "false",
@@ -245,10 +257,16 @@ exports.get_attendance_by_id = async (req, res) => {
 /** PUT: Update attendance for clock-in, clock-out, break-in, break-out */
 exports.update_attendance = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { id } = req.params;
         const { type } = req.body;
 
-        const attendance = await Attendance.findByPk(id);
+        const attendance = await Attendance.findOne({
+            where: {
+                id,
+                companyId
+            }
+        });
         if(!attendance) {
             return res.status(404).json({
                 status: "false",

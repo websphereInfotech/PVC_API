@@ -8,6 +8,7 @@ const { Sequelize, Op } = require("sequelize");
 /** POST: Create new penalty configurations. */
 exports.create_penaltyConfiguration = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const penaltyConfigurations  = req.body;
 
         if (!Array.isArray(penaltyConfigurations) || penaltyConfigurations.length === 0) {
@@ -16,6 +17,10 @@ exports.create_penaltyConfiguration = async (req, res) => {
                 message: "Invalid request. Provide an array of penalty configurations."
             });
         }
+
+        penaltyConfigurations.forEach((penaltyConfiguration) => {   
+            penaltyConfiguration.companyId = companyId;
+        });
 
         const penalties = await PenaltyConfiguration.bulkCreate(penaltyConfigurations, {
             updateOnDuplicate: ["firstPenalty", "secondPenalty", "thirdPenalty", "fourthPenalty", "fifthPenalty"],
@@ -43,6 +48,7 @@ exports.create_penaltyConfiguration = async (req, res) => {
 /** PUT: Update an existing penalty configurations. */
 exports.update_penaltyConfiguration = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const penaltyConfigurations  = req.body;
 
         if (!Array.isArray(penaltyConfigurations) || penaltyConfigurations.length === 0) {
@@ -51,6 +57,10 @@ exports.update_penaltyConfiguration = async (req, res) => {
                 message: "Invalid request. Provide an array of penalty configurations."
             });
         }
+
+        penaltyConfigurations.forEach((penaltyConfiguration) => {   
+            penaltyConfiguration.companyId = companyId;
+        });
 
         const penalties = await PenaltyConfiguration.bulkCreate(penaltyConfigurations, {
             updateOnDuplicate: ["firstPenalty", "secondPenalty", "thirdPenalty", "fourthPenalty", "fifthPenalty"],
@@ -78,8 +88,11 @@ exports.update_penaltyConfiguration = async (req, res) => {
 /** GET: Get all penalty configurations. */
 exports.get_penaltyConfigurations = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { search } = req.query;
-        const whereClause = {};
+        const whereClause = {
+            companyId
+        };
 
         if (search) {
             whereClause[Op.or] = [];
@@ -113,10 +126,12 @@ exports.get_penaltyConfigurations = async (req, res) => {
 /** GET: Get a single penalty configuration by id. */
 exports.get_penaltyConfiguration = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { id } = req.params;
 
         const penalty = await PenaltyConfiguration.findOne({
             where: {
+                companyId,
                 id
             }
         });
@@ -144,10 +159,12 @@ exports.get_penaltyConfiguration = async (req, res) => {
 /** DELETE: Delete a single penalty configuration by id. */
 exports.delete_penaltyConfiguration = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { id } = req.params;
 
         const penalty = await PenaltyConfiguration.findOne({
             where: {
+                companyId,
                 id
             }
         });

@@ -33,11 +33,11 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.post("/create_employee", create_employee);
-router.put("/update_employee/:id", update_employee);
-router.get("/view_all_employees", get_all_employees);
+router.post("/create_employee", adminAuth("Employee:create_employee"), create_employee);
+router.put("/update_employee/:id", adminAuth("Employee:update_employee"), update_employee);
+router.get("/view_all_employees", adminAuth("Employee:view_all_employee"), get_all_employees);
 router.get("/view_employee/:id", get_employee);
-router.delete("/delete_employee/:id", delete_employee); 
+router.delete("/delete_employee/:id", adminAuth("Employee:delete_employee"), delete_employee); 
 router.post("/change_password/:id", change_password);
 router.post("/login", employee_login);
 router.post("/forgot_password", forgot_password);
@@ -45,7 +45,7 @@ router.get("/salary_history/:employeeId", get_employee_salary_history);
 router.get("/bonus/:employeeId", get_employee_bonus);
 router.post("/dummy_entry", create_dummy_data);
 router.post("/profile_picture/:employeeId", upload.single("file"), save_profile_picture);
-router.post("/reset_bonus", reset_employee_bonus);
+router.post("/reset_bonus", adminAuth("Employee:update_employee"), reset_employee_bonus);
 router.get("/monthly_salary_report/:employeeId", get_employee_monthly_salary_report);
 
 module.exports = router;
