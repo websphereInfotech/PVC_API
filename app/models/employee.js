@@ -7,7 +7,6 @@ const company = require("./company");
 const Employee = sequelize.define("P_employee", {
     companyId: {
         type: DataTypes.INTEGER,
-        defaultValue: 1,
         allowNull: false
     },
     firstName: {

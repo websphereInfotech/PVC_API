@@ -4,7 +4,6 @@ const sequelize = require("../config/index");
 const SystemSettings = sequelize.define("P_systemSettings", {
     companyId: {
         type: DataTypes.INTEGER(11),
-        defaultValue: 1,
         allowNull: false
     },
     field: {

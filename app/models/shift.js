@@ -4,7 +4,6 @@ const sequelize = require("../config/index");
 const Shift = sequelize.define("P_shift", {
     companyId: {
         type: DataTypes.INTEGER(11),
-        defaultValue: 1,
         allowNull: false
     },
     shiftName: {
