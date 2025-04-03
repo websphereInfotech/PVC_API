@@ -5,7 +5,9 @@ const Leave = require("./leave");
 
 const Attendance = sequelize.define("P_attendance", {
     companyId: {
-        type: DataTypes.INTEGER(11)
+        type: DataTypes.INTEGER(11),
+        defaultValue: 1,
+        allowNull: false
     },
     employeeId: {
         type: DataTypes.INTEGER(11),

@@ -4,6 +4,7 @@ const sequelize = require("../config/index");
 const Holiday = sequelize.define("P_holiday", {
     companyId: {
         type: DataTypes.INTEGER(11),
+        defaultValue: 1,
         allowNull: false
     },
     date: {

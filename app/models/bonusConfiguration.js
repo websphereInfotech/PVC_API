@@ -4,6 +4,7 @@ const sequelize = require("../config/index");
 const BonusConfiguration = sequelize.define("P_bonusConfiguration", {
     companyId: {
         type: DataTypes.INTEGER(11),
+        defaultValue: 1,
         allowNull: false
     },
     month: {
