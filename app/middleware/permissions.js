@@ -2074,48 +2074,48 @@ exports.permissions = {
             "delete_employee": true
         },
     },
-    "Attendence" : {
+    "Attendance" : {
         "Super Admin" :{
-            "create_attendence":true,
-            "update_attendence": true,
-            "view_all_attendence": true,
-            "view_one_attendence": true,
-            "delete_attendence": true
+            "create_attendance":true,
+            "update_attendance": true,
+            "view_all_attendance": true,
+            "view_one_attendance": true,
+            "delete_attendance": true
         },
         "Admin" :{
-            "create_attendence":true,
-            "update_attendence": true,
-            "view_all_attendence": true,
-            "view_one_attendence": true,
-            "delete_attendence": true
+            "create_attendance":true,
+            "update_attendance": true,
+            "view_all_attendance": true,
+            "view_one_attendance": true,
+            "delete_attendance": true
         },
         "Account" :{
-            "create_attendence":true,
-            "update_attendence": true,
-            "view_all_attendence": true,
-            "view_one_attendence": true,
-            "delete_attendence": true
+            "create_attendance":true,
+            "update_attendance": true,
+            "view_all_attendance": true,
+            "view_one_attendance": true,
+            "delete_attendance": true
         },
         "Employee" :{
-            "create_attendence":true,
-            "update_attendence": true,
-            "view_all_attendence": true,
-            "view_one_attendence": true,
-            "delete_attendence": true
+            "create_attendance":true,
+            "update_attendance": true,
+            "view_all_attendance": true,
+            "view_one_attendance": true,
+            "delete_attendance": true
         },
         "Workers" :{
-            "create_attendence":true,
-            "update_attendence": true,
-            "view_all_attendence": true,
-            "view_one_attendence": true,
-            "delete_attendence": true
+            "create_attendance":true,
+            "update_attendance": true,
+            "view_all_attendance": true,
+            "view_one_attendance": true,
+            "delete_attendance": true
         },
         "Other" :{
-            "create_attendence":true,
-            "update_attendence": true,
-            "view_all_attendence": true,
-            "view_one_attendence": true,
-            "delete_attendence": true
+            "create_attendance":true,
+            "update_attendance": true,
+            "view_all_attendance": true,
+            "view_one_attendance": true,
+            "delete_attendance": true
         },
     },
     "Leave" : {
