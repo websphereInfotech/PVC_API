@@ -12,6 +12,7 @@ const fs = require("fs");
 const path = require("path");
 const Attendance = require("../models/attendance");
 const Holiday = require("../models/holiday");
+const tokenModel = require("../models/admintoken");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -391,6 +392,16 @@ exports.employee_login = async (req, res) => {
             process.env.SECRET_KEY,
             { expiresIn: "1d" }
         );
+
+        const existingToken = await tokenModel.findOne({
+            where: { userId: user.id },
+          });
+      
+          if (existingToken) {
+            await existingToken.update({ token });
+          } else {
+            await tokenModel.create({ userId: user.id, token });
+          }
 
         return res.status(200).json({
             status: "true",
