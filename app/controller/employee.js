@@ -394,13 +394,13 @@ exports.employee_login = async (req, res) => {
         );
 
         const existingToken = await tokenModel.findOne({
-            where: { userId: user.id },
+            where: { employeeId: employee.id },
           });
       
           if (existingToken) {
             await existingToken.update({ token });
           } else {
-            await tokenModel.create({ userId: user.id, token });
+            await tokenModel.create({ employeeId: employee.id, token });
           }
 
         return res.status(200).json({

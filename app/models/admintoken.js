@@ -11,6 +11,10 @@ const admintoken = sequelize.define("P_adminToken", {
     type: DataTypes.INTEGER,
     allowNull: true
   },
+  employeeId :{
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
 
 });
 
