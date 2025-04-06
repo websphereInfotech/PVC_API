@@ -387,7 +387,7 @@ exports.employee_login = async (req, res) => {
                 lastName: employee.lastName,
                 email: employee.email,
                 phoneNumber: employee.phoneNumber,
-                role: employee.role,
+                role: 'Employee',
             },
             process.env.SECRET_KEY,
             { expiresIn: "1d" }
