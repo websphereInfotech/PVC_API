@@ -4,7 +4,7 @@ const User = require("./user");
 
 const admintoken = sequelize.define("P_adminToken", {
   token: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false,
   },
   userId :{
