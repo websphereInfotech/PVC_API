@@ -2,8 +2,13 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const Shift = require("./shift");
 const Leave = require("./leave");
+const company = require("./company");
 
 const Employee = sequelize.define("P_employee", {
+    companyId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
     firstName: {
         type: DataTypes.STRING(255),
         allowNull: false
@@ -94,5 +99,7 @@ const Employee = sequelize.define("P_employee", {
 Employee.belongsTo(Shift, { foreignKey: 'shiftId', as: 'shift' });
 Employee.hasMany(Leave, { foreignKey: 'employeeId', as: 'leaves' });
 Employee.belongsTo(Employee, { foreignKey: 'referredBy', as: 'referral' });
+company.hasMany(Employee,{foreignKey:"companyId", as:'companyEmployee'});
+Employee.belongsTo(company,{foreignKey:"companyId", as:'companyEmployee'});
 
 module.exports = Employee;

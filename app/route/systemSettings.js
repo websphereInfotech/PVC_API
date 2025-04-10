@@ -8,11 +8,11 @@ const router = express.Router();
                                           Without Type C API
  ============================================================================================================ */
 
-router.post("/create_system_setting", create_setting);
-router.put("/update_system_setting/:id", update_setting);
-router.get("/view_all_system_setting", get_system_settings);
-router.get("/view_system_setting_by_name", get_system_setting_by_name);
-router.get("/view_system_setting/:id", get_system_setting);
-router.delete("/delete_system_setting/:id", delete_system_setting);
+router.post("/create_system_setting", adminAuth("System Setting:create_system_setting"), create_setting);
+router.put("/update_system_setting/:id", adminAuth("System Setting:update_system_setting"), update_setting);
+router.get("/view_all_system_setting", adminAuth("System Setting:view_system_setting"), get_system_settings);
+router.get("/view_system_setting_by_name", adminAuth("System Setting:view_system_setting"), get_system_setting_by_name);
+router.get("/view_system_setting/:id", adminAuth("System Setting:view_system_setting"), get_system_setting);
+router.delete("/delete_system_setting/:id", adminAuth("System Setting:delete_system_setting"), delete_system_setting);
 
 module.exports = router;

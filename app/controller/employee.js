@@ -12,6 +12,7 @@ const fs = require("fs");
 const path = require("path");
 const Attendance = require("../models/attendance");
 const Holiday = require("../models/holiday");
+const tokenModel = require("../models/admintoken");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -20,6 +21,7 @@ const Holiday = require("../models/holiday");
 /** POST: Create a new employee. */
 exports.create_employee = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { firstName, lastName, email, phoneNumber, address, dob, panNumber, aadharNumber, shiftId, role, salaryPerDay, hireDate, emergencyLeaves, personalLeaves, referredBy } = req.body;
 
         // TODO: lastName, role and panCard non-required.
@@ -46,6 +48,7 @@ exports.create_employee = async (req, res) => {
         const hashedPassword = await bcrypt.hash("Test@123", 10);
 
         const employee = await Employee.create({
+            companyId,
             firstName,
             lastName,
             email,
@@ -87,9 +90,16 @@ exports.create_employee = async (req, res) => {
 exports.update_employee = async (req, res) => {
     try {
         const { id } = req.params;
+        const companyId = req.user.companyId;
         const { firstName, lastName, email, phoneNumber, address, dob, panNumber, aadharNumber, shiftId, role, salaryPerDay, hireDate, emergencyLeaves, personalLeaves, referredBy } = req.body;
 
-        const employee = await Employee.findByPk(id);
+        const employee = await Employee.findOne({
+            where: {
+                id,
+                companyId,
+                isActive: true
+            }
+        });
         if(!employee) {
             return res.status(404).json({ 
                 status: "false", 
@@ -99,6 +109,7 @@ exports.update_employee = async (req, res) => {
 
         const emailExists = await Employee.findOne({
             where: {
+                companyId,
                 email,
                 isActive: true,
                 id: { [Sequelize.Op.ne]: id }
@@ -112,6 +123,7 @@ exports.update_employee = async (req, res) => {
         }
 
         const updatedEmployee = await employee.update({
+            companyId,
             firstName,
             lastName,
             email,
@@ -151,47 +163,42 @@ exports.update_employee = async (req, res) => {
 /** GET: Get all employees. */
 exports.get_all_employees = async (req, res) => {
     try {   
+        const companyId = req.user.companyId;
         const { search, bonusEligible } = req.query;
-        const whereClause = {};
-        whereClause[Op.and] = [];
-        whereClause[Op.and].push(Sequelize.literal(`isActive = true`));
+        const whereClause = { [Op.and]: [{ isActive: true }, { companyId }] };
 
         if (search) {
-            whereClause[Op.or] = [];
-            whereClause[Op.or].push(Sequelize.literal(`firstName like '%${search}%'`));
-            whereClause[Op.or].push(Sequelize.literal(`lastName like '%${search}%'`));
-            whereClause[Op.or].push(Sequelize.literal(`email like '%${search}%'`));
-            whereClause[Op.or].push(Sequelize.literal(`phoneNumber like '%${search}%'`));
-            whereClause[Op.or].push(Sequelize.literal(`address like '%${search}%'`));
-            whereClause[Op.or].push(Sequelize.literal(`panNumber like '%${search}%'`));
-            whereClause[Op.or].push(Sequelize.literal(`aadharNumber like '%${search}%'`));
-            whereClause[Op.or].push(Sequelize.literal(`role like '%${search}%'`));
+            whereClause[Op.or] = [
+                { firstName: { [Op.like]: `%${search}%` } },
+                { lastName: { [Op.like]: `%${search}%` } },
+                { email: { [Op.like]: `%${search}%` } },
+                { phoneNumber: { [Op.like]: `%${search}%` } },
+                { address: { [Op.like]: `%${search}%` } },
+                { panNumber: { [Op.like]: `%${search}%` } },
+                { aadharNumber: { [Op.like]: `%${search}%` } },
+                { role: { [Op.like]: `%${search}%` } },
+            ];
         }
 
         const employees = await Employee.findAll({
             where: whereClause,
             include: [
-                {
-                    model: Shift,
-                    as: "shift"
-                },
-                {
-                    model: Leave,
-                    as: "leaves"
-                }
-            ] 
+                { model: Shift, as: "shift" },
+                { model: Leave, as: "leaves" }
+            ]
         });
-        if(!employees.length) {
+
+        if (!employees.length) {
             return res.status(404).json({ 
                 status: "false", 
                 message: "No employees found",
-                data:  employees
+                data: employees
             });
         }
 
-        if(bonusEligible === 'true') {
+        if (bonusEligible === 'true') {
             const bonusEligibleEmployees = employees.filter(employee => isJoiningDateGreaterThan6Months(employee.hireDate));
-            if(!bonusEligibleEmployees.length) {
+            if (!bonusEligibleEmployees.length) {
                 return res.status(404).json({ 
                     status: "false", 
                     message: "No bonus eligible employees found",
@@ -213,18 +220,20 @@ exports.get_all_employees = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        return res
-            .status(500)
-            .json({ status: "false", message: "Internal Server Error" });
+        return res.status(500).json({ status: "false", message: "Internal Server Error" });
     }
-};  
+};
 
 /** GET: Get a single employee by id. */
 exports.get_employee = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const employee = await Employee.findByPk(id, {
+        const employee = await Employee.findOne({
+            where: {
+                id,
+                isActive: true
+            },
             include: {
                 model: Shift,
                 as: "shift"
@@ -254,9 +263,16 @@ exports.get_employee = async (req, res) => {
 /** DELETE: Delete an employee. */
 exports.delete_employee = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { id } = req.params;
 
-        const employee = await Employee.findByPk(id);
+        const employee = await Employee.findOne({
+            where: {
+                id,
+                companyId,
+                isActive: true
+            }
+        });
         if(!employee) {
             return res.status(404).json({ 
                 status: "false", 
@@ -286,7 +302,12 @@ exports.change_password = async (req, res) => {
         const { id } = req.params;
         const { oldPassword, newPassword, confirmPassword } = req.body;
 
-        const employee = await Employee.findByPk(id);
+        const employee = await Employee.findOne({
+            where: {
+                id,
+                isActive: true
+            }
+        });
         if(!employee) {
             return res.status(404).json({
                 status: "false",
@@ -360,16 +381,27 @@ exports.employee_login = async (req, res) => {
 
         const token = jwt.sign(
             {
+                companyId: employee.companyId,
                 employeeId: employee.id,
                 firstName: employee.firstName,
                 lastName: employee.lastName,
                 email: employee.email,
                 phoneNumber: employee.phoneNumber,
-                role: employee.role,
+                role: 'Employee',
             },
             process.env.SECRET_KEY,
             { expiresIn: "1d" }
         );
+
+        const existingToken = await tokenModel.findOne({
+            where: { employeeId: employee.id },
+          });
+      
+          if (existingToken) {
+            await existingToken.update({ token });
+          } else {
+            await tokenModel.create({ employeeId: employee.id, token });
+          }
 
         return res.status(200).json({
             status: "true",
@@ -644,10 +676,17 @@ const isJoiningDateGreaterThan6Months = (joiningDate) => {
 /** POST: Reset employee bonus. */
 exports.reset_employee_bonus = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { employeeId } = req.body;
 
         if(employeeId) {
-            const employee = await Employee.findByPk(employeeId);
+            const employee = await Employee.findOne({
+                where: {
+                    id: employeeId,
+                    companyId,
+                    isActive: true
+                }
+            });
             if (!employee) {
                 return res.status(404).json({
                     status: "false",
@@ -660,7 +699,12 @@ exports.reset_employee_bonus = async (req, res) => {
                 await employee.save();
             }
         } else {
-            const employees = await Employee.findAll();
+            const employees = await Employee.findAll({
+                where: {
+                    companyId,
+                    isActive: true
+                }
+            });
             if(!employees.length) {
                 return res.status(404).json({
                     status: "false",

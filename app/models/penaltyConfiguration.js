@@ -2,6 +2,10 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 
 const PenaltyConfiguration = sequelize.define("P_penaltyConfiguration", {
+    companyId: {
+        type: DataTypes.INTEGER(11),
+        allowNull: false
+    },
     type: {
         type: DataTypes.STRING(255),
         allowNull: false

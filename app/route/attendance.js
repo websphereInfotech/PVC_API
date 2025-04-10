@@ -8,11 +8,11 @@ const router = express.Router();
                                           Without Type C API
  ============================================================================================================ */
 
-router.post("/create_attendances", create_attendance);
-router.get("/view_all_attendances", get_all_attendances);
+router.post("/create_attendances", adminAuth("Attendance:create_attendance"), create_attendance);
+router.get("/view_all_attendances", adminAuth("Attendance:view_all_attendance"), get_all_attendances);
 router.get("/view_attendance/:id", get_attendance_by_id);
-router.post("/approve_attendance/:id", approve_attendance);
-router.put("/update_attendance/:id", update_attendance);
+router.post("/approve_attendance/:id", adminAuth("Attendance:update_attendance"), approve_attendance);
+router.put("/update_attendance/:id", adminAuth("Attendance:update_attendance"), update_attendance);
 router.get("/performance_metrics", get_monthly_attendance_performance_metrics);
 router.post("/manage_attendance", manage_employee_attendance);
 

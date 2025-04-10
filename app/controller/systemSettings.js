@@ -9,10 +9,12 @@ const SystemSettings = require("../models/systemSettings");
 /** POST: Create a new system setting. */
 exports.create_setting = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { field, value } = req.body;
 
         const settingExists =  await SystemSettings.findOne({
             where: {
+                companyId,
                 field
             }
         });
@@ -24,6 +26,7 @@ exports.create_setting = async (req, res) => {
         }
 
         const setting = await SystemSettings.create({
+            companyId,
             field,
             value
         });
@@ -50,11 +53,13 @@ exports.create_setting = async (req, res) => {
 /** PUT: Update an existing system setting. */
 exports.update_setting = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { field, value } = req.body;
         const { id } = req.params;
 
         const setting = await SystemSettings.findOne({
             where: {
+                companyId,
                 id
             }
         });
@@ -67,6 +72,7 @@ exports.update_setting = async (req, res) => {
 
         const settingExists = await SystemSettings.findOne({
             where: {
+                companyId,
                 field,
                 id: {
                     [Sequelize.Op.ne]: id
@@ -81,6 +87,7 @@ exports.update_setting = async (req, res) => {
         }
 
         const updatedSystemSetting = await SystemSettings.update({
+            companyId,
             field,
             value
         }, {
@@ -111,8 +118,11 @@ exports.update_setting = async (req, res) => {
 /** GET: Get all system settings. */
 exports.get_system_settings = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { search } = req.query;
-        const whereClause = {};
+        const whereClause = {
+            companyId
+        };
 
         if (search) {
             whereClause[Op.or] = [];
@@ -146,10 +156,12 @@ exports.get_system_settings = async (req, res) => {
 /** GET: Get a single system setting by id. */
 exports.get_system_setting = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { id } = req.params;
 
         const setting = await SystemSettings.findOne({
             where: {
+                companyId,
                 id
             }
         });
@@ -177,10 +189,12 @@ exports.get_system_setting = async (req, res) => {
 /** GET: Get a single system setting by name. */
 exports.get_system_setting_by_name = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { name } = req.query;
 
         const setting = await SystemSettings.findOne({
             where: {
+                companyId,
                 field: name
             }
         });
@@ -208,10 +222,12 @@ exports.get_system_setting_by_name = async (req, res) => {
 /** DELETE: Delete a system setting by id. */
 exports.delete_system_setting = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { id } = req.params;
 
         const setting = await SystemSettings.findOne({
             where: {
+                companyId,
                 id
             }
         });

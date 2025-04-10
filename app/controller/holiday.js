@@ -8,6 +8,7 @@ const { Sequelize, Op } = require("sequelize");
 /** POST: Create a new holiday. */
 exports.create_holiday = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { date, name }  = req.body;
 
         if (!date || !name) {
@@ -18,6 +19,7 @@ exports.create_holiday = async (req, res) => {
 
         const holidayExists = await Holiday.findOne({
             where: {
+                companyId,
                 date
             }
         });
@@ -30,6 +32,7 @@ exports.create_holiday = async (req, res) => {
         }
 
         const holiday = await Holiday.create({
+            companyId,
             date,
             name
         });
@@ -56,6 +59,7 @@ exports.create_holiday = async (req, res) => {
 /** PUT: Update an existing holiday. */
 exports.update_holiday = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { date, name }  = req.body;
         const { id } = req.params;
 
@@ -68,6 +72,7 @@ exports.update_holiday = async (req, res) => {
 
         const holiday = await Holiday.findOne({
             where: {
+                companyId,
                 id
             }
         });
@@ -80,6 +85,7 @@ exports.update_holiday = async (req, res) => {
 
         const holidayExists = await Holiday.findOne({
             where: {
+                companyId,
                 date,
                 id: {
                     [Op.ne]: id
@@ -113,8 +119,11 @@ exports.update_holiday = async (req, res) => {
 /** GET: Get all holidays. */
 exports.get_holidays = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { search } = req.query;
-        const whereClause = {};
+        const whereClause = {
+            companyId
+        };
 
         if (search) {
             whereClause[Op.or] = [];
@@ -149,10 +158,12 @@ exports.get_holidays = async (req, res) => {
 /** GET: Get a single holiday by id. */
 exports.get_holiday = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { id } = req.params;
 
         const holiday = await Holiday.findOne({
             where: {
+                companyId,
                 id
             }
         });
@@ -180,10 +191,12 @@ exports.get_holiday = async (req, res) => {
 /** DELETE: Delete a single holiday by id. */
 exports.delete_holiday = async (req, res) => {
     try {
+        const companyId = req.user.companyId;
         const { id } = req.params;
 
         const holiday = await Holiday.findOne({
             where: {
+                companyId,
                 id
             }
         });

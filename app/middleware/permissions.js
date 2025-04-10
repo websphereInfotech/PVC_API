@@ -2074,48 +2074,48 @@ exports.permissions = {
             "delete_employee": true
         },
     },
-    "Attendence" : {
+    "Attendance" : {
         "Super Admin" :{
-            "create_attendence":true,
-            "update_attendence": true,
-            "view_all_attendence": true,
-            "view_one_attendence": true,
-            "delete_attendence": true
+            "create_attendance":true,
+            "update_attendance": true,
+            "view_all_attendance": true,
+            "view_one_attendance": true,
+            "delete_attendance": true
         },
         "Admin" :{
-            "create_attendence":true,
-            "update_attendence": true,
-            "view_all_attendence": true,
-            "view_one_attendence": true,
-            "delete_attendence": true
+            "create_attendance":true,
+            "update_attendance": true,
+            "view_all_attendance": true,
+            "view_one_attendance": true,
+            "delete_attendance": true
         },
         "Account" :{
-            "create_attendence":true,
-            "update_attendence": true,
-            "view_all_attendence": true,
-            "view_one_attendence": true,
-            "delete_attendence": true
+            "create_attendance":true,
+            "update_attendance": true,
+            "view_all_attendance": true,
+            "view_one_attendance": true,
+            "delete_attendance": true
         },
         "Employee" :{
-            "create_attendence":true,
-            "update_attendence": true,
-            "view_all_attendence": true,
-            "view_one_attendence": true,
-            "delete_attendence": true
+            "create_attendance":true,
+            "update_attendance": true,
+            "view_all_attendance": true,
+            "view_one_attendance": true,
+            "delete_attendance": true
         },
         "Workers" :{
-            "create_attendence":true,
-            "update_attendence": true,
-            "view_all_attendence": true,
-            "view_one_attendence": true,
-            "delete_attendence": true
+            "create_attendance":true,
+            "update_attendance": true,
+            "view_all_attendance": true,
+            "view_one_attendance": true,
+            "delete_attendance": true
         },
         "Other" :{
-            "create_attendence":true,
-            "update_attendence": true,
-            "view_all_attendence": true,
-            "view_one_attendence": true,
-            "delete_attendence": true
+            "create_attendance":true,
+            "update_attendance": true,
+            "view_all_attendance": true,
+            "view_one_attendance": true,
+            "delete_attendance": true
         },
     },
     "Leave" : {
@@ -2242,6 +2242,120 @@ exports.permissions = {
             "update_bonus": true,
             "view_bonus": true,
             "delete_bonus": true
+        },
+    },
+    "Holiday": {
+        "Super Admin" :{
+            "create_holiday":true,
+            "update_holiday": true,
+            "view_holiday": true,
+            "delete_holiday": true
+        },
+        "Admin" :{
+            "create_holiday":true,
+            "update_holiday": true,
+            "view_holiday": true,
+            "delete_holiday": true
+        },
+        "Account" :{
+            "create_holiday":true,
+            "update_holiday": true,
+            "view_holiday": true,
+            "delete_holiday": true
+        },
+        "Employee" :{
+            "create_holiday":true,
+            "update_holiday": true,
+            "view_holiday": true,
+            "delete_holiday": true
+        },
+        "Workers" :{
+            "create_holiday":true,
+            "update_holiday": true,
+            "view_holiday": true,
+            "delete_holiday": true
+        },
+        "Other" :{
+            "create_holiday":true,
+            "update_holiday": true,
+            "view_holiday": true,
+            "delete_holiday": true
+        },
+    },
+    "Penalty Config": {
+        "Super Admin" :{
+            "create_penalty":true,
+            "update_penalty": true,
+            "view_penalty": true,
+            "delete_penalty": true
+        },
+        "Admin" :{
+            "create_penalty":true,
+            "update_penalty": true,
+            "view_penalty": true,
+            "delete_penalty": true
+        },
+        "Account" :{
+            "create_penalty":true,
+            "update_penalty": true,
+            "view_penalty": true,
+            "delete_penalty": true
+        },
+        "Employee" :{
+            "create_penalty":true,
+            "update_penalty": true,
+            "view_penalty": true,
+            "delete_penalty": true
+        },
+        "Workers" :{
+            "create_penalty":true,
+            "update_penalty": true,
+            "view_penalty": true,
+            "delete_penalty": true
+        },
+        "Other" :{
+            "create_penalty":true,
+            "update_penalty": true,
+            "view_penalty": true,
+            "delete_penalty": true
+        },
+    },
+    "System Setting": {
+        "Super Admin" :{
+            "create_system_setting":true,
+            "update_system_setting": true,
+            "view_system_setting": true,
+            "delete_system_setting": true
+        },
+        "Admin" :{
+            "create_system_setting":true,
+            "update_system_setting": true,
+            "view_system_setting": true,
+            "delete_system_setting": true
+        },
+        "Account" :{
+            "create_system_setting":true,
+            "update_system_setting": true,
+            "view_system_setting": true,
+            "delete_system_setting": true
+        },
+        "Employee" :{
+            "create_system_setting":true,
+            "update_system_setting": true,
+            "view_system_setting": true,
+            "delete_system_setting": true
+        },
+        "Workers" :{
+            "create_system_setting":true,
+            "update_system_setting": true,
+            "view_system_setting": true,
+            "delete_system_setting": true
+        },
+        "Other" :{
+            "create_system_setting":true,
+            "update_system_setting": true,
+            "view_system_setting": true,
+            "delete_system_setting": true
         },
     }
 }
