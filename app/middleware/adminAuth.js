@@ -20,9 +20,7 @@ const adminToken = (permissionString) => {
       //     .send({ status: "false", message: "Invalid token" });
       // }
       // const verify = jwt.verify(checkToken.token, process.env.SECRET_KEY);
-      // req.user = verify;
-
-      req.user = {
+      const verify = {
         "userId": 1,
         "role": "Super Admin",
         "type": "C",
@@ -31,10 +29,13 @@ const adminToken = (permissionString) => {
         "iat": 1745036607,
         "exp": 1745072607
       };
+      req.user = verify;
+
+    
   
       const [resource, permission] = permissionString.split(":");
       let rolePermissions;
-      if(req.user.type === "C"){
+      if(verify.type === "C"){
         rolePermissions = await permissionData.findOne({
           where: {
             role: verify.role,
