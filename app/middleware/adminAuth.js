@@ -20,15 +20,7 @@ const adminToken = (permissionString) => {
       //     .send({ status: "false", message: "Invalid token" });
       // }
       // const verify = jwt.verify(checkToken.token, process.env.SECRET_KEY);
-      const verify = {
-        "userId": 1,
-        "role": "Super Admin",
-        "type": "C",
-        "username": "Vipul Ghelani",
-        "companyId": 1,
-        "iat": 1745036607,
-        "exp": 1745072607
-      };
+      const verify = jwt.verify(token, process.env.SECRET_KEY);
       req.user = verify;
 
     
