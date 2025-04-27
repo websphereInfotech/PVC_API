@@ -117,7 +117,7 @@ exports.employeeSalaryCountJob = cron.schedule('0 0 * * *', async () => {
     }
 });
 
-exports.addEmployeeAttendanceJob = cron.schedule('*/20 * * * * *', async () => {
+exports.addEmployeeAttendanceJob = cron.schedule('0 2 * * *', async () => {
     try {
         const date = moment().format("YYYY-MM-DD"); // Get current date
 
