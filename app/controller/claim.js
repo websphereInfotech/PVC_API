@@ -780,7 +780,7 @@ exports.view_balance = async (req, res) => {
     });
     const companyEntry = {
       name: comapnyData.companyname,
-      cashOnHand: companyBalanceObj.balance,
+      cashOnHand: companyBalanceObj.balance + companyCashBalance.balance,
       totalBalance:
         sum +
         companyBalanceObj.balance +
