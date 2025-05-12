@@ -728,7 +728,7 @@ exports.view_all_wallet = async (req, res) => {
 exports.view_balance = async (req, res) => {
   try {
     const { companyId } = req.user;
-    const comapnyData = await company.findOne({
+    const companyData = await company.findOne({
       where: {
         id: companyId,
       },
@@ -770,7 +770,7 @@ exports.view_balance = async (req, res) => {
       ) {
         const totalBalance = companyUserRecord.users.userBalance.reduce(
           (sum, balanceRecord) => {
-            return sum + (balanceRecord.balance || 0);
+            return sum + (balanceRecord?.balance || 0);
           },
           0
         );
@@ -779,14 +779,14 @@ exports.view_balance = async (req, res) => {
       return companyUserRecord;
     });
     const companyEntry = {
-      name: comapnyData.companyname,
-      cashOnHand: companyBalanceObj.balance + companyCashBalance.balance,
+      name: companyData.companyname,
+      cashOnHand: (companyBalanceObj?.balance || 0) + (companyCashBalance?.balance || 0),
       totalBalance:
         sum +
-        companyBalanceObj.balance +
-        mainCompanyBa.balance +
-        companyCashBalance.balance,
-      bankBalance: mainCompanyBa.balance,
+        (companyBalanceObj?.balance || 0) +
+        (mainCompanyBa?.balance || 0) +
+        (companyCashBalance?.balance || 0),
+      bankBalance: mainCompanyBa?.balance || 0,
     };
     return res.status(200).json({
       status: "true",
