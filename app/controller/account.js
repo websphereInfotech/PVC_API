@@ -228,9 +228,9 @@ exports.C_view_all_account = async (req, res) => {
                     model: AccountGroup,
                     where: {
                         name: {
-                            [Op.and]: [
-                                { [Op.ne]: ACCOUNT_GROUPS_TYPE.CASH_IN_HAND },
-                                { [Op.ne]: ACCOUNT_GROUPS_TYPE.EXPENSE }
+                            [Op.notIn]: [
+                                ACCOUNT_GROUPS_TYPE.CASH_IN_HAND, 
+                                ACCOUNT_GROUPS_TYPE.EXPENSE
                             ]
                         }
                     },
