@@ -156,7 +156,14 @@ exports.view_all_account = async (req, res) => {
             include: [
                 {
                     model: AccountGroup,
-                    as: "accountGroup"
+                    as: "accountGroup",
+                     where: {
+                        name: {
+                            [Op.notIn]: [
+                                ACCOUNT_GROUPS_TYPE.EXPENSE
+                            ]
+                        }
+                    },
                 },
                 {
                     model: AccountDetail,
@@ -234,7 +241,6 @@ exports.C_view_all_account = async (req, res) => {
                             ]
                         }
                     },
-                    required: true,
                     as: "accountGroup"
                 },
                 {

@@ -28,7 +28,7 @@ const Account = sequelize.define("P_Account", {
 company.hasMany(Account, {foreignKey:'companyId',onDelete:'CASCADE'});
 Account.belongsTo(company, {foreignKey:'companyId',onDelete:'CASCADE'});
 
-AccountGroup.hasMany(Account, {foreignKey:'accountGroupId',onDelete:'CASCADE'});
+AccountGroup.hasMany(Account, {foreignKey:'accountGroupId',onDelete:'CASCADE', as: "accountGroup"});
 Account.belongsTo(AccountGroup, {foreignKey:'accountGroupId',onDelete:'CASCADE', as: "accountGroup"});
 
 module.exports = Account;
