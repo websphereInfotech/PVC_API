@@ -234,6 +234,7 @@ exports.C_view_all_account = async (req, res) => {
                             ]
                         }
                     },
+                    required: true,
                     as: "accountGroup"
                 },
                 {
