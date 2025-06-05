@@ -40,5 +40,6 @@ router.use('/leave', require('./leave'))
 router.use('/attendance', require('./attendance'))
 router.use('/systemSettings', require('./systemSettings'))
 router.use('/holiday', require('./holiday'))
+router.use('/orderProcessing', require('./orderProcessingRoute'))
 
 module.exports = router;
