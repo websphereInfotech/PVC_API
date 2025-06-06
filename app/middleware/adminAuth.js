@@ -12,15 +12,18 @@ const adminToken = (permissionString) => {
       });
     }
     try {
-      const checkToken = await tokenModel.findOne({ where: { token } });
+      // const checkToken = await tokenModel.findOne({ where: { token } });
 
-      if (!checkToken) {
-        return res
-          .status(401)
-          .send({ status: "false", message: "Invalid token" });
-      }
-      const verify = jwt.verify(checkToken.token, process.env.SECRET_KEY);
+      // if (!checkToken) {
+      //   return res
+      //     .status(401)
+      //     .send({ status: "false", message: "Invalid token" });
+      // }
+      // const verify = jwt.verify(checkToken.token, process.env.SECRET_KEY);
+      const verify = jwt.verify(token, process.env.SECRET_KEY);
       req.user = verify;
+
+    
   
       const [resource, permission] = permissionString.split(":");
       let rolePermissions;

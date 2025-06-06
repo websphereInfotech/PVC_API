@@ -1117,26 +1117,6 @@ exports.permissions = {
             "view_wallet": true
         },
     },
-    "Order Processing" : {
-        "Super Admin" :{
-            "view_orderProcessing":true,
-        },
-        "Admin" :{
-            "view_orderProcessing":true,
-        },
-        "Account" :{
-            "view_orderProcessing":true,
-        },
-        "Employee" :{
-            "view_orderProcessing":true,
-        },
-        "Workers" :{
-            "view_orderProcessing":true,
-        },
-        "Other" :{
-            "view_orderProcessing":true,
-        },
-    },
     "Production" : {
         "Super Admin" :{
             "create_production":true,
@@ -2357,5 +2337,49 @@ exports.permissions = {
             "view_system_setting": true,
             "delete_system_setting": true
         },
+    },
+    "Order Processing": {
+        "Super Admin": {
+            "create_order_processing": true,
+            "update_order_processing": true,
+            "delete_order_processing": true,
+            "view_order_processing": true,
+            "view_all_order_processing": true
+        },
+        "Admin": {
+            "create_order_processing": true,
+            "update_order_processing": true,
+            "delete_order_processing": true,
+            "view_order_processing": true,
+            "view_all_order_processing": true
+        },
+        "Account": {
+            "create_order_processing": true,
+            "update_order_processing": true,
+            "delete_order_processing": true,
+            "view_order_processing": true,
+            "view_all_order_processing": true
+        },
+        "Employee": {
+            "create_order_processing": true,
+            "update_order_processing": true,
+            "delete_order_processing": true,
+            "view_order_processing": true,
+            "view_all_order_processing": true
+        },
+        "Workers": {
+            "create_order_processing": true,
+            "update_order_processing": true,
+            "delete_order_processing": true,
+            "view_order_processing": true,
+            "view_all_order_processing": true
+        },
+        "Other": {
+            "create_order_processing": true,
+            "update_order_processing": true,
+            "delete_order_processing": true,
+            "view_order_processing": true,
+            "view_all_order_processing": true
+        }
     }
 }

@@ -44,6 +44,7 @@ exports.create_item = async (req, res) => {
       where: {
         companyId: companyId,
         productname: productname,
+        isActive: true
       }
     });
     if(productNameExist){

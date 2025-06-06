@@ -150,6 +150,7 @@ exports.addEmployeeAttendanceJob = cron.schedule('0 2 * * *', async () => {
             const leave = employee.leaves.find((leave) => leave.date === date);
 
             const attendance = {
+                companyId: employee.companyId,
                 employeeId: employee.id,
                 leaveId: leave?.id,
                 date,
