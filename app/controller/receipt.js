@@ -128,7 +128,7 @@ exports.C_get_all_receiveCash = async (req, res) => {
   try {
     const { companyId } = req.user;
     const data = await C_Receipt.findAll({
-      where: { companyId: companyId },
+      where: { companyId: companyId, isActive: true },
       include: [
         { model: Account, as: "accountReceiptCash" },
         { model: User, as: "receiveCreate", attributes: ["username"] },
