@@ -469,6 +469,7 @@ exports.C_account_ledger = async (req, res) => {
         {
           model: C_Receipt,
           as: "receiptLedgerCash",
+          where: { isActive: true },
           attributes: [],
         },
         {
