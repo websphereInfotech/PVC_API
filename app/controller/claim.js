@@ -1,4 +1,4 @@
-const { Sequelize } = require("sequelize");
+const { Sequelize, Op } = require("sequelize");
 const C_claim = require("../models/C_claim");
 const User = require("../models/user");
 const C_claimLedger = require("../models/C_claimLedger");
@@ -16,6 +16,7 @@ const C_Claim = require("../models/C_claim");
 const company = require("../models/company");
 const C_Purpose = require("../models/Purpose");
 const CompanyCashBalance = require("../models/companyCashBalance");
+const C_SelfExpense = require("../models/C_selfExpense");
 
 exports.create_claim = async (req, res) => {
   try {
@@ -712,10 +713,32 @@ exports.view_all_wallet = async (req, res) => {
         : totals.totalCredit;
     walletEntry.closingBalance = closingBalance;
 
+    // get self expense this month
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const endOfMonth = new Date(startOfMonth);
+    endOfMonth.setMonth(endOfMonth.getMonth() + 1);
+
+    const where = {
+      companyId,
+      userId: id,
+      date: {
+        [Op.gte]: startOfMonth,
+        [Op.lt]: endOfMonth,
+      },
+    };
+
+    const selfExpense = await C_SelfExpense.sum("amount", { where });
+    console.log('selfExpense: ', selfExpense);
+    const cleanUserWallet = userWallet?.get ? userWallet.get({ plain: true }) : {};
+    cleanUserWallet.selfExpense = selfExpense ?? 0;
+
     return res.status(200).json({
       status: "true",
       message: "User Wallet Show Successfully",
-      data: { userWallet, walletEntry },
+      data: { userWallet:cleanUserWallet, walletEntry },
     });
   } catch (e) {
     console.log(e);
