@@ -1,6 +1,6 @@
 const express = require("express");
 const adminAuth = require("../middleware/adminAuth");
-const { C_update_selfExpense, C_create_selfExpense, C_delete_selfExpense, C_view_selfExpense, C_get_all_selfExpense } = require("../controller/selfExpense");
+const { C_update_selfExpense, C_create_selfExpense, C_delete_selfExpense, C_view_selfExpense, C_get_all_selfExpense, C_get_all_selfExpense_by_userId } = require("../controller/selfExpense");
 const { validation } = require("../constant/validate");
 
 
@@ -32,6 +32,11 @@ router.get(
   "/C_get_all_selfExpense",
   adminAuth("Self Expense:view_all_selfExpense"),
   C_get_all_selfExpense
+);
+router.get(
+  "/C_view_selfExpense_userid/:id",
+  adminAuth("Self Expense:view_selfExpense"),
+  C_get_all_selfExpense_by_userId
 );
 
 module.exports = router;

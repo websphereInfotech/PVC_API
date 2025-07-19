@@ -801,6 +801,24 @@ exports.view_balance = async (req, res) => {
       }
       return companyUserRecord;
     });
+
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const endOfMonth = new Date(startOfMonth);
+    endOfMonth.setMonth(endOfMonth.getMonth() + 1);
+
+    const where = {
+      companyId,
+      userId: 1,
+      date: {
+        [Op.gte]: startOfMonth,
+        [Op.lt]: endOfMonth,
+      },
+    };
+
+    const selfExpense = await C_SelfExpense.sum("amount", { where });
     const companyEntry = {
       name: companyData.companyname,
       cashOnHand: (companyBalanceObj?.balance || 0) + (companyCashBalance?.balance || 0),
@@ -810,6 +828,7 @@ exports.view_balance = async (req, res) => {
         (mainCompanyBa?.balance || 0) +
         (companyCashBalance?.balance || 0),
       bankBalance: mainCompanyBa?.balance || 0,
+      selfExpense: selfExpense ?? 0
     };
     return res.status(200).json({
       status: "true",

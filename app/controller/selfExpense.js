@@ -183,3 +183,26 @@ exports.C_get_all_selfExpense = async (req, res) => {
     });
   }
 };
+
+exports.C_get_all_selfExpense_by_userId = async (req, res) => {
+  try {
+    const { companyId } = req.user;
+    const { id } = req.params;
+    const expenses = await C_SelfExpense.findAll({
+      where: {
+        userId: id,
+        companyId,
+      },
+      order: [["date", "DESC"]],
+    });
+
+    return res.status(200).json({
+      status: true,
+      data: expenses,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ status: false, message: "Internal Server Error" });
+  }
+};
