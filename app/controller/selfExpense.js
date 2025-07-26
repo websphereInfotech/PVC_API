@@ -1,12 +1,28 @@
 const { ROLE } = require("../constant/constant");
+const Account = require("../models/Account");
+const C_Cashbook = require("../models/C_Cashbook");
 const C_companyBalance = require("../models/C_companyBalance");
+const C_Ledger = require("../models/C_Ledger");
+const C_Payment = require("../models/C_Payment");
 const C_SelfExpense = require("../models/C_selfExpense");
 const C_userBalance = require("../models/C_userBalance");
+const C_WalletLedger = require("../models/C_WalletLedger");
 
 exports.C_create_selfExpense = async (req, res) => {
   try {
     const { userId: user, role, companyId } = req.user;
-    const { date, amount, description } = req.body;
+    const { date, amount, description, accountId } = req.body;
+
+    const paymentNo = await getPaymentNo(companyId);
+    console.log("paymentNo: --->", paymentNo);
+    const accountExist = await Account.findOne({
+      where: { id: accountId, companyId: companyId, isActive: true },
+    });
+    if (!accountExist) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Account Not Found" });
+    }
 
     let existingBalance;
 
@@ -29,12 +45,55 @@ exports.C_create_selfExpense = async (req, res) => {
       });
     }
 
+    const data = await C_Payment.create({
+      accountId,
+      amount,
+      description,
+      date,
+      paymentNo: paymentNo,
+      createdBy: user,
+      updatedBy: user,
+      companyId: companyId,
+    });
+
+    await C_Ledger.create({
+      accountId: accountId,
+      companyId: companyId,
+      paymentId: data.id,
+      date: date,
+    });
+
+    if (role === ROLE.SUPER_ADMIN) {
+      await C_WalletLedger.create({
+        paymentId: data.id,
+        userId: user,
+        companyId: companyId,
+        date: date,
+        isApprove: true,
+        approveDate: new Date(),
+      });
+
+      await C_Cashbook.create({
+        C_paymentId: data.id,
+        companyId: companyId,
+        date: date,
+      });
+    } else {
+      await C_WalletLedger.create({
+        paymentId: data.id,
+        userId: user,
+        companyId: companyId,
+        date: date,
+      });
+    }
+
     const expense = await C_SelfExpense.create({
       date,
       amount,
       description,
       userId: user,
       companyId,
+      paymentId: data.id,
     });
 
     await existingBalance.decrement("balance", { by: amount });
@@ -56,7 +115,7 @@ exports.C_create_selfExpense = async (req, res) => {
 exports.C_update_selfExpense = async (req, res) => {
   try {
     const { id } = req.params;
-    const { date, amount, description } = req.body;
+    const { date, amount, description, accountId } = req.body;
     const { userId, role, companyId } = req.user;
 
     const expense = await C_SelfExpense.findByPk(id);
@@ -64,6 +123,24 @@ exports.C_update_selfExpense = async (req, res) => {
       return res
         .status(404)
         .json({ status: false, message: "Expense not found" });
+    }
+
+    const payment = await C_Payment.findOne({
+      where: { id: expense.paymentId, companyId: companyId },
+    });
+    if (!payment) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Payment Cash Not Found" });
+    }
+
+    const accountExist = await Account.findOne({
+      where: { id: accountId, companyId: companyId, isActive: true },
+    });
+    if (!accountExist) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Account Not Found" });
     }
 
     const oldAmount = expense.amount;
@@ -91,6 +168,84 @@ exports.C_update_selfExpense = async (req, res) => {
       await balanceRecord.decrement("balance", { by: amount });
     }
 
+    await payment.update({
+      accountId,
+      amount,
+      description,
+      date,
+      paymentNo: payment.paymentNo,
+      createdBy: payment.createdBy,
+      updatedBy: userId,
+      companyId: companyId,
+    });
+    await C_Ledger.update(
+      {
+        accountId: accountId,
+        paymentId: payment.id,
+        date: date,
+      },
+      {
+        where: {
+          paymentId: payment.id,
+          companyId: companyId,
+        },
+      }
+    );
+    if (role === ROLE.SUPER_ADMIN) {
+      await C_WalletLedger.update(
+        {
+          date: date,
+          approveDate: new Date(),
+        },
+        {
+          where: {
+            paymentId: payment.id,
+            companyId: companyId,
+            userId: userId,
+          },
+        }
+      );
+
+      await C_Cashbook.update(
+        {
+          date: date,
+        },
+        {
+          where: {
+            C_paymentId: payment.id,
+            companyId: companyId,
+          },
+        }
+      );
+    } else {
+      const walletLedgerExist = await C_WalletLedger.findOne({
+        where: {
+          paymentId: payment.id,
+          companyId: companyId,
+          userId: userId,
+        },
+      });
+
+      const cashbookEntry = await C_Cashbook.findOne({
+        where: {
+          C_paymentId: payment.id,
+          companyId: companyId,
+        },
+      });
+      const entryApprove = walletLedgerExist.isApprove;
+      if (entryApprove) {
+        walletLedgerExist.approveDate = new Date();
+        cashbookEntry.date = date;
+        await cashbookEntry.save();
+        if (balanceRecord) {
+          await balanceRecord.increment("incomes", { by: oldAmount });
+          await balanceRecord.decrement("incomes", { by: amount });
+        }
+      }
+      walletLedgerExist.date = date;
+      await walletLedgerExist.save();
+    }
+
     await expense.update({ date, amount, description });
 
     return res.status(200).json({
@@ -99,6 +254,7 @@ exports.C_update_selfExpense = async (req, res) => {
       data: expense,
     });
   } catch (error) {
+    console.log('error: ', error);
     return res
       .status(500)
       .json({ status: false, message: "Internal Server Error" });
@@ -126,6 +282,23 @@ exports.C_delete_selfExpense = async (req, res) => {
       });
     }
 
+    const walletLedgerExist = await C_WalletLedger.findOne({
+      where: {
+        paymentId: expense.paymentId,
+        companyId: companyId,
+        userId: userId,
+      },
+    });
+    const entryApprove = walletLedgerExist.isApprove;
+
+    if(balanceRecord?.incomes >= 0 && entryApprove) {
+      await balanceRecord.increment("incomes", { by: expense.amount });
+    }
+
+    await C_Payment.destroy({
+      where: { id: expense.paymentId, companyId: companyId },
+    });
+
     await balanceRecord.increment("balance", { by: expense.amount });
 
     await expense.destroy();
@@ -134,6 +307,7 @@ exports.C_delete_selfExpense = async (req, res) => {
       .status(200)
       .json({ status: true, message: "Expense deleted and balance refunded" });
   } catch (error) {
+    console.log('error: ', error);
     return res
       .status(500)
       .json({ status: false, message: "Internal Server Error" });
@@ -205,4 +379,24 @@ exports.C_get_all_selfExpense_by_userId = async (req, res) => {
       .status(500)
       .json({ status: false, message: "Internal Server Error" });
   }
+};
+
+const getPaymentNo = async (companyId) => {
+  const data = await C_Payment.findAll({
+    where: { companyId: companyId },
+  });
+  let nextPaymentcashNumber = 1;
+  if (data.length > 0) {
+    const existingNumbers = data
+      .map((item) => parseInt(item.paymentNo))
+      .filter((num) => !isNaN(num));
+
+    const maxNumber = Math.max(...existingNumbers);
+
+    if (!isNaN(maxNumber)) {
+      nextPaymentcashNumber = maxNumber + 1;
+    }
+  }
+
+  return nextPaymentcashNumber;
 };

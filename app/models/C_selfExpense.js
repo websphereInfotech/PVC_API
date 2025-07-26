@@ -18,6 +18,7 @@ const C_SelfExpense = sequelize.define("P_C_SelfExpense", {
   },
   userId: { type: DataTypes.INTEGER },
   companyId: { type: DataTypes.INTEGER },
+  paymentId : {type: DataTypes.INTEGER, allowNull: true, defaultValue: null},
 });
 
 User.hasMany(C_SelfExpense, { foreignKey: "userId", as: "user" });
