@@ -7,14 +7,15 @@ const C_Payment = require("../models/C_Payment");
 const C_SelfExpense = require("../models/C_selfExpense");
 const C_userBalance = require("../models/C_userBalance");
 const C_WalletLedger = require("../models/C_WalletLedger");
+const EmployeeSalary = require("../models/employeeSalary");
+const moment = require("moment");
 
 exports.C_create_selfExpense = async (req, res) => {
   try {
     const { userId: user, role, companyId } = req.user;
-    const { date, amount, description, accountId } = req.body;
+    const { date, amount, description, accountId, employeeId, isAdvance } = req.body;
 
     const paymentNo = await getPaymentNo(companyId);
-    console.log("paymentNo: --->", paymentNo);
     const accountExist = await Account.findOne({
       where: { id: accountId, companyId: companyId, isActive: true },
     });
@@ -94,6 +95,8 @@ exports.C_create_selfExpense = async (req, res) => {
       userId: user,
       companyId,
       paymentId: data.id,
+      employeeId: employeeId || null,
+      isAdvance: !!isAdvance
     });
 
     await existingBalance.decrement("balance", { by: amount });
@@ -300,6 +303,36 @@ exports.C_delete_selfExpense = async (req, res) => {
     });
 
     await balanceRecord.increment("balance", { by: expense.amount });
+
+    if(expense.employeeId && expense.isAdvance) {
+      
+      const currentMonth = moment().format("YYYY-MM");
+      const salaryRecord = await EmployeeSalary.findOne({
+        where: {
+          employeeId: expense.employeeId,
+          month: currentMonth,
+        },
+      });
+
+      if (salaryRecord) {
+        salaryRecord.advanceAmount = Math.max(0, salaryRecord.advanceAmount - expense.amount);
+        await salaryRecord.save();
+      }
+
+    } else if (expense.employeeId && !expense.isAdvance) {
+      const previousMonth = moment().subtract(1, "month").format("YYYY-MM");
+      const salaryRecord = await EmployeeSalary.findOne({
+        where: {
+          employeeId: expense.employeeId,
+          month: previousMonth,
+        },
+      });
+
+      if (salaryRecord) {
+        salaryRecord.paidAmount = Math.max(0, salaryRecord.paidAmount - expense.amount);
+        await salaryRecord.save();
+      }
+    }
 
     await expense.destroy();
 

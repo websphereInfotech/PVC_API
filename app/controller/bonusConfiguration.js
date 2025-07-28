@@ -188,7 +188,7 @@ exports.delete_bonusConfiguration = async (req, res) => {
     }
 };
 
-exports.get_bonus_percentage_by_attendance_percentage = async (attendancePercentage, date) => {
+exports.get_bonus_percentage_by_attendance_percentage = async (totalWorkedDays, date) => {
     try {
         const data = {
             bonusPercentage: 0,
@@ -203,7 +203,7 @@ exports.get_bonus_percentage_by_attendance_percentage = async (attendancePercent
         if(!bonusConfiguration){
             return data;
         }
-
+        const attendancePercentage = parseFloat(((totalWorkedDays / bonusConfiguration.workingDays) * 100).toFixed(2));
         if(attendancePercentage <= 50) {
             data.bonusPercentage = bonusConfiguration.duty0To50;
         }else if(attendancePercentage <= 75) {

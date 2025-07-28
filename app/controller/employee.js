@@ -806,7 +806,7 @@ exports.get_employee_monthly_salary_report = async (req, res) => {
             const inTime = moment(attendance.inTime, 'YYYY-MM-DD hh:mm:ss A');
             const outTime = moment(attendance.outTime, 'YYYY-MM-DD hh:mm:ss A');
             const totalWorkedHours = moment.duration(outTime.diff(inTime)).asHours();
-            const overtimeHours = parseFloat((totalWorkedHours - attendance.workingHours).toFixed(2));
+            const overtimeHours = parseFloat((totalWorkedHours - attendance.workingHours)).toFixed(2);
             
             const isHoliday = holidays.find(holiday => holiday.date === attendance.date);
 
@@ -825,7 +825,7 @@ exports.get_employee_monthly_salary_report = async (req, res) => {
                 overtimeHours: attendance.overtimeHours,
                 workingHours: attendance.workingHours,
                 workedHours: totalWorkedHours,
-                overtimeAmount: parseFloat(((attendance.employee.salaryPerDay / attendance.workingHours) * overtimeHours).toFixed(2)),
+                overtimeAmount: parseFloat(((attendance.employee.salaryPerDay / attendance.workingHours) * overtimeHours)).toFixed(2),
                 isLate: attendance.latePunch,
                 isHoliday: isHoliday ? true : false,
                 leave: attendance.leave,
@@ -845,4 +845,162 @@ exports.get_employee_monthly_salary_report = async (req, res) => {
             .status(500)
             .json({ status: "false", message: "Internal Server Error" });
     }
+};
+
+exports.add_advance = async (req, res) => {
+  try {
+    const { employeeId, advanceAmount, paidAmount } = req.body;
+
+    if (!advanceAmount && !paidAmount) {
+      return res.status(400).json({
+        status: false,
+        message: "Amount is required.",
+      });
+    }
+
+    const currentMonth = moment().format("YYYY-MM");
+    const previousMonth = moment().subtract(1, "month").format("YYYY-MM");
+    let updatedRecords = [];
+
+    if (paidAmount) {
+      let salaryRecord = await EmployeeSalary.findOne({
+        where: {
+          employeeId,
+          month: previousMonth,
+        },
+      });
+      if (salaryRecord) {
+        salaryRecord.paidAmount = (+salaryRecord.paidAmount) + paidAmount;
+        await salaryRecord.save();
+      } else {
+        salaryRecord = await EmployeeSalary.create({
+          employeeId,
+          month: previousMonth,
+          salary: 0,
+          bonusAmount: 0,
+          overtimeAmount: 0,
+          penaltyAmount: 0,
+          referralBonusAmount: 0,
+          disciplineBonusAmount: 0,
+          overtimeHours: 0,
+          numberOfWorkedDays: 0,
+          numberOfLeaves: 0,
+          paidAmount: paidAmount,
+          advanceAmount: 0,
+          carryForwardAmount: 0,
+        });
+      }
+      updatedRecords.push({ type: "paidAmount", record: salaryRecord });
+    }
+
+    if (advanceAmount) {
+      let salaryRecord = await EmployeeSalary.findOne({
+        where: {
+          employeeId,
+          month: currentMonth,
+        },
+      });
+
+      if (salaryRecord) {
+        salaryRecord.advanceAmount = (+salaryRecord.advanceAmount) + advanceAmount;
+        await salaryRecord.save();
+      } else {
+        salaryRecord = await EmployeeSalary.create({
+          employeeId,
+          month: currentMonth,
+          salary: 0,
+          bonusAmount: 0,
+          overtimeAmount: 0,
+          penaltyAmount: 0,
+          referralBonusAmount: 0,
+          disciplineBonusAmount: 0,
+          overtimeHours: 0,
+          numberOfWorkedDays: 0,
+          numberOfLeaves: 0,
+          paidAmount: 0,
+          advanceAmount: advanceAmount,
+          carryForwardAmount: 0,
+        });
+      }
+      updatedRecords.push({ type: "advanceAmount", record: salaryRecord });
+    }
+    return res.status(200).json({
+      status: true,
+      message: "Amount added successfully.",
+      data: updatedRecords,
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ status: false, message: "Internal Server Error" });
+  }
+};
+
+exports.get_salary_summary = async (req, res) => {
+  try {
+    const { employeeId } = req.params;
+
+    if (!employeeId) {
+      return res.status(400).json({
+        status: false,
+        message: "employeeId is required.",
+      });
+    }
+
+    const lastMonth = moment().subtract(1, "month").format("YYYY-MM");
+    const currentMonth = moment().format("YYYY-MM");
+
+    const lastMonthSalary = await EmployeeSalary.findOne({
+      where: { employeeId, month: lastMonth },
+    });
+
+    let lastMonthNetSalary = 0;
+    let lastMonthPaidAmount = 0;
+
+    if (lastMonthSalary) {
+      lastMonthNetSalary = parseFloat(
+        (
+          (+lastMonthSalary.salary) +
+          (+lastMonthSalary.bonusAmount) +
+          (+lastMonthSalary.overtimeAmount) +
+          (+lastMonthSalary.referralBonusAmount) +
+          (+lastMonthSalary.disciplineBonusAmount) -
+          (+lastMonthSalary.penaltyAmount) -
+          (+lastMonthSalary.advanceAmount) +
+          (+lastMonthSalary.carryForwardAmount)
+        )
+      ).toFixed(2);
+
+      lastMonthPaidAmount = parseFloat(lastMonthSalary.paidAmount).toFixed(2);
+    }
+
+    const currentMonthSalary = await EmployeeSalary.findOne({
+      where: { employeeId, month: currentMonth },
+    });
+
+    const currentMonthAdvance = currentMonthSalary?.advanceAmount || 0;
+
+    return res.status(200).json({
+      status: true,
+      data: {
+        employeeId: Number(employeeId),
+        lastMonth: {
+          month: lastMonth,
+          netSalary: lastMonthNetSalary,
+          paidAmount: lastMonthPaidAmount,
+        },
+        currentMonth: {
+          month: currentMonth,
+          advanceAmount: parseFloat(currentMonthAdvance).toFixed(2),
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error in get_salary_summary:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Internal Server Error",
+    });
+  }
 };
