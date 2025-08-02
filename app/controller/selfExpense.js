@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { ROLE } = require("../constant/constant");
 const Account = require("../models/Account");
 const C_Cashbook = require("../models/C_Cashbook");
@@ -13,7 +14,8 @@ const moment = require("moment");
 exports.C_create_selfExpense = async (req, res) => {
   try {
     const { userId: user, role, companyId } = req.user;
-    const { date, amount, description, accountId, employeeId, isAdvance } = req.body;
+    const { date, amount, description, accountId, employeeId, isAdvance } =
+      req.body;
 
     const paymentNo = await getPaymentNo(companyId);
     const accountExist = await Account.findOne({
@@ -96,7 +98,7 @@ exports.C_create_selfExpense = async (req, res) => {
       companyId,
       paymentId: data.id,
       employeeId: employeeId || null,
-      isAdvance: !!isAdvance
+      isAdvance: !!isAdvance,
     });
 
     await existingBalance.decrement("balance", { by: amount });
@@ -257,7 +259,7 @@ exports.C_update_selfExpense = async (req, res) => {
       data: expense,
     });
   } catch (error) {
-    console.log('error: ', error);
+    console.log("error: ", error);
     return res
       .status(500)
       .json({ status: false, message: "Internal Server Error" });
@@ -294,7 +296,7 @@ exports.C_delete_selfExpense = async (req, res) => {
     });
     const entryApprove = walletLedgerExist.isApprove;
 
-    if(balanceRecord?.incomes >= 0 && entryApprove) {
+    if (balanceRecord?.incomes >= 0 && entryApprove) {
       await balanceRecord.increment("incomes", { by: expense.amount });
     }
 
@@ -304,8 +306,7 @@ exports.C_delete_selfExpense = async (req, res) => {
 
     await balanceRecord.increment("balance", { by: expense.amount });
 
-    if(expense.employeeId && expense.isAdvance) {
-      
+    if (expense.employeeId && expense.isAdvance) {
       const currentMonth = moment().format("YYYY-MM");
       const salaryRecord = await EmployeeSalary.findOne({
         where: {
@@ -315,10 +316,12 @@ exports.C_delete_selfExpense = async (req, res) => {
       });
 
       if (salaryRecord) {
-        salaryRecord.advanceAmount = Math.max(0, salaryRecord.advanceAmount - expense.amount);
+        salaryRecord.advanceAmount = Math.max(
+          0,
+          salaryRecord.advanceAmount - expense.amount
+        );
         await salaryRecord.save();
       }
-
     } else if (expense.employeeId && !expense.isAdvance) {
       const previousMonth = moment().subtract(1, "month").format("YYYY-MM");
       const salaryRecord = await EmployeeSalary.findOne({
@@ -329,7 +332,10 @@ exports.C_delete_selfExpense = async (req, res) => {
       });
 
       if (salaryRecord) {
-        salaryRecord.paidAmount = Math.max(0, salaryRecord.paidAmount - expense.amount);
+        salaryRecord.paidAmount = Math.max(
+          0,
+          salaryRecord.paidAmount - expense.amount
+        );
         await salaryRecord.save();
       }
     }
@@ -340,7 +346,7 @@ exports.C_delete_selfExpense = async (req, res) => {
       .status(200)
       .json({ status: true, message: "Expense deleted and balance refunded" });
   } catch (error) {
-    console.log('error: ', error);
+    console.log("error: ", error);
     return res
       .status(500)
       .json({ status: false, message: "Internal Server Error" });
@@ -395,11 +401,24 @@ exports.C_get_all_selfExpense_by_userId = async (req, res) => {
   try {
     const { companyId } = req.user;
     const { id } = req.params;
+    const { month, year } = req.query;
+
+    let whereCondition = {
+      userId: id,
+      companyId,
+    };
+    if (month && year) {
+      const monthStr = String(month).padStart(2, "0");
+      const startDate = `${year}-${monthStr}-01`;
+      const endDate = new Date(year, month, 0);
+      const endDateStr = endDate.toISOString().split("T")[0];
+
+      whereCondition.date = {
+        [Op.between]: [startDate, endDateStr],
+      };
+    }
     const expenses = await C_SelfExpense.findAll({
-      where: {
-        userId: id,
-        companyId,
-      },
+      where: whereCondition,
       order: [["date", "DESC"]],
     });
 
@@ -408,6 +427,7 @@ exports.C_get_all_selfExpense_by_userId = async (req, res) => {
       data: expenses,
     });
   } catch (error) {
+    console.log('error: ', error);
     return res
       .status(500)
       .json({ status: false, message: "Internal Server Error" });

@@ -17,7 +17,8 @@ const {
   delete_user_bank_account,
   view_user_bank_account,
   view_all_user_bank_account,
-  wallet_approve
+  wallet_approve,
+  get_all_company_user
 } = require("../controller/user");
 const adminAuth = require("../middleware/adminAuth");
 const { validation } = require("../constant/validate");
@@ -32,6 +33,7 @@ router.post(
   create_user
 );
 router.get("/get_all_user", adminAuth("Login:view_all_user"), get_all_user);
+router.get("/get_all_company_user", adminAuth("Login:view_all_user"), get_all_company_user);
 
 router.get("/view_user/:id", adminAuth("Login:view_user"), view_user);
 

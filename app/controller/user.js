@@ -135,6 +135,45 @@ exports.get_all_user = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+exports.get_all_company_user = async (req, res) => {
+  try {
+    const companyId = req.user.companyId;
+    const { search } = req.query;
+    const whereClause = {};
+
+    if (search) {
+      whereClause.username = { [Op.like]: `%${search}%` };
+    }
+    const data = await company.findAll({
+      where: { id: companyId },
+
+      include: {
+        model: User,
+        as: "users",
+        through: { attributes: [] },
+        where: whereClause
+      },
+      attributes: [],
+    });
+
+    if (data) {
+      return res.status(200).json({
+        status: "true",
+        message: "User Data Show Successfully",
+        data: data,
+      });
+    } else {
+      return res
+        .status(404)
+        .json({ status: "false", message: "User Data Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
 exports.view_user = async (req, res) => {
   try {
     const companyId = req.user.companyId;
