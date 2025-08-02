@@ -401,20 +401,23 @@ exports.C_get_all_selfExpense_by_userId = async (req, res) => {
   try {
     const { companyId } = req.user;
     const { id } = req.params;
-    const { month, year } = req.query;
+    const { fromDate, toDate } = req.query;
 
     let whereCondition = {
       userId: id,
       companyId,
     };
-    if (month && year) {
-      const monthStr = String(month).padStart(2, "0");
-      const startDate = `${year}-${monthStr}-01`;
-      const endDate = new Date(year, month, 0);
-      const endDateStr = endDate.toISOString().split("T")[0];
-
+    if (fromDate && toDate) {
       whereCondition.date = {
-        [Op.between]: [startDate, endDateStr],
+        [Op.between]: [fromDate, toDate],
+      };
+    } else if (fromDate) {
+      whereCondition.date = {
+        [Op.gte]: fromDate,
+      };
+    } else if (toDate) {
+      whereCondition.date = {
+        [Op.lte]: toDate,
       };
     }
     const expenses = await C_SelfExpense.findAll({
@@ -427,7 +430,7 @@ exports.C_get_all_selfExpense_by_userId = async (req, res) => {
       data: expenses,
     });
   } catch (error) {
-    console.log('error: ', error);
+    console.log("error: ", error);
     return res
       .status(500)
       .json({ status: false, message: "Internal Server Error" });
