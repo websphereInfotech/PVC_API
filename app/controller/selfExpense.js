@@ -14,8 +14,7 @@ const moment = require("moment");
 exports.C_create_selfExpense = async (req, res) => {
   try {
     const { userId: user, role, companyId } = req.user;
-    const { date, amount, description, accountId, employeeId, isAdvance } =
-      req.body;
+    const { date, amount, description, accountId } = req.body;
 
     const paymentNo = await getPaymentNo(companyId);
     const accountExist = await Account.findOne({
@@ -97,8 +96,6 @@ exports.C_create_selfExpense = async (req, res) => {
       userId: user,
       companyId,
       paymentId: data.id,
-      employeeId: employeeId || null,
-      isAdvance: !!isAdvance,
     });
 
     await existingBalance.decrement("balance", { by: amount });
@@ -305,40 +302,6 @@ exports.C_delete_selfExpense = async (req, res) => {
     });
 
     await balanceRecord.increment("balance", { by: expense.amount });
-
-    if (expense.employeeId && expense.isAdvance) {
-      const currentMonth = moment().format("YYYY-MM");
-      const salaryRecord = await EmployeeSalary.findOne({
-        where: {
-          employeeId: expense.employeeId,
-          month: currentMonth,
-        },
-      });
-
-      if (salaryRecord) {
-        salaryRecord.advanceAmount = Math.max(
-          0,
-          salaryRecord.advanceAmount - expense.amount
-        );
-        await salaryRecord.save();
-      }
-    } else if (expense.employeeId && !expense.isAdvance) {
-      const previousMonth = moment().subtract(1, "month").format("YYYY-MM");
-      const salaryRecord = await EmployeeSalary.findOne({
-        where: {
-          employeeId: expense.employeeId,
-          month: previousMonth,
-        },
-      });
-
-      if (salaryRecord) {
-        salaryRecord.paidAmount = Math.max(
-          0,
-          salaryRecord.paidAmount - expense.amount
-        );
-        await salaryRecord.save();
-      }
-    }
 
     await expense.destroy();
 

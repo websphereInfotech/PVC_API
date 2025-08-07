@@ -16,15 +16,6 @@ const C_SelfExpense = sequelize.define("P_C_SelfExpense", {
     type: DataTypes.STRING,
     allowNull: true,
   },
-  employeeId: { 
-    type: DataTypes.INTEGER(11),
-    allowNull: true
-  },
-  isAdvance: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: false
-  },
   userId: { type: DataTypes.INTEGER },
   companyId: { type: DataTypes.INTEGER },
   paymentId : {type: DataTypes.INTEGER, allowNull: true, defaultValue: null},

@@ -15,6 +15,7 @@ exports.view_all_account_group = async (req, res) => {
                     [Op.notIn]: [
                         ACCOUNT_GROUPS_TYPE.EXPENSE,
                         ACCOUNT_GROUPS_TYPE.EXPENSE_SELF,
+                        ACCOUNT_GROUPS_TYPE.SALARY,
                     ]
                 }
             }
@@ -165,6 +166,7 @@ exports.view_all_account = async (req, res) => {
                             [Op.notIn]: [
                                 ACCOUNT_GROUPS_TYPE.EXPENSE,
                                 ACCOUNT_GROUPS_TYPE.EXPENSE_SELF,
+                                ACCOUNT_GROUPS_TYPE.SALARY,
                             ]
                         }
                     },
@@ -243,6 +245,7 @@ exports.C_view_all_account = async (req, res) => {
                                 ACCOUNT_GROUPS_TYPE.CASH_IN_HAND, 
                                 ACCOUNT_GROUPS_TYPE.EXPENSE,
                                 ACCOUNT_GROUPS_TYPE.EXPENSE_SELF,
+                                ACCOUNT_GROUPS_TYPE.SALARY,
                             ]
                         }
                     },
@@ -271,6 +274,7 @@ exports.get_expense_id = async (req, res) => {
                     [Op.in]: [
                         ACCOUNT_GROUPS_TYPE.EXPENSE,
                         ACCOUNT_GROUPS_TYPE.EXPENSE_SELF,
+                        ACCOUNT_GROUPS_TYPE.SALARY,
                     ]
                 }
             }
