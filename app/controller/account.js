@@ -270,13 +270,13 @@ exports.get_expense_id = async (req, res) => {
         const accountGroups = await AccountGroup.findAll({
             where: {
                 companyId: companyId,
-                name: {
-                    [Op.in]: [
-                        ACCOUNT_GROUPS_TYPE.EXPENSE,
-                        ACCOUNT_GROUPS_TYPE.EXPENSE_SELF,
-                        ACCOUNT_GROUPS_TYPE.SALARY,
-                    ]
-                }
+                // name: {
+                //     [Op.in]: [
+                //         ACCOUNT_GROUPS_TYPE.EXPENSE,
+                //         ACCOUNT_GROUPS_TYPE.EXPENSE_SELF,
+                //         ACCOUNT_GROUPS_TYPE.SALARY,
+                //     ]
+                // }
             }
         });
         const groupIds = accountGroups.map(group => group.id);
