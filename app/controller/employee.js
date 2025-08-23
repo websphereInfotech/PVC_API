@@ -937,6 +937,72 @@ exports.add_advance = async (req, res) => {
   }
 };
 
+exports.delete_advance = async (req, res) => {
+  try {
+    const { employeeId, advanceAmount, paidAmount } = req.body;
+
+    if (!advanceAmount && !paidAmount) {
+      return res.status(400).json({
+        status: false,
+        message: "Amount is required.",
+      });
+    }
+
+    const currentMonth = moment().format("YYYY-MM");
+    const previousMonth = moment().subtract(1, "month").format("YYYY-MM");
+    let updatedRecords = [];
+
+    if (paidAmount) {
+      let salaryRecord = await EmployeeSalary.findOne({
+        where: {
+          employeeId,
+          month: previousMonth,
+        },
+      });
+      if (salaryRecord) {
+        salaryRecord.paidAmount = (+salaryRecord.paidAmount) - paidAmount;
+        await salaryRecord.save();
+      } else {
+        return res.status(404).json({
+          status: false,
+          message: "Salary record not found for updating paidAmount.",
+        });
+      }
+      updatedRecords.push({ type: "paidAmount", record: salaryRecord });
+    }
+
+    if (advanceAmount) {
+      let salaryRecord = await EmployeeSalary.findOne({
+        where: {
+          employeeId,
+          month: currentMonth,
+        },
+      });
+
+      if (salaryRecord) {
+        salaryRecord.advanceAmount = (+salaryRecord.advanceAmount) - advanceAmount;
+        await salaryRecord.save();
+      } else {
+        return res.status(404).json({
+          status: false,
+          message: "Salary record not found for updating advanceAmount.",
+        });
+      }
+      updatedRecords.push({ type: "advanceAmount", record: salaryRecord });
+    }
+    return res.status(200).json({
+      status: true,
+      message: "Amount deleted successfully.",
+      data: updatedRecords,
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ status: false, message: "Internal Server Error" });
+  }
+};
+
 exports.get_salary_summary = async (req, res) => {
   try {
     const { employeeId } = req.params;
