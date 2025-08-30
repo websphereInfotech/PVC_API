@@ -7,6 +7,7 @@ const Shift = require("../models/shift");
 const BonusConfiguration = require("../models/bonusConfiguration");
 const { get_bonus_percentage_by_attendance_percentage } = require("./bonusConfiguration");
 const EmployeePunch = require("../models/employeePunch");
+const AttendanceType = require("../models/attendanceType");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -147,6 +148,10 @@ exports.get_all_attendances = async (req, res) => {
                     model: Leave,
                     as: "leave",
                 },
+                {
+                    model: AttendanceType,
+                    as: "attendanceType",
+                },
             ],
         });
         if(!attendances.length) {
@@ -230,6 +235,10 @@ exports.get_attendance_by_id = async (req, res) => {
                 {
                     model: Leave,
                     as: "leave",
+                },
+                {
+                    model: AttendanceType,
+                    as: "attendanceType",
                 },
             ]
         });
@@ -658,5 +667,239 @@ exports.update_employee_punching_data = async (employeeAttendance) => {
         await forLoop(0);
     } catch(error) {
         console.error(error);
+    }
+};
+
+/** PUT: Update attendance type for an attendance record */
+exports.update_attendance_type = async (req, res) => {
+    try {
+        const companyId = req.user.companyId;
+        const { id } = req.params;
+        const { attendanceTypeId } = req.body;
+
+        // Validate attendance type ID
+        if (!attendanceTypeId) {
+            return res.status(400).json({
+                status: "false",
+                message: "Attendance type ID is required"
+            });
+        }
+
+        // Check if attendance type exists
+        const attendanceType = await AttendanceType.findOne({
+            where: {
+                id: attendanceTypeId,
+                companyId
+            }
+        });
+
+        if (!attendanceType) {
+            return res.status(404).json({
+                status: "false",
+                message: "Attendance type not found"
+            });
+        }
+
+        // Check if attendance exists
+        const attendance = await Attendance.findOne({
+            where: {
+                id,
+                companyId
+            }
+        });
+
+        if (!attendance) {
+            return res.status(404).json({
+                status: "false",
+                message: "Attendance record not found"
+            });
+        }
+
+        // Update attendance type
+        attendance.attendanceTypeId = attendanceTypeId;
+        await attendance.save();
+
+        // Get updated attendance with relationships
+        const updatedAttendance = await Attendance.findByPk(id, {
+            include: [
+                {
+                    model: Employee,
+                    as: "employee",
+                },
+                {
+                    model: Leave,
+                    as: "leave",
+                },
+                {
+                    model: AttendanceType,
+                    as: "attendanceType",
+                },
+            ]
+        });
+
+        return res.status(200).json({
+            status: "true",
+            message: "Attendance type updated successfully",
+            data: updatedAttendance
+        });
+    } catch (error) {
+        console.error("Error updating attendance type:", error);
+        return res.status(500).json({
+            status: "false",
+            message: "Internal Server Error"
+        });
+    }
+};
+
+/** GET: Get employee attendance status list (present/absent) */
+exports.get_employee_attendance_status = async (req, res) => {
+    try {
+        const companyId = req.user.companyId;
+        console.log('companyId: ', companyId);
+        const { date = moment().format("YYYY-MM-DD") } = req.query;
+
+        // Build where clause for employees
+        const employeeWhereClause = {
+            companyId,
+            isActive: true
+        };
+
+        // Get all active employees
+        const employees = await Employee.findAll({
+            where: employeeWhereClause,
+            order: [['firstName', 'ASC']]
+        });
+
+        console.log('employees: ', employees);
+        if (!employees.length) {
+            return res.status(404).json({
+                status: "false",
+                message: "No employees found"
+            });
+        }
+
+        // Get attendance records for the specified date
+        const attendances = await Attendance.findAll({
+            where: {
+                companyId,
+                date
+            },
+            include: [
+                {
+                    model: Leave,
+                    as: "leave",
+                    attributes: ['id', 'status', 'leaveDuration', 'reason']
+                },
+                {
+                    model: AttendanceType,
+                    as: "attendanceType",
+                    attributes: ['id', 'code', 'description', 'salaryPerDay']
+                }
+            ]
+        });
+
+        // Create a map of attendance records by employee ID
+        const attendanceMap = {};
+        attendances.forEach(attendance => {
+            attendanceMap[attendance.employeeId] = attendance;
+        });
+
+        // Build response with employee attendance status
+        const employeeAttendanceList = employees.map(employee => {
+            const attendance = attendanceMap[employee.id];
+            const leave = attendance?.leave;
+            
+            let status = 'Absent';
+            let statusDetails = {
+                type: 'Absent',
+                description: 'No attendance record found',
+                color: '#dc3545'
+            };
+
+            if (attendance) {
+                if (attendance.status === 'Present') {
+                    status = 'Present';
+                    if (leave && leave.status === 'Approved') {
+                        if (leave.leaveDuration === 'Half Day') {
+                            statusDetails = 'Half Day Leave';
+                        } else {
+                            statusDetails = 'Full Day Leave';
+                        }
+                    } else if (leave && leave.status === 'Pending') {
+                        statusDetails = 'Present (Leave Pending)';
+                    } else if (leave && leave.status === 'Rejected') {
+                        statusDetails = 'Present (Leave Rejected)';
+                    } else {
+                        statusDetails = 'Present';
+                    }
+                } else if (attendance.status === 'Absent') {
+                    status = 'Absent';
+                    if (leave && leave.status === 'Approved') {
+                        statusDetails = 'Approved Leave';
+                    } else if (leave && leave.status === 'Pending') {
+                        statusDetails = 'Leave Pending';
+                    } else if (leave && leave.status === 'Rejected') {
+                        statusDetails = 'Leave Rejected';
+                    } else {
+                        statusDetails = 'Absent';
+                    }
+                }
+            }
+
+            return {
+                employeeId: employee.id,
+                employeeCode: employee.employeeCode,
+                firstName: employee.firstName,
+                lastName: employee.lastName,
+                fullName: `${employee.firstName} ${employee.lastName}`,
+                email: employee.email,
+                phone: employee.phone,
+                attendanceStatus: status,
+                statusDetails: statusDetails,
+                attendanceRecord: attendance ? {
+                    id: attendance.id,
+                    inTime: attendance.inTime,
+                    outTime: attendance.outTime,
+                    breakStart: attendance.breakStart,
+                    breakEnd: attendance.breakEnd,
+                    latePunch: attendance.latePunch,
+                    workingHours: attendance.workingHours,
+                    overtimeHours: attendance.overtimeHours,
+                    approvedBy: attendance.approvedBy,
+                    approvedDate: attendance.approvedDate,
+                    leave: leave,
+                    attendanceType: attendance.attendanceType
+                } : null,
+                lastUpdated: attendance ? attendance.updatedAt : null
+            };
+        });
+
+        // Calculate summary statistics
+        const summary = {
+            totalEmployees: employeeAttendanceList.length,
+            present: employeeAttendanceList.filter(emp => emp.attendanceStatus === 'Present').length,
+            absent: employeeAttendanceList.filter(emp => emp.attendanceStatus === 'Absent').length,
+            // halfDayLeave: employeeAttendanceList.filter(emp => emp.attendanceStatus === 'Half Day Leave').length,
+            // fullDayLeave: employeeAttendanceList.filter(emp => emp.attendanceStatus === 'Full Day Leave').length,
+            // approvedLeave: employeeAttendanceList.filter(emp => emp.attendanceStatus === 'Approved Leave').length,
+            // leavePending: employeeAttendanceList.filter(emp => emp.attendanceStatus.includes('Leave Pending')).length,
+            // leaveRejected: employeeAttendanceList.filter(emp => emp.attendanceStatus.includes('Leave Rejected')).length
+        };
+
+        return res.status(200).json({
+            status: "true",
+            message: "Employee attendance status retrieved successfully",
+            data: {
+                date: date,
+                summary: summary,
+                employees: employeeAttendanceList
+            }
+        });
+    } catch (error) {
+        console.error("Error fetching employee attendance status:", error);
+        return res.status(500).json({
+            status: "false",
+            message: "Internal Server Error"
+        });
     }
 };
