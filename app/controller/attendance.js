@@ -935,6 +935,10 @@ exports.get_full_month_employee_attendance = async (req, res) => {
                 id: employeeId,
                 companyId,
                 isActive: true
+            },
+            include: {
+                model: Shift,
+                as: "shift",
             }
         });
 
@@ -1099,13 +1103,16 @@ exports.get_full_month_employee_attendance = async (req, res) => {
             },
             employeeInfo: {
                 id: employee.id,
-                employeeCode: employee.employeeCode,
                 firstName: employee.firstName,
                 lastName: employee.lastName,
                 fullName: `${employee.firstName} ${employee.lastName}`,
-                designation: employee.designation ? employee.designation.name : null,
-                department: employee.department ? employee.department.name : null,
-                joiningDate: employee.joiningDate ? moment(employee.joiningDate).format('DD-MM-YY') : null
+                phoneNumber : employee.phoneNumber ,
+                address: employee.address,
+                panNumber: employee.panNumber,
+                aadharNumber: employee.aadharNumber,
+                email: employee.email,
+                dob: employee.dob,
+                shift: employee.shift
             },
             dailyAttendance: dailyAttendance,
             monthlySummary: {
