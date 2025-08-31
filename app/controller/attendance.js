@@ -1084,8 +1084,8 @@ exports.get_full_month_employee_attendance = async (req, res) => {
             absent: dailyAttendance.filter(day => day.status === 'A').length,
             leave: dailyAttendance.filter(day => day.status === 'L').length,
             off: dailyAttendance.filter(day => day.status === 'O').length,
-            totalOvertime: dailyAttendance.reduce((sum, day) => sum + (day.overtimeHours || 0), 0),
-            totalWorkingHours: dailyAttendance.reduce((sum, day) => sum + (day.workingHours || 0), 0)
+            totalOvertime: dailyAttendance.reduce((sum, day) => sum + (+day.overtimeHours || 0), 0),
+            totalWorkingHours: dailyAttendance.reduce((sum, day) => sum + (+day.workingHours || 0), 0)
         };
 
         // Calculate attendance percentage
