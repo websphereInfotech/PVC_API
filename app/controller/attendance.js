@@ -8,6 +8,7 @@ const BonusConfiguration = require("../models/bonusConfiguration");
 const { get_bonus_percentage_by_attendance_percentage } = require("./bonusConfiguration");
 const EmployeePunch = require("../models/employeePunch");
 const AttendanceType = require("../models/attendanceType");
+const Holiday = require("../models/holiday");
 
 /*=============================================================================================================
                                           Without Type C API
@@ -886,17 +887,242 @@ exports.get_employee_attendance_status = async (req, res) => {
             // leaveRejected: employeeAttendanceList.filter(emp => emp.attendanceStatus.includes('Leave Rejected')).length
         };
 
-        return res.status(200).json({
-            status: "true",
-            message: "Employee attendance status retrieved successfully",
-            data: {
-                date: date,
-                summary: summary,
-                employees: employeeAttendanceList
+                 return res.status(200).json({
+             status: "true",
+             message: "Employee attendance status retrieved successfully",
+             data: {
+                 date: date,
+                 summary: summary,
+                 employees: employeeAttendanceList
+             }
+         });
+     } catch (error) {
+         console.error("Error fetching employee attendance status:", error);
+         return res.status(500).json({
+             status: "false",
+             message: "Internal Server Error"
+         });
+     }
+ };
+
+/** GET: Get full month employee attendance details */
+exports.get_full_month_employee_attendance = async (req, res) => {
+    try {
+        const companyId = req.user.companyId;
+        const { employeeId, month, year } = req.query;
+        
+        // Use current month/year if not provided
+        const currentDate = moment();
+        const targetMonth = month || currentDate.format('MM');
+        const targetYear = year || currentDate.format('YYYY');
+        
+        // Create date range for the month
+        const startDate = moment(`${targetYear}-${targetMonth}-01`).startOf('month');
+        const endDate = moment(startDate).endOf('month');
+        const monthName = startDate.format('MMM-YY'); // e.g., "Aug-25"
+        
+        // Validate employee ID
+        if (!employeeId) {
+            return res.status(400).json({
+                status: "false",
+                message: "Employee ID is required"
+            });
+        }
+
+        // Get employee details
+        const employee = await Employee.findOne({
+            where: {
+                id: employeeId,
+                companyId,
+                isActive: true
             }
         });
+
+        if (!employee) {
+            return res.status(404).json({
+                status: "false",
+                message: "Employee not found"
+            });
+        }
+
+        // Get holidays for the month
+        const holidays = await Holiday.findAll({
+            where: {
+                companyId,
+                date: {
+                    [Op.between]: [startDate.format('YYYY-MM-DD'), endDate.format('YYYY-MM-DD')]
+                }
+            }
+        });
+
+        // Create a map of holidays by date
+        const holidayMap = {};
+        holidays.forEach(holiday => {
+            holidayMap[holiday.date] = holiday;
+        });
+
+        // Get all attendance records for the month
+        const attendances = await Attendance.findAll({
+            where: {
+                employeeId,
+                companyId,
+                date: {
+                    [Op.between]: [startDate.format('YYYY-MM-DD'), endDate.format('YYYY-MM-DD')]
+                }
+            },
+            include: [
+                {
+                    model: Leave,
+                    as: "leave",
+                    attributes: ['id', 'status', 'leaveDuration', 'reason']
+                },
+                {
+                    model: AttendanceType,
+                    as: "attendanceType",
+                    attributes: ['id', 'code', 'description', 'salaryPerDay']
+                }
+            ],
+            order: [['date', 'ASC']]
+        });
+
+        // Create daily attendance array for the entire month
+        const dailyAttendance = [];
+        const totalDays = endDate.date();
+        
+        for (let day = 1; day <= totalDays; day++) {
+            const currentDate = moment(`${targetYear}-${targetMonth}-${day.toString().padStart(2, '0')}`);
+            const dayOfWeek = currentDate.format('ddd').toUpperCase();
+            const dateKey = currentDate.format('YYYY-MM-DD');
+            
+            // Find attendance record for this date
+            const attendance = attendances.find(att => att.date === dateKey);
+            
+            // Check if it's a holiday
+            const isHoliday = holidayMap[dateKey];
+            
+            let attendanceStatus = 'A'; // Default to Absent
+            let overtimeHours = 0;
+            let workingHours = 0;
+            let inTime = null;
+            let outTime = null;
+            let latePunch = false;
+            let leaveInfo = null;
+            let attendanceTypeInfo = null;
+            
+            if (attendance) {
+                if (attendance.status === 'Present') {
+                    // Determine status based on attendanceType
+                    if (attendance.attendanceType) {
+                        switch (attendance.attendanceType.code) {
+                            case 'P':
+                                attendanceStatus = 'P'; // General
+                                break;
+                            case 'M':
+                                attendanceStatus = 'M'; // Mixer
+                                break;
+                            case 'BM':
+                                attendanceStatus = 'BM'; // Big Mixer
+                                break;
+                            default:
+                                attendanceStatus = 'P'; // Default to General
+                        }
+                    } else {
+                        attendanceStatus = 'P'; // Default to Present if no attendance type
+                    }
+                    
+                    workingHours = attendance.workingHours || 0;
+                    overtimeHours = attendance.overtimeHours || 0;
+                    inTime = attendance.inTime;
+                    outTime = attendance.outTime;
+                    latePunch = attendance.latePunch || false;
+                    
+                    // Check if there's an approved leave
+                    // if (attendance.leave && attendance.leave.status === 'Approved') {
+                    //     if (attendance.leave.leaveDuration === 'Half Day') {
+                    //         attendanceStatus = 'M'; // Half day
+                    //     }
+                    // }
+                } else if (attendance.status === 'Absent') {
+                    if (isHoliday) {
+                        attendanceStatus = 'O'; // Off (Holiday)
+                    } else if (attendance.leave && attendance.leave.status === 'Approved') {
+                        attendanceStatus = 'L'; // Leave
+                    } else {
+                        attendanceStatus = 'A'; // Absent
+                    }
+                }
+                
+                leaveInfo = attendance.leave;
+                attendanceTypeInfo = attendance.attendanceType;
+            }
+            
+            dailyAttendance.push({
+                day: day,
+                dayOfWeek: dayOfWeek,
+                date: dateKey,
+                status: attendanceStatus,
+                overtimeHours: overtimeHours,
+                workingHours: workingHours,
+                inTime: inTime,
+                outTime: outTime,
+                latePunch: latePunch,
+                leave: leaveInfo,
+                attendanceType: attendanceTypeInfo
+            });
+        }
+
+        // Calculate monthly summary
+        const summary = {
+            totalDays: totalDays,
+            general: dailyAttendance.filter(day => day.status === 'P').length,
+            mixer: dailyAttendance.filter(day => day.status === 'M').length,
+            bigMixer: dailyAttendance.filter(day => day.status === 'BM').length,
+            absent: dailyAttendance.filter(day => day.status === 'A').length,
+            leave: dailyAttendance.filter(day => day.status === 'L').length,
+            off: dailyAttendance.filter(day => day.status === 'O').length,
+            totalOvertime: dailyAttendance.reduce((sum, day) => sum + (day.overtimeHours || 0), 0),
+            totalWorkingHours: dailyAttendance.reduce((sum, day) => sum + (day.workingHours || 0), 0)
+        };
+
+        // Calculate attendance percentage
+        const workingDays = totalDays - summary.off;
+        const presentDays = summary.general + summary.mixer + summary.bigMixer;
+        const attendancePercentage = workingDays > 0 ? parseFloat(((presentDays / workingDays) * 100).toFixed(2)) : 0;
+
+        // Prepare response data
+        const responseData = {
+            monthInfo: {
+                month: monthName,
+                year: targetYear,
+                totalDays: totalDays,
+                workingDays: workingDays
+            },
+            employeeInfo: {
+                id: employee.id,
+                employeeCode: employee.employeeCode,
+                firstName: employee.firstName,
+                lastName: employee.lastName,
+                fullName: `${employee.firstName} ${employee.lastName}`,
+                designation: employee.designation ? employee.designation.name : null,
+                department: employee.department ? employee.department.name : null,
+                joiningDate: employee.joiningDate ? moment(employee.joiningDate).format('DD-MM-YY') : null
+            },
+            dailyAttendance: dailyAttendance,
+            monthlySummary: {
+                ...summary,
+                attendancePercentage: attendancePercentage,
+                presentDays: presentDays
+            }
+        };
+
+        return res.status(200).json({
+            status: "true",
+            message: "Full month employee attendance details retrieved successfully",
+            data: responseData
+        });
+
     } catch (error) {
-        console.error("Error fetching employee attendance status:", error);
+        console.error("Error fetching full month employee attendance:", error);
         return res.status(500).json({
             status: "false",
             message: "Internal Server Error"
