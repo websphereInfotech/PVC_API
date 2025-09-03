@@ -32,6 +32,8 @@ exports.ACCOUNT_GROUPS_TYPE = {
     UNSECURED_LOANS: "Unsecured Loans",
     CASH_IN_HAND: "Cash In Hand",
     EXPENSE: "Expenses (Company)",
+    EXPENSE_SELF: "Expenses (self)",
+    SALARY: "Salary",
 }
 
 exports.MACHINE_SCHEDULE_TYPE = {

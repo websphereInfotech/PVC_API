@@ -12,7 +12,11 @@ exports.view_all_account_group = async (req, res) => {
             where: {
                 companyId: companyId,
                 name: {
-                    [Op.ne]: ACCOUNT_GROUPS_TYPE.EXPENSE
+                    [Op.notIn]: [
+                        ACCOUNT_GROUPS_TYPE.EXPENSE,
+                        ACCOUNT_GROUPS_TYPE.EXPENSE_SELF,
+                        ACCOUNT_GROUPS_TYPE.SALARY,
+                    ]
                 }
             }
         });
@@ -160,7 +164,9 @@ exports.view_all_account = async (req, res) => {
                      where: {
                         name: {
                             [Op.notIn]: [
-                                ACCOUNT_GROUPS_TYPE.EXPENSE
+                                ACCOUNT_GROUPS_TYPE.EXPENSE,
+                                ACCOUNT_GROUPS_TYPE.EXPENSE_SELF,
+                                ACCOUNT_GROUPS_TYPE.SALARY,
                             ]
                         }
                     },
@@ -237,7 +243,9 @@ exports.C_view_all_account = async (req, res) => {
                         name: {
                             [Op.notIn]: [
                                 ACCOUNT_GROUPS_TYPE.CASH_IN_HAND, 
-                                ACCOUNT_GROUPS_TYPE.EXPENSE
+                                ACCOUNT_GROUPS_TYPE.EXPENSE,
+                                ACCOUNT_GROUPS_TYPE.EXPENSE_SELF,
+                                ACCOUNT_GROUPS_TYPE.SALARY,
                             ]
                         }
                     },
@@ -251,6 +259,43 @@ exports.C_view_all_account = async (req, res) => {
         })
         return res.status(200).json({status: "true", message: "Successfully Fetch All Account", data: accounts})
     }catch (e) {
+        console.error(e);
+        return res.status(500).json({status: "false", message: "Internal Server Error."})
+    }
+}
+
+exports.get_expense_id = async (req, res) => {
+    try {
+        const companyId = req.user.companyId;
+        const accountGroups = await AccountGroup.findAll({
+            where: {
+                companyId: companyId,
+                name: {
+                    [Op.in]: [
+                        ACCOUNT_GROUPS_TYPE.EXPENSE,
+                        ACCOUNT_GROUPS_TYPE.EXPENSE_SELF,
+                        ACCOUNT_GROUPS_TYPE.SALARY,
+                    ]
+                }
+            }
+        });
+        const groupIds = accountGroups.map(group => group.id);
+        const accounts = await Account.findAll({
+            where: {
+                companyId: companyId,
+                accountGroupId: {
+                [Op.in]: groupIds,
+                },
+            },
+            include: [
+                {
+                    model: AccountGroup,
+                    as: "accountGroup",
+                }
+            ]
+        });
+        return res.status(200).json({ status: "true", message: "Successfully Fetch Account", data: accounts });
+    } catch (e) {
         console.error(e);
         return res.status(500).json({status: "false", message: "Internal Server Error."})
     }

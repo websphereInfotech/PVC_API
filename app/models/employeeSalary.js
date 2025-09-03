@@ -45,6 +45,22 @@ const EmployeeSalary = sequelize.define("P_employee_salary", {
     numberOfLeaves  : {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false
+    },
+    paidAmount: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        defaultValue: 0.00
+    },
+    advanceAmount: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        defaultValue: 0.00
+    },
+    carryForwardAmount: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        defaultValue: 0.00,
+        comment: "Can be positive (underpaid) or negative (overpaid)"
     }
 });
 

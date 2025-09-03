@@ -433,6 +433,10 @@ module.exports.validation = function (method) {
       return [name];
     case "maintenance_validation":
       return [maintenance_validation];
+    case "create_selfExpense":
+      return [date, amount]
+    case "update_selfExpense":
+      return [date, amount]
     default:
       throw new Error("Invalid validation method");
   }

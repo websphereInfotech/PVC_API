@@ -308,9 +308,7 @@ exports.calculateEmployeesMonthlySalaryJob = cron.schedule('0 3 1 * *', async ()
                 });
             }
 
-            const bonusConfiguration = await get_bonus_percentage_by_attendance_percentage(attendancePercentage, date);
-            const attendancePercentage = parseFloat(((totalWorkedDays / bonusConfiguration.workingDays) * 100).toFixed(2));
-            console.log('attendancePercentage: ', attendancePercentage);
+            const bonusConfiguration = await get_bonus_percentage_by_attendance_percentage(totalWorkedDays, date);
 
             // Calculate monthly bonus
             let bonus = 0;
@@ -343,16 +341,17 @@ exports.calculateEmployeesMonthlySalaryJob = cron.schedule('0 3 1 * *', async ()
 
             // Add employee referral bonus into monthly salary
             let referralBonus = 0;
-            if(employee.referral) {
-                const referralBonusPercentage = await SystemSettings.findOne({
-                    where: {
-                        field: "referralBonus"
-                    }
-                });
-                if(referralBonusPercentage) {
-                    referralBonus = (employee.referral.salaryPerDay * bonusConfiguration.workingDays) * (referralBonusPercentage.value / 100);
-                }
-            }
+            // TODO: change referral logic
+            // if(employee.referral) {
+            //     const referralBonusPercentage = await SystemSettings.findOne({
+            //         where: {
+            //             field: "referralBonus"
+            //         }
+            //     });
+            //     if(referralBonusPercentage) {
+            //         referralBonus = (employee.referral.salaryPerDay * bonusConfiguration.workingDays) * (referralBonusPercentage.value / 100);
+            //     }
+            // }
 
             // Calculate employee's monthly discipline bonus
             let disciplineBonus = 0;
@@ -365,21 +364,72 @@ exports.calculateEmployeesMonthlySalaryJob = cron.schedule('0 3 1 * *', async ()
                 disciplineBonus = employee.salaryPerDay * disciplineBonusInDays;
             }
 
-            // Create employee monthly salary record with all other required information
-            await EmployeeSalary.create({
-                employeeId: employee.id,
-                month: date, 
-                salary: employee.salaryPerDay * totalWorkedDays,
-                bonusAmount: bonus,
-                overtimeAmount,
-                penaltyAmount,
-                referralBonusAmount: referralBonus,
-                disciplineBonusAmount: disciplineBonus,
-                overtimeHours,
-                numberOfWorkedDays: totalWorkedDays,
-                numberOfLeaves,
+            const previousMonth = moment(date).subtract(1, 'month').format('YYYY-MM');
+
+            const lastMonthSalary = await EmployeeSalary.findOne({
+                where: {
+                    employeeId: employee.id,
+                    month: previousMonth
+                }
+            });
+            let carryForwardAmount = 0;
+            if(lastMonthSalary) {
+                const lastMonthTotalEarnings =
+                    lastMonthSalary.salary +
+                    lastMonthSalary.bonusAmount +
+                    lastMonthSalary.overtimeAmount +
+                    lastMonthSalary.referralBonusAmount +
+                    lastMonthSalary.disciplineBonusAmount -
+                    lastMonthSalary.penaltyAmount -
+                    lastMonthSalary.advanceAmount +
+                    lastMonthSalary.carryForwardAmount;
+                
+                carryForwardAmount = parseFloat((lastMonthTotalEarnings - lastMonthSalary.paidAmount).toFixed(2));
+            }
+
+            const existingSalary = await EmployeeSalary.findOne({
+                where: {
+                    employeeId: employee.id,
+                    month: date
+                }
             });
 
+            if(existingSalary){
+                await existingSalary.update({
+                    employeeId: employee.id,
+                    month: date, 
+                    salary: employee.salaryPerDay * totalWorkedDays,
+                    bonusAmount: bonus,
+                    overtimeAmount,
+                    penaltyAmount,
+                    referralBonusAmount: referralBonus,
+                    disciplineBonusAmount: disciplineBonus,
+                    overtimeHours,
+                    numberOfWorkedDays: totalWorkedDays,
+                    numberOfLeaves,
+                    paidAmount:0,
+                    carryForwardAmount
+                });
+
+            } else {
+                await EmployeeSalary.create({
+                    employeeId: employee.id,
+                    month: date, 
+                    salary: employee.salaryPerDay * totalWorkedDays,
+                    bonusAmount: bonus,
+                    overtimeAmount,
+                    penaltyAmount,
+                    referralBonusAmount: referralBonus,
+                    disciplineBonusAmount: disciplineBonus,
+                    overtimeHours,
+                    numberOfWorkedDays: totalWorkedDays,
+                    numberOfLeaves,
+                    paidAmount:0,
+                    advanceAmount:0,
+                    carryForwardAmount
+                });
+            }
+            
             await Employee.increment(["bonus"], { by: bonus, where: { id: employee.id } });
 
             await forLoop(i + 1);

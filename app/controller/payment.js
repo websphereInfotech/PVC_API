@@ -46,7 +46,7 @@ exports.C_create_paymentCash = async (req, res) => {
         .json({ status: "false", message: "Account Not Found" });
     }
 
-    if (description.length > 20) {
+    if (description.length > 30) {
       return res.status(400).json({
         status: "false",
         message: "Description Cannot Have More Then 20 Characters",

@@ -38,8 +38,10 @@ router.use('/penaltyConfiguration', require('./penaltyConfiguration'))
 router.use('/employee', require('./employee'))
 router.use('/leave', require('./leave'))
 router.use('/attendance', require('./attendance'))
+router.use('/attendanceType', require('./attendanceType'))
 router.use('/systemSettings', require('./systemSettings'))
 router.use('/holiday', require('./holiday'))
 router.use('/orderProcessing', require('./orderProcessingRoute'))
+router.use('/selfExpense', require('./selfExpense'))
 
 module.exports = router;

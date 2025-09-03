@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/index");
 const Employee = require("./employee");
 const Leave = require("./leave");
+const AttendanceType = require("./attendanceType");
 
 const Attendance = sequelize.define("P_attendance", {
     companyId: {
@@ -63,9 +64,14 @@ const Attendance = sequelize.define("P_attendance", {
         type: DataTypes.DATE,
         allowNull: true
     },
+    attendanceTypeId: {
+        type: DataTypes.INTEGER(11),
+        allowNull: true
+    }
 });
 
 Attendance.belongsTo(Employee, { foreignKey: { name: 'employeeId', allowNull: false }, as: 'employee' });
 Attendance.belongsTo(Leave, { foreignKey: { name: 'leaveId', allowNull: true }, as: 'leave' });
+Attendance.belongsTo(AttendanceType, { foreignKey: { name: 'attendanceTypeId', allowNull: true }, as: 'attendanceType' });
 
 module.exports = Attendance;

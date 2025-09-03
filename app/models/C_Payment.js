@@ -10,7 +10,7 @@ const C_Payment = sequelize.define("P_C_Payment", {
   description: {
     type: DataTypes.STRING,
     validate: {
-      len: [0, 20],
+      len: [0, 30],
     },
   },
   date: { type: DataTypes.DATEONLY },

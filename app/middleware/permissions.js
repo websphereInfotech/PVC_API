@@ -2381,5 +2381,49 @@ exports.permissions = {
             "view_order_processing": true,
             "view_all_order_processing": true
         }
+    },
+    "Self Expense": {
+        "Super Admin": {
+            "create_selfExpense": true,
+            "update_selfExpense": true,
+            "delete_selfExpense": true,
+            "view_selfExpense": true,
+            "view_all_selfExpense": true
+        },
+        "Admin": {
+            "create_selfExpense": true,
+            "update_selfExpense": true,
+            "delete_selfExpense": true,
+            "view_selfExpense": true,
+            "view_all_selfExpense": true
+        },
+        "Account": {
+            "create_selfExpense": true,
+            "update_selfExpense": true,
+            "delete_selfExpense": true,
+            "view_selfExpense": true,
+            "view_all_selfExpense": true
+        },
+        "Employee": {
+            "create_selfExpense": true,
+            "update_selfExpense": true,
+            "delete_selfExpense": true,
+            "view_selfExpense": true,
+            "view_all_selfExpense": true
+        },
+        "Workers": {
+            "create_selfExpense": true,
+            "update_selfExpense": true,
+            "delete_selfExpense": true,
+            "view_selfExpense": true,
+            "view_all_selfExpense": true
+        },
+        "Other": {
+            "create_selfExpense": true,
+            "update_selfExpense": true,
+            "delete_selfExpense": true,
+            "view_selfExpense": true,
+            "view_all_selfExpense": true
+        }
     }
 }
