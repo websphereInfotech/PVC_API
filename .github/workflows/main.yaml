@@ -31,7 +31,5 @@ jobs:
             cd /root/prod/BE
             git pull origin main
             npm install
-            npm run migrate-run
-            npm run seeder-all
-            pm2 restart PROD_SERVER
+            pm2 restart 1
           EOF
