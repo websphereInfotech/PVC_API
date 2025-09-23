@@ -1038,6 +1038,8 @@ exports.get_full_month_employee_attendance = async (req, res) => {
                     overtimeHours = attendance.overtimeHours || 0;
                     inTime = attendance.inTime;
                     outTime = attendance.outTime;
+                    breakIn = attendance.breakStart;
+                    breakOut = attendance.breakEnd;
                     latePunch = attendance.latePunch || false;
                     
                     // Check if there's an approved leave
