@@ -1009,6 +1009,8 @@ exports.get_full_month_employee_attendance = async (req, res) => {
             let workingHours = 0;
             let inTime = null;
             let outTime = null;
+            let breakIn = null;
+            let breakOut = null;
             let latePunch = false;
             let leaveInfo = null;
             let attendanceTypeInfo = null;
@@ -1071,6 +1073,8 @@ exports.get_full_month_employee_attendance = async (req, res) => {
                 workingHours: workingHours,
                 inTime: inTime,
                 outTime: outTime,
+                breakIn: breakIn,
+                breakOut: breakOut,
                 latePunch: latePunch,
                 leave: leaveInfo,
                 attendanceType: attendanceTypeInfo
