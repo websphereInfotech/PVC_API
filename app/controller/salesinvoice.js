@@ -827,7 +827,19 @@ exports.view_salesInvoice_jpg = async (req, res) => {
       path.join(__dirname, "../views/saleInvoice.ejs"),
       { data: { form: companyData, sales: data } }
     );
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        '--disable-gpu'
+      ]
+    });
     const page = await browser.newPage();
 
     await page.setContent(html, { waitUntil: "networkidle0" });
@@ -1281,6 +1293,7 @@ exports.C_delete_salesInvoice = async (req, res) => {
   }
 };
 exports.C_view_salesInvoice_pdf = async (req, res) => {
+  let browser = null;
   try {
     const { id } = req.params;
     const companyId = req.user.companyId;
@@ -1306,17 +1319,47 @@ exports.C_view_salesInvoice_pdf = async (req, res) => {
       path.join(__dirname, "../views/salesCash.ejs"),
       { data }
     );
-    htmlToPdf
-      .generatePdf({ content: html }, { printBackground: true, format: "A4" })
-      .then((pdf) => {
-        const base64String = pdf.toString("base64");
-        return res.status(200).json({
-          status: "Success",
-          message: "pdf create successFully",
-          data: base64String,
-        });
-      });
+    
+    // Launch Puppeteer with proper configuration for headless Linux environments
+    browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        '--disable-gpu'
+      ]
+    });
+    
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0" });
+    
+    const pdf = await page.pdf({
+      format: "A4",
+      printBackground: true,
+    });
+    
+    await browser.close();
+    browser = null;
+    
+    const base64String = pdf.toString("base64");
+    return res.status(200).json({
+      status: "Success",
+      message: "pdf create successFully",
+      data: base64String,
+    });
   } catch (e) {
+    if (browser) {
+      try {
+        await browser.close();
+      } catch (closeError) {
+        console.error("Error closing browser:", closeError);
+      }
+    }
     console.error(e);
     return res
       .status(500)
@@ -1349,7 +1392,19 @@ exports.C_view_salesInvoice_jpg = async (req, res) => {
       path.join(__dirname, "../views/salesCash.ejs"),
       { data }
     );
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        '--disable-gpu'
+      ]
+    });
     const page = await browser.newPage();
 
     await page.setContent(html, { waitUntil: "networkidle0" });
