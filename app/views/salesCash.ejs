@@ -106,7 +106,7 @@
     <table>
         <thead>
         <tr>
-            <th>Product</th>
+            <th colspan="3">Product</th>
             <th>Qty</th>
             <th>Unit</th>
             <th>Rate(₹)</th>
@@ -116,7 +116,7 @@
         <tbody>
         <% for (const item of data.items) { %>
             <tr>
-                <td><%= item.CashProduct.productname %></td>
+                <td colspan="3"><%= item.CashProduct.productname %></td>
                 <td><%= item.qty %></td>
                 <td><%= item.unit %></td>
                 <td><%= item.rate %></td>
@@ -124,7 +124,7 @@
             </tr>
         <% } %>
         <tr>
-            <td colspan="4" class="closing-balance">Total Amount</td>
+            <td colspan="6" class="closing-balance">Total Amount</td>
             <td class="underline"><%= data.totalMrp %></td>
         </tr>
         </tbody>
