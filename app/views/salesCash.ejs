@@ -109,22 +109,36 @@
             <th colspan="3">Product</th>
             <th>Qty</th>
             <th>Unit</th>
+            <th>Weight</th>
+            <th>Total Weight</th>
             <th>Rate(₹)</th>
             <th>MRP(₹)</th>
         </tr>
         </thead>
         <tbody>
+        <% 
+        let totalWeight = 0;
+        for (const item of data.items) { 
+            if (item.CashProduct.weight && item.qty) {
+                totalWeight += item.CashProduct.weight * item.qty;
+            }
+        }
+        %>
         <% for (const item of data.items) { %>
             <tr>
                 <td colspan="3"><%= item.CashProduct.productname %></td>
                 <td><%= item.qty %></td>
                 <td><%= item.unit %></td>
+                <td><%= item.CashProduct.weight || '-' %></td>
+                <td><%= (item.CashProduct.weight && item.qty) ? (item.CashProduct.weight * item.qty).toFixed(2) : '-' %></td>
                 <td><%= item.rate %></td>
                 <td><%= item.mrp %></td>
             </tr>
         <% } %>
         <tr>
-            <td colspan="6" class="closing-balance">Total Amount</td>
+            <td class="closing-balance" colspan="5"><%= totalWeight > 0 ? totalWeight.toFixed(2) : '-' %></td>
+            <td colspan="2"></td>
+            <td class="closing-balance">Total Amount</td>
             <td class="underline"><%= data.totalMrp %></td>
         </tr>
         </tbody>

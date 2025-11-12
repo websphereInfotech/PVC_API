@@ -138,6 +138,8 @@
               <th>Product</th>
               <th>HSN</th>
               <th>Quantity</th>
+              <th>Weight</th>
+              <th>Total Weight</th>
               <th>Rate</th>
               <th>Amount</th>
             </tr>
@@ -149,35 +151,37 @@
               <td><%= item.InvoiceProduct.productname %></td>
               <td><%= item.InvoiceProduct.HSNcode %></td>
               <td><%= item.qty %> <%= item.unit %></td>
+              <td><%= item.InvoiceProduct.weight || '-' %></td>
+              <td><%= (item.InvoiceProduct.weight && item.qty) ? (item.InvoiceProduct.weight * item.qty).toFixed(2) : '-' %></td>
               <td>₹ <%= item.rate %></td>
               <td>₹ <%= item.mrp %></td>
             </tr>
             <% }); %>
             <tr>
-              <td colspan="4"></td>
+              <td colspan="6"></td>
               <td><strong>Total</strong></td>
               <td>₹ <%= data.sales.totalMrp %></td>
             </tr>
             <% if (data.sales.totalIgst > 0) { %>
             <tr>
-              <td colspan="4"></td>
+              <td colspan="6"></td>
               <td>IGST</td>
               <td>₹ <%= data.sales.totalIgst %></td>
             </tr>
             <% } else if (data.sales.totalSgst > 0) { %>
             <tr>
-              <td colspan="4"></td>
+              <td colspan="6"></td>
               <td>CGST</td>
               <td>₹ <%= data.sales.totalSgst/2 %></td>
             </tr>
             <tr>
-              <td colspan="4"></td>
+              <td colspan="6"></td>
               <td>SGST</td>
               <td>₹ <%= data.sales.totalSgst/2 %></td>
             </tr>
             <% } %>
             <tr>
-              <td colspan="4"></td>
+              <td colspan="6"></td>
               <td><strong>Total Payable</strong></td>
               <td>₹ <%= data.sales.mainTotal %></td>
             </tr>
