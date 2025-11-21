@@ -85,15 +85,63 @@ exports.update_account = async (req, res)=>{
     try {
         const companyId = req.user.companyId;
         const {accountId} = req.params;
-        const {accountDetail, ...accountsInfo} = req.body;
-        const {email, mobileNo, gstNumber} = accountDetail;
+        let {accountDetail, ...accountsInfo} = req.body;
+        const {email, mobileNo, gstNumber} = accountDetail || {};
         const accountExist = await Account.findOne({
             where: {
                 companyId: companyId,
                 id: accountId,
                 isActive: true
-            }
+            },
+            include: [
+                {
+                    model: AccountGroup,
+                    as: "accountGroup"
+                },
+                {
+                    model: AccountDetail,
+                    as: "accountDetail"
+                }
+            ]
         })
+        if(!accountExist) return res.status(404).json({status: "false", message: "Account Not Found"});
+        
+        // Check if account group is being changed
+        const isAccountGroupChanging = accountsInfo.accountGroupId && 
+                                       accountsInfo.accountGroupId !== accountExist.accountGroupId;
+        
+        if(isAccountGroupChanging) {
+            // Get the new account group
+            const newAccountGroup = await AccountGroup.findOne({
+                where: {
+                    id: accountsInfo.accountGroupId,
+                    companyId: companyId
+                }
+            });
+            
+            if(!newAccountGroup) {
+                return res.status(404).json({status: "false", message: "New Account Group Not Found"});
+            }
+            
+            const oldGroupName = accountExist.accountGroup?.name;
+            const newGroupName = newAccountGroup.name;
+            const isOldGroupSundry = oldGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS || 
+                                     oldGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS;
+            const isNewGroupSundry = newGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS || 
+                                     newGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS;
+            
+            // If changing FROM sundry TO non-sundry, clear balance and credit-related fields
+            if(isOldGroupSundry && !isNewGroupSundry) {
+                if(!accountDetail) {
+                    accountDetail = {};
+                }
+                accountDetail['balance'] = null;
+                accountDetail['creditLimit'] = null;
+                accountDetail['totalCredit'] = null;
+                accountDetail['creditPeriod'] = null;
+            }
+        }
+        
         if(accountDetail?.bankDetail === false){
             accountDetail['accountNumber'] = null;
             accountDetail['ifscCode'] = null;
@@ -103,7 +151,6 @@ exports.update_account = async (req, res)=>{
         if(accountDetail?.creditLimit === false){
             accountDetail['totalCredit'] = null;
         }
-        if(!accountExist) return res.status(404).json({status: "false", message: "Account Not Found"});
         if(await isUnique('email', email, companyId, accountId)) return res.status(400).json({status: "false", message: "Email already exists"});
         if(await isUnique('mobileNo', mobileNo, companyId, accountId)) return res.status(400).json({status: "false", message: "Mobile No. already exists"});
         if(await isUnique('gstNumber', gstNumber, companyId, accountId)) return res.status(400).json({status: "false", message: "Gst Number already exists"});
