@@ -5,6 +5,7 @@ const {
   C_view_receiveCash,
   C_update_receiveCash,
   C_delete_receiveCash,
+  C_soft_delete_receiveCash,
   create_receive_bank,
   update_receive_bank,
   delete_receive_bank,
@@ -46,10 +47,15 @@ router.delete(
   adminAuth("Receipt Cash:delete_receipt"),
   C_delete_receiveCash
 );
+router.delete(
+  "/C_soft_delete_receiveCash/:id",
+  adminAuth("Receipt Cash:delete_receipt"),
+  C_soft_delete_receiveCash
+);
 
 /*=============================================================================================================
                                          Without Type C API
- ============================================================================================================ */
+============================================================================================================ */
 
 router.post(
   "/create_receive_bank",

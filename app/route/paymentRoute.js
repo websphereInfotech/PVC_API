@@ -5,6 +5,7 @@ const {
   C_create_paymentCash,
   C_update_paymentCash,
   C_delete_paymentCash,
+  C_soft_delete_paymentCash,
   C_view_paymentCash,
   C_get_all_paymentCash,
   create_payment_bank,
@@ -36,6 +37,11 @@ router.delete(
   "/C_delete_paymentCash/:id",
   adminAuth("Payment Cash:delete_payment"),
   C_delete_paymentCash
+);
+router.delete(
+  "/C_soft_delete_paymentCash/:id",
+  adminAuth("Payment Cash:delete_payment"),
+  C_soft_delete_paymentCash
 );
 router.get(
   "/C_view_paymentCash/:id",

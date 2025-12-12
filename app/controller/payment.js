@@ -129,7 +129,7 @@ exports.C_get_all_paymentCash = async (req, res) => {
   try {
     const { companyId } = req.user;
     const data = await C_Payment.findAll({
-      where: { companyId: companyId },
+      where: { companyId: companyId, isActive: true },
       include: [
         { model: Account, as: "accountPaymentCash" },
         { model: User, as: "paymentCreate", attributes: ["username"] },
@@ -367,7 +367,7 @@ exports.C_delete_paymentCash = async (req, res) => {
         userId: userId,
       },
     });
-    const entryApprove = walletLedgerExist.isApprove;
+    const entryApprove = walletLedgerExist?.isApprove;
 
     await C_Payment.destroy({
       where: { id: id, companyId: companyId },
@@ -381,6 +381,36 @@ exports.C_delete_paymentCash = async (req, res) => {
     return res
       .status(200)
       .json({ status: "true", message: "Payment Cash Deleted Successfully" });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
+exports.C_soft_delete_paymentCash = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { companyId, userId } = req.user;
+    const paymentData = await C_Payment.findOne({
+      where: { id: id, companyId: companyId },
+    });
+    if (!paymentData) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Payment Cash Not Found" });
+    }
+
+    // Soft delete - mark as inactive (NO balance change)
+    await C_Payment.update(
+      { isActive: false, updatedBy: userId },
+      { where: { id: id, companyId: companyId } }
+    );
+
+    return res
+      .status(200)
+      .json({ status: "true", message: "Payment Cash Soft Deleted Successfully" });
   } catch (error) {
     console.log(error);
     return res

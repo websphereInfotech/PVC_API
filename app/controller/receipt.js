@@ -379,6 +379,43 @@ exports.C_delete_receiveCash = async (req, res) => {
   }
 };
 
+exports.C_soft_delete_receiveCash = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { companyId, userId } = req.user;
+    const receiptData = await C_Receipt.findOne({
+      where: { id: id, companyId: companyId },
+    });
+    
+    if (!receiptData) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Receipt Cash Not Found" });
+    }
+
+    // Soft delete - mark as inactive (NO balance change)
+    const data = await C_Receipt.update(
+      { isActive: false, updatedBy: userId },
+      { where: { id: id, companyId: companyId } }
+    );
+
+    if (data[0] > 0) {
+      return res
+        .status(200)
+        .json({ status: "true", message: "Receipt Cash Soft Deleted Successfully" });
+    } else {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Receipt Cash Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
 /*=============================================================================================================
                                          Without  Type C API
  ============================================================================================================ */
