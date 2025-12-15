@@ -24,7 +24,8 @@ const htmlToPdf = require("html-pdf-node");
 const { renderFile } = require("ejs");
 const path = require("node:path");
 const AccountDetails = require("../models/AccountDetail");
-const { ROLE } = require("../constant/constant");
+const AccountGroup = require("../models/AccountGroup");
+const { ROLE, ACCOUNT_GROUPS_TYPE } = require("../constant/constant");
 const BankLedger = require("../models/BankLedger");
 const { Workbook } = require("exceljs");
 const C_salesinvoice = require("../models/C_salesinvoice");
@@ -37,7 +38,10 @@ exports.account_ledger = async (req, res) => {
     const companyId = req.user.companyId;
     const accountExist = await Account.findOne({
       where: { id, companyId, isActive: true },
-      include: [{model: AccountDetails, as: "accountDetail"}]
+      include: [
+        {model: AccountDetails, as: "accountDetail"},
+        {model: AccountGroup, as: "accountGroup"}
+      ]
     });
     if (!accountExist) {
       return res.status(404).json({
@@ -212,15 +216,34 @@ exports.account_ledger = async (req, res) => {
       ],
     });
 
-    const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
+    // Calculate opening balance from transactions
+    let calculatedOpeningBalance = data[0]?.dataValues?.openingBalance ?? 0;
+    
+    // Add AccountDetail.balance if account is Sundry Debtors or Sundry Creditors
+    const accountGroupName = accountExist.accountGroup?.name;
+    const accountDetailBalance = accountExist.accountDetail?.balance ?? 0;
+    
+    let finalOpeningBalance = calculatedOpeningBalance;
+    
+    if (accountGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS || 
+        accountGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS) {
+      if (accountGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS) {
+        // For debtors: subtract balance (positive becomes more negative/debit, negative becomes more positive/credit)
+        finalOpeningBalance = calculatedOpeningBalance - accountDetailBalance;
+      } else if (accountGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS) {
+        // For creditors: add balance (positive stays positive/credit, negative stays negative/debit)
+        finalOpeningBalance = calculatedOpeningBalance + accountDetailBalance;
+      }
+    }
+    
     const ledgerArray = [...data];
-    if (+openingBalance !== 0) {
+    if (+finalOpeningBalance !== 0) {
       ledgerArray.unshift({
         date: formDate,
         debitAmount:
-          openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+          finalOpeningBalance < 0 ? +Math.abs(finalOpeningBalance).toFixed(2) : 0,
         creditAmount:
-          openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
+          finalOpeningBalance > 0 ? +Math.abs(finalOpeningBalance).toFixed(2) : 0,
         particulars: "Opening Balance",
         vchType: "",
         vchNo: "",
@@ -459,6 +482,8 @@ exports.C_account_ledger = async (req, res) => {
         {
           model: C_Payment,
           as: "paymentLedgerCash",
+          where: { isActive: true },
+          required: false,
           attributes: [],
         },
         {
@@ -964,6 +989,8 @@ exports.C_daybook = async (req, res) => {
         {
           model: C_Payment,
           as: "paymentLedgerCash",
+          where: { isActive: true },
+          required: false,
           attributes: [],
         },
         {
@@ -974,6 +1001,8 @@ exports.C_daybook = async (req, res) => {
         {
           model: C_Receipt,
           as: "receiptLedgerCash",
+          where: { isActive: true },
+          required: false,
           attributes: [],
         },
         {
@@ -1181,6 +1210,8 @@ exports.C_wallet_ledger = async (req, res) => {
         {
           model: C_Payment,
           as: "walletPayment",
+          where: { isActive: true },
+          required: false,
           include: [
             {
               model: Account,
@@ -1192,6 +1223,8 @@ exports.C_wallet_ledger = async (req, res) => {
         {
           model: C_Receipt,
           as: "walletReceipt",
+          where: { isActive: true },
+          required: false,
           include: [
             {
               model: Account,
@@ -1355,6 +1388,8 @@ exports.C_cashbook = async (req, res) => {
         {
           model: C_Payment,
           as: "cashCashbookPayment",
+          where: { isActive: true },
+          required: false,
           include: [
             {
               model: Account,
@@ -1370,6 +1405,8 @@ exports.C_cashbook = async (req, res) => {
         {
           model: C_Receipt,
           as: "cashCashbookReceipt",
+          where: { isActive: true },
+          required: false,
           include: [
             {
               model: Account,
@@ -3333,6 +3370,8 @@ exports.C_account_ledger_pdf = async (req, res) => {
         {
           model: C_Payment,
           as: "paymentLedgerCash",
+          where: { isActive: true },
+          required: false,
           attributes: [],
         },
         {
@@ -3343,6 +3382,8 @@ exports.C_account_ledger_pdf = async (req, res) => {
         {
           model: C_Receipt,
           as: "receiptLedgerCash",
+          where: { isActive: true },
+          required: false,
           attributes: [],
         },
         {
@@ -3633,6 +3674,8 @@ exports.C_account_ledger_jpg = async (req, res) => {
         {
           model: C_Payment,
           as: "paymentLedgerCash",
+          where: { isActive: true },
+          required: false,
           attributes: [],
         },
         {
@@ -3643,6 +3686,8 @@ exports.C_account_ledger_jpg = async (req, res) => {
         {
           model: C_Receipt,
           as: "receiptLedgerCash",
+          where: { isActive: true },
+          required: false,
           attributes: [],
         },
         {
@@ -3938,6 +3983,8 @@ exports.C_account_ledger_html = async (req, res) => {
         {
           model: C_Payment,
           as: "paymentLedgerCash",
+          where: { isActive: true },
+          required: false,
           attributes: [],
         },
         {
@@ -3948,6 +3995,8 @@ exports.C_account_ledger_html = async (req, res) => {
         {
           model: C_Receipt,
           as: "receiptLedgerCash",
+          where: { isActive: true },
+          required: false,
           attributes: [],
         },
         {
