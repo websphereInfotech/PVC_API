@@ -482,7 +482,6 @@ exports.C_account_ledger = async (req, res) => {
         {
           model: C_Payment,
           as: "paymentLedgerCash",
-          where: { isActive: true },
           attributes: [],
         },
         {
@@ -988,7 +987,6 @@ exports.C_daybook = async (req, res) => {
         {
           model: C_Payment,
           as: "paymentLedgerCash",
-          where: { isActive: true },
           attributes: [],
         },
         {
@@ -999,7 +997,6 @@ exports.C_daybook = async (req, res) => {
         {
           model: C_Receipt,
           as: "receiptLedgerCash",
-          where: { isActive: true },
           attributes: [],
         },
         {
@@ -1207,7 +1204,6 @@ exports.C_wallet_ledger = async (req, res) => {
         {
           model: C_Payment,
           as: "walletPayment",
-          where: { isActive: true },
           include: [
             {
               model: Account,
@@ -1219,7 +1215,6 @@ exports.C_wallet_ledger = async (req, res) => {
         {
           model: C_Receipt,
           as: "walletReceipt",
-          where: { isActive: true },
           include: [
             {
               model: Account,
@@ -1383,7 +1378,6 @@ exports.C_cashbook = async (req, res) => {
         {
           model: C_Payment,
           as: "cashCashbookPayment",
-          where: { isActive: true },
           include: [
             {
               model: Account,
@@ -1399,7 +1393,6 @@ exports.C_cashbook = async (req, res) => {
         {
           model: C_Receipt,
           as: "cashCashbookReceipt",
-          where: { isActive: true },
           include: [
             {
               model: Account,
@@ -3363,7 +3356,6 @@ exports.C_account_ledger_pdf = async (req, res) => {
         {
           model: C_Payment,
           as: "paymentLedgerCash",
-          where: { isActive: true },
           attributes: [],
         },
         {
@@ -3374,7 +3366,6 @@ exports.C_account_ledger_pdf = async (req, res) => {
         {
           model: C_Receipt,
           as: "receiptLedgerCash",
-          where: { isActive: true },
           attributes: [],
         },
         {
@@ -3665,7 +3656,6 @@ exports.C_account_ledger_jpg = async (req, res) => {
         {
           model: C_Payment,
           as: "paymentLedgerCash",
-          where: { isActive: true },
           attributes: [],
         },
         {
@@ -3676,7 +3666,6 @@ exports.C_account_ledger_jpg = async (req, res) => {
         {
           model: C_Receipt,
           as: "receiptLedgerCash",
-          where: { isActive: true },
           attributes: [],
         },
         {
@@ -3972,7 +3961,6 @@ exports.C_account_ledger_html = async (req, res) => {
         {
           model: C_Payment,
           as: "paymentLedgerCash",
-          where: { isActive: true },
           attributes: [],
         },
         {
@@ -3983,7 +3971,6 @@ exports.C_account_ledger_html = async (req, res) => {
         {
           model: C_Receipt,
           as: "receiptLedgerCash",
-          where: { isActive: true },
           attributes: [],
         },
         {
