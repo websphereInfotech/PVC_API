@@ -129,7 +129,7 @@ exports.C_get_all_paymentCash = async (req, res) => {
   try {
     const { companyId } = req.user;
     const data = await C_Payment.findAll({
-      where: { companyId: companyId, isActive: true },
+      where: { companyId: companyId },
       include: [
         { model: Account, as: "accountPaymentCash" },
         { model: User, as: "paymentCreate", attributes: ["username"] },

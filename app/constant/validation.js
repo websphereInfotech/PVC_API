@@ -12,6 +12,71 @@ const {
 } = require("./constant");
 const AccountGroup = require("../models/AccountGroup");
 
+exports.primaryType = function (req, res, next) {
+  const { primaryType } = req.body;
+  const schema = Joi.string()
+    .valid("SALE", "RECEIPT", "PURCHASE", "PAYMENT")
+    .required()
+    .messages({
+      "any.only": "Primary Type must be SALE, RECEIPT, PURCHASE, or PAYMENT",
+      "any.required": "Required field: Primary Type",
+      "string.empty": "Primary Type cannot be empty",
+    });
+  const { error } = schema.validate(primaryType);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+};
+
+exports.primaryId = function (req, res, next) {
+  const { primaryId } = req.body;
+  const schema = Joi.number().required().messages({
+    "number.base": "Primary ID must be a number",
+    "any.required": "Required field: Primary ID",
+  });
+  const { error } = schema.validate(primaryId);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+};
+
+exports.againstType = function (req, res, next) {
+  const { againstType } = req.body;
+  const schema = Joi.string()
+    .valid("SALE", "RECEIPT", "PURCHASE", "PAYMENT")
+    .required()
+    .messages({
+      "any.only": "Against Type must be SALE, RECEIPT, PURCHASE, or PAYMENT",
+      "any.required": "Required field: Against Type",
+      "string.empty": "Against Type cannot be empty",
+    });
+  const { error } = schema.validate(againstType);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+};
+
+exports.againstIds = function (req, res, next) {
+  const { againstIds } = req.body;
+  const schema = Joi.array()
+    .items(Joi.number())
+    .min(1)
+    .required()
+    .messages({
+      "array.base": "Against IDs must be an array",
+      "array.min": "At least one Against ID is required",
+      "any.required": "Required field: Against IDs",
+    });
+  const { error } = schema.validate(againstIds);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+};
+
 exports.email = function (req, res, next) {
   const { email } = req.body;
   const emailSchema = Joi.string()

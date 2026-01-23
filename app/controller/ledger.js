@@ -12,6 +12,8 @@ const Receipt = require("../models/Receipt");
 const C_Receipt = require("../models/C_Receipt");
 const Payment = require("../models/Payment");
 const C_Payment = require("../models/C_Payment");
+const C_Sale = require("../models/C_salesinvoice");
+const C_Purchase = require("../models/C_purchaseCash");
 const User = require("../models/user");
 const C_WalletLedger = require("../models/C_WalletLedger");
 const C_Claim = require("../models/C_claim");
@@ -31,6 +33,112 @@ const { Workbook } = require("exceljs");
 const C_salesinvoice = require("../models/C_salesinvoice");
 const puppeteer = require("puppeteer");
 
+exports.C_ledger_settlement = async (req, res) => {
+  try {
+    const { primaryType, primaryId, againstType, againstIds } = req.body;
+    const { companyId } = req.user;
+
+    if (!primaryType || !primaryId || !againstType || !Array.isArray(againstIds) || againstIds.length === 0) {
+      return res.status(400).json({ status: false, message: "Invalid payload" });
+    }
+
+    const columnMap = {
+      SALE: { col: "saleId", model: C_Sale, amtField: "totalMrp" },
+      RECEIPT: { col: "receiptId", model: C_Receipt, amtField: "amount" },
+      PURCHASE: { col: "purchaseId", model: C_Purchase, amtField: "totalMrp" },
+      PAYMENT: { col: "paymentId", model: C_Payment, amtField: "amount" },
+    };
+
+    const pColName = columnMap[primaryType].col;
+    const aColName = columnMap[againstType].col;
+
+    const ledgerRows = await C_Ledger.findAll({
+      where: {
+        companyId,
+        [Sequelize.Op.or]: [
+          { [pColName]: primaryId },
+          { [aColName]: { [Sequelize.Op.in]: againstIds } }
+        ]
+      }
+    });
+
+    if (ledgerRows.length === 0) {
+      return res.status(404).json({ status: false, message: "No matching records found" });
+    }
+
+    let totalPrimary = 0;
+    let totalAgainst = 0;
+    const accountId = ledgerRows[0].accountId;
+
+    const primaryConfig = columnMap[primaryType];
+    const primaryData = await primaryConfig.model.findOne({
+      where: { id: primaryId, companyId }
+    });
+
+    totalPrimary = Number(primaryData?.[primaryConfig.amtField] || 0);
+    const againstConfig = columnMap[againstType];
+    const againstData = await againstConfig.model.findAll({
+      where: {
+        id: { [Sequelize.Op.in]: againstIds.map(Number) },
+        companyId
+      }
+    });
+    againstData.forEach(row => {
+      totalAgainst += Number(row[againstConfig.amtField] || 0);
+    });
+
+    if (aColName === 'saleId' || aColName === 'paymentId') {
+      var settlementEffect = totalPrimary - totalAgainst;
+    } else {
+      var settlementEffect = totalAgainst - totalPrimary;
+    }
+
+    const accountDetail = await AccountDetails.findOne({
+      where: { accountId },
+    });
+
+    if (!accountDetail) {
+      return res.status(404).json({ status: false, message: "Account details not found" });
+    }
+
+    if (settlementEffect !== 0) {
+      await accountDetail.increment("balance", {
+        by: settlementEffect
+      });
+    }
+
+    const deleteCount = await C_Ledger.destroy({
+      where: {
+        id: ledgerRows.map((r) => r.id),
+        companyId,
+      },
+    });
+
+    await primaryConfig.model.destroy({
+      where: { id: primaryId, companyId }
+    });
+
+    await againstConfig.model.destroy({
+      where: {
+        id: { [Sequelize.Op.in]: againstIds.map(Number) },
+        companyId
+      }
+    });
+
+    if (deleteCount > 0) {
+      return res.status(200).json({
+        status: true,
+        message: "Settlement deleted and balance adjusted successfully",
+      });
+    } else {
+      return res.status(404).json({ status: false, message: "Records not found" });
+    }
+  } catch (error) {
+    console.error("DELETE SETTLEMENT ERROR:", error);
+    return res.status(500).json({ status: false, message: "Internal Server Error" });
+  }
+};
+
 exports.account_ledger = async (req, res) => {
   try {
     const { id } = req.params;
@@ -39,8 +147,8 @@ exports.account_ledger = async (req, res) => {
     const accountExist = await Account.findOne({
       where: { id, companyId, isActive: true },
       include: [
-        {model: AccountDetails, as: "accountDetail"},
-        {model: AccountGroup, as: "accountGroup"}
+        { model: AccountDetails, as: "accountDetail" },
+        { model: AccountGroup, as: "accountGroup" }
       ]
     });
     if (!accountExist) {
@@ -218,15 +326,15 @@ exports.account_ledger = async (req, res) => {
 
     // Calculate opening balance from transactions
     let calculatedOpeningBalance = data[0]?.dataValues?.openingBalance ?? 0;
-    
+
     // Add AccountDetail.balance if account is Sundry Debtors or Sundry Creditors
     const accountGroupName = accountExist.accountGroup?.name;
     const accountDetailBalance = accountExist.accountDetail?.balance ?? 0;
-    
+
     let finalOpeningBalance = calculatedOpeningBalance;
-    
-    if (accountGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS || 
-        accountGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS) {
+
+    if (accountGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS ||
+      accountGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS) {
       if (accountGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS) {
         // For debtors: subtract balance (positive becomes more negative/debit, negative becomes more positive/credit)
         finalOpeningBalance = calculatedOpeningBalance - accountDetailBalance;
@@ -235,7 +343,7 @@ exports.account_ledger = async (req, res) => {
         finalOpeningBalance = calculatedOpeningBalance + accountDetailBalance;
       }
     }
-    
+
     const ledgerArray = [...data];
     if (+finalOpeningBalance !== 0) {
       ledgerArray.unshift({
@@ -365,7 +473,15 @@ exports.C_account_ledger = async (req, res) => {
 
     const accountExist = await Account.findOne({
       where: { id, companyId, isActive: true },
+      include: [
+        {
+          model: AccountDetails,
+          as: "accountDetail",
+          attributes: ["balance"],
+        },
+      ],
     });
+
     if (!accountExist) {
       return res.status(404).json({
         status: "false",
@@ -442,6 +558,13 @@ exports.C_account_ledger = async (req, res) => {
         [
           Sequelize.literal(`
           (
+            /* Start with the Account's initial balance */
+            SELECT IFNULL(SUM(ad.balance), 0) 
+            FROM P_AccountDetails ad 
+            WHERE ad.accountId = \`P_C_Ledger\`.\`accountId\`
+          ) + 
+          (
+            /* Add the sum of all transactions before the current record */
             SELECT
               IFNULL(SUM(
                 IFNULL(CASE
@@ -472,6 +595,18 @@ exports.C_account_ledger = async (req, res) => {
           )`),
           "openingBalance",
         ],
+        [
+          Sequelize.literal(`CASE
+            WHEN purchaseLedgerCash.id IS NOT NULL THEN \`purchaseLedgerCash\`.\`id\`
+            WHEN salesLedgerCash.id IS NOT NULL THEN \`salesLedgerCash\`.\`id\`
+            WHEN receiptLedgerCash.id IS NOT NULL THEN \`receiptLedgerCash\`.\`id\`
+            WHEN paymentLedgerCash.id IS NOT NULL THEN \`paymentLedgerCash\`.\`id\`
+            WHEN creditNoLedgerCash.id IS NOT NULL THEN \`creditNoLedgerCash\`.\`id\`
+            WHEN debitNoLedgerCash.id IS NOT NULL THEN \`debitNoLedgerCash\`.\`id\`
+            ELSE NULL
+          END`),
+          "_id",
+        ],
       ],
       include: [
         {
@@ -482,8 +617,6 @@ exports.C_account_ledger = async (req, res) => {
         {
           model: C_Payment,
           as: "paymentLedgerCash",
-          where: { isActive: true },
-          required: false,
           attributes: [],
         },
         {
@@ -494,7 +627,6 @@ exports.C_account_ledger = async (req, res) => {
         {
           model: C_Receipt,
           as: "receiptLedgerCash",
-          where: { isActive: true },
           attributes: [],
         },
         {
@@ -520,9 +652,11 @@ exports.C_account_ledger = async (req, res) => {
     });
 
     const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
+
     const ledgerArray = [...data];
     if (+openingBalance !== 0) {
       ledgerArray.unshift({
+        _id: null,
         date: formDate,
         debitAmount:
           openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
@@ -1388,7 +1522,6 @@ exports.C_cashbook = async (req, res) => {
         {
           model: C_Payment,
           as: "cashCashbookPayment",
-          where: { isActive: true },
           required: false,
           include: [
             {
@@ -1405,7 +1538,6 @@ exports.C_cashbook = async (req, res) => {
         {
           model: C_Receipt,
           as: "cashCashbookReceipt",
-          where: { isActive: true },
           required: false,
           include: [
             {
@@ -1710,7 +1842,7 @@ exports.account_ledger_pdf = async (req, res) => {
     const companyId = req.user.companyId;
     const accountExist = await Account.findOne({
       where: { id, companyId, isActive: true },
-      include: [{model: AccountDetails, as: "accountDetail"}]
+      include: [{ model: AccountDetails, as: "accountDetail" }]
     });
     if (!accountExist) {
       return res.status(404).json({
@@ -2031,7 +2163,7 @@ exports.account_ledger_jpg = async (req, res) => {
     const companyId = req.user.companyId;
     const accountExist = await Account.findOne({
       where: { id, companyId, isActive: true },
-      include: [{model: AccountDetails, as: "accountDetail"}]
+      include: [{ model: AccountDetails, as: "accountDetail" }]
     });
     if (!accountExist) {
       return res.status(404).json({
@@ -2327,7 +2459,7 @@ exports.account_ledger_jpg = async (req, res) => {
       path.join(__dirname, "../views/accountLedger.ejs"),
       { data: { form: company, to: accountExist, years: groupedRecords } }
     );
-    
+
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
@@ -2356,7 +2488,7 @@ exports.account_ledger_html = async (req, res) => {
     const companyId = req.user.companyId;
     const accountExist = await Account.findOne({
       where: { id, companyId, isActive: true },
-      include: [{model: AccountDetails, as: "accountDetail"}]
+      include: [{ model: AccountDetails, as: "accountDetail" }]
     });
     if (!accountExist) {
       return res.status(404).json({
@@ -2670,7 +2802,7 @@ exports.account_ledger_excel = async (req, res) => {
   try {
     const { id } = req.params;
     const { formDate, toDate } = req.query;
-    const companyId = req.user.companyId; 
+    const companyId = req.user.companyId;
     const companyData = await Company.findByPk(companyId);
 
     let accounts;
@@ -2899,9 +3031,8 @@ exports.account_ledger_excel = async (req, res) => {
       worksheet.getCell("D4").alignment = { horizontal: "right" };
 
       worksheet.mergeCells("D5:F5");
-      worksheet.getCell("D5").value = `GSTIN/UIN: ${
-        accounts.accountDetail?.gstNumber ?? "Unregistered"
-      }`;
+      worksheet.getCell("D5").value = `GSTIN/UIN: ${accounts.accountDetail?.gstNumber ?? "Unregistered"
+        }`;
       worksheet.getCell("D5").alignment = { horizontal: "right" };
     }
     worksheet.addRow([
@@ -2925,7 +3056,7 @@ exports.account_ledger_excel = async (req, res) => {
       const CreditAmount = ledger.creditAmount
       totalDebit += DebitAmount;
       totalCredit += CreditAmount;
-      worksheet.addRow([date,Particulars,voucharetype,vouchareno, DebitAmount, CreditAmount]);
+      worksheet.addRow([date, Particulars, voucharetype, vouchareno, DebitAmount, CreditAmount]);
 
     });
     worksheet.addRow(["", "", "", "", totalDebit, totalCredit]);
@@ -2933,9 +3064,9 @@ exports.account_ledger_excel = async (req, res) => {
     worksheet.addRow(["", "", "", "Closing Balance", closingBalance >= 0 ? closingBalance : "", closingBalance < 0 ? Math.abs(closingBalance) : ""]);
     if (closingBalance >= 0) {
       totalDebit += closingBalance;
-  } else {
+    } else {
       totalCredit += Math.abs(closingBalance);
-  }
+    }
     worksheet.addRow(["", "", "", "", totalDebit, totalCredit]);
 
     const buffer = await workbook.xlsx.writeBuffer();
@@ -2956,7 +3087,7 @@ exports.C_account_ledger_excel = async (req, res) => {
   try {
     const { id } = req.params;
     const { formDate, toDate } = req.query;
-    const companyId = req.user.companyId; 
+    const companyId = req.user.companyId;
     const companyData = await Company.findByPk(companyId);
 
     let accounts;
@@ -3190,9 +3321,8 @@ exports.C_account_ledger_excel = async (req, res) => {
       worksheet.getCell("D4").alignment = { horizontal: "right" };
 
       worksheet.mergeCells("D5:F5");
-      worksheet.getCell("D5").value = `GSTIN/UIN: ${
-        accounts.accountDetail?.gstNumber ?? "Unregistered"
-      }`;
+      worksheet.getCell("D5").value = `GSTIN/UIN: ${accounts.accountDetail?.gstNumber ?? "Unregistered"
+        }`;
       worksheet.getCell("D5").alignment = { horizontal: "right" };
     }
     worksheet.addRow([
@@ -3215,7 +3345,7 @@ exports.C_account_ledger_excel = async (req, res) => {
       const CreditAmount = ledger.creditAmount
       totalDebit += DebitAmount;
       totalCredit += CreditAmount;
-      worksheet.addRow([date,Particulars,voucharetype,vouchareno, DebitAmount, CreditAmount]);
+      worksheet.addRow([date, Particulars, voucharetype, vouchareno, DebitAmount, CreditAmount]);
 
     });
     worksheet.addRow(["", "", "", "", totalDebit, totalCredit]);
@@ -3259,9 +3389,11 @@ exports.C_account_ledger_pdf = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({where: {
-      role: ROLE.SUPER_ADMIN
-    }});
+    const user = await User.findOne({
+      where: {
+        role: ROLE.SUPER_ADMIN
+      }
+    });
 
     if (formDate && toDate) {
       queryData.date = {
@@ -3563,9 +3695,11 @@ exports.C_account_ledger_jpg = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({where: {
-      role: ROLE.SUPER_ADMIN
-    }});
+    const user = await User.findOne({
+      where: {
+        role: ROLE.SUPER_ADMIN
+      }
+    });
 
     if (formDate && toDate) {
       queryData.date = {
@@ -3872,9 +4006,11 @@ exports.C_account_ledger_html = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({where: {
-      role: ROLE.SUPER_ADMIN
-    }});
+    const user = await User.findOne({
+      where: {
+        role: ROLE.SUPER_ADMIN
+      }
+    });
 
     if (formDate && toDate) {
       queryData.date = {
@@ -4373,7 +4509,7 @@ exports.C_passbook = async (req, res) => {
     const mainOpeningBalance =
       openingBalanceData?.dataValues?.openingBalance ?? 0;
 
-      console.log(mainOpeningBalance, "Main Balance")
+    console.log(mainOpeningBalance, "Main Balance")
 
     const allDates = generateDateRange(fromDateObj, toDateObj);
 

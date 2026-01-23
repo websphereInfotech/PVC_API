@@ -510,7 +510,7 @@ exports.employeePunchingAttendance = cron.schedule('*/30 * * * * *', async () =>
             }
         });
         if(!employeesPunchingData.length) {
-           console.log("Employee punching data not found for the day: ", date);
+        //    console.log("Employee punching data not found for the day: ", date);
            return;
         }
 
@@ -520,7 +520,7 @@ exports.employeePunchingAttendance = cron.schedule('*/30 * * * * *', async () =>
             }
         });
         if(!employees.length) {
-            console.log("Employees not found for the day: ", date);
+            // console.log("Employees not found for the day: ", date);
             return;
         }
 
@@ -589,7 +589,7 @@ exports.employeePunchingAttendance = cron.schedule('*/30 * * * * *', async () =>
 
         await update_employee_punching_data(employeeAttendance);
 
-        console.log("Employee punching attendance management done successfully.");
+        // console.log("Employee punching attendance management done successfully.");
     } catch(error) {
         console.error(error);
         console.log("Employee punching attendance management failed");
