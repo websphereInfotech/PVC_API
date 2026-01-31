@@ -610,7 +610,7 @@ exports.update_employee_punching_data = async (employeeAttendance) => {
                 }
             });
             if(!attendance) {
-                console.log("Attendance not found for employee: ", employeePunchData.emp_id);
+                // console.log("Attendance not found for employee: ", employeePunchData.emp_id);
                 return await forLoop(i + 1);
             }
 

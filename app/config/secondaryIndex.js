@@ -10,7 +10,7 @@ const sequelize = new Sequelize({
   host: SECONDARY_DB_HOST,
   port: SECONDARY_DB_PORT,
   dialect: 'mysql',
-  logging: true
+  logging: false
 });
 
 try {

@@ -2,6 +2,7 @@ const express = require("express");
 const { validation } = require("../constant/validate");
 const adminAuth = require("../middleware/adminAuth");
 const {
+  C_ledger_settlement,
   account_ledger,
   C_account_ledger,
   daybook,
@@ -20,6 +21,13 @@ const {
 } = require("../controller/ledger");
 
 const router = express.Router();
+
+router.post(
+  "/C_ledger_settlement",
+  adminAuth("Ledger:account_ledger"),
+  validation("ledger_settlement"),
+  C_ledger_settlement
+);
 
 router.get(
   "/account_ledger/:id",
