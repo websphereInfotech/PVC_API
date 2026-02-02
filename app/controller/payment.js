@@ -6,18 +6,58 @@ const User = require("../models/user");
 const Ledger = require("../models/Ledger");
 const C_Ledger = require("../models/C_Ledger");
 const Account = require("../models/Account");
-const { Sequelize } = require("sequelize");
+const { Sequelize, Op } = require("sequelize");
 const companyBankDetails = require("../models/companyBankDetails");
 const { TRANSACTION_TYPE, ROLE } = require("../constant/constant");
 const CompanyCashBalance = require("../models/companyCashBalance");
 const C_WalletLedger = require("../models/C_WalletLedger");
 const C_UserBalance = require("../models/C_userBalance");
 const C_Cashbook = require("../models/C_Cashbook");
+const C_DailyBalance = require("../models/C_DailyBalance");
 const BankBalance = require("../models/BankBalance");
 const BankLedger = require("../models/BankLedger");
 /*=============================================================================================================
                                          Type C API
  ============================================================================================================ */
+const syncDailyBalances = async (startDate, companyId, transaction = null) => {
+  // 1. Fetch all balance snapshots from the modified date forward, ordered by DATE
+  const balances = await C_DailyBalance.findAll({
+    where: {
+      companyId,
+      date: { [Op.gte]: startDate }
+    },
+    order: [['date', 'ASC']], // Crucial: Order by transaction date, not ID
+    transaction
+  });
+
+  for (let i = 0; i < balances.length; i++) {
+    const current = balances[i];
+
+    // 2. Determine the Opening Balance
+    if (i === 0) {
+      // For the first record in our affected set, look back one day in the DB
+      const lastDay = await C_DailyBalance.findOne({
+        where: {
+          companyId,
+          date: { [Op.lt]: current.date }
+        },
+        order: [['date', 'DESC']], // Get the day immediately before
+        transaction
+      });
+      current.openingBalance = lastDay ? lastDay.closingBalance : 0;
+    } else {
+      // Pull opening balance from the day we just processed in the loop
+      current.openingBalance = balances[i - 1].closingBalance;
+    }
+
+    // 3. Recalculate Closing: Opening + Credit - Debit
+    current.closingBalance = Number(current.openingBalance) +
+      Number(current.totalCredit) -
+      Number(current.totalDebit);
+
+    await current.save({ transaction });
+  }
+};
 
 exports.C_create_paymentCash = async (req, res) => {
   try {
@@ -69,6 +109,35 @@ exports.C_create_paymentCash = async (req, res) => {
         message: "Not enough fund.",
       });
     }
+
+    const [dailyRow, created] = await C_DailyBalance.findOrCreate({
+      where: { date, companyId },
+      defaults: {
+        openingBalance: 0,
+        totalCredit: 0,
+        totalDebit: 0,
+        closingBalance: 0
+      }
+    });
+
+    if (created) {
+      // Fetch the last recorded day's closing balance to use as today's opening balance
+      const lastDay = await C_DailyBalance.findOne({
+        where: { companyId, date: { [Op.lt]: date } },
+        order: [['date', 'DESC']]
+      });
+
+      const prevClosing = lastDay ? Number(lastDay.closingBalance) : 0;
+      await dailyRow.update({
+        openingBalance: prevClosing,
+        closingBalance: prevClosing
+      });
+    }
+
+    // Increment totalDebit and decrement closingBalance for this date snapshot
+    await dailyRow.increment('totalDebit', { by: amount });
+    await dailyRow.increment('closingBalance', { by: -amount });
+
     const data = await C_Payment.create({
       accountId,
       amount,
@@ -112,6 +181,7 @@ exports.C_create_paymentCash = async (req, res) => {
     if (existingBalance) {
       await existingBalance.decrement("balance", { by: amount });
     }
+    await syncDailyBalances(date, companyId);
     return res.status(200).json({
       status: "true",
       message: "Payment Cash Create Successfully",
@@ -211,6 +281,38 @@ exports.C_update_paymentCash = async (req, res) => {
         .status(404)
         .json({ status: "false", message: "Payment Cash Not Found" });
     }
+
+    const oldAmount = Number(paymentId.amount || 0);
+    const oldDate = paymentId.date;
+    const newAmount = Number(amount || 0);
+
+    // 1. Reverse the old debit amount from the original date snapshot
+    const oldDailyRow = await C_DailyBalance.findOne({ where: { date: oldDate, companyId } });
+    if (oldDailyRow) {
+      // Reversing a debit means decreasing totalDebit and increasing closingBalance
+      await oldDailyRow.decrement('totalDebit', { by: oldAmount });
+      await oldDailyRow.increment('closingBalance', { by: oldAmount });
+    }
+
+    // 2. Apply the new debit amount to the target date snapshot (handles date changes)
+    const [newDailyRow, created] = await C_DailyBalance.findOrCreate({
+      where: { date: date, companyId },
+      defaults: { openingBalance: 0, totalCredit: 0, totalDebit: 0, closingBalance: 0 }
+    });
+
+    if (created) {
+      const lastDay = await C_DailyBalance.findOne({
+        where: { companyId, date: { [Op.lt]: date } },
+        order: [['date', 'DESC']]
+      });
+      const prevClosing = lastDay ? Number(lastDay.closingBalance) : 0;
+      await newDailyRow.update({ openingBalance: prevClosing, closingBalance: prevClosing });
+    }
+
+    // Apply the new debit: increase totalDebit and decrease closingBalance
+    await newDailyRow.increment('totalDebit', { by: newAmount });
+    await newDailyRow.increment('closingBalance', { by: -newAmount });
+
     let existingBalance;
     if (role === ROLE.SUPER_ADMIN) {
       existingBalance = await C_companyBalance.findOne({
@@ -221,11 +323,10 @@ exports.C_update_paymentCash = async (req, res) => {
         where: { companyId: companyId, userId: user },
       });
     }
-    const oldAmount = paymentId?.amount ?? 0;
     const balance = existingBalance?.balance ?? 0;
-    const newAmount = amount - oldAmount;
+    const balanceNeeded = amount - oldAmount;
 
-    if (balance < newAmount) {
+    if (balance < balanceNeeded) {
       return res.status(400).json({
         status: "false",
         message: "Not enough fund.",
@@ -319,6 +420,8 @@ exports.C_update_paymentCash = async (req, res) => {
       await existingBalance.decrement("balance", { by: amount });
     }
 
+    await syncDailyBalances(date, companyId);
+
     const data = await C_Payment.findOne({
       where: { id: id, companyId: companyId },
     });
@@ -359,6 +462,7 @@ exports.C_delete_paymentCash = async (req, res) => {
       });
     }
     const oldAmount = paymentData?.amount ?? 0;
+    const oldDate = paymentData.date;
 
     const walletLedgerExist = await C_WalletLedger.findOne({
       where: {
@@ -369,6 +473,16 @@ exports.C_delete_paymentCash = async (req, res) => {
     });
     const entryApprove = walletLedgerExist?.isApprove;
 
+    const dailyRow = await C_DailyBalance.findOne({
+      where: { date: oldDate, companyId }
+    });
+
+    if (dailyRow) {
+      // Reversing a payment: reduce totalDebit and restore the closingBalance
+      await dailyRow.decrement('totalDebit', { by: oldAmount });
+      await dailyRow.increment('closingBalance', { by: oldAmount });
+    }
+
     await C_Payment.destroy({
       where: { id: id, companyId: companyId },
     });
@@ -378,6 +492,9 @@ exports.C_delete_paymentCash = async (req, res) => {
         await existingBalance.increment("incomes", { by: oldAmount });
       }
     }
+
+    await syncDailyBalances(oldDate, companyId);
+
     return res
       .status(200)
       .json({ status: "true", message: "Payment Cash Deleted Successfully" });
@@ -425,6 +542,7 @@ exports.C_soft_delete_paymentCash = async (req, res) => {
 exports.create_payment_bank = async (req, res) => {
   try {
     const user = req.user.userId;
+    const role = req.user.role;
     const companyId = req.user.companyId;
     const {
       voucherno,
@@ -506,19 +624,32 @@ exports.create_payment_bank = async (req, res) => {
       date: paymentdate,
     });
 
-    await C_Cashbook.create({
-      paymentId: data.id,
-      companyId: companyId,
-      date: paymentdate,
-    });
-
     if (transactionType === TRANSACTION_TYPE.CASH) {
-      const existsingCashBalance = await CompanyCashBalance.findOne({
-        where: { companyId: companyId },
-      });
+      // const existsingCashBalance = await CompanyCashBalance.findOne({
+      //   where: { companyId: companyId },
+      // });
+      let existsingCashBalance;
+      if (role === ROLE.SUPER_ADMIN) {
+        existsingCashBalance = await C_companyBalance.findOne({
+          where: { companyId: companyId },
+        });
+      } else {
+        existsingCashBalance = await C_UserBalance.findOne({
+          where: { companyId: companyId, userId: user },
+        });
+      }
       if (existsingCashBalance) {
         await existsingCashBalance.decrement("balance", { by: amount });
+        if (existsingCashBalance?.incomes >= 0) {
+          await existsingCashBalance.decrement("incomes", { by: amount });
+        }
       }
+      await BankLedger.create({
+        bankId: 1,
+        paymentId: data.id,
+        companyId: companyId,
+        date: paymentdate,
+      });
     } else if (transactionType === TRANSACTION_TYPE.BANK) {
       const existsingBalance = await companyBalance.findOne({
         where: { companyId: companyId },
@@ -559,9 +690,11 @@ exports.create_payment_bank = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
 exports.update_payment_bank = async (req, res) => {
   try {
     const user = req.user.userId;
+    const role = req.user.role;
     const companyId = req.user.companyId;
     const { id } = req.params;
     const {
@@ -650,28 +783,39 @@ exports.update_payment_bank = async (req, res) => {
       { where: { id } }
     );
 
-    await C_Cashbook.update(
-      {
-        date: paymentdate,
-      },
-      {
-        where: {
-          paymentId: id,
-          companyId: companyId,
-        },
-      }
-    );
-
     if (transactionType === TRANSACTION_TYPE.CASH) {
-      const existsingCashBalance = await CompanyCashBalance.findOne({
-        where: { companyId: companyId },
-      });
-      if (existsingCashBalance) {
-        await existsingCashBalance.increment("balance", {
-          by: paymentdata.amount,
+      let existsingCashBalance;
+      if (role === ROLE.SUPER_ADMIN) {
+        existsingCashBalance = await C_companyBalance.findOne({
+          where: { companyId: companyId },
         });
-        await existsingCashBalance.decrement("balance", { by: amount });
+      } else {
+        existsingCashBalance = await C_UserBalance.findOne({
+          where: { companyId: companyId, userId: user },
+        });
       }
+      // const existsingCashBalance = await CompanyCashBalance.findOne({
+      //   where: { companyId: companyId },
+      // });
+      if (existsingCashBalance) {
+        await existsingCashBalance.increment("balance", { by: paymentdata.amount, });
+        await existsingCashBalance.decrement("balance", { by: amount });
+        if (existsingCashBalance?.incomes >= 0) {
+          await existsingCashBalance.increment("incomes", { by: paymentdata.amount, });
+          await existsingCashBalance.decrement("incomes", { by: amount });
+        }
+      }
+      await BankLedger.update(
+        {
+          date: paymentdate,
+        },
+        {
+          where: {
+            paymentId: id,
+            companyId: companyId,
+          },
+        }
+      );
     } else if (transactionType === TRANSACTION_TYPE.BANK) {
       const existsingBalance = await companyBalance.findOne({
         where: { companyId: companyId },
@@ -726,10 +870,13 @@ exports.update_payment_bank = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
 exports.delete_payment_bank = async (req, res) => {
   try {
     const { id } = req.params;
     const { companyId } = req.user;
+    const role = req.user.role;
+    const user = req.user.userId;
 
     const paymentExist = await Payment.findOne({
       where: {
@@ -748,11 +895,24 @@ exports.delete_payment_bank = async (req, res) => {
     const amount = paymentExist.amount;
 
     if (transactionType === TRANSACTION_TYPE.CASH) {
-      const existsingCashBalance = await CompanyCashBalance.findOne({
-        where: { companyId: companyId },
-      });
+      let existsingCashBalance;
+      if (role === ROLE.SUPER_ADMIN) {
+        existsingCashBalance = await C_companyBalance.findOne({
+          where: { companyId: companyId },
+        });
+      } else {
+        existsingCashBalance = await C_UserBalance.findOne({
+          where: { companyId: companyId, userId: user },
+        });
+      }
+      // const existsingCashBalance = await CompanyCashBalance.findOne({
+      //   where: { companyId: companyId },
+      // });
       if (existsingCashBalance) {
         await existsingCashBalance.increment("balance", { by: amount });
+        if (existsingCashBalance?.incomes >= 0) {
+          await existsingCashBalance.increment("incomes", { by: amount });
+        }
       }
     } else if (transactionType === TRANSACTION_TYPE.BANK) {
       const existsingBalance = await companyBalance.findOne({
@@ -784,6 +944,7 @@ exports.delete_payment_bank = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
 exports.view_payment_bank = async (req, res) => {
   try {
     const { id } = req.params;
@@ -808,6 +969,7 @@ exports.view_payment_bank = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
 exports.view_all_payment_bank = async (req, res) => {
   try {
     const data = await Payment.findAll({

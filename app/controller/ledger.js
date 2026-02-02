@@ -1,7 +1,7 @@
 const Account = require("../models/Account");
 const CompanyBankDetails = require("../models/companyBankDetails");
 const Company = require("../models/company");
-const { Sequelize, Op } = require("sequelize");
+const { Sequelize, Op, literal } = require("sequelize");
 const Ledger = require("../models/Ledger");
 const C_Ledger = require("../models/C_Ledger");
 const purchaseInvoice = require("../models/purchaseInvoice");
@@ -31,111 +31,155 @@ const { ROLE, ACCOUNT_GROUPS_TYPE } = require("../constant/constant");
 const BankLedger = require("../models/BankLedger");
 const { Workbook } = require("exceljs");
 const C_salesinvoice = require("../models/C_salesinvoice");
+const C_DailyBalance = require("../models/C_DailyBalance");
 const puppeteer = require("puppeteer");
 
 exports.C_ledger_settlement = async (req, res) => {
   try {
-    const { primaryType, primaryId, againstType, againstIds } = req.body;
+    const { settlements } = req.body;
     const { companyId } = req.user;
 
-    if (!primaryType || !primaryId || !againstType || !Array.isArray(againstIds) || againstIds.length === 0) {
-      return res.status(400).json({ status: false, message: "Invalid payload" });
+    if (!settlements || typeof settlements !== "object") {
+      return res.status(400).json({
+        status: false,
+        message: "Settlements must be an object grouped by voucher type"
+      });
     }
 
+    /* ----------------------------------
+       1️⃣ Voucher configuration
+    ---------------------------------- */
     const columnMap = {
-      SALE: { col: "saleId", model: C_Sale, amtField: "totalMrp" },
-      RECEIPT: { col: "receiptId", model: C_Receipt, amtField: "amount" },
-      PURCHASE: { col: "purchaseId", model: C_Purchase, amtField: "totalMrp" },
-      PAYMENT: { col: "paymentId", model: C_Payment, amtField: "amount" },
+      SALE:        { col: "saleId",     model: C_Sale,       amt: "totalMrp",  effect: -1 },
+      RECEIPT:     { col: "receiptId",  model: C_Receipt,    amt: "amount",    effect:  1 },
+      PURCHASE:    { col: "purchaseId", model: C_Purchase,   amt: "totalMrp",  effect:  1 },
+      PAYMENT:     { col: "paymentId",  model: C_Payment,    amt: "amount",    effect: -1 },
+      CREDIT_NOTE: { col: "creditNoId", model: C_CreditNote, amt: "mainTotal", effect:  1 },
+      DEBIT_NOTE:  { col: "debitNoId",  model: C_DebitNote,  amt: "mainTotal", effect: -1 },
     };
 
-    const pColName = columnMap[primaryType].col;
-    const aColName = columnMap[againstType].col;
+    let netEffect = 0;
+    let ledgerConditions = [];
+    let accountId = null;
 
+    /* ----------------------------------
+       2️⃣ Calculate net effect
+    ---------------------------------- */
+    for (const [type, ids] of Object.entries(settlements)) {
+      const config = columnMap[type];
+
+      if (!config || !Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({
+          status: false,
+          message: `Invalid settlement group for type ${type}`
+        });
+      }
+
+      const rows = await config.model.findAll({
+        where: {
+          id: ids,
+          companyId
+        }
+      });
+
+      if (!rows.length) {
+        return res.status(404).json({
+          status: false,
+          message: `No records found for ${type}`
+        });
+      }
+
+      rows.forEach(row => {
+        netEffect += Number(row?.[config.amt] || 0) * config.effect;
+      });
+
+      ledgerConditions.push({
+        [config.col]: ids
+      });
+    }
+
+    /* ----------------------------------
+       3️⃣ Fetch ledger rows
+    ---------------------------------- */
     const ledgerRows = await C_Ledger.findAll({
       where: {
         companyId,
-        [Sequelize.Op.or]: [
-          { [pColName]: primaryId },
-          { [aColName]: { [Sequelize.Op.in]: againstIds } }
-        ]
+        [Sequelize.Op.or]: ledgerConditions
       }
     });
 
-    if (ledgerRows.length === 0) {
-      return res.status(404).json({ status: false, message: "No matching records found" });
+    if (!ledgerRows.length) {
+      return res.status(404).json({
+        status: false,
+        message: "No matching ledger entries found"
+      });
     }
 
-    let totalPrimary = 0;
-    let totalAgainst = 0;
-    const accountId = ledgerRows[0].accountId;
+    accountId = ledgerRows[0].accountId;
 
-    const primaryConfig = columnMap[primaryType];
-    const primaryData = await primaryConfig.model.findOne({
-      where: { id: primaryId, companyId }
-    });
-
-    totalPrimary = Number(primaryData?.[primaryConfig.amtField] || 0);
-    const againstConfig = columnMap[againstType];
-    const againstData = await againstConfig.model.findAll({
-      where: {
-        id: { [Sequelize.Op.in]: againstIds.map(Number) },
-        companyId
-      }
-    });
-    againstData.forEach(row => {
-      totalAgainst += Number(row[againstConfig.amtField] || 0);
-    });
-
-    if (aColName === 'saleId' || aColName === 'paymentId') {
-      var settlementEffect = totalPrimary - totalAgainst;
-    } else {
-      var settlementEffect = totalAgainst - totalPrimary;
+    // Safety: all vouchers must belong to same account
+    if (ledgerRows.some(r => r.accountId !== accountId)) {
+      return res.status(400).json({
+        status: false,
+        message: "All settlement entries must belong to the same account"
+      });
     }
 
+    /* ----------------------------------
+       4️⃣ Update account balance
+    ---------------------------------- */
     const accountDetail = await AccountDetails.findOne({
-      where: { accountId },
+      where: { accountId }
     });
 
     if (!accountDetail) {
-      return res.status(404).json({ status: false, message: "Account details not found" });
-    }
-
-    if (settlementEffect !== 0) {
-      await accountDetail.increment("balance", {
-        by: settlementEffect
+      return res.status(404).json({
+        status: false,
+        message: "Account details not found"
       });
     }
 
-    const deleteCount = await C_Ledger.destroy({
-      where: {
-        id: ledgerRows.map((r) => r.id),
-        companyId,
-      },
-    });
+    console.log(netEffect,"net");
+    
 
-    await primaryConfig.model.destroy({
-      where: { id: primaryId, companyId }
-    });
+    if (netEffect !== 0) {
+      await accountDetail.increment("balance", { by: netEffect });
+    }
 
-    await againstConfig.model.destroy({
+    /* ----------------------------------
+       5️⃣ Delete ledger entries
+    ---------------------------------- */
+    await C_Ledger.destroy({
       where: {
-        id: { [Sequelize.Op.in]: againstIds.map(Number) },
+        id: ledgerRows.map(r => r.id),
         companyId
       }
     });
 
-    if (deleteCount > 0) {
-      return res.status(200).json({
-        status: true,
-        message: "Settlement deleted and balance adjusted successfully",
+    /* ----------------------------------
+       6️⃣ Delete source vouchers
+    ---------------------------------- */
+    for (const [type, ids] of Object.entries(settlements)) {
+      await columnMap[type].model.destroy({
+        where: {
+          id: ids,
+          companyId
+        }
       });
-    } else {
-      return res.status(404).json({ status: false, message: "Records not found" });
     }
+
+    return res.status(200).json({
+      status: true,
+      message: "Settlement completed successfully",
+      netEffect
+    });
+
   } catch (error) {
-    console.error("DELETE SETTLEMENT ERROR:", error);
-    return res.status(500).json({ status: false, message: "Internal Server Error" });
+    console.error("SETTLEMENT ERROR:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Internal Server Error"
+    });
   }
 };
 
@@ -491,6 +535,66 @@ exports.C_account_ledger = async (req, res) => {
 
     const company = await Company.findByPk(companyId);
 
+    const baseBalance =
+      Number(accountExist?.accountDetail?.balance || 0);
+
+    let beforeDateNetAmount = 0;
+
+    if (formDate) {
+      const beforeDateData = await C_Ledger.findOne({
+        where: {
+          accountId: id,
+          companyId,
+          date: { [Sequelize.Op.lt]: formDate },
+        },
+        attributes: [
+          [
+            Sequelize.literal(`
+              IFNULL(SUM(
+                (CASE
+                  WHEN receiptLedgerCash.id IS NOT NULL THEN receiptLedgerCash.amount
+                  WHEN purchaseLedgerCash.id IS NOT NULL THEN purchaseLedgerCash.totalMrp
+                  WHEN creditNoLedgerCash.id IS NOT NULL THEN creditNoLedgerCash.mainTotal
+                  ELSE 0
+                END)
+                -
+                (CASE
+                  WHEN paymentLedgerCash.id IS NOT NULL THEN paymentLedgerCash.amount
+                  WHEN salesLedgerCash.id IS NOT NULL THEN salesLedgerCash.totalMrp
+                  WHEN debitNoLedgerCash.id IS NOT NULL THEN debitNoLedgerCash.mainTotal
+                  ELSE 0
+                END)
+              ), 0)
+            `),
+            "netAmount",
+          ],
+        ],
+        include: [
+          { model: C_Payment, as: "paymentLedgerCash", attributes: [] },
+          { model: C_PurchaseCash, as: "purchaseLedgerCash", attributes: [] },
+          { model: C_Receipt, as: "receiptLedgerCash", attributes: [] },
+          { model: C_Salesinvoice, as: "salesLedgerCash", attributes: [] },
+          { model: C_CreditNote, as: "creditNoLedgerCash", attributes: [] },
+          { model: C_DebitNote, as: "debitNoLedgerCash", attributes: [] },
+        ],
+        raw: true,
+      });
+
+      beforeDateNetAmount = Number(beforeDateData?.netAmount || 0);
+    }
+
+    /* ----------------------------------
+       4️⃣ FINAL OPENING BALANCE (ALWAYS)
+    ---------------------------------- */
+    const openingBalance = +(
+      baseBalance + beforeDateNetAmount
+    ).toFixed(2);
+
+    const whereLedger = {
+      accountId: id,
+      companyId,
+    };
+
     if (formDate && toDate) {
       queryData.date = {
         [Sequelize.Op.between]: [formDate, toDate],
@@ -651,23 +755,18 @@ exports.C_account_ledger = async (req, res) => {
       ],
     });
 
-    const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
+    // const openingBalance = data[0]?.dataValues?.openingBalance ?? 0;
 
     const ledgerArray = [...data];
-    if (+openingBalance !== 0) {
-      ledgerArray.unshift({
-        _id: null,
-        date: formDate,
-        debitAmount:
-          openingBalance < 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-        creditAmount:
-          openingBalance > 0 ? +Math.abs(openingBalance).toFixed(2) : 0,
-        particulars: "Opening Balance",
-        vchType: "",
-        vchNo: "",
-        openingBalance: 0,
-      });
-    }
+    ledgerArray.unshift({
+      date: formDate || null,
+      debitAmount: openingBalance < 0 ? Math.abs(openingBalance) : 0,
+      creditAmount: openingBalance > 0 ? openingBalance : 0,
+      particulars: "Opening Balance",
+      vchType: "",
+      vchNo: "",
+    });
+
     const groupedRecords = {};
     const fromFinancialYear = getFinancialYear(formDate);
     const toFinancialYear = getFinancialYear(toDate);
@@ -1454,17 +1553,18 @@ exports.C_cashbook = async (req, res) => {
 
     if (formDate && toDate) {
       queryData.date = {
-        [Sequelize.Op.between]: [formDate, toDate],
+        [Op.between]: [formDate, toDate],
       };
     }
 
+    // --- UNCHANGED: Original detail fetching logic ---
     const data = await C_Cashbook.findAll({
       where: queryData,
       attributes: [
         "date",
         "id",
         [
-          Sequelize.literal(`CASE
+          literal(`CASE
             WHEN cashCashbookPayment.id IS NOT NULL THEN \`cashCashbookPayment\`.\`amount\`
             WHEN cashbookPayment.id IS NOT NULL THEN \`cashbookPayment\`.\`amount\`
             ELSE 0
@@ -1472,7 +1572,7 @@ exports.C_cashbook = async (req, res) => {
           "debitAmount",
         ],
         [
-          Sequelize.literal(`CASE
+          literal(`CASE
             WHEN cashCashbookReceipt.id IS NOT NULL THEN \`cashCashbookReceipt\`.\`amount\`
             WHEN cashbookReceipt.id IS NOT NULL THEN \`cashbookReceipt\`.\`amount\`
             ELSE 0
@@ -1480,7 +1580,7 @@ exports.C_cashbook = async (req, res) => {
           "creditAmount",
         ],
         [
-          Sequelize.literal(`CASE
+          literal(`CASE
             WHEN cashCashbookReceipt.id IS NOT NULL THEN \`cashCashbookReceipt\`.\`description\`
             WHEN cashCashbookPayment.id IS NOT NULL THEN \`cashCashbookPayment\`.\`description\`
             WHEN cashbookPayment.id IS NOT NULL THEN
@@ -1498,7 +1598,7 @@ exports.C_cashbook = async (req, res) => {
           "details",
         ],
         [
-          Sequelize.literal(`CASE
+          literal(`CASE
             WHEN cashCashbookPayment.id IS NOT NULL THEN \`cashCashbookPayment->accountPaymentCash\`.\`contactPersonName\`
             WHEN cashCashbookReceipt.id IS NOT NULL THEN \`cashCashbookReceipt->accountReceiptCash\`.\`contactPersonName\`
             WHEN cashbookReceipt.id IS NOT NULL THEN \`cashbookReceipt->accountReceipt\`.\`accountName\`
@@ -1508,7 +1608,7 @@ exports.C_cashbook = async (req, res) => {
           "personName",
         ],
         [
-          Sequelize.literal(`CASE
+          literal(`CASE
             WHEN cashCashbookPayment.id IS NOT NULL THEN \`cashCashbookPayment->paymentUpdate\`.\`username\`
             WHEN cashCashbookReceipt.id IS NOT NULL THEN \`cashCashbookReceipt->receiveUpdate\`.\`username\`
             WHEN cashbookReceipt.id IS NOT NULL THEN \`cashbookReceipt->bankUpdateUser\`.\`username\`
@@ -1524,14 +1624,8 @@ exports.C_cashbook = async (req, res) => {
           as: "cashCashbookPayment",
           required: false,
           include: [
-            {
-              model: Account,
-              as: "accountPaymentCash",
-            },
-            {
-              model: User,
-              as: "paymentUpdate",
-            },
+            { model: Account, as: "accountPaymentCash" },
+            { model: User, as: "paymentUpdate" },
           ],
           attributes: [],
         },
@@ -1540,14 +1634,8 @@ exports.C_cashbook = async (req, res) => {
           as: "cashCashbookReceipt",
           required: false,
           include: [
-            {
-              model: Account,
-              as: "accountReceiptCash",
-            },
-            {
-              model: User,
-              as: "receiveUpdate",
-            },
+            { model: Account, as: "accountReceiptCash" },
+            { model: User, as: "receiveUpdate" },
           ],
           attributes: [],
         },
@@ -1555,19 +1643,9 @@ exports.C_cashbook = async (req, res) => {
           model: Receipt,
           as: "cashbookReceipt",
           include: [
-            {
-              model: Account,
-              as: "accountReceipt",
-            },
-            {
-              model: CompanyBankDetails,
-              as: "receiptBankAccount",
-              attributes: [],
-            },
-            {
-              model: User,
-              as: "bankUpdateUser",
-            },
+            { model: Account, as: "accountReceipt" },
+            { model: CompanyBankDetails, as: "receiptBankAccount", attributes: [] },
+            { model: User, as: "bankUpdateUser" },
           ],
           attributes: [],
         },
@@ -1575,19 +1653,9 @@ exports.C_cashbook = async (req, res) => {
           model: Payment,
           as: "cashbookPayment",
           include: [
-            {
-              model: Account,
-              as: "accountPayment",
-            },
-            {
-              model: CompanyBankDetails,
-              as: "paymentBankAccount",
-              attributes: [],
-            },
-            {
-              model: User,
-              as: "paymentUpdateUser",
-            },
+            { model: Account, as: "accountPayment" },
+            { model: CompanyBankDetails, as: "paymentBankAccount", attributes: [] },
+            { model: User, as: "paymentUpdateUser" },
           ],
           attributes: [],
         },
@@ -1595,226 +1663,90 @@ exports.C_cashbook = async (req, res) => {
       order: [["date", "ASC"]],
     });
 
+    // --- CHANGED: Fetching snapshots ---
+    const dailySnapshots = await C_DailyBalance.findAll({
+      where: { companyId: companyId, date: { [Op.between]: [formDate, toDate] } },
+      order: [["date", "ASC"]]
+    });
+
+    // --- NEW: Fetch the absolute latest balance BEFORE the formDate ---
+    // This is crucial to start the carry-forward logic correctly.
+    const initialBalanceSnapshot = await C_DailyBalance.findOne({
+      where: { companyId: companyId, date: { [Op.lt]: formDate } },
+      order: [['date', 'DESC']]
+    });
+
+    let runningBalance = initialBalanceSnapshot ? Number(initialBalanceSnapshot.closingBalance) : 0;
+
     const fromDateObj = new Date(formDate);
     const toDateObj = new Date(toDate);
 
+    // --- UNCHANGED: Date range helper ---
     function generateDateRange(from, to) {
       const dates = [];
       let currentDate = new Date(from);
-
       while (currentDate <= to) {
         dates.push(currentDate.toISOString().split("T")[0]);
         currentDate.setDate(currentDate.getDate() + 1);
       }
-
       return dates;
     }
 
-    const openingBalanceData = await C_Cashbook.findOne({
-      where: {
-        companyId: companyId,
-        date: {
-          [Sequelize.Op.lt]: formDate,
-        },
-      },
-      attributes: [
-        "id",
-        "date",
-        [
-          Sequelize.literal(`
-          (
-        SELECT
-            IFNULL(SUM(
-                IFNULL(CASE
-                  WHEN cashCashbookReceipt.id IS NOT NULL THEN cashCashbookReceipt.amount
-                  WHEN cashbookReceipt.id IS NOT NULL THEN cashbookReceipt.amount
-                  ELSE 0
-                END, 0) -
-                IFNULL(CASE
-                  WHEN cashCashbookPayment.id IS NOT NULL THEN cashCashbookPayment.amount
-                  WHEN cashbookPayment.id IS NOT NULL THEN cashbookPayment.amount
-                  ELSE 0
-                END, 0)
-              ), 0
-            )
-        FROM
-            P_C_Cashbooks AS cb2
-        LEFT OUTER JOIN P_Receipts AS cashbookReceipt ON cb2.receiptId = cashbookReceipt.id
-        LEFT OUTER JOIN P_Payments AS cashbookPayment ON cb2.paymentId = cashbookPayment.id
-        LEFT OUTER JOIN P_C_Receipts AS cashCashbookReceipt ON cb2.C_receiptId = cashCashbookReceipt.id
-        LEFT OUTER JOIN P_C_Payments AS cashCashbookPayment ON cb2.C_paymentId = cashCashbookPayment.id
-        WHERE
-            cb2.companyId = ${companyId}
-            AND (
-                cb2.date <= P_C_Cashbook.date
-                OR (
-                    cb2.date = P_C_Cashbook.date
-                    AND cb2.id <= P_C_Cashbook.id
-                )
-            )
-    )`),
-          "openingBalance",
-        ],
-      ],
-      include: [
-        {
-          model: C_Payment,
-          as: "cashCashbookPayment",
-          include: [
-            {
-              model: Account,
-              as: "accountPaymentCash",
-            },
-            {
-              model: User,
-              as: "paymentUpdate",
-            },
-          ],
-          attributes: [],
-        },
-        {
-          model: C_Receipt,
-          as: "cashCashbookReceipt",
-          include: [
-            {
-              model: Account,
-              as: "accountReceiptCash",
-            },
-            {
-              model: User,
-              as: "receiveUpdate",
-            },
-          ],
-          attributes: [],
-        },
-        {
-          model: Receipt,
-          as: "cashbookReceipt",
-          include: [
-            {
-              model: Account,
-              as: "accountReceipt",
-            },
-            {
-              model: User,
-              as: "bankUpdateUser",
-            },
-          ],
-          attributes: [],
-        },
-        {
-          model: Payment,
-          as: "cashbookPayment",
-          include: [
-            {
-              model: Account,
-              as: "accountPayment",
-            },
-            {
-              model: User,
-              as: "paymentUpdateUser",
-            },
-          ],
-          attributes: [],
-        },
-      ],
-      order: [["date", "DESC"]],
-    });
-
-    const mainOpeningBalance =
-      openingBalanceData?.dataValues?.openingBalance ?? 0;
-
     const allDates = generateDateRange(fromDateObj, toDateObj);
 
+    // Grouping existing transaction details by date
     const existingDataGrouped = data.reduce((acc, record) => {
       const date = record.date;
-      if (!acc[date]) {
-        acc[date] = [];
-      }
+      if (!acc[date]) acc[date] = [];
       acc[date].push(record);
       return acc;
     }, {});
 
-    let previousClosingBalance = {
-      type: "credit",
-      amount: 0,
-    };
+    // --- NEW LOGIC: Tracking the first record ---
+    let firstRecordFound = false;
 
-    const result = allDates.reduce((acc, date, index) => {
-      const groupDateData = existingDataGrouped[date] || [];
-      const ledgerArray = [...groupDateData];
+    const result = allDates.reduce((acc, date) => {
+      const snapshot = dailySnapshots.find(s => s.date === date);
+      const recordsForDay = existingDataGrouped[date] || [];
 
-      if (index === 0) {
-        ledgerArray.unshift({
-          date: date,
-          debitAmount:
-            mainOpeningBalance < 0
-              ? +Math.abs(mainOpeningBalance).toFixed(2)
-              : 0,
-          creditAmount:
-            mainOpeningBalance > 0
-              ? +Math.abs(mainOpeningBalance).toFixed(2)
-              : 0,
-          details: "Opening Balance",
-          openingBalance: 0,
-          personName: "",
-          id: null,
-          username: "",
-        });
+      // Check if this date contains the first record of the range
+      if (!firstRecordFound && recordsForDay.length > 0) {
+        firstRecordFound = true;
       }
 
-      const openingBalance = previousClosingBalance.amount;
+      let currentOpeningBalance, currentClosingBalance, displayCredit, displayDebit;
 
-      if (openingBalance > 0) {
-        ledgerArray.unshift({
-          date: date,
-          debitAmount:
-            previousClosingBalance.type === "credit" ? openingBalance : 0,
-          creditAmount:
-            previousClosingBalance.type === "debit" ? openingBalance : 0,
-          details: "Opening Balance",
-          openingBalance: 0,
-          personName: "",
-          id: null,
-          username: "",
-        });
+      if (!firstRecordFound) {
+        // If no records found yet in this range, force everything to 0
+        currentOpeningBalance = 0;
+        currentClosingBalance = 0;
+        displayCredit = "0.00";
+        displayDebit = "0.00";
+      } else {
+        // Once the first record is hit, use normal snapshot and carry-forward logic
+        currentOpeningBalance = snapshot ? Number(snapshot.openingBalance) : runningBalance;
+        currentClosingBalance = snapshot ? Number(snapshot.closingBalance) : currentOpeningBalance;
+        displayCredit = snapshot ? Number(snapshot.totalCredit).toFixed(2) : "0.00";
+        displayDebit = snapshot ? Number(snapshot.totalDebit).toFixed(2) : "0.00";
       }
-
-      const totals = ledgerArray.reduce(
-        (acc, ledger) => {
-          if (ledger.dataValues) {
-            acc.totalCredit += ledger.dataValues.creditAmount || 0;
-            acc.totalDebit += ledger.dataValues.debitAmount || 0;
-          } else {
-            acc.totalCredit += ledger.creditAmount || 0;
-            acc.totalDebit += ledger.debitAmount || 0;
-          }
-          return acc;
-        },
-        { totalCredit: 0, totalDebit: 0 }
-      );
-
-      const totalCredit = totals.totalCredit;
-      const totalDebit = totals.totalDebit;
-      const closingBalanceAmount = totalDebit - totalCredit;
-      const closingBalance = {
-        type: closingBalanceAmount < 0 ? "debit" : "credit",
-        amount: +Math.abs(closingBalanceAmount).toFixed(2),
-      };
-
-      previousClosingBalance = closingBalance;
-
-      const totalAmount =
-        totals.totalCredit < totals.totalDebit
-          ? totals.totalDebit
-          : totals.totalCredit;
 
       acc[date] = {
-        totalAmount,
-        totals,
-        closingBalance,
-        records: ledgerArray,
+        openingBalance: currentOpeningBalance.toFixed(2),
+        closingBalance: {
+          amount: Math.abs(currentClosingBalance).toFixed(2),
+          type: currentClosingBalance >= 0 ? "credit" : "debit"
+        },
+        totals: {
+          totalCredit: displayCredit,
+          totalDebit: displayDebit
+        },
+        records: recordsForDay
       };
+
+      // Only update runningBalance once we've started processing real data
+      if (firstRecordFound) {
+        runningBalance = currentClosingBalance;
+      }
 
       return acc;
     }, {});
@@ -1822,16 +1754,11 @@ exports.C_cashbook = async (req, res) => {
     return res.status(200).json({
       status: "true",
       message: "Cashbook Data Fetch Successfully.",
-      data: {
-        form: company,
-        records: result,
-      },
+      data: { form: company, records: result },
     });
   } catch (e) {
     console.log(e);
-    return res
-      .status(500)
-      .json({ status: "false", message: "Internal Server Error." });
+    return res.status(500).json({ status: "false", message: "Internal Server Error." });
   }
 };
 
@@ -4358,6 +4285,14 @@ exports.C_passbook = async (req, res) => {
         END`),
           "username",
         ],
+        [
+          Sequelize.literal(`CASE
+            WHEN bankPayment.id IS NOT NULL THEN \`bankPayment->paymentBankAccount\`.\`bankname\`
+            WHEN bankReceipt.id IS NOT NULL THEN \`bankReceipt->receiptBankAccount\`.\`bankname\`
+            ELSE ''
+          END`),
+          "bank",
+        ],
       ],
       include: [
         {
@@ -4509,8 +4444,6 @@ exports.C_passbook = async (req, res) => {
     const mainOpeningBalance =
       openingBalanceData?.dataValues?.openingBalance ?? 0;
 
-    console.log(mainOpeningBalance, "Main Balance")
-
     const allDates = generateDateRange(fromDateObj, toDateObj);
 
     const existingDataGrouped = data.reduce((acc, record) => {
@@ -4542,7 +4475,7 @@ exports.C_passbook = async (req, res) => {
             mainOpeningBalance > 0
               ? +Math.abs(mainOpeningBalance).toFixed(2)
               : 0,
-          details: "Opening Balance",
+          bank: "Opening Balance",
           party: "",
           id: null,
           username: "",
@@ -4559,7 +4492,7 @@ exports.C_passbook = async (req, res) => {
             previousClosingBalance.type === "credit" ? openingBalance : 0,
           creditAmount:
             previousClosingBalance.type === "debit" ? openingBalance : 0,
-          details: "Opening Balance",
+          bank: "Opening Balance",
           party: "",
           id: null,
           username: "",

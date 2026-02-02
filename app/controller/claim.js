@@ -731,7 +731,6 @@ exports.view_all_wallet = async (req, res) => {
     };
 
     const selfExpense = await C_SelfExpense.sum("amount", { where });
-    console.log('selfExpense: ', selfExpense);
     const cleanUserWallet = userWallet?.get ? userWallet.get({ plain: true }) : {};
     cleanUserWallet.selfExpense = selfExpense ?? 0;
 
@@ -822,6 +821,8 @@ exports.view_balance = async (req, res) => {
     const companyEntry = {
       name: companyData.companyname,
       cashOnHand: (companyBalanceObj?.balance || 0) + (companyCashBalance?.balance || 0),
+      cash1:(companyCashBalance?.balance || 0),
+      cash2:(companyBalanceObj?.balance || 0),
       totalBalance:
         sum +
         (companyBalanceObj?.balance || 0) +

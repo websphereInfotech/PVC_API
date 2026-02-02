@@ -100,7 +100,7 @@ const create_all_employees_attendance = async (companyId) => {
             return { ATTENDANCE_NOT_CREATED: true };
         }
 
-        console.log("Attendance created successfully.");
+        // console.log("Attendance created successfully.");
         return { SUCCESS: true };
     } catch(error) {
         console.error(error);

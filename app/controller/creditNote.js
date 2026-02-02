@@ -709,6 +709,7 @@ exports.creditNote_single_excel = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
 exports.creditNote_excel = async (req, res) => {
   try {
     const companyId = req.user.companyId;
@@ -794,6 +795,7 @@ exports.creditNote_excel = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
 /*=============================================================================================================
                                          Without Typc C API
  ============================================================================================================ */
@@ -1426,6 +1428,7 @@ exports.C_creditNote_single_excel = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
 exports.C_creditNote_excel = async (req, res) => {
   try {
     const companyId = req.user.companyId;

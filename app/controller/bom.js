@@ -2,54 +2,58 @@ const Bom = require('../models/bom')
 const BomItem = require('../models/bomItem')
 const Product = require("../models/product");
 const User = require("../models/user");
-const {Sequelize} = require("sequelize");
+const { Sequelize } = require("sequelize");
 const Stock = require("../models/stock");
 // const Wastage = require("../models/Wastage");
 
 exports.create_bom = async (req, res) => {
     try {
-        const {bomNo, date, unit, weight, items, productId, qty, totalQty, shift, endTime, startTime, wastageId, wastageQty} = req.body;
+        const { bomNo, date, unit, weight, items, productId, qty, totalQty, shift, endTime, startTime, wastageId, wastageQty } = req.body;
         const userId = req.user.userId;
         const companyId = req.user.companyId;
-        const checkBomNo = await Bom.findOne({where: {bomNo: bomNo, companyId: companyId}});
+        const checkBomNo = await Bom.findOne({ where: { bomNo: bomNo, companyId: companyId } });
 
-        if(checkBomNo){
+        if (checkBomNo) {
             return res.status(400).json({
                 status: "false",
                 message: "Production No Already Exists.",
             })
         }
-        const productExist = await Product.findOne({where: {
+        const productExist = await Product.findOne({
+            where: {
                 id: productId,
                 companyId: companyId,
                 isActive: true
-            }});
-        if(!productExist){
+            }
+        });
+        if (!productExist) {
             return res.status(404).json({
                 status: "false",
                 message: "Product Item Not Found.",
             })
         }
-
-        const wastageExist = await Product.findOne({where: {
+        const wastageExist = await Product.findOne({
+            where: {
                 id: wastageId,
                 companyId: companyId,
                 isActive: true
-            }});
-        if(!wastageExist){
+            }
+        });
+        if (!wastageExist) {
             return res.status(404).json({
                 status: "false",
                 message: "Wastage Item Not Found.",
             })
         }
-
-        for(const item of items){
-            const productExist = await Product.findOne({where: {
+        for (const item of items) {
+            const productExist = await Product.findOne({
+                where: {
                     id: item.productId,
                     companyId: companyId,
                     isActive: true
-                }});
-            if(!productExist){
+                }
+            });
+            if (!productExist) {
                 return res.status(404).json({
                     status: "false",
                     message: "Product Item Not Found.",
@@ -58,8 +62,6 @@ exports.create_bom = async (req, res) => {
         }
         const totalWeight = (qty * weight) + Number(wastageQty);
         const dividedWeight = Math.floor((totalWeight / totalQty) * 100) / 100;
-
-        console.log('Test createBOM before');
 
         const createBOM = await Bom.create({
             bomNo: bomNo,
@@ -75,40 +77,48 @@ exports.create_bom = async (req, res) => {
             shift: shift,
             endTime: endTime,
             startTime: startTime,
-            WastageId:wastageId,
+            WastageId: wastageId,
             wastageQty
         })
 
-        console.log('Test createBOM after');
-
         const itemStock = await Stock.findOne({
-            where: {productId}
+            where: { productId }
         })
-        if(itemStock){
-            await itemStock.increment('qty',{by: qty})
+        if (itemStock) {
+            await itemStock.increment('qty', { by: qty })
         }
-        
-        const wastageStock = await Stock.findOne({
-            where: {productId:wastageId}
-        })
-        if(wastageStock){
-            await wastageStock.increment('qty',{by: wastageQty})
+
+        // revert old wastage
+        if (bomExist.WastageId) {
+            const oldWastageStock = await Stock.findOne({
+                where: { productId: bomExist.WastageId },
+            });
+            if (oldWastageStock) {
+                await oldWastageStock.decrement('qty', { by: bomExist.wastageQty });
+            }
+        }
+
+        // apply new wastage
+        const newWastageStock = await Stock.findOne({
+            where: { productId: wastageId },
+        });
+        if (newWastageStock) {
+            await newWastageStock.increment('qty', { by: wastageQty });
         }
 
 
-        for(const item of items){
+        for (const item of items) {
             const totalQty = Math.floor((item.qty * dividedWeight) * 100) / 100;
-            console.log(totalQty, "Total QTY", item.productId)
             await BomItem.create({
                 ...item,
                 bomId: createBOM.id
             })
 
             const itemStock = await Stock.findOne({
-                where: {productId: item.productId},
+                where: { productId: item.productId },
             })
-            if(itemStock){
-                await itemStock.decrement('qty',{by: totalQty})
+            if (itemStock) {
+                await itemStock.decrement('qty', { by: totalQty })
             }
         }
 
@@ -116,8 +126,8 @@ exports.create_bom = async (req, res) => {
             status: "true",
             message: "Production created successfully.",
         })
-    }catch (e) {
-        console.log('error = = =>' ,e);
+    } catch (e) {
+        console.log('error = = =>', e);
         return res.status(500).json({
             status: "false",
             message: "Internal Server Error.",
@@ -126,90 +136,123 @@ exports.create_bom = async (req, res) => {
 }
 
 exports.update_bom = async (req, res) => {
-    try{
+    try {
         const companyId = req.user.companyId;
-        const {bomId} = req.params;
-        const {bomNo, date, unit, weight, items, productId, qty, totalQty, shift, endTime, startTime, wastageId, wastageQty} = req.body;
+        const userId = req.user.userId;
+        const { bomId } = req.params;
 
-        const bomExist = await Bom.findOne({where: {id: bomId, companyId: companyId}})
-        if(!bomExist){
+        const {
+            bomNo,
+            date,
+            unit,
+            weight,
+            items,
+            productId,
+            qty,
+            totalQty,
+            shift,
+            endTime,
+            startTime,
+            wastageId,
+            wastageQty
+        } = req.body;
+
+        const bomExist = await Bom.findOne({
+            where: { id: bomId, companyId }
+        });
+
+        if (!bomExist) {
             return res.status(404).json({
                 status: "false",
                 message: "Production Not Found."
-            })
+            });
         }
 
         const numberOf = await Bom.findOne({
-            where: { bomNo: bomNo, companyId: companyId, id: { [Sequelize.Op.ne]: bomId },},
+            where: {
+                bomNo,
+                companyId,
+                id: { [Sequelize.Op.ne]: bomId }
+            }
         });
 
         if (numberOf) {
-            return res
-                .status(400)
-                .json({ status: "false", message: "Production Number Already Exists" });
-        }
-        const productExist = await Product.findOne({where: {
-                id: productId,
-                companyId: companyId,
-                isActive: true
-            }});
-        if(!productExist){
-            return res.status(404).json({
+            return res.status(400).json({
                 status: "false",
-                message: "Product Item Not Found.",
-            })
+                message: "Production Number Already Exists"
+            });
         }
-        const wastageExist = await Product.findOne({where: {
-                id: wastageId,
-                companyId: companyId,
-            }});
-        if(!wastageExist){
-            return res.status(404).json({
+
+        if (!totalQty || totalQty <= 0) {
+            return res.status(400).json({
                 status: "false",
-                message: "Wastage Item Not Found.",
-            })
+                message: "Total quantity must be greater than zero."
+            });
         }
-        const existingItems = await BomItem.findAll({
-            where: { bomId: bomExist.id },
+
+        const productExist = await Product.findOne({
+            where: { id: productId, companyId, isActive: true }
         });
 
-        for(const item of items){
-            const productExist = await Product.findOne({where: {
-                    id: item.productId,
-                    companyId: companyId,
-                    isActive: true
-                }});
-            if(!productExist){
+        if (!productExist) {
+            return res.status(404).json({
+                status: "false",
+                message: "Product Item Not Found."
+            });
+        }
+
+        const wastageExist = await Product.findOne({
+            where: { id: wastageId, companyId }
+        });
+
+        if (!wastageExist) {
+            return res.status(404).json({
+                status: "false",
+                message: "Wastage Item Not Found."
+            });
+        }
+
+        const existingItems = await BomItem.findAll({
+            where: { bomId }
+        });
+
+        for (const item of items) {
+            const productExist = await Product.findOne({
+                where: { id: item.productId, companyId, isActive: true }
+            });
+
+            if (!productExist) {
                 return res.status(404).json({
                     status: "false",
-                    message: "Product Item Not Found.",
-                })
+                    message: "Product Item Not Found."
+                });
             }
-            if(item.id){
+
+            if (item.id) {
                 const bomItemExist = await BomItem.findOne({
-                    where: {
-                        id: item.id,
-                        bomId: bomId
-                    }
-                })
-                if(!bomItemExist){
+                    where: { id: item.id, bomId }
+                });
+
+                if (!bomItemExist) {
                     return res.status(404).json({
                         status: "false",
-                        message: "Production Item Not Found.",
-                    })
+                        message: "Production Item Not Found."
+                    });
                 }
             }
         }
-        const totalWeight = (qty * weight) + Number(wastageQty);
 
+        const totalWeight = (qty * weight) + Number(wastageQty);
         const dividedWeight = Math.floor((totalWeight / totalQty) * 100) / 100;
 
-        const oldTotalWeight = (bomExist.qty * bomExist.weight) + bomExist.wastageQty;
-        const oldTotalRecipeWeight = bomExist?.totalQty ?? 0;
-        const oldDividedWeight = Math.floor((oldTotalWeight / oldTotalRecipeWeight) * 100) / 100;
+        const oldTotalWeight =
+            (bomExist.qty * bomExist.weight) + Number(bomExist.wastageQty);
 
+        const oldDividedWeight = Math.floor(
+            (oldTotalWeight / (bomExist.totalQty || 1)) * 100
+        ) / 100;
 
-        await  Bom.update(
+        await Bom.update(
             {
                 bomNo,
                 date,
@@ -217,95 +260,163 @@ exports.update_bom = async (req, res) => {
                 productId,
                 qty,
                 unit,
-                updatedBy: req.user.userId,
                 totalQty,
                 shift,
                 endTime,
                 startTime,
-                WastageId:wastageId,
-                wastageQty
+                WastageId: wastageId,
+                wastageQty,
+                updatedBy: userId
             },
-            {
-                where: {
-                    id: bomExist.id
-                }
-            }
+            { where: { id: bomId } }
         );
 
-        const itemStock = await Stock.findOne({
-            where: {productId: productId},
-        })
-        if(itemStock){
-            await itemStock.decrement('qty',{by: bomExist?.qty ?? 0})
-            await itemStock.increment('qty',{by: qty})
+        // ---------- FINISHED PRODUCT STOCK ----------
+        if (bomExist.productId !== productId) {
+            const oldStock = await Stock.findOne({
+                where: { productId: bomExist.productId }
+            });
+            if (oldStock) {
+                await oldStock.decrement("qty", { by: bomExist.qty });
+            }
+
+            const newStock = await Stock.findOne({
+                where: { productId }
+            });
+            if (newStock) {
+                await newStock.increment("qty", { by: qty });
+            }
+        } else {
+            const productStock = await Stock.findOne({
+                where: { productId }
+            });
+            if (productStock) {
+                await productStock.decrement("qty", { by: bomExist.qty });
+                await productStock.increment("qty", { by: qty });
+            }
         }
 
-        for(const item of items){
-            const existingItem = existingItems.find((ei) => ei.id === item.id);
-            if(existingItem){
-                BomItem.update(
+        // ---------- WASTAGE STOCK ----------
+        if (bomExist.WastageId) {
+            const oldWastageStock = await Stock.findOne({
+                where: { productId: bomExist.WastageId }
+            });
+            if (oldWastageStock) {
+                await oldWastageStock.decrement("qty", {
+                    by: bomExist.wastageQty
+                });
+            }
+        }
+
+        const newWastageStock = await Stock.findOne({
+            where: { productId: wastageId }
+        });
+        if (newWastageStock) {
+            await newWastageStock.increment("qty", { by: wastageQty });
+        }
+
+        // ---------- BOM ITEMS ----------
+        for (const item of items) {
+            const existingItem = existingItems.find(
+                ei => ei.id === item.id
+            );
+
+            const oldItemQty = existingItem?.qty ?? 0;
+            const oldTotalQty =
+                Math.floor((oldItemQty * oldDividedWeight) * 100) / 100;
+
+            const newTotalQty =
+                Math.floor((item.qty * dividedWeight) * 100) / 100;
+
+            // product changed
+            if (existingItem && existingItem.productId !== item.productId) {
+                const oldStock = await Stock.findOne({
+                    where: { productId: existingItem.productId }
+                });
+                if (oldStock) {
+                    await oldStock.increment("qty", { by: oldTotalQty });
+                }
+
+                const newStock = await Stock.findOne({
+                    where: { productId: item.productId }
+                });
+                if (newStock) {
+                    await newStock.decrement("qty", { by: newTotalQty });
+                }
+            }
+            // same product
+            else if (existingItem) {
+                const itemStock = await Stock.findOne({
+                    where: { productId: item.productId }
+                });
+                if (itemStock) {
+                    await itemStock.increment("qty", { by: oldTotalQty });
+                    await itemStock.decrement("qty", { by: newTotalQty });
+                }
+            }
+            // new item
+            else {
+                const itemStock = await Stock.findOne({
+                    where: { productId: item.productId }
+                });
+                if (itemStock) {
+                    await itemStock.decrement("qty", { by: newTotalQty });
+                }
+            }
+
+            if (existingItem) {
+                await BomItem.update(
                     {
-                        productId : item.productId,
+                        productId: item.productId,
                         qty: item.qty,
                         unit: item.unit
                     },
-                    {
-                        where: {
-                            id: item.id,
-                            bomId: bomExist.id
-                        }
-                    }
+                    { where: { id: item.id, bomId } }
                 );
-
-            }else{
+            } else {
                 await BomItem.create({
                     ...item,
-                    bomId: bomExist.id
-                })
-            }
-            const exitingQty = existingItem?.qty ?? 0
-            const oldTotalQty = Math.floor((exitingQty * oldDividedWeight) * 100) / 100;;
-            const totalQty = Math.floor((item.qty * dividedWeight)*100)/100
-
-            const itemStock = await Stock.findOne({
-                where: {productId: item.productId},
-            })
-            if(itemStock){
-                await itemStock.increment('qty',{by: oldTotalQty})
-                await itemStock.decrement('qty',{by: totalQty})
+                    bomId
+                });
             }
         }
 
-        const updatedProductIds = items.map((item) => item.id);
+        // ---------- DELETE REMOVED ITEMS ----------
+        const updatedItemIds = items.map(i => i.id).filter(Boolean);
         const itemsToDelete = existingItems.filter(
-            (item) => !updatedProductIds.includes(item.id)
+            i => !updatedItemIds.includes(i.id)
         );
+
         for (const item of itemsToDelete) {
-            const oldTotalQty = Math.floor((item.qty * oldDividedWeight)*100)/100;
+            const oldTotalQty =
+                Math.floor((item.qty * oldDividedWeight) * 100) / 100;
+
             const itemStock = await Stock.findOne({
-                where: {productId: item.productId},
-            })
-            if(itemStock){
-                await itemStock.increment('qty',{by: oldTotalQty})
+                where: { productId: item.productId }
+            });
+            if (itemStock) {
+                await itemStock.increment("qty", { by: oldTotalQty });
             }
+
             await BomItem.destroy({ where: { id: item.id } });
         }
 
         return res.status(200).json({
             status: "true",
-            message: "Production updated successfully.",
-        })
-    }
-    catch (e) {
-        console.log(e);
+            message: "Production updated successfully."
+        });
+
+    } catch (e) {
+        console.error("update_bom error:", e);
         return res.status(500).json({
             status: "false",
-            message: "Internal Server Error.",
-        })
+            message: "Internal Server Error."
+        });
     }
-}
+};
 
-exports.view_all_bom = async (req,res)=>{
+
+exports.view_all_bom = async (req, res) => {
     try {
         const companyId = req.user.companyId;
 
@@ -344,7 +455,7 @@ exports.view_all_bom = async (req,res)=>{
             message: "Production fetched successfully.",
             data: boms
         })
-    }catch (e) {
+    } catch (e) {
         console.log(e);
         return res.status(500).json({
             status: "false",
@@ -353,13 +464,13 @@ exports.view_all_bom = async (req,res)=>{
     }
 }
 
-exports.view_bom = async (req,res)=>{
+exports.view_bom = async (req, res) => {
     try {
         const companyId = req.user.companyId;
-        const {bomId} = req.params;
+        const { bomId } = req.params;
 
-        const bomExist = await Bom.findOne({where: {id: bomId, companyId: companyId}})
-        if(!bomExist){
+        const bomExist = await Bom.findOne({ where: { id: bomId, companyId: companyId } })
+        if (!bomExist) {
             return res.status(404).json({
                 status: "false",
                 message: "Production Not Found."
@@ -402,7 +513,7 @@ exports.view_bom = async (req,res)=>{
             message: "Production fetched successfully.",
             data: bom
         })
-    }catch (e) {
+    } catch (e) {
         console.log(e);
         return res.status(500).json({
             status: "false",
@@ -411,13 +522,13 @@ exports.view_bom = async (req,res)=>{
     }
 }
 
-exports.delete_bom = async (req,res)=>{
+exports.delete_bom = async (req, res) => {
     try {
         const companyId = req.user.companyId;
-        const {bomId} = req.params;
+        const { bomId } = req.params;
 
-        const bomExist = await Bom.findOne({where: {id: bomId, companyId: companyId}})
-        if(!bomExist){
+        const bomExist = await Bom.findOne({ where: { id: bomId, companyId: companyId } })
+        if (!bomExist) {
             return res.status(404).json({
                 status: "false",
                 message: "Production Not Found."
@@ -432,29 +543,56 @@ exports.delete_bom = async (req,res)=>{
         const oldTotalRecipeWeight = bomExist.totalQty;
         const oldDividedWeight = Math.floor((oldTotalWeight / oldTotalRecipeWeight) * 100) / 100;
         const itemStock = await Stock.findOne({
-            where: {productId: bomExist.productId},
+            where: { productId: bomExist.productId },
         })
 
-        for(const item of existingItems){
+        for (const item of existingItems) {
             const exitingQty = item?.qty ?? 0
-            const oldTotalQty = Math.floor((exitingQty * oldDividedWeight)*100)/100;
+            const oldTotalQty = Math.floor((exitingQty * oldDividedWeight) * 100) / 100;
             const itemStock = await Stock.findOne({
-                where: {productId: item.productId},
+                where: { productId: item.productId },
             })
-            if(itemStock){
-                await itemStock.increment('qty',{by: oldTotalQty})
+            if (itemStock) {
+                await itemStock.increment('qty', { by: oldTotalQty })
             }
         }
 
-        if(itemStock){
-            await itemStock.decrement('qty',{by: bomExist?.qty ?? 0})
+        if (itemStock) {
+            await itemStock.decrement('qty', { by: bomExist?.qty ?? 0 })
         }
         await bomExist.destroy()
         return res.status(200).json({
             status: "true",
             message: "Production delete successfully.",
         })
-    }catch (e) {
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({
+            status: "false",
+            message: "Internal Server Error.",
+        })
+    }
+}
+
+exports.settlement_delete_bom = async (req, res) => {
+    try {
+        const companyId = req.user.companyId;
+        const { bomId } = req.params;
+
+        const bomExist = await Bom.findOne({ where: { id: bomId, companyId: companyId } })
+        if (!bomExist) {
+            return res.status(404).json({
+                status: "false",
+                message: "Production Not Found."
+            })
+        }
+
+        await bomExist.destroy()
+        return res.status(200).json({
+            status: "true",
+            message: "Production delete successfully.",
+        })
+    } catch (e) {
         console.log(e);
         return res.status(500).json({
             status: "false",

@@ -899,7 +899,7 @@ exports.C_create_debitNote = async (req, res) => {
     await C_Ledger.create({
       accountId: accountId,
       companyId: companyId,
-      debitNoId: debitNote.id,
+      debitNoId: debitNoteData.id,
       date: debitdate,
     });
 
@@ -1302,6 +1302,7 @@ exports.C_debitNote_jpg = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
 exports.C_debitNote_html = async (req, res) => {
   try {
     const { id } = req.params;
@@ -1349,6 +1350,7 @@ exports.C_debitNote_html = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
 exports.C_debitNote_single_excel = async (req, res) => {
   try {
     const { id } = req.params;
@@ -1460,6 +1462,7 @@ exports.C_debitNote_single_excel = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
 exports.C_debitNote_excel = async (req, res) => {
   try {
     const companyId = req.user.companyId;

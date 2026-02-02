@@ -96,8 +96,9 @@ const {
   purchaseDate,
   wastageName,
   maintenance_validation,
+  validateSettlements,
   primaryType,
-  primaryId,
+  primaryIds,
   againstType,
   againstIds
 } = require("./validation");
@@ -105,7 +106,7 @@ const {
 module.exports.validation = function (method) {
   switch (method) {
     case "ledger_settlement":
-      return [primaryType, primaryId, againstType, againstIds];
+      return [validateSettlements];
     case "userLogin":
       return [mobileno, LoginPassword];
     case "check_user":

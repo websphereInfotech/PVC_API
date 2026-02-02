@@ -127,7 +127,7 @@ exports.addEmployeeAttendanceJob = cron.schedule('0 2 * * *', async () => {
             }
         });
         if(attendanceExists) {
-            console.log("Attendances already added for the day: ", date);
+            // console.log("Attendances already added for the day: ", date);
             return { ATTENDANCE_ALREADY_EXISTS: true };
         }
 
@@ -141,7 +141,7 @@ exports.addEmployeeAttendanceJob = cron.schedule('0 2 * * *', async () => {
             }
         });
         if(!employees) {
-            console.log("Employees not found");
+            // console.log("Employees not found");
             return { EMPLOYEES_NOT_FOUND: true };
         }
 
@@ -160,11 +160,11 @@ exports.addEmployeeAttendanceJob = cron.schedule('0 2 * * *', async () => {
 
         const attendance = await Attendance.bulkCreate(attendanceArray);
         if(!attendance) {
-            console.log("Attendance not created");
+            // console.log("Attendance not created");
             return { ATTENDANCE_NOT_CREATED: true };
         }
 
-        console.log("Attendance created successfully.");
+        // console.log("Attendance created successfully.");
         return { SUCCESS: true };
     } catch(error) {
         console.error(error);
@@ -189,7 +189,7 @@ exports.calculateEmployeesOvertimeJob = cron.schedule('0 1 * * *', async () => {
             }
         });
         if(!attendances.length) {
-            console.log("Attendances not found for the day: ", date);
+            // console.log("Attendances not found for the day: ", date);
             return;
         }
 
@@ -202,15 +202,15 @@ exports.calculateEmployeesOvertimeJob = cron.schedule('0 1 * * *', async () => {
             const inTime = moment(attendance.inTime, 'YYYY-MM-DD hh:mm:ss A');
             const outTime = moment(attendance.outTime, 'YYYY-MM-DD hh:mm:ss A');
             const totalWorkedHours = moment.duration(outTime.diff(inTime)).asHours();
-            console.log('totalWorkedHours: ', totalWorkedHours);
+            // console.log('totalWorkedHours: ', totalWorkedHours);
 
             const shiftStartTime = moment(employee.shift.shiftStartTime, 'hh:mm:ss A');
             const shiftEndTime = moment(employee.shift.shiftEndTime, 'hh:mm:ss A');    
             const totalWorkingHours = moment.duration(shiftEndTime.diff(shiftStartTime)).asHours();
-            console.log('totalWorkingHours: ', totalWorkingHours);
+            // console.log('totalWorkingHours: ', totalWorkingHours);
 
             const overtimeHours = parseFloat((totalWorkedHours - totalWorkingHours).toFixed(2));
-            console.log('overtimeHours: ', overtimeHours);
+            // console.log('overtimeHours: ', overtimeHours);
             if(overtimeHours > 0) {
                 const overTimeAmount = parseFloat(((employee.salaryPerDay / totalWorkingHours) * overtimeHours).toFixed(2));
 
@@ -229,7 +229,7 @@ exports.calculateEmployeesOvertimeJob = cron.schedule('0 1 * * *', async () => {
 
         await forLoop(0);
 
-        console.log("Overtime amount added to employees");
+        // console.log("Overtime amount added to employees");
     } catch(error) {
         console.error(error);
     }
@@ -252,7 +252,7 @@ exports.calculateEmployeesMonthlySalaryJob = cron.schedule('0 3 1 * *', async ()
             ] 
         });
         if(!employees.length) {
-            console.log("Employees not found");
+            // console.log("Employees not found");
             return; 
         }
 
@@ -261,7 +261,7 @@ exports.calculateEmployeesMonthlySalaryJob = cron.schedule('0 3 1 * *', async ()
 
             const employee = employees[i];
             const leaves = employees[i].leaves.filter((leave) => leave.date.includes(date));
-            console.log('leaves: ', leaves);
+            // console.log('leaves: ', leaves);
             
             let numberOfLeaves = 0;
             leaves.forEach((leave) => {
@@ -314,7 +314,7 @@ exports.calculateEmployeesMonthlySalaryJob = cron.schedule('0 3 1 * *', async ()
             let bonus = 0;
             if(bonusConfiguration.bonusPercentage) {
                 bonus = (employee.salaryPerDay * bonusConfiguration.workingDays) + (employee.salaryPerDay * (bonusConfiguration.bonusPercentage / 100));
-                console.log('bonus: ', bonus);  
+                // console.log('bonus: ', bonus);  
             }
 
             // Calculate employee's overtime hours for the month and overtime amount for the month
@@ -437,7 +437,7 @@ exports.calculateEmployeesMonthlySalaryJob = cron.schedule('0 3 1 * *', async ()
 
         await forLoop(0);
 
-        console.log("Bonus amount added for all employees.");
+        // console.log("Bonus amount added for all employees.");
     } catch(error) {
         console.log("error: ", error);
     }
@@ -447,7 +447,7 @@ exports.employeesLeavesSettlementJob = cron.schedule('0 2 1 * *', async () => {
     try {
         const employees = await Employee.findAll();
         if(!employees.length) {
-            console.log("No employees found.");
+            // console.log("No employees found.");
             return;
         }
 
@@ -466,7 +466,7 @@ exports.employeesLeavesSettlementJob = cron.schedule('0 2 1 * *', async () => {
 
         await forLoop(0);
 
-        console.log("Employee leaves settlement done successfully.");
+        // console.log("Employee leaves settlement done successfully.");
     } catch(error) {
         console.log("error: ", error);
     }
@@ -592,6 +592,6 @@ exports.employeePunchingAttendance = cron.schedule('*/30 * * * * *', async () =>
         // console.log("Employee punching attendance management done successfully.");
     } catch(error) {
         console.error(error);
-        console.log("Employee punching attendance management failed");
+        // console.log("Employee punching attendance management failed");
     }
 });

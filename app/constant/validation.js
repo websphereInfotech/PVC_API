@@ -12,16 +12,55 @@ const {
 } = require("./constant");
 const AccountGroup = require("../models/AccountGroup");
 
-exports.primaryType = function (req, res, next) {
-  const { primaryType } = req.body;
-  const schema = Joi.string()
-    .valid("SALE", "RECEIPT", "PURCHASE", "PAYMENT")
+const ALLOWED_VOUCHER_TYPES = [
+  "SALE",
+  "RECEIPT",
+  "PURCHASE",
+  "PAYMENT",
+  "CREDIT_NOTE",
+  "DEBIT_NOTE",
+];
+
+exports.validateSettlements = function (req, res, next) {
+  const { settlements } = req.body;
+
+  const schema = Joi.object()
+    .pattern(
+      Joi.string().valid(...ALLOWED_VOUCHER_TYPES),
+      Joi.array().items(Joi.number().positive()).min(1)
+    )
+    .min(1)
     .required()
     .messages({
-      "any.only": "Primary Type must be SALE, RECEIPT, PURCHASE, or PAYMENT",
+      "object.base": "Settlements must be an object",
+      "object.min": "At least one settlement group is required",
+      "any.required": "Settlements field is required",
+    });
+
+  const { error } = schema.validate(settlements);
+  if (error) {
+    return res.status(400).json({
+      status: false,
+      message: error.message
+    });
+  }
+  
+  next();
+};
+
+exports.primaryType = function (req, res, next) {
+  const { primaryType } = req.body;
+
+  const schema = Joi.string()
+    .valid(...ALLOWED_VOUCHER_TYPES)
+    .required()
+    .messages({
+      "any.only":
+        "Primary Type must be SALE, RECEIPT, PURCHASE, PAYMENT, CREDIT_NOTE, or DEBIT_NOTE",
       "any.required": "Required field: Primary Type",
       "string.empty": "Primary Type cannot be empty",
     });
+
   const { error } = schema.validate(primaryType);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
@@ -29,13 +68,20 @@ exports.primaryType = function (req, res, next) {
   next();
 };
 
-exports.primaryId = function (req, res, next) {
-  const { primaryId } = req.body;
-  const schema = Joi.number().required().messages({
-    "number.base": "Primary ID must be a number",
-    "any.required": "Required field: Primary ID",
-  });
-  const { error } = schema.validate(primaryId);
+exports.primaryIds = function (req, res, next) {
+  const { primaryIds } = req.body;
+
+  const schema = Joi.array()
+    .items(Joi.number().positive())
+    .min(1)
+    .required()
+    .messages({
+      "array.base": "Primary IDs must be an array",
+      "array.min": "At least one Primary ID is required",
+      "any.required": "Required field: Primary IDs",
+    });
+
+  const { error } = schema.validate(primaryIds);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
   }
@@ -44,14 +90,17 @@ exports.primaryId = function (req, res, next) {
 
 exports.againstType = function (req, res, next) {
   const { againstType } = req.body;
+
   const schema = Joi.string()
-    .valid("SALE", "RECEIPT", "PURCHASE", "PAYMENT")
+    .valid(...ALLOWED_VOUCHER_TYPES)
     .required()
     .messages({
-      "any.only": "Against Type must be SALE, RECEIPT, PURCHASE, or PAYMENT",
+      "any.only":
+        "Against Type must be SALE, RECEIPT, PURCHASE, PAYMENT, CREDIT_NOTE, or DEBIT_NOTE",
       "any.required": "Required field: Against Type",
       "string.empty": "Against Type cannot be empty",
     });
+
   const { error } = schema.validate(againstType);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
@@ -61,8 +110,9 @@ exports.againstType = function (req, res, next) {
 
 exports.againstIds = function (req, res, next) {
   const { againstIds } = req.body;
+
   const schema = Joi.array()
-    .items(Joi.number())
+    .items(Joi.number().positive())
     .min(1)
     .required()
     .messages({
@@ -70,6 +120,7 @@ exports.againstIds = function (req, res, next) {
       "array.min": "At least one Against ID is required",
       "any.required": "Required field: Against IDs",
     });
+
   const { error } = schema.validate(againstIds);
   if (error) {
     return res.status(400).json({ status: "False", message: error.message });
@@ -1034,9 +1085,9 @@ exports.salesprice = function (req, res, next) {
 exports.purchaseprice = function (req, res, next) {
   const { purchaseprice } = req.body;
   const purchasepriceSchema = Joi.number()
-  .messages({
-    "number.base": "Purchase Price must be a number",
-  });
+    .messages({
+      "number.base": "Purchase Price must be a number",
+    });
   const valueToValidate = purchaseprice === "" ? undefined : purchaseprice;
   const { error } = purchasepriceSchema.validate(valueToValidate);
   if (error) {
@@ -1837,7 +1888,7 @@ exports.paymentType = async function (req, res, next) {
     .required()
     .messages({
       "any.required": "The Payment Type field is required.",
-      "any.only": `The Payment Type field must be one of Advance, Payment and Final Payment.`,
+      "any.only": `The Payment Type field must be one of Advance, Regular and Final Payment.`,
     });
   const { error } = paymentTypeSchema.validate(paymentType);
   if (error) {

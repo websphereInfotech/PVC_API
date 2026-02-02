@@ -81,12 +81,14 @@ exports.view_one_account = async (req, res) => {
     }
 }
 
-exports.update_account = async (req, res)=>{
+exports.update_account = async (req, res) => {
     try {
         const companyId = req.user.companyId;
-        const {accountId} = req.params;
-        let {accountDetail, ...accountsInfo} = req.body;
-        const {email, mobileNo, gstNumber} = accountDetail || {};
+        const { accountId } = req.params;
+        let { accountDetail, ...accountsInfo } = req.body;
+        const { email, mobileNo, gstNumber } = accountDetail || {};
+
+        // 1. Check if the Account exists
         const accountExist = await Account.findOne({
             where: {
                 companyId: companyId,
@@ -103,36 +105,36 @@ exports.update_account = async (req, res)=>{
                     as: "accountDetail"
                 }
             ]
-        })
-        if(!accountExist) return res.status(404).json({status: "false", message: "Account Not Found"});
-        
-        // Check if account group is being changed
-        const isAccountGroupChanging = accountsInfo.accountGroupId && 
-                                       accountsInfo.accountGroupId !== accountExist.accountGroupId;
-        
-        if(isAccountGroupChanging) {
-            // Get the new account group
+        });
+
+        if (!accountExist) return res.status(404).json({ status: "false", message: "Account Not Found" });
+
+        // 2. Check if account group is being changed (Preserving your existing logic)
+        const isAccountGroupChanging = accountsInfo.accountGroupId &&
+            accountsInfo.accountGroupId !== accountExist.accountGroupId;
+
+        if (isAccountGroupChanging) {
             const newAccountGroup = await AccountGroup.findOne({
                 where: {
                     id: accountsInfo.accountGroupId,
                     companyId: companyId
                 }
             });
-            
-            if(!newAccountGroup) {
-                return res.status(404).json({status: "false", message: "New Account Group Not Found"});
+
+            if (!newAccountGroup) {
+                return res.status(404).json({ status: "false", message: "New Account Group Not Found" });
             }
-            
+
             const oldGroupName = accountExist.accountGroup?.name;
             const newGroupName = newAccountGroup.name;
-            const isOldGroupSundry = oldGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS || 
-                                     oldGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS;
-            const isNewGroupSundry = newGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS || 
-                                     newGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS;
-            
+            const isOldGroupSundry = oldGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS ||
+                oldGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS;
+            const isNewGroupSundry = newGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS ||
+                newGroupName === ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS;
+
             // If changing FROM sundry TO non-sundry, clear balance and credit-related fields
-            if(isOldGroupSundry && !isNewGroupSundry) {
-                if(!accountDetail) {
+            if (isOldGroupSundry && !isNewGroupSundry) {
+                if (!accountDetail) {
                     accountDetail = {};
                 }
                 accountDetail['balance'] = null;
@@ -141,35 +143,55 @@ exports.update_account = async (req, res)=>{
                 accountDetail['creditPeriod'] = null;
             }
         }
-        
-        if(accountDetail?.bankDetail === false){
+
+        // 3. Conditional Data Cleanup
+        if (accountDetail?.bankDetail === false) {
             accountDetail['accountNumber'] = null;
             accountDetail['ifscCode'] = null;
             accountDetail['bankName'] = null;
-            accountDetail['accountHolderName']= null;
+            accountDetail['accountHolderName'] = null;
         }
-        if(accountDetail?.creditLimit === false){
+        if (accountDetail?.creditLimit === false) {
             accountDetail['totalCredit'] = null;
         }
-        if(await isUnique('email', email, companyId, accountId)) return res.status(400).json({status: "false", message: "Email already exists"});
-        if(await isUnique('mobileNo', mobileNo, companyId, accountId)) return res.status(400).json({status: "false", message: "Mobile No. already exists"});
-        if(await isUnique('gstNumber', gstNumber, companyId, accountId)) return res.status(400).json({status: "false", message: "Gst Number already exists"});
-        await Account.update({...accountsInfo}, {
+
+        // 4. Unique Validations
+        if (await isUnique('email', email, companyId, accountId)) return res.status(400).json({ status: "false", message: "Email already exists" });
+        if (await isUnique('mobileNo', mobileNo, companyId, accountId)) return res.status(400).json({ status: "false", message: "Mobile No. already exists" });
+        if (await isUnique('gstNumber', gstNumber, companyId, accountId)) return res.status(400).json({ status: "false", message: "Gst Number already exists" });
+
+        // 5. Update main Account table
+        await Account.update({ ...accountsInfo }, {
             where: {
                 id: accountId,
                 companyId: companyId
             }
-        })
-        if(Object.keys(accountDetail ?? {}).length){
-            await AccountDetail.update({
-                ...accountDetail,
-            }, {
-                where: {
-                    accountId: accountId,
-                }
+        });
+
+        // 6. FIXED: Handle AccountDetail (Create if missing, Update if exists)
+        if (accountDetail && Object.keys(accountDetail).length) {
+            const existingDetail = await AccountDetail.findOne({
+                where: { accountId: accountId }
             });
+
+            if (existingDetail) {
+                // If record exists, update it
+                await AccountDetail.update({
+                    ...accountDetail,
+                }, {
+                    where: { accountId: accountId }
+                });
+            } else {
+                // If record DOES NOT exist (Non-Sundry to Sundry conversion), create it
+                await AccountDetail.create({
+                    ...accountDetail,
+                    accountId: accountId
+                });
+            }
         }
-        const account = await Account.findOne({
+
+        // 7. Fetch final updated data to return
+        const updatedAccount = await Account.findOne({
             where: {
                 companyId: companyId,
                 id: accountId,
@@ -185,13 +207,15 @@ exports.update_account = async (req, res)=>{
                     as: "accountDetail"
                 }
             ]
-        })
-        return res.status(200).json({status: "true", message: "Successfully Updated Account.", data: account});
-    }catch (e) {
+        });
+
+        return res.status(200).json({ status: "true", message: "Successfully Updated Account.", data: updatedAccount });
+
+    } catch (e) {
         console.error(e);
-        return res.status(500).json({status: "false", message: "Internal Server Error"});
+        return res.status(500).json({ status: "false", message: "Internal Server Error" });
     }
-}
+};
 
 
 exports.view_all_account = async (req, res) => {

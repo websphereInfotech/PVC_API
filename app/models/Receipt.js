@@ -14,7 +14,6 @@ const Receipt = sequelize.define("P_Receipt", {
     type: DataTypes.ENUM(
       "Cheque",
       "Net Banking",
-      "Cash",
       "UPI",
       "IMPS",
       "NEFT",
