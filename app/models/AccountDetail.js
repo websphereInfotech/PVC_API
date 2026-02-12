@@ -64,6 +64,13 @@ const AccountDetails = sequelize.define("P_AccountDetails", {
         allowNull: true,
         defaultValue: null
     },
+    // Separate opening balance specifically for CASH ledger.
+    // This allows cash and voucher ledgers to have different openings.
+    cashOpeningBalance: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: null
+    },
     gstNumber : {
         type: DataTypes.STRING,
         allowNull: true,

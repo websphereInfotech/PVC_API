@@ -35,6 +35,7 @@ const {
   bankdetail,
   creditlimit,
   balance,
+  cashOpeningBalance,
   itemtype,
   productname,
   nagativeqty,

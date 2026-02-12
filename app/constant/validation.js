@@ -44,7 +44,7 @@ exports.validateSettlements = function (req, res, next) {
       message: error.message
     });
   }
-  
+
   next();
 };
 
@@ -963,6 +963,7 @@ exports.creditlimit = function (req, res, next) {
   }
   next();
 };
+
 exports.balance = function (req, res, next) {
   const { balance } = req.body;
   const balanceSchema = Joi.number()
@@ -980,6 +981,26 @@ exports.balance = function (req, res, next) {
   }
   next();
 };
+
+exports.cashOpeningBalance = function (req, res, next) {
+  const { cashOpeningBalance } = req.body;
+  console.log("helllololo")
+  const cashOpeningBalanceSchema = Joi.number()
+
+    .required()
+    .messages({
+      "any.required": "Required Field : Cash Balance",
+      "number.empty": "Cash Balance Cannot Be Empty",
+      "number.base": "Cash Balance must be a number",
+    });
+  const valueToValidate = cashOpeningBalance === "" ? undefined : cashOpeningBalance;
+  const { error } = cashOpeningBalanceSchema.validate(valueToValidate);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+};
+
 exports.itemtype = function (req, res, next) {
   const { itemtype } = req.body;
   const itemtypeSchema = Joi.string()
@@ -2114,6 +2135,7 @@ exports.account_validation = async function (req, res, next) {
       .status(404)
       .json({ status: "false", message: "Account Group Not Found" });
   const groupName = accountGroupExist.name;
+  console.log(req.body);
 
   const accountSchema = Joi.object({
     accountGroupId: Joi.number().required().messages({
@@ -2133,7 +2155,7 @@ exports.account_validation = async function (req, res, next) {
       "string.base": "Contact Person Name must be a string",
       "any.required": "Contact Person Name is required",
       "string.empty": "Contact Person Name cannot be an empty string",
-    }),
+    }),    
     accountDetail: Joi.object({
       email: Joi.string()
         .email()
@@ -2416,6 +2438,20 @@ exports.account_validation = async function (req, res, next) {
           "any.required": "Opening balance is required field.",
           "any.unknown": "Opening balance is not required.",
           "number.base": "Opening balance must be number.",
+        }),
+      cashOpeningBalance: Joi.number()
+        .when(Joi.ref("$groupName"), {
+          is: Joi.valid(
+            ACCOUNT_GROUPS_TYPE.SUNDRY_DEBTORS,
+            ACCOUNT_GROUPS_TYPE.SUNDRY_CREDITORS
+          ),
+          then: Joi.required(),
+          otherwise: Joi.forbidden(),
+        })
+        .messages({
+          "any.required": "Cash Opening balance is required field.",
+          "any.unknown": "Cash Opening balance is not required.",
+          "number.base": "Cash Opening balance must be number.",
         }),
       creditPeriod: Joi.number()
         .when(Joi.ref("$groupName"), {

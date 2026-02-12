@@ -141,6 +141,7 @@ exports.update_account = async (req, res) => {
                 accountDetail['creditLimit'] = null;
                 accountDetail['totalCredit'] = null;
                 accountDetail['creditPeriod'] = null;
+                accountDetail['cashOpeningBalance'] = null;
             }
         }
 
@@ -371,4 +372,3 @@ exports.get_expense_id = async (req, res) => {
         return res.status(500).json({status: "false", message: "Internal Server Error."})
     }
 }
-

@@ -127,6 +127,7 @@ exports.C_ledger_settlement = async (req, res) => {
 
     /* ----------------------------------
        4️⃣ Update account balance
+          (Cash-specific field)
     ---------------------------------- */
     const accountDetail = await AccountDetails.findOne({
       where: { accountId }
@@ -139,11 +140,24 @@ exports.C_ledger_settlement = async (req, res) => {
       });
     }
 
-    console.log(netEffect,"net");
-    
+    console.log(netEffect, "net");
 
     if (netEffect !== 0) {
-      await accountDetail.increment("balance", { by: netEffect });
+      /**
+       * With separated opening balances:
+       * - Voucher-side uses AccountDetails.balance (for voucher ledger)
+       * - Cash-side uses AccountDetails.cashOpeningBalance (for cash ledger)
+       *
+       * C_ledger_settlement handles cash flow settlements (C_* vouchers),
+       * so we adjust ONLY the cashOpeningBalance field.
+       *
+       * If cashOpeningBalance is null, we assume it's 0 and proceed.
+       * This keeps cash and voucher balances completely independent.
+       */
+      const currentCashBalance = accountDetail.cashOpeningBalance ?? 0;
+      await accountDetail.update({
+        cashOpeningBalance: currentCashBalance + netEffect,
+      });
     }
 
     /* ----------------------------------
@@ -521,7 +535,7 @@ exports.C_account_ledger = async (req, res) => {
         {
           model: AccountDetails,
           as: "accountDetail",
-          attributes: ["balance"],
+          attributes: ["balance", "cashOpeningBalance"],
         },
       ],
     });
@@ -535,8 +549,9 @@ exports.C_account_ledger = async (req, res) => {
 
     const company = await Company.findByPk(companyId);
 
-    const baseBalance =
-      Number(accountExist?.accountDetail?.balance || 0);
+    const baseBalance = Number(
+      accountExist?.accountDetail?.cashOpeningBalance ??  0
+    );
 
     let beforeDateNetAmount = 0;
 
@@ -662,8 +677,8 @@ exports.C_account_ledger = async (req, res) => {
         [
           Sequelize.literal(`
           (
-            /* Start with the Account's initial balance */
-            SELECT IFNULL(SUM(ad.balance), 0) 
+            /* Start with the Account's CASH opening balance (separate field) */
+            SELECT IFNULL(SUM(ad.cashOpeningBalance), 0) 
             FROM P_AccountDetails ad 
             WHERE ad.accountId = \`P_C_Ledger\`.\`accountId\`
           ) + 
