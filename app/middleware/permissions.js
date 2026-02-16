@@ -1405,6 +1405,56 @@ exports.permissions = {
             "update_itemCategory": true
         }
     },
+    "Item Sub Category" : {
+        "Super Admin" :{
+            "create_itemSubCategory":true,
+            "view_single_itemSubCategory": true,
+            "view_all_itemSubCategory_category": true,
+            "delete_itemSubCategory": true,
+            "view_all_itemSubCategory": true,
+            "update_itemSubCategory": true
+        },
+        "Admin" :{
+            "create_itemSubCategory":true,
+            "view_single_itemSubCategory": true,
+            "view_all_itemSubCategory_category": true,
+            "delete_itemSubCategory": true,
+            "view_all_itemSubCategory": true,
+            "update_itemSubCategory": true
+        },
+        "Account" :{
+            "create_itemSubCategory":true,
+            "view_single_itemSubCategory": true,
+            "view_all_itemSubCategory_category": true,
+            "delete_itemSubCategory": true,
+            "view_all_itemSubCategory": true,
+            "update_itemSubCategory": true
+        },
+        "Employee" :{
+            "create_itemSubCategory":true,
+            "view_single_itemSubCategory": true,
+            "view_all_itemSubCategory_category": true,
+            "delete_itemSubCategory": true,
+            "view_all_itemSubCategory": true,
+            "update_itemSubCategory": true
+        },
+        "Workers" :{
+            "create_itemSubCategory":true,
+            "view_single_itemSubCategory": true,
+            "view_all_itemSubCategory_category": true,
+            "delete_itemSubCategory": true,
+            "view_all_itemSubCategory": true,
+            "update_itemSubCategory": true
+        },
+        "Other" :{
+            "create_itemSubCategory":true,
+            "view_single_itemSubCategory": true,
+            "view_all_itemSubCategory_category": true,
+            "delete_itemSubCategory": true,
+            "view_all_itemSubCategory": true,
+            "update_itemSubCategory": true
+        }
+    },
     "Account" : {
         "Super Admin" :{
             "view_all_account_group":true,

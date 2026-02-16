@@ -3,6 +3,7 @@ const Stock = require("../models/stock");
 const User = require("../models/user");
 const ItemGroup = require("../models/ItemGroup");
 const ItemCategory = require("../models/ItemCategory");
+const ItemSubCategory = require("../models/ItemSubCategory");
 const {Op, Sequelize} = require("sequelize");
 
 /*=============================================================================================================
@@ -15,7 +16,7 @@ exports.create_item = async (req, res) => {
       itemtype,
       productname,
       description,
-      itemGroupId, itemCategoryId,
+      itemGroupId, itemCategoryId,itemSubCategoryId,
       unit,
       bankdetail,
       openingstock,
@@ -78,12 +79,26 @@ exports.create_item = async (req, res) => {
         message: "Item Category Not Found."
       })
     }
+    const itemSubCategoryItemExist = await ItemSubCategory.findOne({
+      where: {
+        id: itemSubCategoryId,
+        itemCategoryId: itemCategoryId,
+        companyId: companyId,
+      }
+    });
+    if(!itemSubCategoryItemExist){
+      return res.status(404).json({
+        status: "false",
+        message: "Item Sub Category Not Found."
+      })
+    }
     const data = await item.create({
       itemtype,
       productname,
       description,
       itemGroupId,
       itemCategoryId,
+      itemSubCategoryId,
       unit,
       bankdetail,
       openingstock,
@@ -129,7 +144,7 @@ exports.update_item = async (req, res) => {
       itemtype,
       productname,
       description,
-      itemGroupId, itemCategoryId,
+      itemGroupId, itemCategoryId, itemSubCategoryId,
       unit,
       bankdetail,
       openingstock,
@@ -203,6 +218,19 @@ exports.update_item = async (req, res) => {
       return res.status(404).json({
         status: "false",
         message: "Item Category Not Found."
+      })
+    }
+    const itemSubCategoryItemExist = await ItemSubCategory.findOne({
+      where: {
+        id: itemSubCategoryId,
+        itemCategoryId: itemCategoryId,
+        companyId: companyId,
+      }
+    });
+    if(!itemSubCategoryItemExist){
+      return res.status(404).json({
+        status: "false",
+        message: "Item Sub Category Not Found."
       })
     }
 
@@ -281,7 +309,7 @@ exports.view_item = async (req, res) => {
 
     const data = await item.findOne({
       where: { id: id, companyId: req.user.companyId, isActive: true },
-      include: [{model: ItemGroup, as: "itemGroup"}, {model: ItemCategory, as: "itemCategory"}]
+      include: [{model: ItemGroup, as: "itemGroup"}, {model: ItemCategory, as: "itemCategory"}, {model: ItemSubCategory, as: "itemSubCategory"}]
     });
 
     if (!data) {

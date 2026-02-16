@@ -6,7 +6,9 @@ const path = require("node:path");
 const fs = require("node:fs");
 const initRoutes = require("./app/route");
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 4000;
+const createTunnel = require("./app/config/sshTunnel");
+const sequelize = require("./app/config/index"); // Make sure this path is correct
 
 const logRequestMiddleware = (req, res, next) => {
   const logDate = moment().format("DD-MM-YYYY");
@@ -49,4 +51,22 @@ app.use("/admin", initRoutes);
 
 app.get("/", (req, res) => res.send("Hello World PVC0!"));
 
-app.listen(port, () => console.log(`Example app listening on port ${port}`));
+const startServer = async () => {
+  try {
+    await createTunnel();
+
+    await sequelize.authenticate();
+    console.log("✅ DB connected");
+
+    await sequelize.sync();
+    console.log("✅ All tables were successfully synchronized.");
+
+    app.listen(port, () => console.log(`Example app listening on port ${port}`));
+
+  } catch (err) {
+    console.error("❌ Startup failed:", err);
+    process.exit(1);
+  }
+};
+
+startServer();

@@ -87,6 +87,7 @@ const {
   name,
   itemGroupId,
   itemCategoryId,
+  itemSubCategoryId,
   account_validation,
   accountId,
   bankAccountId,
@@ -214,6 +215,7 @@ module.exports.validation = function (method) {
         productname,
         itemGroupId,
         itemCategoryId,
+        itemSubCategoryId,
         weight,
         unit,
         nagativeqty,
@@ -229,6 +231,7 @@ module.exports.validation = function (method) {
         productname,
         itemGroupId,
         itemCategoryId,
+        itemSubCategoryId,
         weight,
         unit,
         nagativeqty,
@@ -394,6 +397,8 @@ module.exports.validation = function (method) {
       return [name];
     case "create_itemCategory":
       return [name, itemGroupId];
+    case "create_itemSubCategory":
+      return [name, itemCategoryId];
     case "account_validation":
       return [account_validation];
     case "machine_schedule_validation":

@@ -134,18 +134,17 @@ const existingPermission = async () => {
     const allCompany = await company.findAll();
     for (const company of allCompany) {
       const existingPermissions = await Permissions.findAll({
-        where: { companyId: company.id }
+        where: { companyId: company.id },
       });
 
       const existingPermissionsMap = new Map();
       for (const permission of existingPermissions) {
         existingPermissionsMap.set(
-            `${permission.role}_${permission.resource}_${permission.permission}`,
-            permission
+          `${permission.role}_${permission.resource}_${permission.permission}`,
+          permission
         );
       }
 
-      const createPromises = [];
       const deletePromises = [];
       const newPermissionsSet = new Set();
 
@@ -157,40 +156,44 @@ const existingPermission = async () => {
 
           for (const permissionKey in permissionsForRole) {
             const permissionValue = permissionsForRole[permissionKey];
-            const type = resource.includes("Cash")
+            const type = resource.includes("Cash");
 
             const permissionIdentifier = `${role}_${resource}_${permissionKey}`;
             newPermissionsSet.add(permissionIdentifier);
 
-            if (!existingPermissionsMap.has(permissionIdentifier)) {
-              const newPermission = {
+            const newPermission = {
+              role: role,
+              resource: resource,
+              companyId: company.id,
+              type: type,
+              permission: permissionKey,
+              permissionValue: permissionValue,
+            };
+
+            await Permissions.findOrCreate({
+              where: {
                 role: role,
                 resource: resource,
-                companyId: company.id,
-                type: type,
                 permission: permissionKey,
-                permissionValue: permissionValue,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              };
-
-              createPromises.push(Permissions.create(newPermission));
-            }
+                companyId: company.id,
+              },
+              defaults: newPermission,
+            });
           }
         }
       }
 
       for (const [permissionIdentifier, permission] of existingPermissionsMap) {
         if (!newPermissionsSet.has(permissionIdentifier)) {
-          deletePromises.push(Permissions.destroy({
-            where: {
-              id: permission.id
-            }
-          }));
+          deletePromises.push(
+            Permissions.destroy({
+              where: {
+                id: permission.id,
+              },
+            })
+          );
         }
       }
-
-      await Promise.all(createPromises);
       await Promise.all(deletePromises);
     }
   } catch (error) {

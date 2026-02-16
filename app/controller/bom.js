@@ -88,16 +88,6 @@ exports.create_bom = async (req, res) => {
             await itemStock.increment('qty', { by: qty })
         }
 
-        // revert old wastage
-        if (bomExist.WastageId) {
-            const oldWastageStock = await Stock.findOne({
-                where: { productId: bomExist.WastageId },
-            });
-            if (oldWastageStock) {
-                await oldWastageStock.decrement('qty', { by: bomExist.wastageQty });
-            }
-        }
-
         // apply new wastage
         const newWastageStock = await Stock.findOne({
             where: { productId: wastageId },
@@ -252,7 +242,7 @@ exports.update_bom = async (req, res) => {
             (oldTotalWeight / (bomExist.totalQty || 1)) * 100
         ) / 100;
 
-        await Bom.update(
+        const [updatedRows] = await Bom.update(
             {
                 bomNo,
                 date,
@@ -271,134 +261,144 @@ exports.update_bom = async (req, res) => {
             { where: { id: bomId } }
         );
 
-        // ---------- FINISHED PRODUCT STOCK ----------
-        if (bomExist.productId !== productId) {
-            const oldStock = await Stock.findOne({
-                where: { productId: bomExist.productId }
-            });
-            if (oldStock) {
-                await oldStock.decrement("qty", { by: bomExist.qty });
-            }
-
-            const newStock = await Stock.findOne({
-                where: { productId }
-            });
-            if (newStock) {
-                await newStock.increment("qty", { by: qty });
-            }
-        } else {
-            const productStock = await Stock.findOne({
-                where: { productId }
-            });
-            if (productStock) {
-                await productStock.decrement("qty", { by: bomExist.qty });
-                await productStock.increment("qty", { by: qty });
-            }
-        }
-
-        // ---------- WASTAGE STOCK ----------
-        if (bomExist.WastageId) {
-            const oldWastageStock = await Stock.findOne({
-                where: { productId: bomExist.WastageId }
-            });
-            if (oldWastageStock) {
-                await oldWastageStock.decrement("qty", {
-                    by: bomExist.wastageQty
-                });
-            }
-        }
-
-        const newWastageStock = await Stock.findOne({
-            where: { productId: wastageId }
-        });
-        if (newWastageStock) {
-            await newWastageStock.increment("qty", { by: wastageQty });
-        }
-
-        // ---------- BOM ITEMS ----------
-        for (const item of items) {
-            const existingItem = existingItems.find(
-                ei => ei.id === item.id
-            );
-
-            const oldItemQty = existingItem?.qty ?? 0;
-            const oldTotalQty =
-                Math.floor((oldItemQty * oldDividedWeight) * 100) / 100;
-
-            const newTotalQty =
-                Math.floor((item.qty * dividedWeight) * 100) / 100;
-
-            // product changed
-            if (existingItem && existingItem.productId !== item.productId) {
+        if (updatedRows > 0) {
+            // ---------- FINISHED PRODUCT STOCK ----------
+            const qtyDifference = qty - bomExist.qty;
+            if (bomExist.productId !== productId) {
                 const oldStock = await Stock.findOne({
-                    where: { productId: existingItem.productId }
+                    where: { productId: bomExist.productId }
                 });
                 if (oldStock) {
-                    await oldStock.increment("qty", { by: oldTotalQty });
+                    await oldStock.decrement("qty", { by: bomExist.qty });
                 }
 
                 const newStock = await Stock.findOne({
-                    where: { productId: item.productId }
+                    where: { productId }
                 });
                 if (newStock) {
-                    await newStock.decrement("qty", { by: newTotalQty });
+                    await newStock.increment("qty", { by: qty });
+                }
+            } else if (qtyDifference !== 0) {
+                const productStock = await Stock.findOne({
+                    where: { productId }
+                });
+                if (productStock) {
+                    if (qtyDifference > 0) {
+                        await productStock.increment("qty", { by: qtyDifference });
+                    } else {
+                        await productStock.decrement("qty", { by: -qtyDifference });
+                    }
                 }
             }
-            // same product
-            else if (existingItem) {
+
+            // ---------- WASTAGE STOCK ----------
+            if (bomExist.WastageId) {
+                const oldWastageStock = await Stock.findOne({
+                    where: { productId: bomExist.WastageId }
+                });
+                if (oldWastageStock) {
+                    await oldWastageStock.decrement("qty", {
+                        by: bomExist.wastageQty
+                    });
+                }
+            }
+
+            const newWastageStock = await Stock.findOne({
+                where: { productId: wastageId }
+            });
+            if (newWastageStock) {
+                await newWastageStock.increment("qty", { by: wastageQty });
+            }
+
+            // ---------- BOM ITEMS ----------
+            for (const item of items) {
+                const existingItem = existingItems.find(
+                    ei => ei.id === item.id
+                );
+
+                const oldItemQty = existingItem?.qty ?? 0;
+                const oldTotalQty =
+                    Math.floor((oldItemQty * oldDividedWeight) * 100) / 100;
+
+                const newTotalQty =
+                    Math.floor((item.qty * dividedWeight) * 100) / 100;
+
+                // product changed
+                if (existingItem && existingItem.productId !== item.productId) {
+                    const oldStock = await Stock.findOne({
+                        where: { productId: existingItem.productId }
+                    });
+                    if (oldStock) {
+                        await oldStock.increment("qty", { by: oldTotalQty });
+                    }
+
+                    const newStock = await Stock.findOne({
+                        where: { productId: item.productId }
+                    });
+                    if (newStock) {
+                        await newStock.decrement("qty", { by: newTotalQty });
+                    }
+                }
+                // same product
+                else if (existingItem) {
+                    const itemStock = await Stock.findOne({
+                        where: { productId: item.productId }
+                    });
+                    if (itemStock) {
+                        const difference = newTotalQty - oldTotalQty;
+                        if (difference > 0) {
+                            await itemStock.decrement("qty", { by: difference });
+                        } else {
+                            await itemStock.increment("qty", { by: -difference });
+                        }
+                    }
+                }
+                // new item
+                else {
+                    const itemStock = await Stock.findOne({
+                        where: { productId: item.productId }
+                    });
+                    if (itemStock) {
+                        await itemStock.decrement("qty", { by: newTotalQty });
+                    }
+                }
+
+                if (existingItem) {
+                    await BomItem.update(
+                        {
+                            productId: item.productId,
+                            qty: item.qty,
+                            unit: item.unit
+                        },
+                        { where: { id: item.id, bomId } }
+                    );
+                } else {
+                    await BomItem.create({
+                        ...item,
+                        bomId
+                    });
+                }
+            }
+
+            // ---------- DELETE REMOVED ITEMS ----------
+            const updatedItemIds = items.map(i => i.id).filter(Boolean);
+            const itemsToDelete = existingItems.filter(
+                i => !updatedItemIds.includes(i.id)
+            );
+
+            for (const item of itemsToDelete) {
+                const oldTotalQty =
+                    Math.floor((item.qty * oldDividedWeight) * 100) / 100;
+
                 const itemStock = await Stock.findOne({
                     where: { productId: item.productId }
                 });
                 if (itemStock) {
                     await itemStock.increment("qty", { by: oldTotalQty });
-                    await itemStock.decrement("qty", { by: newTotalQty });
                 }
+
+                await BomItem.destroy({ where: { id: item.id } });
             }
-            // new item
-            else {
-                const itemStock = await Stock.findOne({
-                    where: { productId: item.productId }
-                });
-                if (itemStock) {
-                    await itemStock.decrement("qty", { by: newTotalQty });
-                }
-            }
-
-            if (existingItem) {
-                await BomItem.update(
-                    {
-                        productId: item.productId,
-                        qty: item.qty,
-                        unit: item.unit
-                    },
-                    { where: { id: item.id, bomId } }
-                );
-            } else {
-                await BomItem.create({
-                    ...item,
-                    bomId
-                });
-            }
-        }
-
-        // ---------- DELETE REMOVED ITEMS ----------
-        const updatedItemIds = items.map(i => i.id).filter(Boolean);
-        const itemsToDelete = existingItems.filter(
-            i => !updatedItemIds.includes(i.id)
-        );
-
-        for (const item of itemsToDelete) {
-            const oldTotalQty =
-                Math.floor((item.qty * oldDividedWeight) * 100) / 100;
-
-            const itemStock = await Stock.findOne({
-                where: { productId: item.productId }
-            });
-            if (itemStock) {
-                await itemStock.increment("qty", { by: oldTotalQty });
-            }
-
-            await BomItem.destroy({ where: { id: item.id } });
         }
 
         return res.status(200).json({

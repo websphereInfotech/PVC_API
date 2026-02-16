@@ -2110,6 +2110,20 @@ exports.itemCategoryId = async function (req, res, next) {
   return next();
 };
 
+exports.itemSubCategoryId = async function (req, res, next) {
+  const { itemSubCategoryId } = req.body;
+  const itemSubCategoryIdSchema = Joi.number().required().messages({
+    "number.base": "Item Category must be a number",
+    "any.required": "Required Field : Item Category",
+  });
+  const valueToValidate = itemSubCategoryId === "" ? undefined : itemSubCategoryId;
+  const { error } = itemSubCategoryIdSchema.validate(valueToValidate);
+  if (error) {
+    return res.status(400).json({ status: "false", message: error.message });
+  }
+  return next();
+};
+
 exports.account_validation = async function (req, res, next) {
   const { accountGroupId, ...createPayload } = req.body;
   const accountGroupIdSchema = Joi.number().required().messages({
@@ -2155,7 +2169,7 @@ exports.account_validation = async function (req, res, next) {
       "string.base": "Contact Person Name must be a string",
       "any.required": "Contact Person Name is required",
       "string.empty": "Contact Person Name cannot be an empty string",
-    }),    
+    }),
     accountDetail: Joi.object({
       email: Joi.string()
         .email()

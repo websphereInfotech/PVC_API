@@ -4,6 +4,7 @@ const company = require("./company");
 const User = require("./user");
 const ItemGroup = require("./ItemGroup");
 const ItemCategory = require("./ItemCategory");
+const ItemSubCategory = require("./ItemSubCategory");
 
 const product = sequelize.define("P_product", {
   itemtype: {
@@ -23,6 +24,10 @@ const product = sequelize.define("P_product", {
   itemCategoryId: {
     type: DataTypes.INTEGER,
     allowNull: false,
+  },
+  itemSubCategoryId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
   },
   unit: {
     type: DataTypes.STRING,
@@ -80,7 +85,7 @@ product.belongsTo(company, { foreignKey: "companyId", onDelete: "CASCADE" });
 User.hasMany(product, { foreignKey: "updatedBy", as: "productUpdateUser" });
 product.belongsTo(User, { foreignKey: "updatedBy", as: "productUpdateUser" });
 
-User.hasMany(product, { foreignKey: "createdBy", as: "productCreateUser" });
+User.hasMany(product, { foreignKdey: "createdBy", as: "productCreateUser" });
 product.belongsTo(User, { foreignKey: "createdBy", as: "productCreateUser" });
 
 ItemGroup.hasMany(product, {foreignKey: "itemGroupId", as: "itemGroup", onDelete: "CASCADE"});
@@ -88,5 +93,8 @@ product.belongsTo(ItemGroup, {foreignKey: "itemGroupId", as: "itemGroup", onDele
 
 ItemCategory.hasMany(product, {foreignKey: "itemCategoryId", as: "itemCategory", onDelete: "CASCADE"});
 product.belongsTo(ItemCategory, {foreignKey: "itemCategoryId", as: "itemCategory", onDelete: "CASCADE"});
+
+ItemSubCategory.hasMany(product, {foreignKey: "itemSubCategoryId", as: "itemSubCategory", onDelete: "CASCADE"});
+product.belongsTo(ItemSubCategory, {foreignKey: "itemSubCategoryId", as: "itemSubCategory", onDelete: "CASCADE"});
 
 module.exports = product;
