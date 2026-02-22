@@ -66,6 +66,18 @@ const product = sequelize.define("P_product", {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+  raw_material : {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  spare : {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  finished_goods : {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
   companyId: { type: DataTypes.INTEGER },
   weight: {
     type: DataTypes.FLOAT,
@@ -85,7 +97,7 @@ product.belongsTo(company, { foreignKey: "companyId", onDelete: "CASCADE" });
 User.hasMany(product, { foreignKey: "updatedBy", as: "productUpdateUser" });
 product.belongsTo(User, { foreignKey: "updatedBy", as: "productUpdateUser" });
 
-User.hasMany(product, { foreignKdey: "createdBy", as: "productCreateUser" });
+User.hasMany(product, { foreignKey: "createdBy", as: "productCreateUser" });
 product.belongsTo(User, { foreignKey: "createdBy", as: "productCreateUser" });
 
 ItemGroup.hasMany(product, {foreignKey: "itemGroupId", as: "itemGroup", onDelete: "CASCADE"});

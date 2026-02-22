@@ -10,7 +10,7 @@ const { Sequelize} = require("sequelize");
 exports.view_all_item_stock =async (req, res) => {
     try {
         const companyId = req.user.companyId;
-        const {groupId, categoryId, search} = req.query;
+        const {groupId, categoryId, subCategoryId, search} = req.query;
         const filters = {
             companyId: companyId,
             isActive: true,
@@ -21,6 +21,10 @@ exports.view_all_item_stock =async (req, res) => {
 
         if (categoryId) {
             filters.itemCategoryId = categoryId;
+        }
+
+        if (subCategoryId) {
+            filters.itemSubCategoryId = subCategoryId;
         }
 
         if (search) {

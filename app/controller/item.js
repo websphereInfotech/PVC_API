@@ -28,7 +28,10 @@ exports.create_item = async (req, res) => {
       gstrate,
       HSNcode,
       cess,
-      isWastage
+      isWastage,
+      is_finished_goods,
+      is_raw_material,
+      is_spare_item
     } = req.body;
     const userId = req.user.userId
     const companyId = req.user.companyId;
@@ -111,6 +114,9 @@ exports.create_item = async (req, res) => {
       HSNcode,
       cess,
       wastage: isWastage,
+      finished_goods: is_finished_goods,
+      raw_material: is_raw_material,
+      spare: is_spare_item,
       weight,
       lowStockQty,
       companyId: req.user.companyId,
@@ -156,7 +162,10 @@ exports.update_item = async (req, res) => {
       gstrate,
       HSNcode,
       cess,
-      isWastage
+      isWastage,
+      is_finished_goods,
+      is_raw_material,
+      is_spare_item
     } = req.body;
     const userId = req.user.userId;
     const companyId = req.user.companyId;
@@ -241,6 +250,7 @@ exports.update_item = async (req, res) => {
         description: description,
         itemGroupId: itemGroupId,
         itemCategoryId: itemCategoryId,
+        itemSubCategoryId: itemSubCategoryId,
         unit: unit,
         bankdetail: bankdetail,
         openingstock: openingstock,
@@ -253,6 +263,9 @@ exports.update_item = async (req, res) => {
         HSNcode: HSNcode,
         cess: cess,
         wastage: isWastage,
+        finished_goods: is_finished_goods,
+        raw_material: is_raw_material,
+        spare: is_spare_item,
         weight: weight,
         lowStockQty: lowStockQty,
         companyId: req.user.companyId,
@@ -358,6 +371,97 @@ exports.get_all_items = async (req, res) => {
       .json({ status: "false", message: "Internal Server Error" });
   }
 };
+
+exports.get_all_raw_materials = async (req, res) => {
+    try {
+        const { search } = req.query;
+
+        const whereClause = { companyId: req.user.companyId, isActive: true, raw_material: true };
+        if (search) {
+            whereClause.productname = { [Op.like]: `%${search}%` };
+        }
+        const data = await item.findAll({
+            where: whereClause,
+            include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
+        });
+        if (!data) {
+            return res
+                .status(404)
+                .json({ status: "false", message: "Item Not Found" });
+        }
+        return res.status(200).json({
+            status: "true",
+            message: "Item Data Fetch Successfully",
+            data: data,
+        });
+    } catch (error) {
+        console.log(error);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
+};
+
+exports.get_all_spare_parts = async (req, res) => {
+    try {
+        const { search } = req.query;
+
+        const whereClause = { companyId: req.user.companyId, isActive: true, spare: true };
+        if (search) {
+            whereClause.productname = { [Op.like]: `%${search}%` };
+        }
+        const data = await item.findAll({
+            where: whereClause,
+            include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
+        });
+        if (!data) {
+            return res
+                .status(404)
+                .json({ status: "false", message: "Item Not Found" });
+        }
+        return res.status(200).json({
+            status: "true",
+            message: "Item Data Fetch Successfully",
+            data: data,
+        });
+    } catch (error) {
+        console.log(error);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
+};
+
+exports.get_all_finished_goods = async (req, res) => {
+    try {
+        const { search } = req.query;
+
+        const whereClause = { companyId: req.user.companyId, isActive: true, finished_goods: true };
+        if (search) {
+            whereClause.productname = { [Op.like]: `%${search}%` };
+        }
+        const data = await item.findAll({
+            where: whereClause,
+            include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
+        });
+        if (!data) {
+            return res
+                .status(404)
+                .json({ status: "false", message: "Item Not Found" });
+        }
+        return res.status(200).json({
+            status: "true",
+            message: "Item Data Fetch Successfully",
+            data: data,
+        });
+    } catch (error) {
+        console.log(error);
+        return res
+            .status(500)
+            .json({ status: "false", message: "Internal Server Error" });
+    }
+};
+
 
 /*=============================================================================================================
                                             Type C API

@@ -8,6 +8,9 @@ const {
   view_item,
   get_all_items,
   C_get_all_item,
+  get_all_raw_materials,
+  get_all_spare_parts,
+  get_all_finished_goods,
 } = require("../controller/item");
 
 const router = express.Router();
@@ -43,6 +46,24 @@ router.get(
   adminAuth("Items:view_all_item"),
     get_all_items
 );
+router.get(
+    "/get_all_raw_materials",
+    adminAuth("Items:view_all_item"),
+    get_all_raw_materials
+);
+router.get(
+    "/get_all_spare_parts",
+    adminAuth("Items:view_all_item"),
+    get_all_spare_parts
+);
+
+router.get(
+    "/get_all_finished_goods",
+    adminAuth("Items:view_all_item"),
+    get_all_finished_goods
+);
+
+
 
 /*=============================================================================================================
                                            Type C API

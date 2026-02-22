@@ -2676,6 +2676,20 @@ exports.wastageName = function (req, res, next) {
   next();
 };
 
+exports.spare_part_validation = function (req, res, next) {
+  const { name } = req.body;
+  const nameSchema = Joi.string().required().messages({
+    "any.required": "Required Field :Spare Part Name",
+    "string.empty": "Spare Part Name Cannot Be Empty",
+    "string.base": "Spare Part Name Must Be A String",
+  });
+  const { error } = nameSchema.validate(name);
+  if (error) {
+    return res.status(400).json({ status: "False", message: error.message });
+  }
+  next();
+};
+
 exports.maintenance_validation = async (req, res, next) => {
   const maintenanceSchema = Joi.object({
     machineId: Joi.number().integer().required().messages({
@@ -2736,4 +2750,43 @@ exports.maintenance_validation = async (req, res, next) => {
     return res.status(400).json({ status: "false", message: error.message });
   }
   return next();
+};
+
+exports.finished_goods = function (req, res, next) {
+    const { is_finished_goods } = req.body;
+    const finishedGoodsSchema = Joi.boolean().required().messages({
+        "any.required": "Required Field : Finished Goods",
+        "boolean.empty": "Finished Goods Cannot Be Empty",
+    });
+    const { error } = finishedGoodsSchema.validate(is_finished_goods);
+    if (error) {
+        return res.status(400).json({ status: "False", message: error.message });
+    }
+    next();
+};
+
+exports.raw_material = function (req, res, next) {
+    const { is_raw_material } = req.body;
+    const rawMaterialSchema = Joi.boolean().required().messages({
+        "any.required": "Required Field : Raw Material",
+        "boolean.empty": "Raw Material Cannot Be Empty",
+    });
+    const { error } = rawMaterialSchema.validate(is_raw_material);
+    if (error) {
+        return res.status(400).json({ status: "False", message: error.message });
+    }
+    next();
+};
+
+exports.spare_item = function (req, res, next) {
+    const { is_spare_item } = req.body;
+    const spareItemSchema = Joi.boolean().required().messages({
+        "any.required": "Required Field : Spare Item",
+        "boolean.empty": "Spare Item Cannot Be Empty",
+    });
+    const { error } = spareItemSchema.validate(is_spare_item);
+    if (error) {
+        return res.status(400).json({ status: "False", message: error.message });
+    }
+    next();
 };

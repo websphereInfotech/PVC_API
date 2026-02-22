@@ -97,12 +97,16 @@ const {
   saleInvoiceId,
   purchaseDate,
   wastageName,
+  spare_part_validation,
   maintenance_validation,
   validateSettlements,
   primaryType,
   primaryIds,
   againstType,
-  againstIds
+  againstIds,
+  finished_goods,
+  raw_material,
+  spare_item
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -224,6 +228,9 @@ module.exports.validation = function (method) {
         salesprice,
         HSNcode,
         purchaseprice,
+        finished_goods,
+        raw_material,
+        spare_item
       ];
     case "update_item":
       return [
@@ -240,6 +247,9 @@ module.exports.validation = function (method) {
         salesprice,
         HSNcode,
         purchaseprice,
+        finished_goods,
+        raw_material,
+        spare_item
       ];
     case "create_purchaseInvoice":
       return [
@@ -440,6 +450,8 @@ module.exports.validation = function (method) {
       return [accountId, creditnoteNo, creditdate, rate, qty, itemUnit];
     case "wastage_validation":
       return [wastageName];
+    case "spare_part_validation":
+      return [spare_part_validation];
     case "maintenanceType_validation":
       return [name];
     case "purpose_validation":

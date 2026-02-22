@@ -1928,6 +1928,50 @@ exports.permissions = {
             "view_single_wastage":true
         }
     },
+    "SparePart" : {
+        "Super Admin" :{
+            "create_spare_part":true,
+            "update_spare_part":true,
+            "view_all_spare_part":true,
+            "delete_spare_part":true,
+            "view_single_spare_part":true
+        },
+        "Admin" :{
+            "create_spare_part":true,
+            "update_spare_part":true,
+            "view_all_spare_part":true,
+            "delete_spare_part":true,
+            "view_single_spare_part":true
+        },
+        "Account" :{
+            "create_spare_part":true,
+            "update_spare_part":true,
+            "view_all_spare_part":true,
+            "delete_spare_part":true,
+            "view_single_spare_part":true
+        },
+        "Employee" :{
+            "create_spare_part":true,
+            "update_spare_part":true,
+            "view_all_spare_part":true,
+            "delete_spare_part":true,
+            "view_single_spare_part":true
+        },
+        "Workers" :{
+            "create_spare_part":true,
+            "update_spare_part":true,
+            "view_all_spare_part":true,
+            "delete_spare_part":true,
+            "view_single_spare_part":true
+        },
+        "Other" :{
+            "create_spare_part":true,
+            "update_spare_part":true,
+            "view_all_spare_part":true,
+            "delete_spare_part":true,
+            "view_single_spare_part":true
+        }
+    },
     "Maintenance Type" : {
         "Super Admin" :{
             "create_maintenanceType":true,
