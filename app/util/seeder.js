@@ -130,82 +130,72 @@ const exisingGroup = async () => {
 };
 
 const existingPermission = async () => {
-    try {
-        const allCompany = await company.findAll();
+  try {
+    const allCompany = await company.findAll();
+    for (const company of allCompany) {
+      const existingPermissions = await Permissions.findAll({
+        where: { companyId: company.id }
+      });
 
-        for (const company of allCompany) {
-            const existingPermissions = await Permissions.findAll({
-                where: { companyId: company.id },
-            });
+      const existingPermissionsMap = new Map();
+      for (const permission of existingPermissions) {
+        existingPermissionsMap.set(
+            `${permission.role}_${permission.resource}_${permission.permission}`,
+            permission
+        );
+      }
 
-            const existingPermissionsMap = new Map();
-            for (const permission of existingPermissions) {
-                existingPermissionsMap.set(
-                    `${permission.role}_${permission.resource}_${permission.permission}`,
-                    permission
-                );
+      const createPromises = [];
+      const deletePromises = [];
+      const newPermissionsSet = new Set();
+
+      for (const resource in permissions) {
+        const rolePermissions = permissions[resource];
+
+        for (const role in rolePermissions) {
+          const permissionsForRole = rolePermissions[role];
+
+          for (const permissionKey in permissionsForRole) {
+            const permissionValue = permissionsForRole[permissionKey];
+            const type = resource.includes("Cash")
+
+            const permissionIdentifier = `${role}_${resource}_${permissionKey}`;
+            newPermissionsSet.add(permissionIdentifier);
+
+            if (!existingPermissionsMap.has(permissionIdentifier)) {
+              const newPermission = {
+                role: role,
+                resource: resource,
+                companyId: company.id,
+                type: type,
+                permission: permissionKey,
+                permissionValue: permissionValue,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              };
+
+              createPromises.push(Permissions.create(newPermission));
             }
-
-            const findOrCreatePromises = [];
-            const newPermissionsSet = new Set();
-
-            for (const resource in permissions) {
-                const rolePermissions = permissions[resource];
-
-                for (const role in rolePermissions) {
-                    const permissionsForRole = rolePermissions[role];
-
-                    for (const permissionKey in permissionsForRole) {
-                        const permissionValue = permissionsForRole[permissionKey];
-                        const type = resource.includes("Cash");
-
-                        const permissionIdentifier = `${role}_${resource}_${permissionKey}`;
-                        newPermissionsSet.add(permissionIdentifier);
-
-                        const newPermission = {
-                            role: role,
-                            resource: resource,
-                            companyId: company.id,
-                            type: type,
-                            permission: permissionKey,
-                            permissionValue: permissionValue,
-                        };
-
-                        findOrCreatePromises.push(
-                            Permissions.findOrCreate({
-                                where: {
-                                    role: role,
-                                    resource: resource,
-                                    permission: permissionKey,
-                                    companyId: company.id,
-                                },
-                                defaults: newPermission,
-                            })
-                        );
-                    }
-                }
-            }
-
-            await Promise.all(findOrCreatePromises);
-
-            const deletePromises = [];
-            for (const [permissionIdentifier, permission] of existingPermissionsMap) {
-                if (!newPermissionsSet.has(permissionIdentifier)) {
-                    deletePromises.push(
-                        Permissions.destroy({
-                            where: {
-                                id: permission.id,
-                            },
-                        })
-                    );
-                }
-            }
-
-            await Promise.all(deletePromises);
+          }
         }
-    } catch (error) {
-        console.log(error);
+      }
+
+      for (const [permissionIdentifier, permission] of existingPermissionsMap) {
+        if (!newPermissionsSet.has(permissionIdentifier)) {
+          deletePromises.push(Permissions.destroy({
+            where: {
+              id: permission.id
+            }
+          }));
+        }
+      }
+
+      await Promise.all(createPromises);
+      await Promise.all(deletePromises);
     }
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 module.exports = { existingData, existingPermission, exisingGroup };

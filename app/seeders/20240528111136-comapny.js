@@ -7,6 +7,7 @@ module.exports = {
 
    await existingData();
    await exisingGroup()
+   await existingPermission();
   },
 
   async down(queryInterface, Sequelize) {
