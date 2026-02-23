@@ -29,7 +29,9 @@ jobs:
         run: |
           sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$VPS_IP << 'EOF'
             cd /root/prod/BE
-            git pull origin main
+            git fetch origin
+            git reset --hard origin/main
+            git clean -fd
             npm install
             npm run migrate-run
             npm run seeder-all
