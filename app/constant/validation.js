@@ -2790,3 +2790,63 @@ exports.spare_item = function (req, res, next) {
     }
     next();
 };
+
+exports.create_raw_material = function (req, res, next) {
+  const schema = Joi.object({
+      name: Joi.string().required(),
+      rate_per_kg: Joi.number().required(),
+      companyId: Joi.number().required(),
+  });
+  const { error } = schema.validate(req.body);
+  if (error) {
+      return res.status(400).json({ status: "false", message: error.message });
+  }
+  next();
+}
+
+exports.update_raw_material = function (req, res, next) {
+    const schema = Joi.object({
+        name: Joi.string(),
+        rate_per_kg: Joi.number(),
+    });
+    const { error } = schema.validate(req.body);
+    if (error) {
+        return res.status(400).json({ status: "false", message: error.message });
+    }
+    next();
+}
+
+exports.create_recipe = function (req, res, next) {
+  const schema = Joi.object({
+      name: Joi.string().required(),
+      total_usage: Joi.number(),
+      total_amount: Joi.number(),
+      per_kg_value: Joi.number(),
+      production_cost: Joi.number(),
+      final_value: Joi.number(),
+      items: Joi.array().required(),
+      companyId: Joi.number().required(),
+  });
+  const { error } = schema.validate(req.body);
+  if (error) {
+      return res.status(400).json({ status: "false", message: error.message });
+  }
+  next();
+}
+
+exports.update_recipe = function (req, res, next) {
+  const schema = Joi.object({
+      name: Joi.string(),
+      total_usage: Joi.number(),
+      total_amount: Joi.number(),
+      per_kg_value: Joi.number(),
+      production_cost: Joi.number(),
+      final_value: Joi.number(),
+      items: Joi.array(),
+  });
+  const { error } = schema.validate(req.body);
+  if (error) {
+      return res.status(400).json({ status: "false", message: error.message });
+  }
+  next();
+}

@@ -45,5 +45,7 @@ router.use('/systemSettings', require('./systemSettings'))
 router.use('/holiday', require('./holiday'))
 router.use('/orderProcessing', require('./orderProcessingRoute'))
 router.use('/selfExpense', require('./selfExpense'))
+router.use('/raw-material', require('./RawMaterial'))
+router.use('/recipe', require('./recipe'))
 
 module.exports = router;

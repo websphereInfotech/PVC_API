@@ -32,5 +32,8 @@
     "sequelize": "^6.37.3",
     "ssh2": "^1.17.0",
     "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.6.5"
   }
 }

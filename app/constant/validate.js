@@ -106,7 +106,11 @@ const {
   againstIds,
   finished_goods,
   raw_material,
-  spare_item
+  spare_item,
+  create_raw_material,
+  update_raw_material,
+  create_recipe,
+  update_recipe
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -366,31 +370,13 @@ module.exports.validation = function (method) {
     case "update_stock":
       return [update_itemStock];
     case "create_raw_material":
-      return [
-        itemtype,
-        productname,
-        unit,
-        nagativeqty,
-        gstrate,
-        lowstock,
-        salesprice,
-        HSNcode,
-        purchaseprice,
-        weight,
-      ];
+      return [create_raw_material];
     case "update_raw_material":
-      return [
-        itemtype,
-        productname,
-        unit,
-        nagativeqty,
-        gstrate,
-        lowstock,
-        salesprice,
-        HSNcode,
-        purchaseprice,
-        weight,
-      ];
+      return [update_raw_material];
+    case "create_recipe":
+        return [create_recipe];
+    case "update_recipe":
+        return [update_recipe];
     case "add_user_bank_account":
       return [accountname, bankname, accountnumber, ifsccode, branch];
     case "add_salary_payment":

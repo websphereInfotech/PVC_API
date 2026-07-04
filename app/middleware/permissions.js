@@ -2519,5 +2519,81 @@ exports.permissions = {
             "view_selfExpense": true,
             "view_all_selfExpense": true
         }
+    },
+    "RawMaterial": {
+        "Super Admin": {
+            "create": true,
+            "update": true,
+            "delete": true,
+            "view_all": true
+        },
+        "Admin": {
+            "create": true,
+            "update": true,
+            "delete": true,
+            "view_all": true
+        },
+        "Account": {
+            "create": true,
+            "update": true,
+            "delete": true,
+            "view_all": true
+        },
+        "Employee": {
+            "create": true,
+            "update": true,
+            "delete": true,
+            "view_all": true
+        },
+        "Workers": {
+            "create": true,
+            "update": true,
+            "delete": true,
+            "view_all": true
+        },
+        "Other": {
+            "create": true,
+            "update": true,
+            "delete": true,
+            "view_all": true
+        }
+    },
+    "Recipe": {
+        "Super Admin": {
+            "create": true,
+            "update": true,
+            "delete": true,
+            "view_all": true
+        },
+        "Admin": {
+            "create": true,
+            "update": true,
+            "delete": true,
+            "view_all": true
+        },
+        "Account": {
+            "create": true,
+            "update": true,
+            "delete": true,
+            "view_all": true
+        },
+        "Employee": {
+            "create": true,
+            "update": true,
+            "delete": true,
+            "view_all": true
+        },
+        "Workers": {
+            "create": true,
+            "update_permission": true,
+            "delete_permission": true,
+            "view_all_permission": true
+        },
+        "Other": {
+            "create": true,
+            "update": true,
+            "delete": true,
+            "view_all": true
+        }
     }
 }
