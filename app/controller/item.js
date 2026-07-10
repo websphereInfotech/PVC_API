@@ -1,10 +1,72 @@
 const item = require("../models/product");
 const Stock = require("../models/stock");
 const User = require("../models/user");
+const ItemType = require("../models/ItemType");
 const ItemGroup = require("../models/ItemGroup");
 const ItemCategory = require("../models/ItemCategory");
 const ItemSubCategory = require("../models/ItemSubCategory");
 const {Op, Sequelize} = require("sequelize");
+
+const itemIncludes = [
+  { model: ItemType, as: "itemType" },
+  { model: ItemGroup, as: "itemGroup" },
+  { model: ItemCategory, as: "itemCategory" },
+  { model: ItemSubCategory, as: "itemSubCategory" },
+];
+
+const auditIncludes = [
+  { model: User, as: "productUpdateUser", attributes: ["username"] },
+  { model: User, as: "productCreateUser", attributes: ["username"] },
+];
+
+const validateItemHierarchy = async ({ itemTypeId, itemGroupId, itemCategoryId, itemSubCategoryId, companyId }) => {
+  const itemTypeExist = await ItemType.findOne({
+    where: {
+      id: itemTypeId,
+      companyId: companyId,
+    },
+  });
+  if (!itemTypeExist) {
+    return { statusCode: 404, message: "Item Type not found." };
+  }
+
+  const itemGroupExist = await ItemGroup.findOne({
+    where: {
+      id: itemGroupId,
+      itemTypeId: itemTypeId,
+      companyId: companyId,
+    },
+  });
+  if (!itemGroupExist) {
+    return { statusCode: 404, message: "Item Group not Found." };
+  }
+
+  const itemCategoryItemExist = await ItemCategory.findOne({
+    where: {
+      id: itemCategoryId,
+      itemGroupId: itemGroupId,
+      companyId: companyId,
+    },
+  });
+  if (!itemCategoryItemExist) {
+    return { statusCode: 404, message: "Item Category Not Found." };
+  }
+
+  if (itemSubCategoryId) {
+    const itemSubCategoryItemExist = await ItemSubCategory.findOne({
+      where: {
+        id: itemSubCategoryId,
+        itemCategoryId: itemCategoryId,
+        companyId: companyId,
+      },
+    });
+    if (!itemSubCategoryItemExist) {
+      return { statusCode: 404, message: "Item Sub Category Not Found." };
+    }
+  }
+
+  return null;
+};
 
 /*=============================================================================================================
                                           Without Type C API
@@ -13,9 +75,10 @@ const {Op, Sequelize} = require("sequelize");
 exports.create_item = async (req, res) => {
   try {
     const {
-      itemtype,
+      itemTypeId,
       productname,
       description,
+      size,
       itemGroupId, itemCategoryId,itemSubCategoryId,
       unit,
       bankdetail,
@@ -44,10 +107,17 @@ exports.create_item = async (req, res) => {
     if (weight === "") {
       weight = null;
     }
+    const normalizedItemSubCategoryId = itemSubCategoryId || null;
     const productNameExist = await item.findOne({
       where: {
         companyId: companyId,
         productname: productname,
+        itemTypeId,
+        itemGroupId,
+        itemCategoryId,
+        itemSubCategoryId: normalizedItemSubCategoryId,
+        size: size || null,
+        weight,
         isActive: true
       }
     });
@@ -57,51 +127,27 @@ exports.create_item = async (req, res) => {
         message: "Product already exists."
       })
     }
-    const itemGroupExist = await ItemGroup.findOne({
-      where: {
-        id: itemGroupId,
-        companyId: companyId,
-      }
-    })
-    if(!itemGroupExist){
-      return res.status(404).json({
-        status: "false",
-        message: "Item Group not Found."
-      })
-    }
-    const itemCategoryItemExist = await ItemCategory.findOne({
-      where: {
-        id: itemCategoryId,
-        itemGroupId: itemGroupId,
-        companyId: companyId,
-      }
-    });
-    if(!itemCategoryItemExist){
-      return res.status(404).json({
-        status: "false",
-        message: "Item Category Not Found."
-      })
-    }
-    const itemSubCategoryItemExist = await ItemSubCategory.findOne({
-      where: {
-        id: itemSubCategoryId,
-        itemCategoryId: itemCategoryId,
-        companyId: companyId,
-      }
-    });
-    if(!itemSubCategoryItemExist){
-      return res.status(404).json({
-        status: "false",
-        message: "Item Sub Category Not Found."
-      })
-    }
-    const data = await item.create({
-      itemtype,
-      productname,
-      description,
+    const hierarchyError = await validateItemHierarchy({
+      itemTypeId,
       itemGroupId,
       itemCategoryId,
-      itemSubCategoryId,
+      itemSubCategoryId: normalizedItemSubCategoryId,
+      companyId,
+    });
+    if (hierarchyError) {
+      return res.status(hierarchyError.statusCode).json({
+        status: "false",
+        message: hierarchyError.message,
+      });
+    }
+    const data = await item.create({
+      itemTypeId,
+      productname,
+      description,
+      size,
+      itemGroupId,
+      itemCategoryId,
+      itemSubCategoryId: normalizedItemSubCategoryId,
       unit,
       bankdetail,
       openingstock,
@@ -128,7 +174,7 @@ exports.create_item = async (req, res) => {
       productId: data.id,
   })
     const productData = await item.findByPk(data.id, {
-      include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
+      include: [...auditIncludes, ...itemIncludes]
     })
 
     return res.status(200).json({
@@ -147,9 +193,10 @@ exports.update_item = async (req, res) => {
   try {
     const { id } = req.params;
     const {
-      itemtype,
+      itemTypeId,
       productname,
       description,
+      size,
       itemGroupId, itemCategoryId, itemSubCategoryId,
       unit,
       bankdetail,
@@ -178,11 +225,19 @@ exports.update_item = async (req, res) => {
     if (weight === "") {
       weight = null;
     }
+    const normalizedItemSubCategoryId = itemSubCategoryId || null;
 
     const productNameExist = await item.findOne({
       where: {
         companyId: companyId,
         productname: productname,
+        itemTypeId,
+        itemGroupId,
+        itemCategoryId,
+        itemSubCategoryId: normalizedItemSubCategoryId,
+        size: size || null,
+        weight,
+        isActive: true,
         id: {
           [Sequelize.Op.ne]: id
         }}
@@ -204,53 +259,29 @@ exports.update_item = async (req, res) => {
         .json({ status: "false", message: "Item Not Found" });
     }
 
-    const itemGroupExist = await ItemGroup.findOne({
-      where: {
-        id: itemGroupId,
-        companyId: companyId,
-      }
-    })
-    if(!itemGroupExist){
-      return res.status(404).json({
-        status: "false",
-        message: "Item Group not Found."
-      })
-    }
-    const itemCategoryItemExist = await ItemCategory.findOne({
-      where: {
-        id: itemCategoryId,
-        itemGroupId: itemGroupId,
-        companyId: companyId,
-      }
+    const hierarchyError = await validateItemHierarchy({
+      itemTypeId,
+      itemGroupId,
+      itemCategoryId,
+      itemSubCategoryId: normalizedItemSubCategoryId,
+      companyId,
     });
-    if(!itemCategoryItemExist){
-      return res.status(404).json({
+    if (hierarchyError) {
+      return res.status(hierarchyError.statusCode).json({
         status: "false",
-        message: "Item Category Not Found."
-      })
-    }
-    const itemSubCategoryItemExist = await ItemSubCategory.findOne({
-      where: {
-        id: itemSubCategoryId,
-        itemCategoryId: itemCategoryId,
-        companyId: companyId,
-      }
-    });
-    if(!itemSubCategoryItemExist){
-      return res.status(404).json({
-        status: "false",
-        message: "Item Sub Category Not Found."
-      })
+        message: hierarchyError.message,
+      });
     }
 
     await item.update(
       {
-        itemtype: itemtype,
+        itemTypeId: itemTypeId,
         productname: productname,
         description: description,
+        size: size,
         itemGroupId: itemGroupId,
         itemCategoryId: itemCategoryId,
-        itemSubCategoryId: itemSubCategoryId,
+        itemSubCategoryId: normalizedItemSubCategoryId,
         unit: unit,
         bankdetail: bankdetail,
         openingstock: openingstock,
@@ -277,7 +308,7 @@ exports.update_item = async (req, res) => {
     );
     const data = await item.findOne({
       where: { id: id, companyId: req.user.companyId, isActive: true },
-      include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
+      include: [...auditIncludes, ...itemIncludes]
     });
     return res.status(200).json({
       status: "true",
@@ -322,7 +353,7 @@ exports.view_item = async (req, res) => {
 
     const data = await item.findOne({
       where: { id: id, companyId: req.user.companyId, isActive: true },
-      include: [{model: ItemGroup, as: "itemGroup"}, {model: ItemCategory, as: "itemCategory"}, {model: ItemSubCategory, as: "itemSubCategory"}]
+      include: itemIncludes
     });
 
     if (!data) {
@@ -352,7 +383,7 @@ exports.get_all_items = async (req, res) => {
     }
     const data = await item.findAll({
       where: whereClause,
-      include: [{model: User, as: "productUpdateUser", attributes: ['username']},{model: User, as: "productCreateUser", attributes: ['username']}]
+      include: [...auditIncludes, ...itemIncludes]
     });
     if (!data) {
       return res

@@ -36,7 +36,6 @@ const {
   creditlimit,
   balance,
   cashOpeningBalance,
-  itemtype,
   productname,
   nagativeqty,
   lowstock,
@@ -85,6 +84,7 @@ const {
   machineId,
   cost,
   name,
+  itemTypeId,
   itemGroupId,
   itemCategoryId,
   itemSubCategoryId,
@@ -110,7 +110,9 @@ const {
   create_raw_material,
   update_raw_material,
   create_recipe,
-  update_recipe
+  update_recipe,
+  create_costing_setting,
+  update_costing_setting
 } = require("./validation");
 
 module.exports.validation = function (method) {
@@ -219,7 +221,7 @@ module.exports.validation = function (method) {
       ];
     case "create_item":
       return [
-        itemtype,
+        itemTypeId,
         productname,
         itemGroupId,
         itemCategoryId,
@@ -238,7 +240,7 @@ module.exports.validation = function (method) {
       ];
     case "update_item":
       return [
-        itemtype,
+        itemTypeId,
         productname,
         itemGroupId,
         itemCategoryId,
@@ -377,6 +379,10 @@ module.exports.validation = function (method) {
         return [create_recipe];
     case "update_recipe":
         return [update_recipe];
+    case "create_costing_setting":
+        return [create_costing_setting];
+    case "update_costing_setting":
+        return [update_costing_setting];
     case "add_user_bank_account":
       return [accountname, bankname, accountnumber, ifsccode, branch];
     case "add_salary_payment":
@@ -390,6 +396,8 @@ module.exports.validation = function (method) {
     case "create_breakdown_maintenance":
       return [machineId, date, cost];
     case "create_itemGroup":
+      return [name, itemTypeId];
+    case "create_itemType":
       return [name];
     case "create_itemCategory":
       return [name, itemGroupId];

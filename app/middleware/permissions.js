@@ -1311,11 +1311,56 @@ exports.permissions = {
             "total_purchase" : true
         }
     },
+    "Item Type" : {
+        "Super Admin" :{
+            "create_itemType":true,
+            "view_single_itemType": true,
+            "view_all_itemType": true,
+            "update_itemType": true,
+            "delete_itemType": true
+        },
+        "Admin" :{
+            "create_itemType":true,
+            "view_single_itemType": true,
+            "view_all_itemType": true,
+            "update_itemType": true,
+            "delete_itemType": true
+        },
+        "Account" :{
+            "create_itemType":true,
+            "view_single_itemType": true,
+            "view_all_itemType": true,
+            "update_itemType": true,
+            "delete_itemType": true
+        },
+        "Employee" :{
+            "create_itemType":true,
+            "view_single_itemType": true,
+            "view_all_itemType": true,
+            "update_itemType": true,
+            "delete_itemType": true
+        },
+        "Workers" :{
+            "create_itemType":true,
+            "view_single_itemType": true,
+            "view_all_itemType": true,
+            "update_itemType": true,
+            "delete_itemType": true
+        },
+        "Other" :{
+            "create_itemType":true,
+            "view_single_itemType": true,
+            "view_all_itemType": true,
+            "update_itemType": true,
+            "delete_itemType": true
+        }
+    },
     "Item Group" : {
         "Super Admin" :{
             "create_itemGroup":true,
             "view_single_itemGroup": true,
             "view_all_itemGroup": true,
+            "view_all_itemGroup_type": true,
             "update_itemGroup": true,
             "delete_itemGroup": true
         },
@@ -1323,6 +1368,7 @@ exports.permissions = {
             "create_itemGroup":true,
             "view_single_itemGroup": true,
             "view_all_itemGroup": true,
+            "view_all_itemGroup_type": true,
             "update_itemGroup": true,
             "delete_itemGroup": true
         },
@@ -1330,6 +1376,7 @@ exports.permissions = {
             "create_itemGroup":true,
             "view_single_itemGroup": true,
             "view_all_itemGroup": true,
+            "view_all_itemGroup_type": true,
             "update_itemGroup": true,
             "delete_itemGroup": true
         },
@@ -1337,6 +1384,7 @@ exports.permissions = {
             "create_itemGroup":true,
             "view_single_itemGroup": true,
             "view_all_itemGroup": true,
+            "view_all_itemGroup_type": true,
             "update_itemGroup": true,
             "delete_itemGroup": true
         },
@@ -1344,6 +1392,7 @@ exports.permissions = {
             "create_itemGroup":true,
             "view_single_itemGroup": true,
             "view_all_itemGroup": true,
+            "view_all_itemGroup_type": true,
             "update_itemGroup": true,
             "delete_itemGroup": true
         },
@@ -1351,6 +1400,7 @@ exports.permissions = {
             "create_itemGroup":true,
             "view_single_itemGroup": true,
             "view_all_itemGroup": true,
+            "view_all_itemGroup_type": true,
             "update_itemGroup": true,
             "delete_itemGroup": true
         }
@@ -2593,6 +2643,50 @@ exports.permissions = {
             "create": true,
             "update": true,
             "delete": true,
+            "view_all": true
+        }
+    },
+    "Costing Setting": {
+        "Super Admin": {
+            "create": true,
+            "update": true,
+            "delete": true,
+            "view": true,
+            "view_all": true
+        },
+        "Admin": {
+            "create": true,
+            "update": true,
+            "delete": true,
+            "view": true,
+            "view_all": true
+        },
+        "Account": {
+            "create": true,
+            "update": true,
+            "delete": true,
+            "view": true,
+            "view_all": true
+        },
+        "Employee": {
+            "create": true,
+            "update": true,
+            "delete": true,
+            "view": true,
+            "view_all": true
+        },
+        "Workers": {
+            "create": true,
+            "update": true,
+            "delete": true,
+            "view": true,
+            "view_all": true
+        },
+        "Other": {
+            "create": true,
+            "update": true,
+            "delete": true,
+            "view": true,
             "view_all": true
         }
     }

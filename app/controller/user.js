@@ -340,7 +340,7 @@ exports.user_login = async (req, res) => {
       });
     }
 
-    /*if (process.env.RECAPTCHA_SECRET_KEY) {
+    if (process.env.RECAPTCHA_SECRET_KEY) {
       if (!recaptchaToken || typeof recaptchaToken !== "string") {
         return res.status(400).json({
           status: "false",
@@ -363,7 +363,7 @@ exports.user_login = async (req, res) => {
           message: "Invalid or expired reCAPTCHA. Please try again.",
         });
       }
-    }*/
+    }
 
     const user = await User.findOne({ where: { mobileno } });
     if (!user) {

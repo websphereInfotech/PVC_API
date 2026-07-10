@@ -1001,21 +1001,6 @@ exports.cashOpeningBalance = function (req, res, next) {
   next();
 };
 
-exports.itemtype = function (req, res, next) {
-  const { itemtype } = req.body;
-  const itemtypeSchema = Joi.string()
-
-    .required()
-    .messages({
-      "any.required": "Required Field : Itemtype",
-      "string.empty": "Itemtype Cannot Be Empty",
-    });
-  const { error } = itemtypeSchema.validate(itemtype);
-  if (error) {
-    return res.status(400).json({ status: "False", message: error.message });
-  }
-  next();
-};
 exports.productname = function (req, res, next) {
   const { productname } = req.body;
   const productnameSchema = Joi.string()
@@ -1090,11 +1075,11 @@ exports.purchaseprice = function (req, res, next) {
 };
 exports.salesprice = function (req, res, next) {
   const { salesprice } = req.body;
-  const salespriceSchema = Joi.number().greater(0).required().messages({
+  const salespriceSchema = Joi.number().min(0).required().messages({
     "any.required": "Required Field : Sales Price",
     "number.empty": "Sales Price Cannot Be Empty",
     "number.base": "Sales Price must be a number",
-    "number.greater": "Sales Price must be greater than 0.",
+    "number.min": "Sales Price cannot be negative.",
   });
   const valueToValidate = salesprice === "" ? undefined : salesprice;
   const { error } = salespriceSchema.validate(valueToValidate);
@@ -1509,9 +1494,12 @@ exports.HSNcode = function (req, res, next) {
     .integer()
     .required()
     .custom((value, helpers) => {
+      if (value === 0) {
+        return value;
+      }
       const length = value.toString().length;
       if (length !== 4 && length !== 6 && length !== 8) {
-        return helpers.message("HSN Code must be 4, 6, or 8 digits");
+        return helpers.message("HSN Code must be 0 or 4, 6, or 8 digits");
       }
       return value;
     })
@@ -1658,9 +1646,10 @@ exports.validateCredit = function (req, res, next) {
 
 exports.weight = function (req, res, next) {
   const { weight } = req.body;
-  const weightSchema = Joi.number().greater(0).allow(null).messages({
+  const weightSchema = Joi.number().min(0).required().messages({
+    "any.required": "The weight field is required.",
     "number.base": "The weight must be a number.",
-    "number.greater": "Weight must be greater than 0.",
+    "number.min": "Weight cannot be negative.",
   });
   const valueToValidate = weight === "" ? undefined : weight;
   const { error } = weightSchema.validate(valueToValidate);
@@ -2096,6 +2085,20 @@ exports.itemGroupId = async function (req, res, next) {
   return next();
 };
 
+exports.itemTypeId = async function (req, res, next) {
+  const { itemTypeId } = req.body;
+  const itemTypeIdSchema = Joi.number().required().messages({
+    "number.base": "Item Type must be a number",
+    "any.required": "Required Field : Item Type",
+  });
+  const valueToValidate = itemTypeId === "" ? undefined : itemTypeId;
+  const { error } = itemTypeIdSchema.validate(valueToValidate);
+  if (error) {
+    return res.status(400).json({ status: "false", message: error.message });
+  }
+  return next();
+};
+
 exports.itemCategoryId = async function (req, res, next) {
   const { itemCategoryId } = req.body;
   const iteCategoryIdSchema = Joi.number().required().messages({
@@ -2112,11 +2115,10 @@ exports.itemCategoryId = async function (req, res, next) {
 
 exports.itemSubCategoryId = async function (req, res, next) {
   const { itemSubCategoryId } = req.body;
-  const itemSubCategoryIdSchema = Joi.number().required().messages({
-    "number.base": "Item Category must be a number",
-    "any.required": "Required Field : Item Category",
+  const itemSubCategoryIdSchema = Joi.number().allow(null).optional().messages({
+    "number.base": "Item Sub Category must be a number",
   });
-  const valueToValidate = itemSubCategoryId === "" ? undefined : itemSubCategoryId;
+  const valueToValidate = itemSubCategoryId === "" ? null : itemSubCategoryId;
   const { error } = itemSubCategoryIdSchema.validate(valueToValidate);
   if (error) {
     return res.status(400).json({ status: "false", message: error.message });
@@ -2844,6 +2846,70 @@ exports.update_recipe = function (req, res, next) {
       final_value: Joi.number(),
       items: Joi.array(),
   });
+  const { error } = schema.validate(req.body);
+  if (error) {
+      return res.status(400).json({ status: "false", message: error.message });
+  }
+  next();
+}
+
+exports.create_costing_setting = function (req, res, next) {
+  const schema = Joi.object({
+    companyId: Joi.number().integer(),
+    business_id: Joi.number().integer(),
+    resinRate: Joi.number().default(0),
+    brassRate: Joi.number().default(0),
+    profitMargin: Joi.number().default(0),
+    multiplier: Joi.number().default(0),
+    tierMargins: Joi.object({
+      star: Joi.number().default(0),
+      gold: Joi.number().default(0),
+      silver: Joi.number().default(0),
+    }),
+    starMargin: Joi.number().default(0),
+    goldMargin: Joi.number().default(0),
+    silverMargin: Joi.number().default(0),
+    refMargin: Joi.number().default(0),
+    cdMargin: Joi.number().default(0),
+    todMargin: Joi.number().default(0),
+    discountBaseColumn: Joi.string().valid("net", "star", "gold", "silver").default("net"),
+    recipeId: Joi.number().integer().allow(null),
+    itemTypeId: Joi.number().integer().allow(null),
+    itemGroupId: Joi.number().integer().allow(null),
+    itemCategoryId: Joi.number().integer().allow(null),
+    itemSubCategoryId: Joi.number().integer().allow(null),
+  }).or("companyId", "business_id");
+  const { error } = schema.validate(req.body);
+  if (error) {
+      return res.status(400).json({ status: "false", message: error.message });
+  }
+  next();
+}
+
+exports.update_costing_setting = function (req, res, next) {
+  const schema = Joi.object({
+    resinRate: Joi.number(),
+    brassRate: Joi.number(),
+    profitMargin: Joi.number(),
+    multiplier: Joi.number(),
+    tierMargins: Joi.object({
+      star: Joi.number(),
+      gold: Joi.number(),
+      silver: Joi.number(),
+    }),
+    starMargin: Joi.number(),
+    goldMargin: Joi.number(),
+    silverMargin: Joi.number(),
+    refMargin: Joi.number(),
+    cdMargin: Joi.number(),
+    todMargin: Joi.number(),
+    discountBaseColumn: Joi.string().valid("net", "star", "gold", "silver"),
+    recipeId: Joi.number().integer().allow(null),
+    itemTypeId: Joi.number().integer().allow(null),
+    itemGroupId: Joi.number().integer().allow(null),
+    itemCategoryId: Joi.number().integer().allow(null),
+    itemSubCategoryId: Joi.number().integer().allow(null),
+  }).min(1);
   const { error } = schema.validate(req.body);
   if (error) {
       return res.status(400).json({ status: "false", message: error.message });

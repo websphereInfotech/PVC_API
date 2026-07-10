@@ -734,7 +734,7 @@ The `P_shift` model represents a work shift.
 
 The `P_product` model represents a product or service.
 
-- **`itemtype`**: (Enum) The type of item. Possible values are 'Product' and 'Service'.
+- **`itemTypeId`**: (Integer) The linked Item Type ID. This replaces the older `itemtype` enum/string field.
 - **`productname`**: (String) The name of the product.
 - **`description`**: (String) A description of the product.
 - **`itemGroupId`**: (Integer) The ID of the item group this product belongs to.

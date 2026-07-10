@@ -8,6 +8,12 @@
     "migrate-undo": "npx sequelize-cli db:migrate:undo --config app/config/config.js --migrations-path app/migrations",
     "migrate-generate": "npx sequelize-cli model:generate --name permission --attributes role:string,resourse:string,permissionValue:boolean,permission:string --models-path app/models --migrations-path app/migrations",
     "migrate-run": "npx sequelize-cli db:migrate --config app/config/config.js --migrations-path app/migrations",
+    "import-static-pipes:preview": "node app/util/importStaticPipeProducts.js",
+    "import-static-pipes:apply": "node app/util/importStaticPipeProducts.js --apply",
+    "import-static-pipes:verify": "node app/util/importStaticPipeProducts.js --verify",
+    "import-static-pipes:normalize": "node app/util/importStaticPipeProducts.js --normalize",
+    "import-static-pipes:sync-names": "node app/util/importStaticPipeProducts.js --sync-product-names",
+    "import-static-pipes:cleanup-old": "node app/util/importStaticPipeProducts.js --sync-product-names --cleanup-old --normalize",
     "seeder-undo": "npx sequelize-cli db:seed:undo --config app/config/config.js --seeders-path app/seeders",
     "seeder-all": "npx sequelize-cli db:seed:all --config app/config/config.js --seeders-path app/seeders",
     "seeder-generate": "npx sequelize-cli seed:generate --name demo-permissions --seeders-path app/seeders"

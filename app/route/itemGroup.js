@@ -6,6 +6,7 @@ const {
   update_itemGroup,
     view_itemGroup,
     get_all_itemGroup,
+    get_all_itemGroup_by_type,
   delete_itemGroup
 } = require("../controller/itemGroup");
 
@@ -33,6 +34,12 @@ router.get(
   "/get_all_itemgroup",
   adminAuth("Item Group:view_all_itemGroup"),
   get_all_itemGroup
+);
+
+router.get(
+    "/get_all_itemGroup_by_type/:typeId",
+    adminAuth("Item Group:view_all_itemGroup_type"),
+    get_all_itemGroup_by_type
 );
 
 router.delete(

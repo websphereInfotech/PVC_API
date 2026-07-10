@@ -1,15 +1,28 @@
 const ItemGroup = require("../models/ItemGroup");
+const ItemType = require("../models/ItemType");
 const User = require("../models/user");
 const {Sequelize, Op} = require("sequelize");
 
 exports.create_itemGroup = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, itemTypeId } = req.body;
     const {companyId, userId} = req.user
+    const itemTypeExist = await ItemType.findOne({
+        where: {
+            id: itemTypeId,
+            companyId: companyId
+        }
+    });
+    if (!itemTypeExist) {
+      return res
+        .status(404)
+        .json({ status: "false", message: "Item Type not found." });
+    }
     const existingGroup = await ItemGroup.findOne({
         where: {
             name: name,
-            companyId: companyId
+            companyId: companyId,
+            itemTypeId: itemTypeId
         }
     });
     if (existingGroup) {
@@ -19,6 +32,7 @@ exports.create_itemGroup = async (req, res) => {
     }
     const data = await ItemGroup.create({
       name: name,
+        itemTypeId: itemTypeId,
         companyId: companyId,
         updatedBy: userId,
         createdBy: userId
@@ -39,9 +53,20 @@ exports.create_itemGroup = async (req, res) => {
 };
 exports.update_itemGroup = async (req, res) => {
     try {
-        const { name } = req.body;
+        const { name, itemTypeId } = req.body;
         const {id} = req.params;
         const {companyId, userId} = req.user;
+        const itemTypeExist = await ItemType.findOne({
+            where: {
+                id: itemTypeId,
+                companyId: companyId
+            }
+        });
+        if (!itemTypeExist) {
+            return res
+                .status(404)
+                .json({ status: "false", message: "Item Type not found." });
+        }
         const group = await  ItemGroup.findOne({
             where: {
                 id,
@@ -57,6 +82,7 @@ exports.update_itemGroup = async (req, res) => {
             where: {
                 name: name,
                 companyId: companyId,
+                itemTypeId: itemTypeId,
                 id: {
                     [Sequelize.Op.ne]: id
                 }
@@ -69,6 +95,7 @@ exports.update_itemGroup = async (req, res) => {
         }
         const data = await ItemGroup.update({
             name: name,
+            itemTypeId: itemTypeId,
             updatedBy: userId,
         }, {
             where: {
@@ -104,6 +131,10 @@ exports.view_itemGroup = async (req, res) => {
             {
                 model: User,
                 as: "groupCreateUser"
+            },
+            {
+                model: ItemType,
+                as: "ItemType"
             }
         ]
     });
@@ -175,6 +206,10 @@ exports.get_all_itemGroup = async (req, res) => {
             {
                 model: User,
                 as: "groupCreateUser"
+            },
+            {
+                model: ItemType,
+                as: "ItemType"
             }
         ]
     });
@@ -192,5 +227,41 @@ exports.get_all_itemGroup = async (req, res) => {
     return res
       .status(500)
       .json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
+exports.get_all_itemGroup_by_type = async (req, res) => {
+  try {
+      const {typeId} = req.params;
+      const companyId = req.user.companyId;
+      const itemType = await ItemType.findOne({
+          where: {
+              id: typeId,
+              companyId: companyId
+          },
+      });
+      if(!itemType){
+          return res
+              .status(404)
+              .json({ status: "false", message: "Item Type Not Found." });
+      }
+      const data = await ItemGroup.findAll({
+          where: {
+              companyId: companyId,
+              itemTypeId: itemType.id
+          }
+      });
+      return res
+          .status(200)
+          .json({
+              status: "true",
+              message: "All Item Group Fetch Successfully.",
+              data: data,
+          });
+  } catch (error) {
+      console.log(error.message);
+      return res
+          .status(500)
+          .json({ status: "false", message: "Internal Server Error" });
   }
 };

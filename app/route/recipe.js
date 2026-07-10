@@ -5,6 +5,11 @@ const adminAuth = require("../middleware/adminAuth");
 const { validation } = require("../constant/validate");
 
 router.get(
+    "/view/:id",
+    adminAuth("Recipe:view_all"),
+    recipeController.view
+);
+router.get(
     "/:businessId", 
     adminAuth("Recipe:view_all"),
     recipeController.getAllByBusiness

@@ -5,17 +5,22 @@ const User = require("./user");
 const ItemGroup = require("./ItemGroup");
 const ItemCategory = require("./ItemCategory");
 const ItemSubCategory = require("./ItemSubCategory");
+const ItemType = require("./ItemType");
 
 const product = sequelize.define("P_product", {
-  itemtype: {
-    type: DataTypes.ENUM("Product", "Service"),
-    allowNull: false,
+  itemTypeId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
   },
   productname: {
     type: DataTypes.STRING,
   },
   description: {
     type: DataTypes.STRING,
+  },
+  size: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
   itemGroupId: {
     type: DataTypes.INTEGER,
@@ -108,5 +113,8 @@ product.belongsTo(ItemCategory, {foreignKey: "itemCategoryId", as: "itemCategory
 
 ItemSubCategory.hasMany(product, {foreignKey: "itemSubCategoryId", as: "itemSubCategory", onDelete: "CASCADE"});
 product.belongsTo(ItemSubCategory, {foreignKey: "itemSubCategoryId", as: "itemSubCategory", onDelete: "CASCADE"});
+
+ItemType.hasMany(product, { foreignKey: "itemTypeId", as: "products", onDelete: "SET NULL" });
+product.belongsTo(ItemType, { foreignKey: "itemTypeId", as: "itemType", onDelete: "SET NULL" });
 
 module.exports = product;

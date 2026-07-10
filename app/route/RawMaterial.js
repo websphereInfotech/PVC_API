@@ -5,9 +5,14 @@ const adminAuth = require("../middleware/adminAuth");
 const { validation } = require("../constant/validate");
 
 router.get(
+    "/view/:id",
+    adminAuth("RawMaterial:view_all"),
+    rawMaterialController.view
+);
+router.get(
     "/:businessId",
     adminAuth("RawMaterial:view_all"),      
-    rawMaterialController.getAllByBusiness
+    rawMaterialController.getAllByBusiness 
 );
 router.post(
     "/",
