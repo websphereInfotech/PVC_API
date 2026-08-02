@@ -363,6 +363,64 @@ exports.create_loyalty_order = async (req, res) => {
   }
 };
 
+exports.get_loyalty_orders = async (req, res) => {
+  if (!authenticateLoyaltyRequest(req, res)) return;
+
+  try {
+    const { loyaltyUserId, companyId } = req.query;
+
+    if (!loyaltyUserId) {
+      return res.status(400).json({ status: "false", message: "Loyalty User is required" });
+    }
+
+    if (!companyId) {
+      return res.status(400).json({ status: "false", message: "Company is required" });
+    }
+
+    const loyaltyUser = await LoyaltyUser.findByPk(loyaltyUserId);
+    if (!loyaltyUser) {
+      return res.status(404).json({ status: "false", message: "Loyalty User Not Found" });
+    }
+
+    if (!loyaltyUser.accountId) {
+      return res.status(403).json({
+        status: "false",
+        message: "Loyalty User is not mapped with any account",
+      });
+    }
+
+    const account = await Account.findOne({
+      where: { id: loyaltyUser.accountId, companyId, isActive: true },
+    });
+
+    if (!account) {
+      return res.status(404).json({ status: "false", message: "Mapped Account Not Found" });
+    }
+
+    const data = await C_OrderProcessing.findAll({
+      where: { accountId: account.id, companyId },
+      include: [
+        {
+          model: C_OrderProcessingItem,
+          as: "items",
+          include: [{ model: product, as: "orderProduct" }],
+        },
+        { model: Account, as: "orderAccount" },
+      ],
+      order: [["id", "DESC"]],
+    });
+
+    return res.status(200).json({
+      status: "true",
+      message: "Order Data Fetch Successfully",
+      data,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ status: "false", message: "Internal Server Error" });
+  }
+};
+
 exports.C_update_orderprocessing = async (req, res) => {
   try {
     const userId = req.user.userId;

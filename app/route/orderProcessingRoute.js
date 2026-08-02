@@ -10,6 +10,7 @@ const {
   C_Update_Status_orderprocessing,
   get_all_items_orderprocessing,
   create_loyalty_order,
+  get_loyalty_orders,
 } = require("../controller/OrderProcessing");
 
 const router = express.Router();
@@ -17,6 +18,10 @@ const router = express.Router();
 router.post(
   "/create_loyalty_order",
   create_loyalty_order
+);
+router.get(
+  "/get_loyalty_orders",
+  get_loyalty_orders
 );
 router.post(
   "/create_order_processing",
