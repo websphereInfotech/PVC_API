@@ -1,5 +1,5 @@
 const {Router} = require("express");
-const {view_all_account_group, create_account, view_one_account, update_account, view_all_account, delete_account, link_loyalty_user_account, C_view_all_account, view_all_bank_account, get_expense_id} = require("../controller/account");
+const {view_all_account_group, create_account, view_one_account, update_account, view_all_account, delete_account, link_loyalty_user_account, get_all_loyalty_users, C_view_all_account, view_all_bank_account, get_expense_id} = require("../controller/account");
 const adminAuth = require("../middleware/adminAuth");
 const {validation} = require("../constant/validate");
 
@@ -12,6 +12,7 @@ router.put("/update_account/:accountId",adminAuth("Account:update_account"), val
 router.get("/view_all_account",adminAuth("Account:view_all_account"), view_all_account);
 router.delete("/delete_account/:accountId",adminAuth("Account:delete_account"), delete_account);
 router.put("/link_loyalty_user/:accountId", adminAuth("Account:update_account"), link_loyalty_user_account);
+router.get("/get_all_loyalty_users", adminAuth("Account:update_account"), get_all_loyalty_users);
 router.get("/view_all_bank_account",adminAuth("Account:view_all_bank_account"), view_all_bank_account);
 
 router.get("/C_view_all_account",adminAuth("Account Cash:view_all_account"), C_view_all_account);

@@ -71,6 +71,11 @@ exports.view_one_account = async (req, res) => {
                 {
                     model: AccountDetail,
                     as: "accountDetail"
+                },
+                {
+                    model: LoyaltyUser,
+                    as: "loyaltyUsers",
+                    attributes: ["id", "first_name", "last_name", "mobile_number", "user_role"]
                 }
             ]
         })
@@ -274,6 +279,26 @@ exports.delete_account = async (req, res) => {
     }catch (e) {
         console.error(e);
         return res.status(500).json({status: "false", message: "Internal Server Error."})
+    }
+}
+
+exports.get_all_loyalty_users = async (req, res) => {
+    try {
+        const loyaltyUsers = await LoyaltyUser.findAll({
+            where: {
+                user_status: "Active"
+            },
+            attributes: ["id", "first_name", "last_name", "mobile_number", "user_role", "accountId"]
+        });
+
+        return res.status(200).json({
+            status: "true",
+            message: "Successfully Fetch Loyalty Users",
+            data: loyaltyUsers
+        });
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ status: "false", message: "Internal Server Error." });
     }
 }
 

@@ -52,7 +52,7 @@ router.put(
 );
 router.get(
   "/get_all_order_items",
-  adminAuth("Order Processing:create_order_processing"),
+  adminAuth("Order Processing:create_order_processing", { allowApiKey: true }),
   get_all_items_orderprocessing
 );
 module.exports = router;

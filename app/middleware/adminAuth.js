@@ -2,8 +2,16 @@ const jwt = require("jsonwebtoken");
 const tokenModel = require("../models/admintoken");
 const permissionData = require("../models/permission");
 
-const adminToken = (permissionString) => {
+const adminToken = (permissionString, options = {}) => {
   return async (req, res, next) => {
+    if (options.allowApiKey) {
+      const providedKey = req.headers["x-loyalty-api-key"];
+      const configuredKey = process.env.LOYALTY_API_KEY;
+      if (configuredKey && providedKey === configuredKey) {
+        return next();
+      }
+    }
+
     const token = req.headers["token"];
     if (!token) {
       return res.status(401).send({

@@ -601,9 +601,14 @@ exports.C_delete_orderprocessing = async (req, res) => {
 
 exports.get_all_items_orderprocessing = async (req, res) => {
   try {
+    const companyId = req.user ? req.user.companyId : req.query.companyId;
+    if (!companyId) {
+      return res.status(400).json({ status: "false", message: "Company is required" });
+    }
+
     const products = await product.findAll({
       where: {
-        companyId: req.user.companyId,
+        companyId,
         isActive: true,
       },
       attributes: ["id", "productname", "weight", "unit"],
@@ -624,7 +629,7 @@ exports.get_all_items_orderprocessing = async (req, res) => {
           as: "items",
           where: {
             status: "Pending",
-            companyId: req.user.companyId,
+            companyId,
           },
           attributes: [],
         },
